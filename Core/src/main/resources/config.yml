@@ -1,0 +1,19 @@
+Plugin:
+  Command_Aliases: advancedmobarena,ama
+  Language: en
+
+Database:
+  Auto_Save_Interval: 20
+  Sync_Interval: -1
+  Type: SQLITE
+  Table_Prefix: 'advancedmobarena'
+  MySQL:
+    Username: root
+    Password: root
+    Host: localhost
+    Database: minecraft
+  SQLite:
+    FileName: data.db
+  Purge:
+    Enabled: false
+    For_Period: 60

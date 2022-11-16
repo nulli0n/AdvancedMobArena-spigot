@@ -1,0 +1,316 @@
+Prefix: '&e高级怪物竞技场 &8» &7'
+Core:
+  Command:
+    Usage: '&c* 使用: &f/%label% %cmd% %usage%'
+    Help:
+      Format: '&6» &e/%label% %cmd% %usage% &7- %description%'
+      List:
+      - '&8&m━━━━━━━━━━━━&8&l[ &e&l高级怪物竞技场 &7- &6&l帮助 &8&l]&8&m━━━━━━━━━━━━'
+      - '%cmds%'
+      Desc: 显示帮助页面.
+    Editor:
+      Desc: 打开GUI编辑.
+    Info:
+      Desc: 关于插件信息.
+    Reload:
+      Desc: 重载插件.
+      Done: 插件重载成功!
+Time:
+  Day: d.
+  Hour: h.
+  Min: min.
+  Sec: sec.
+Other:
+  'Yes': '&a允许购买'
+  'No': '&c未拥有'
+Error:
+  NoPlayer: '&c玩家没找到.'
+  NoWorld: '&c地图没有找到.'
+  Number: '&7%num% &c不是一个有效数字.'
+  NoPerm: '&c你没有足够的权限!'
+  NoData: '&4获取数据时出错 &c%player%&4.'
+  Type: '错误类型. 可用: %types%'
+  Self: 不能用在自己身上.
+  Sender: 只有玩家能使用这条指令.
+Help:
+  Coins:
+  - '&2» &a/ama coins add <player> <amount> &7- 添加玩家硬币.'
+  - '&2» &a/ama coins take <player> <amount> &7- 扣除玩家硬币.'
+  - '&2» &a/ama coins set <player> <amount> &7- 设置玩家硬币.'
+  Hologram:
+  - '&2» &a/ama hologram add <stat type> [arena] &7- 在你当前的位置添加全息图.'
+  - '&2» &a/ama hologram remove &7- 移除附近的全息图.'
+Command:
+  Balance:
+    Desc: 显示竞技场余额.
+  Coins:
+    Desc: 显示硬币指令.
+    Usage: <add|take|set>
+    Add:
+      Usage: '&c使用: &f/ama coins add <player> <amount>'
+      Done: '&a添加 &f%coins% 硬币给 &a%player%''s &f余额!'
+    Take:
+      Usage: '&c使用: &f/ama coins take <player> <amount>'
+      Done: '&a扣除 &f%coins% 硬币从 &a%player%''s &f余额!'
+    Set:
+      Usage: '&c使用: &f/ama coins set <player> <amount>'
+      Done: '&a设置 &a%player%''s &f余额 &a%coins% 硬币&f!'
+  ForceStart:
+    Desc: 强制启动指定竞技场.
+    Usage: <arena>
+    Done: 竞技场已启动 &a%id%&7!
+    Error:
+      NotReady: 此竞技场尚未准备好开始或已在游戏中
+  ForceEnd:
+    Desc: 强制停止指定的竞技场
+    Usage: <arena>
+    Done: 竞技场已停止 &a%id%&7!
+    Error:
+      NotInGame: 竞技场 &c%id% &7没有在游戏中.
+  Holo:
+    Desc: 显示全息图指令.
+    Usage: <add|remove>
+    Remove:
+      Nothing: '&75块半径内无全息图.'
+      Done: '&7全息图删除了!'
+    Add:
+      Usage: '&c使用: &f/ama hologramm add <stat type> [arena]'
+      Done: '&7添加全息图 &a%type% &7状态!'
+  Join:
+    Desc: 加入指定 (或随机) 竞技场.
+    Usage: '[arena]'
+    Nothing: 没有能加入的竞技场.
+  Leave:
+    Desc: 离开当前竞技场.
+  List:
+    Desc: 显示全部竞技场.
+  Skipwave:
+    Desc: 跳过当前竞技场的这一波怪物.
+  Spectate:
+    Desc: 以观众身份加入指定竞技场.
+    Usage: <arena>
+  Shop:
+    Desc: 打开竞技场商店.
+  Stats:
+    Desc: 查看当前统计信息.
+Arena:
+  Disabled: 竞技场 &c%name% &7关闭.
+  Invalid: 竞技场 &c%id% &7没有运行.
+  Join:
+    Error:
+      Level: 你的等级太低，不能加入竞技场!
+      InGame: 你已经在一场游戏中!
+      ClearInv: 你的背包必须为空才能加入此竞技场!
+      Maximum: 竞技场满人了.
+      NoMoney: 你没有足够的游戏币 &7(&c%cost%&7) 进入这个竞技场 &a%name%&7!
+      Started: 竞技场 &a%name% &7已经开始. 你目前不能进入.
+    Success:
+      Free: 加入了&a%name%&7竞技场. &7祝你好运,玩的愉快!
+      Pay: 你支付了 &a%cost% 硬币 &7加入竞技场 &a%name%&7.
+      Spectate: 你已进入观战者模式 &a%name%
+  Leave:
+    Error:
+      NotInGame: 你没有在游戏中!
+    Success: 你离开了游戏.
+  Format:
+    Join:
+      'Yes': '&a&l点击加入竞技场!'
+      'No': '&c&l你不能加入竞技场.'
+Game:
+  Announce:
+    End: 游戏在竞技场 &a%name% &7开启了. 使用指令 &a/ama join &a%id% &7来加入游戏!
+    Start: 竞技场 &a%name% &7将在 &2%time% &7秒后开启. 使用指令 &a/ama join &a%id% &7加入竞技场!
+  Death:
+    Lives: '你死了. 现场损失: &c%lives%&7. 小心点!'
+    Player: '&c%player% &7已经被杀了 ;( 玩家离开: &a%players%'
+  Prepare:
+    Minimum: '开始的最少玩家: &c%min%'
+    StartIn: 距离开始还剩&a%time% &7秒!
+    Joined: '&a%player% &7加入了竞技场.'
+  Restrict:
+    EnderPearl: Ender pearl 在竞技场中被禁用!
+    Chorus: Chorus 在竞技场中被禁用!
+    Command: 你不能在游戏中使用这条这令e. 使用 &c/ama leave&7 离开游戏.
+    Kits: 在这个竞技场中不允许使用这个职业.
+    Pets: 这个竞技场不允许宠物进入,现在你的宠物在家中.
+  Start: 拿起武器战斗!
+  Wave:
+    Reward: '你得到了奖赏: &a%reward%'
+    New: '第 &a#%wave%波怪物浪潮&7. 等级: &c%level%'
+Coins:
+  Balance: '硬币余额: %coins% '
+  Get: 你得到了 &a%coins% 硬币&7!
+  Lost: 你失去了 &c%coins% 硬币&7!
+  Set: 你的余额已设置为 &a%coins% 硬币&7!
+Kit:
+  Buy:
+    Error:
+      AlreadyHave: '&c&o你已经拥有这个职业了!'
+      NoMoney: 你没有足够的硬币购买 &c%kit% &7职业!
+    Success: 你成功购买 &a%kit% &7花费了 &a%cost% &7硬币!
+  Select:
+    Error:
+      Disabled: 这个职业在竞技场中被禁用.
+      NotObtained: 你没有足够的职业!
+      Limit: 你不能选择这个职业,因为有太多玩家使用这个职业..
+      NoPerm: 你没有足够的权限使用 &c%kit%&7 职业!
+      MissingKit: 你必须先解锁它所需要的职业才能解锁它!
+    Success: 你选择了 &a%kit%&7.
+  Format:
+    RequiredKits:
+      List:
+      - '&7所需职业:'
+      - '%kits%'
+      Line: '&7• %kit% &7[%has-kit%&7]'
+Shop:
+  Buy:
+    Success:
+      Game: 你成功购买了 &a%item% &7花费 &a%cost% 硬币&7!
+      Lobby: 你成功购买了 &a%item% &7花费 &a%cost% 硬币&7! 竞技场开始后将会出现在你的背包中.
+    Error:
+      NoMoney: 你没有足够的硬币购买 &c%item%&7!
+  Open:
+    Error:
+      Kit: 你不能使用这个道具和你的职业一起使用!
+      NoAccess: 你没有权限访问 &c%s&7 类别!
+      NoGUI: GUI已经关闭!
+      Locked: 你必须达到 %wave%th 才能解锁这个商店!
+  Format:
+    Wave:
+      Locked: '&c» &7状态: &c锁定到 %wave%th wave &l✗'
+      UnLocked: '&a» &7状态: &a解锁到 %wave%th wave &l✓'
+    Price:
+      Locked: '&c» &7价格: &c%cost% 硬币 &l✗'
+      UnLocked: '&a» &7价格: &a%cost% 硬币 &l✓'
+    Category:
+      Access: '&c» &7状态: &c锁定 &l✗'
+      NoAccess: '&a» &7状态: &a解锁 &l✓'
+    Kits:
+      Line: '&e» %kit% &7[%my-kit%&7]'
+      List:
+      - '&e&l允许的职业:'
+      - '%kits%'
+Holograms:
+  Shop:
+    Item:
+    - '%icon%'
+    - '%name%'
+    - '%lore%'
+    - ''
+    - '%lock_state%'
+    - '%price%'
+    Wave:
+      Locked: '&c&l* 锁定到 %wave%th 怪物潮. *'
+      UnLocked: '&2&l* 解锁到 %wave%th 怪物潮. *'
+    Price: '&a&l» 购买 %price% 硬币 «'
+  Stats:
+    Header: '&8&m━━━━━━━━━━━━&8&l[ &a玩家排行 &2%type% &8&l]&8&m━━━━━━━━━━━━'
+    HeaderArena: '&8&m━━━━━━━━━━━━&8&l[ &a顶级状态 &2%type% &7在 &2%arena% &8&l]&8&m━━━━━━━━━━━━'
+    Line: '&a%pos%. &2%name% &7- &a%score% &7%type%'
+Signs:
+  Join:
+    Header: '&8[&4怪物竞技场&8]'
+    Line2: '&l> %arena% <'
+    Line3: '&8[%state%&8]'
+    Line4: '&n%p1&8/&r%p2'
+  Kit:
+    Header: '&8[&4怪物竞技场&8]'
+    Line2: '&l职业:'
+    Line4: '&l点击选择'
+  Leave:
+    Header: '&8[&4怪物竞技场&8]'
+    Line: '&4&l点击离开'
+  Stats:
+    Header: '&8[&4排行&8]'
+    HeaderArena: '&8[&4排行 - %arena%&8]'
+    Type: '&1&n%type%'
+    Player: '&l%pos%. &4&l%p%'
+    Score: '分数: &4%score%'
+Stats:
+  None: 空
+ActionBar:
+  Wave:
+    Timer: '&4&l&n新的怪物浪潮将在:&e&l %sec% &6&l秒后出现!'
+    Next: '&4&l剩余怪物血量: &e&l%mobs%% &8&l| &4&l剩余BOSS血量: &e&l%bosses%%'
+Titles:
+  Join:
+  - '&a&l欢迎来到怪物竞技场! '
+  - ' &2&l请选择你的职业'
+  StartIn:
+  - '&e&l游戏即将开始 '
+  - ' &a&l%time% 秒!'
+  Play:
+  - '&a&l你加入了竞技场! '
+  - ' &2&l拿起武器战斗!'
+  Wave:
+  - '&6&l怪物潮 &e&l#%wave% '
+  - ' &4&l准备战斗!'
+  Lives:
+  - '&c&l你战死了! '
+  - ' &7进入观战模式: &c&lx%lives%'
+  Leave:
+    Death:
+    - '&c&l你死了! '
+    - ' &7&l你离开了竞技场.'
+    Finish:
+    - '&a&l恭喜! 你战胜了! '
+    - ' &2&l检查你的背包查看奖励!'
+    Timeleft:
+    - '&4&l时间到了! '
+    - ' &7&l你离开了竞技场.'
+    ForceEnd:
+    - '&4&l强制结束! '
+    - ' &7&l你离开了竞技场.'
+    Outside:
+    - '&4&l你离开竞技场了! '
+    - ' &7&l你离开竞技场了.'
+    Self:
+    - '&4&l怪物竞技场 '
+    - ' &7&l你离开了竞技场.'
+    NoKit:
+    - '&4&l你没有足够的职业! '
+    - ' &7&l你离开竞技场了.'
+    Kick:
+    - '&4&l踢出! '
+    - ' &7&l你离开竞技场了.'
+Scoreboard:
+  Title: '&8[&a怪物竞技场&8]'
+  List:
+  - '&8» &f竞技场: &c%arena%'
+  - '&7» &f电波流: &c%wave%'
+  - '&7» &f怪物: &c%mobs%'
+  - '&7» &f玩家总数: &c%players%'
+  - '&7» &f剩余时间: &c%time%'
+  - '&7» &f下一波怪物潮将在: &c%next-wave% 秒后到来.'
+  - '&8&m------&8[&e你的状态&8]&8&m------'
+  - '&7» &f分数: &e%score%'
+  - '&7» &f硬币: &e%money%$'
+  - '&8&m------&8[&e顶级状态&8]&8&m------'
+  - '&7» &f%top_name_1%: &e%top_score_1%'
+  - '&7» &f%top_name_2%: &e%top_score_2%'
+  - '&7» &f%top_name_3%: &e%top_score_3%'
+  - §r
+Editmode:
+  AlreadyIn: 你已经在 &c编辑模式中&7!
+  Enabled: '&7编辑模式: &a&l开启&7. 竞技场: &a%id%&7.'
+  Disabled: '&7编辑模式: &c&l关闭&7. 竞技场: &c%id%&7.'
+Setup:
+  Error:
+    Enabled: 你必须先关闭竞技场
+    NotAChest: 这个方块不是一个箱子
+  Removed: 竞技场 &a%id% &7已删除.
+  Added:
+    Container: 为竞技场添加战斗箱子 &a%id%&7.
+    Spawner:
+      Mob: 添加怪物出生点 &a%num% &7在竞技场 &a%id%&7中.
+      Boss: 添加BOSS出生点 &a%num% &7在竞技场 &a%id%&7中.
+  Set:
+    Leave: 离开游戏坐标在竞技场 &a%id%&7 中已设置.
+    Lobby: 大厅坐标在竞技场 &a%id%&7 中已设置.
+    Point: 区域点 &a#%point% &7在大厅 &a%id% &7中设置!
+    Spawn: 主城点 &a%id%&7 已设置.
+    Spectate: 观战点 &a%id%&7 已设置.
+ArenaState:
+  WAITING: 等待
+  READY: 准备
+  INGAME: 游戏中
