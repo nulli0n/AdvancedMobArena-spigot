@@ -21,7 +21,7 @@ public class PathfinderAttack extends Goal {
     private       int           ticksNextPathCalc;
     private       double        pathX;
     private       double        pathY;
-    private   double           pathZ;
+    private       double        pathZ;
 
     public PathfinderAttack(@NotNull PathfinderMob entity) {
         this.entity = entity;

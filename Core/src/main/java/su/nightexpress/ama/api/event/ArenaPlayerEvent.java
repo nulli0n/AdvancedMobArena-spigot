@@ -6,15 +6,15 @@ import su.nightexpress.ama.arena.ArenaPlayer;
 
 public abstract class ArenaPlayerEvent extends ArenaEvent {
 
-	private final ArenaPlayer arenaPlayer;
-	
-	public ArenaPlayerEvent(@NotNull AbstractArena arena, @NotNull ArenaPlayer arenaPlayer) {
-		super(arena);
-		this.arenaPlayer = arenaPlayer;
-	}
+    private final ArenaPlayer arenaPlayer;
 
-	@NotNull
-	public final ArenaPlayer getArenaPlayer() {
-		return this.arenaPlayer;
-	}
+    public ArenaPlayerEvent(@NotNull AbstractArena arena, @NotNull ArenaPlayer arenaPlayer) {
+        super(arena);
+        this.arenaPlayer = arenaPlayer;
+    }
+
+    @NotNull
+    public final ArenaPlayer getArenaPlayer() {
+        return this.arenaPlayer;
+    }
 }

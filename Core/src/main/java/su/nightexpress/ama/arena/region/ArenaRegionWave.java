@@ -27,134 +27,134 @@ import java.util.function.UnaryOperator;
 
 public class ArenaRegionWave implements IArenaGameEventListener, IArenaObject, IEditable, ICleanable {
 
-	private final ArenaRegion                   region;
-	private final Set<ArenaGameEventTrigger<?>> triggers;
-	private final String                        id;
+    private final ArenaRegion                   region;
+    private final Set<ArenaGameEventTrigger<?>> triggers;
+    private final String                        id;
 
-	private Set<String> arenaWaveIds;
-	private Set<String> spawnerIds;
-	
-	private EditorRegionWaveSettings editor;
-	
-	public ArenaRegionWave(
-			@NotNull ArenaRegion region,
-			@NotNull String id,
-			@NotNull Set<String> arenaWaveIds,
-			@NotNull Set<String> spawnerIds,
-			@NotNull Set<ArenaGameEventTrigger<?>> triggers) {
-		this.region = region;
-		this.id = id.toLowerCase();
-		this.setArenaWaveIds(arenaWaveIds);
-		this.setSpawnerIds(spawnerIds);
-		this.triggers = triggers;
-	}
-	
-	@Override
-	public void clear() {
-		if (this.editor != null) {
-			this.editor.clear();
-			this.editor = null;
-		}
-	}
+    private Set<String> arenaWaveIds;
+    private Set<String> spawnerIds;
 
-	@Override
-	@NotNull
-	public UnaryOperator<String> replacePlaceholders() {
-		return str -> str
-			.replace(Placeholders.REGION_WAVE_TRIGGERS, Placeholders.format(this.getTriggers()))
-			.replace(Placeholders.REGION_WAVE_ID, this.getId())
-			.replace(Placeholders.REGION_WAVE_WAVE_IDS, String.join(DELIMITER_DEFAULT, this.getArenaWaveIds()))
-			.replace(Placeholders.REGION_WAVE_SPAWNERS, String.join(DELIMITER_DEFAULT, this.getSpawnerIds()))
-			;
-	}
+    private EditorRegionWaveSettings editor;
 
-	@Override
-	public boolean onGameEvent(@NotNull ArenaGameGenericEvent gameEvent) {
-		if (gameEvent.getEventType() != ArenaGameEventType.WAVE_START) return false; // TODO Make support all events
-		if (!this.isReady(gameEvent)) return false;
+    public ArenaRegionWave(
+        @NotNull ArenaRegion region,
+        @NotNull String id,
+        @NotNull Set<String> arenaWaveIds,
+        @NotNull Set<String> spawnerIds,
+        @NotNull Set<ArenaGameEventTrigger<?>> triggers) {
+        this.region = region;
+        this.id = id.toLowerCase();
+        this.setArenaWaveIds(arenaWaveIds);
+        this.setSpawnerIds(spawnerIds);
+        this.triggers = triggers;
+    }
 
-		ArenaRegion region = this.getRegion();
-		if (this.getRegion().getState() == ArenaLockState.LOCKED) return false;
+    @Override
+    public void clear() {
+        if (this.editor != null) {
+            this.editor.clear();
+            this.editor = null;
+        }
+    }
 
-		ArenaWave wave = this.getArenaWave();
-		if (wave == null) return false;
+    @Override
+    @NotNull
+    public UnaryOperator<String> replacePlaceholders() {
+        return str -> str
+            .replace(Placeholders.REGION_WAVE_TRIGGERS, Placeholders.format(this.getTriggers()))
+            .replace(Placeholders.REGION_WAVE_ID, this.getId())
+            .replace(Placeholders.REGION_WAVE_WAVE_IDS, String.join(DELIMITER_DEFAULT, this.getArenaWaveIds()))
+            .replace(Placeholders.REGION_WAVE_SPAWNERS, String.join(DELIMITER_DEFAULT, this.getSpawnerIds()))
+            ;
+    }
 
-		// TODO If gradual spawn disabled, instant spawn this wave on arena? in case when using more than wave_start triggers
+    @Override
+    public boolean onGameEvent(@NotNull ArenaGameGenericEvent gameEvent) {
+        if (gameEvent.getEventType() != ArenaGameEventType.WAVE_START) return false; // TODO Make support all events
+        if (!this.isReady(gameEvent)) return false;
 
-		// Check if this or linked regions contains players to spawn waves there.
-		Set<ArenaRegion> linked = new HashSet<>(this.getArenaConfig().getRegionManager().getLinkedRegions(region));
-		boolean hasNear = !this.getRegion().getPlayers().isEmpty() || linked.stream().anyMatch(reg -> !reg.getPlayers().isEmpty());
-		if (!hasNear) return false;
+        ArenaRegion region = this.getRegion();
+        if (this.getRegion().getState() == ArenaLockState.LOCKED) return false;
 
-		AbstractArena arena = gameEvent.getArena();
+        ArenaWave wave = this.getArenaWave();
+        if (wave == null) return false;
 
-		// Generate upcoming arena waves depends on region waves and arena wave mob chances.
-		// Also set mob amount and levels depends on the Amplificators.
-		// Creates new instances for IArenaWaveMob to not affect default ones.
-		List<ArenaWaveMob> mobs = new ArrayList<>(wave.getMobsByChance().stream().map(ArenaWaveMob::new).toList());
-		mobs.forEach(mob -> mob.setAmount((int) (mob.getAmount() + arena.getWaveAmplificatorAmount(wave.getId()))));
-		mobs.forEach(mob -> mob.setLevel((int) (mob.getLevel() + arena.getWaveAmplificatorLevel(wave.getId()))));
-		mobs.removeIf(mob -> mob.getAmount() <= 0);
-		if (mobs.isEmpty()) return false;
+        // TODO If gradual spawn disabled, instant spawn this wave on arena? in case when using more than wave_start triggers
 
-		arena.getUpcomingWaves().add(new ArenaWaveUpcoming(this, mobs));
-		return true;
-	}
+        // Check if this or linked regions contains players to spawn waves there.
+        Set<ArenaRegion> linked = new HashSet<>(this.getArenaConfig().getRegionManager().getLinkedRegions(region));
+        boolean hasNear = !this.getRegion().getPlayers().isEmpty() || linked.stream().anyMatch(reg -> !reg.getPlayers().isEmpty());
+        if (!hasNear) return false;
 
-	@Override
-	@NotNull
-	public EditorRegionWaveSettings getEditor() {
-		if (this.editor == null) {
-			this.editor = new EditorRegionWaveSettings(this);
-		}
-		return this.editor;
-	}
+        AbstractArena arena = gameEvent.getArena();
 
-	@Override
-	@NotNull
-	public ArenaConfig getArenaConfig() {
-		return this.getRegion().getArenaConfig();
-	}
+        // Generate upcoming arena waves depends on region waves and arena wave mob chances.
+        // Also set mob amount and levels depends on the Amplificators.
+        // Creates new instances for IArenaWaveMob to not affect default ones.
+        List<ArenaWaveMob> mobs = new ArrayList<>(wave.getMobsByChance().stream().map(ArenaWaveMob::new).toList());
+        mobs.forEach(mob -> mob.setAmount((int) (mob.getAmount() + arena.getWaveAmplificatorAmount(wave.getId()))));
+        mobs.forEach(mob -> mob.setLevel((int) (mob.getLevel() + arena.getWaveAmplificatorLevel(wave.getId()))));
+        mobs.removeIf(mob -> mob.getAmount() <= 0);
+        if (mobs.isEmpty()) return false;
 
-	@NotNull
-	@Override
-	public Set<ArenaGameEventTrigger<?>> getTriggers() {
-		return triggers;
-	}
+        arena.getUpcomingWaves().add(new ArenaWaveUpcoming(this, mobs));
+        return true;
+    }
 
-	@NotNull
-	public ArenaRegion getRegion() {
-		return region;
-	}
+    @Override
+    @NotNull
+    public EditorRegionWaveSettings getEditor() {
+        if (this.editor == null) {
+            this.editor = new EditorRegionWaveSettings(this);
+        }
+        return this.editor;
+    }
 
-	@NotNull
-	public String getId() {
-		return this.id;
-	}
+    @Override
+    @NotNull
+    public ArenaConfig getArenaConfig() {
+        return this.getRegion().getArenaConfig();
+    }
 
-	@NotNull
-	public Set<String> getArenaWaveIds() {
-		return arenaWaveIds;
-	}
+    @NotNull
+    @Override
+    public Set<ArenaGameEventTrigger<?>> getTriggers() {
+        return triggers;
+    }
 
-	public void setArenaWaveIds(@NotNull Set<String> arenaWaveIds) {
-		this.arenaWaveIds = arenaWaveIds;
-	}
+    @NotNull
+    public ArenaRegion getRegion() {
+        return region;
+    }
 
-	@Nullable
-	public ArenaWave getArenaWave() {
-		String waveId = Rnd.get(this.getArenaWaveIds());
-		if (waveId == null) return null;
+    @NotNull
+    public String getId() {
+        return this.id;
+    }
 
-		return this.getArenaConfig().getWaveManager().getWave(waveId);
-	}
+    @NotNull
+    public Set<String> getArenaWaveIds() {
+        return arenaWaveIds;
+    }
 
-	@NotNull
-	public Set<String> getSpawnerIds() {
-		return this.spawnerIds;
-	}
+    public void setArenaWaveIds(@NotNull Set<String> arenaWaveIds) {
+        this.arenaWaveIds = arenaWaveIds;
+    }
 
-	public void setSpawnerIds(@NotNull Set<String> spawnerIds) {
-		this.spawnerIds = spawnerIds;
-	}
+    @Nullable
+    public ArenaWave getArenaWave() {
+        String waveId = Rnd.get(this.getArenaWaveIds());
+        if (waveId == null) return null;
+
+        return this.getArenaConfig().getWaveManager().getWave(waveId);
+    }
+
+    @NotNull
+    public Set<String> getSpawnerIds() {
+        return this.spawnerIds;
+    }
+
+    public void setSpawnerIds(@NotNull Set<String> spawnerIds) {
+        this.spawnerIds = spawnerIds;
+    }
 }

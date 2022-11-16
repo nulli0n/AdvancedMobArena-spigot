@@ -9,25 +9,25 @@ import su.nightexpress.ama.data.ArenaUser;
 
 public class ArenaCoinsCurrency extends AbstractCurrency {
 
-	public ArenaCoinsCurrency(@NotNull ICurrencyConfig config) {
-		super(config);
-	}
+    public ArenaCoinsCurrency(@NotNull ICurrencyConfig config) {
+        super(config);
+    }
 
-	@Override
-	public double getBalance(@NotNull Player player) {
-		ArenaUser user = ArenaAPI.getUserManager().getUserData(player);
-		return user.getCoins();
-	}
-	
-	@Override
-	public void give(@NotNull Player player, double amount) {
-		ArenaUser user = ArenaAPI.getUserManager().getUserData(player);
-		user.setCoins((int) (user.getCoins() + amount));
-	}
-	
-	@Override
-	public void take(@NotNull Player player, double amount) {
-		ArenaUser user = ArenaAPI.getUserManager().getUserData(player);
-		user.setCoins((int) (user.getCoins() - amount));
-	}
+    @Override
+    public double getBalance(@NotNull Player player) {
+        ArenaUser user = ArenaAPI.getUserManager().getUserData(player);
+        return user.getCoins();
+    }
+
+    @Override
+    public void give(@NotNull Player player, double amount) {
+        ArenaUser user = ArenaAPI.getUserManager().getUserData(player);
+        user.setCoins((int) (user.getCoins() + amount));
+    }
+
+    @Override
+    public void take(@NotNull Player player, double amount) {
+        ArenaUser user = ArenaAPI.getUserManager().getUserData(player);
+        user.setCoins((int) (user.getCoins() - amount));
+    }
 }

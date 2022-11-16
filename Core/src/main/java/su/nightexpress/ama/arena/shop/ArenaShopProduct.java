@@ -33,14 +33,14 @@ public class ArenaShopProduct implements IArenaGameEventListenerState, IArenaObj
     private final String                                             id;
     private final Map<ArenaLockState, Set<ArenaGameEventTrigger<?>>> stateTriggers;
 
-    private String name;
-    private List<String> description;
+    private String          name;
+    private List<String>    description;
     private ArenaLockState  state;
     private ICurrency       currency;
     private double          price;
-    private Set<String>  applicableKits;
-    private ItemStack    icon;
-    private List<String> commands;
+    private Set<String>     applicableKits;
+    private ItemStack       icon;
+    private List<String>    commands;
     private List<ItemStack> items;
 
     private EditorShopProductSettings editor;

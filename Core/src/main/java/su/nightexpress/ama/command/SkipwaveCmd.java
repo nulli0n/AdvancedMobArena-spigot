@@ -15,51 +15,51 @@ import su.nightexpress.ama.config.Lang;
 
 public class SkipwaveCmd extends AbstractCommand<AMA> {
 
-	public SkipwaveCmd(@NotNull AMA plugin) {
-		super(plugin, new String[] {"skipwave"}, Perms.COMMAND_SKIPWAVE);
-	}
-	
-	@Override
-	@NotNull
-	public String getDescription() {
-		return plugin.getMessage(Lang.Command_Skipwave_Desc).getLocalized();
-	}
+    public SkipwaveCmd(@NotNull AMA plugin) {
+        super(plugin, new String[]{"skipwave"}, Perms.COMMAND_SKIPWAVE);
+    }
 
-	@Override
-	@NotNull
-	public String getUsage() {
-		return plugin.getMessage(Lang.Command_Skipwave_Usage).getLocalized();
-	}
+    @Override
+    @NotNull
+    public String getDescription() {
+        return plugin.getMessage(Lang.Command_Skipwave_Desc).getLocalized();
+    }
 
-	@Override
-	public boolean isPlayerOnly() {
-		return true;
-	}
+    @Override
+    @NotNull
+    public String getUsage() {
+        return plugin.getMessage(Lang.Command_Skipwave_Usage).getLocalized();
+    }
 
-	@Override
-	public void onExecute(@NotNull CommandSender sender, @NotNull String labe, @NotNull String[] args) {
-		Player player = (Player) sender;
-		
+    @Override
+    public boolean isPlayerOnly() {
+        return true;
+    }
+
+    @Override
+    public void onExecute(@NotNull CommandSender sender, @NotNull String labe, @NotNull String[] args) {
+        Player player = (Player) sender;
+
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
         if (arenaPlayer == null) {
-        	plugin.getMessage(Lang.ARENA_GAME_ERROR_NOT_IN_GAME).send(player);
-        	return;
+            plugin.getMessage(Lang.ARENA_GAME_ERROR_NOT_IN_GAME).send(player);
+            return;
         }
-        
+
         int amount = args.length >= 2 ? StringUtil.getInteger(args[1], 1) : 1;
         AbstractArena arena = arenaPlayer.getArena();
-        
+
         new BukkitRunnable() {
-        	int count = 0;
-        	
-			@Override
-			public void run() {
-				if (this.count++ >= amount || arena.getState() != ArenaState.INGAME) {
-					this.cancel();
-					return;
-				}
-				arena.skipWave();
-			}
-		}.runTaskTimer(plugin, 0L, 45L);
-	}
+            int count = 0;
+
+            @Override
+            public void run() {
+                if (this.count++ >= amount || arena.getState() != ArenaState.INGAME) {
+                    this.cancel();
+                    return;
+                }
+                arena.skipWave();
+            }
+        }.runTaskTimer(plugin, 0L, 45L);
+    }
 }

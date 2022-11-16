@@ -25,91 +25,91 @@ import java.util.Map;
 import java.util.stream.IntStream;
 
 public class EditorKitList extends AbstractEditorMenuAuto<AMA, KitManager, Kit> {
-	
-	public EditorKitList(@NotNull KitManager kitManager) {
-		super(kitManager.plugin(), kitManager, ArenaEditorUtils.TITLE_KIT_EDITOR, 45);
 
-		EditorInput<KitManager, ArenaEditorType> input = (player, kitManager2, type, e) -> {
-			String msg = StringUtil.colorOff(e.getMessage());
-			if (type == ArenaEditorType.KIT_CREATE) {
-				String id = EditorManager.fineId(msg);
-				if (kitManager2.getKitById(id) != null) {
-					EditorManager.error(player, plugin.getMessage(Lang.Editor_Kit_Error_Exist).getLocalized());
-					return false;
-				}
+    public EditorKitList(@NotNull KitManager kitManager) {
+        super(kitManager.plugin(), kitManager, ArenaEditorUtils.TITLE_KIT_EDITOR, 45);
 
-				Kit kit = new Kit(plugin, plugin.getDataFolder() + "/kits/kits/" + id + ".yml");
-				kit.save();
-				kitManager2.getKitsMap().put(kit.getId(), kit);
-				return true;
-			}
-			return true;
-		};
+        EditorInput<KitManager, ArenaEditorType> input = (player, kitManager2, type, e) -> {
+            String msg = StringUtil.colorOff(e.getMessage());
+            if (type == ArenaEditorType.KIT_CREATE) {
+                String id = EditorManager.fineId(msg);
+                if (kitManager2.getKitById(id) != null) {
+                    EditorManager.error(player, plugin.getMessage(Lang.Editor_Kit_Error_Exist).getLocalized());
+                    return false;
+                }
 
-		IMenuClick click = (player, type, e) -> {
-			if (type instanceof MenuItemType type2) {
-				if (type2 == MenuItemType.RETURN) {
-					plugin.getEditor().open(player, 1);
-				}
-				else this.onItemClickDefault(player, type2);
-			}
-			else if (type instanceof ArenaEditorType type2) {
-				if (type2 == ArenaEditorType.KIT_CREATE) {
-					EditorManager.startEdit(player, kitManager, type2, input);
-					EditorManager.tip(player, plugin.getMessage(Lang.Editor_Kit_Enter_Create).getLocalized());
-					player.closeInventory();
-				}
-			}
-		};
-		
-		this.loadItems(click);
-	}
+                Kit kit = new Kit(plugin, plugin.getDataFolder() + "/kits/kits/" + id + ".yml");
+                kit.save();
+                kitManager2.getKitsMap().put(kit.getId(), kit);
+                return true;
+            }
+            return true;
+        };
 
-	@Override
-	public void setTypes(@NotNull Map<EditorButtonType, Integer> map) {
-		map.put(ArenaEditorType.KIT_CREATE, 41);
-		map.put(MenuItemType.RETURN, 39);
-		map.put(MenuItemType.PAGE_NEXT, 44);
-		map.put(MenuItemType.PAGE_PREVIOUS, 36);
-	}
+        IMenuClick click = (player, type, e) -> {
+            if (type instanceof MenuItemType type2) {
+                if (type2 == MenuItemType.RETURN) {
+                    plugin.getEditor().open(player, 1);
+                }
+                else this.onItemClickDefault(player, type2);
+            }
+            else if (type instanceof ArenaEditorType type2) {
+                if (type2 == ArenaEditorType.KIT_CREATE) {
+                    EditorManager.startEdit(player, kitManager, type2, input);
+                    EditorManager.tip(player, plugin.getMessage(Lang.Editor_Kit_Enter_Create).getLocalized());
+                    player.closeInventory();
+                }
+            }
+        };
 
-	@Override
-	public int[] getObjectSlots() {
-		return IntStream.range(0, 36).toArray();
-	}
+        this.loadItems(click);
+    }
 
-	@Override
-	@NotNull
-	protected IMenuClick getObjectClick(@NotNull Player player, @NotNull Kit kit) {
-		return (player1, type, e) -> {
-			if (e.isShiftClick() && e.isRightClick()) {
-				if (!kit.getFile().delete()) return;
-				kit.clear();
-				this.parent.getKitsMap().remove(kit.getId());
-				this.open(player1, this.getPage(player1));
-				return;
-			}
-			kit.getEditor().open(player1, 1);
-		};
-	}
+    @Override
+    public void setTypes(@NotNull Map<EditorButtonType, Integer> map) {
+        map.put(ArenaEditorType.KIT_CREATE, 41);
+        map.put(MenuItemType.RETURN, 39);
+        map.put(MenuItemType.PAGE_NEXT, 44);
+        map.put(MenuItemType.PAGE_PREVIOUS, 36);
+    }
 
-	@Override
-	@NotNull
-	protected ItemStack getObjectStack(@NotNull Player player, @NotNull Kit kit) {
-		ItemStack item = ArenaEditorType.KIT_OBJECT.getItem();
-		item.setType(kit.getIcon().getType());
-		ItemUtil.replace(item, kit.replacePlaceholders());
-		return item;
-	}
+    @Override
+    public int[] getObjectSlots() {
+        return IntStream.range(0, 36).toArray();
+    }
 
-	@Override
-	@NotNull
-	protected List<Kit> getObjects(@NotNull Player player) {
-		return new ArrayList<>(this.parent.getKits());
-	}
+    @Override
+    @NotNull
+    protected IMenuClick getObjectClick(@NotNull Player player, @NotNull Kit kit) {
+        return (player1, type, e) -> {
+            if (e.isShiftClick() && e.isRightClick()) {
+                if (!kit.getFile().delete()) return;
+                kit.clear();
+                this.parent.getKitsMap().remove(kit.getId());
+                this.open(player1, this.getPage(player1));
+                return;
+            }
+            kit.getEditor().open(player1, 1);
+        };
+    }
 
-	@Override
-	public boolean cancelClick(@NotNull InventoryClickEvent e, @NotNull SlotType slotType) {
-		return true;
-	}
+    @Override
+    @NotNull
+    protected ItemStack getObjectStack(@NotNull Player player, @NotNull Kit kit) {
+        ItemStack item = ArenaEditorType.KIT_OBJECT.getItem();
+        item.setType(kit.getIcon().getType());
+        ItemUtil.replace(item, kit.replacePlaceholders());
+        return item;
+    }
+
+    @Override
+    @NotNull
+    protected List<Kit> getObjects(@NotNull Player player) {
+        return new ArrayList<>(this.parent.getKits());
+    }
+
+    @Override
+    public boolean cancelClick(@NotNull InventoryClickEvent e, @NotNull SlotType slotType) {
+        return true;
+    }
 }

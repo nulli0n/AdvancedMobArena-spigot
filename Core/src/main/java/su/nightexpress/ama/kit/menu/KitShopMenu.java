@@ -13,32 +13,32 @@ import su.nightexpress.ama.kit.Kit;
 import java.util.function.Predicate;
 
 public class KitShopMenu extends AbstractKitListMenu {
-	
-	public KitShopMenu(@NotNull AMA plugin, @NotNull JYML cfg) {
-		super(plugin, cfg, "");
-	}
 
-	@Override
-	@NotNull
-	public Predicate<Kit> getFilter(@Nullable ArenaUser user) {
-		return kit -> user != null && !user.hasKit(kit.getId());
-	}
+    public KitShopMenu(@NotNull AMA plugin, @NotNull JYML cfg) {
+        super(plugin, cfg, "");
+    }
 
-	@Override
-	@NotNull
-	public IMenuClick getObjectClick(@NotNull Player player, @NotNull Kit kit) {
-		return (player1, type, e) -> {
-			ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player1);
-			if (arenaPlayer == null) return;
+    @Override
+    @NotNull
+    public Predicate<Kit> getFilter(@Nullable ArenaUser user) {
+        return kit -> user != null && !user.hasKit(kit.getId());
+    }
 
-        	if (e.isLeftClick()) {
-				if (kit.buy(arenaPlayer)) {
-					this.open(player1, this.getPage(player1));
-				}
-			}
-			else if (e.isRightClick()) {
-				kit.getPreview().open(player1, 1);
-			}
+    @Override
+    @NotNull
+    public IMenuClick getObjectClick(@NotNull Player player, @NotNull Kit kit) {
+        return (player1, type, e) -> {
+            ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player1);
+            if (arenaPlayer == null) return;
+
+            if (e.isLeftClick()) {
+                if (kit.buy(arenaPlayer)) {
+                    this.open(player1, this.getPage(player1));
+                }
+            }
+            else if (e.isRightClick()) {
+                kit.getPreview().open(player1, 1);
+            }
         };
-	}
+    }
 }

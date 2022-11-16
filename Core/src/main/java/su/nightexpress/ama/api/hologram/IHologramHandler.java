@@ -7,7 +7,8 @@ import java.util.List;
 
 public interface IHologramHandler<E> {
 
-    @NotNull IHologramWrapper<E> create(@NotNull Location location, @NotNull List<String> text, int lifetime);
+    @NotNull
+    IHologramWrapper<E> create(@NotNull Location location, @NotNull List<String> text, int lifetime);
 
     void setText(@NotNull IHologramWrapper<E> wrapper, @NotNull List<String> text);
 

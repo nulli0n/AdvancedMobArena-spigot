@@ -9,31 +9,31 @@ import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.config.Lang;
 
 public class ListCmd extends AbstractCommand<AMA> {
-	
-	public ListCmd(@NotNull AMA plugin) {
-		super(plugin, new String[] {"list"}, Perms.COMMAND_LIST);
-	}
-	
-	@Override
-	@NotNull
-	public String getDescription() {
-		return plugin.getMessage(Lang.Command_List_Desc).getLocalized();
-	}
 
-	@Override
-	@NotNull
-	public String getUsage() {
-		return "";
-	}
+    public ListCmd(@NotNull AMA plugin) {
+        super(plugin, new String[]{"list"}, Perms.COMMAND_LIST);
+    }
 
-	@Override
-	public boolean isPlayerOnly() {
-		return true;
-	}
+    @Override
+    @NotNull
+    public String getDescription() {
+        return plugin.getMessage(Lang.Command_List_Desc).getLocalized();
+    }
 
-	@Override
-	public void onExecute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args) {
-		Player player = (Player) sender;
-		plugin.getArenaManager().getArenaListMenu().open(player, 1);
-	}
+    @Override
+    @NotNull
+    public String getUsage() {
+        return "";
+    }
+
+    @Override
+    public boolean isPlayerOnly() {
+        return true;
+    }
+
+    @Override
+    public void onExecute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args) {
+        Player player = (Player) sender;
+        plugin.getArenaManager().getArenaListMenu().open(player, 1);
+    }
 }

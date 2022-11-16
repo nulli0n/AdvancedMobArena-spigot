@@ -6,9 +6,11 @@ import su.nexmedia.engine.utils.CollectionsUtil;
 
 public interface MobStyleWriter<E, T> {
 
-    @Nullable T parse(@NotNull String value);
+    @Nullable
+    T parse(@NotNull String value);
 
-    @NotNull T[] values();
+    @NotNull
+    T[] values();
 
     void apply(@NotNull E entity, @NotNull T value);
 
@@ -25,13 +27,14 @@ public interface MobStyleWriter<E, T> {
         @NotNull
         @Override
         default Boolean[] values() {
-            return new Boolean[]{true,false};
+            return new Boolean[]{true, false};
         }
     }
 
     interface WriterEnum<E, T extends Enum<T>> extends MobStyleWriter<E, T> {
 
-        @NotNull Class<T> getEnumClass();
+        @NotNull
+        Class<T> getEnumClass();
 
         @Nullable
         @Override

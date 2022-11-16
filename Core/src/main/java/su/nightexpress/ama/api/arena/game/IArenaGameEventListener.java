@@ -8,7 +8,8 @@ import java.util.Set;
 
 public interface IArenaGameEventListener extends IPlaceholder {
 
-    @NotNull Set<ArenaGameEventTrigger<?>> getTriggers();
+    @NotNull
+    Set<ArenaGameEventTrigger<?>> getTriggers();
 
     boolean onGameEvent(@NotNull ArenaGameGenericEvent gameEvent);
 

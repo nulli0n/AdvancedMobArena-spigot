@@ -64,7 +64,7 @@ public class V1_19_R1 implements ArenaNMS {
         Location locStart = start.getLocation();
         Location locEnd = end.getLocation();
         World world = locStart.getWorld();
-        ServerLevel level = ((CraftWorld)world).getHandle();
+        ServerLevel level = ((CraftWorld) world).getHandle();
 
         BlockPos pos = new BlockPos(locEnd.getX(), locEnd.getY(), locEnd.getZ());
 
@@ -158,7 +158,7 @@ public class V1_19_R1 implements ArenaNMS {
             insentient.setTarget(null);
             return;
         }
-        insentient.setTarget(((CraftLivingEntity)target).getHandle(), EntityTargetEvent.TargetReason.CUSTOM, true);
+        insentient.setTarget(((CraftLivingEntity) target).getHandle(), EntityTargetEvent.TargetReason.CUSTOM, true);
     }
 
     @Override
@@ -219,7 +219,7 @@ public class V1_19_R1 implements ArenaNMS {
         ClientboundAddEntityPacket spawnEntityLiving = new ClientboundAddEntityPacket(entity);
         ((CraftPlayer) player).getHandle().connection.send(spawnEntityLiving);
 
-        ClientboundSetEntityDataPacket entityMetadata = new ClientboundSetEntityDataPacket(entity.getId(),entity.getEntityData(),false);
+        ClientboundSetEntityDataPacket entityMetadata = new ClientboundSetEntityDataPacket(entity.getId(), entity.getEntityData(), false);
         ((CraftPlayer) player).getHandle().connection.send(entityMetadata);
 
         return entity.getId();

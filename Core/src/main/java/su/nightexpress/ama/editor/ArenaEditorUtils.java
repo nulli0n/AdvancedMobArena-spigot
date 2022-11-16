@@ -18,16 +18,16 @@ import su.nightexpress.ama.config.Lang;
 
 public class ArenaEditorUtils {
 
-    public static final String TITLE_EDITOR = "AdvancedMobArena Editor";
-    public static final String TITLE_ARENA_EDITOR = "Arena Editor";
+    public static final String TITLE_EDITOR          = "AdvancedMobArena Editor";
+    public static final String TITLE_ARENA_EDITOR    = "Arena Editor";
     public static final String TITLE_GAMEPLAY_EDITOR = "Arena Gameplay Editor";
-    public static final String TITLE_REGION_EDITOR = "Arena Region Editor";
-    public static final String TITLE_REWARD_EDITOR = "Arena Reward Editor";
-    public static final String TITLE_SHOP_EDITOR = "Arena Shop Editor";
-    public static final String TITLE_SPOT_EDITOR = "Arena Spot Editor";
-    public static final String TITLE_WAVE_EDITOR = "Arena Wave Editor";
-    public static final String TITLE_KIT_EDITOR = "Arena Kit Editor";
-    public static final String TITLE_MOB_EDITOR = "Arena Mob Editor";
+    public static final String TITLE_REGION_EDITOR   = "Arena Region Editor";
+    public static final String TITLE_REWARD_EDITOR   = "Arena Reward Editor";
+    public static final String TITLE_SHOP_EDITOR     = "Arena Shop Editor";
+    public static final String TITLE_SPOT_EDITOR     = "Arena Spot Editor";
+    public static final String TITLE_WAVE_EDITOR     = "Arena Wave Editor";
+    public static final String TITLE_KIT_EDITOR      = "Arena Kit Editor";
+    public static final String TITLE_MOB_EDITOR      = "Arena Mob Editor";
 
     public static void handleTriggersClick(
         @NotNull Player player,

@@ -80,7 +80,7 @@ public abstract class AbstractHologramCommand extends AbstractCommand<AMA> {
         }
 
         HologramHolder holder = switch (type) {
-            case ARENA ->  {
+            case ARENA -> {
                 AbstractArena arena = plugin.getArenaManager().getArenaById(args[3]);
                 if (arena == null) yield null;
 

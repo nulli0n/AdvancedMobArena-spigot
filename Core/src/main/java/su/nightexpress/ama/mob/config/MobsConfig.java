@@ -17,9 +17,9 @@ public class MobsConfig {
     public static final JOption<Boolean>                    KILL_REWARD_ENABLED                 = JOption.create("Mobs.Kill_Rewards.Enabled", "Enables/Disables the Mob Kill Rewards feature.", true);
     public static final JOption<Boolean>                    KILL_REWARD_HOLOGRAM_ENABLED        = JOption.create("Mobs.Kill_Rewards.Hologram.Enabled", "When enabled, creates a hologram displaying amount of given reward(s) at mob death location.\nSupported Plugins: " + HookId.HOLOGRAPHIC_DISPLAYS + ", " + HookId.DECENT_HOLOGRAMS, true);
     public static final JOption<Integer>                    KILL_REWARD_HOLOGRAM_LIFETIME       = JOption.create("Mobs.Kill_Rewards.Hologram.Lifetime", "Sets how long (in seconds) reward hologram will stay there before disappear.", 3);
-    public static final JOption<String>                     KILL_REWARD_HOLOGRAM_FORMAT_SCORE = JOption.create("Mobs.Kill_Rewards.Hologram.Format.Score", "Sets the hologram line format for score amount.\nPlaceholders:\n- " + Placeholders.GENERIC_AMOUNT + " - Formatted score amount.", "+" + Placeholders.GENERIC_AMOUNT + " Score");
+    public static final JOption<String>                     KILL_REWARD_HOLOGRAM_FORMAT_SCORE   = JOption.create("Mobs.Kill_Rewards.Hologram.Format.Score", "Sets the hologram line format for score amount.\nPlaceholders:\n- " + Placeholders.GENERIC_AMOUNT + " - Formatted score amount.", "+" + Placeholders.GENERIC_AMOUNT + " Score");
     public static final JOption<String>                     KILL_REWARD_HOLOGRAM_FORMAT_PAYMENT = JOption.create("Mobs.Kill_Rewards.Hologram.Format.Currency", "Sets the hologram line format for currencies.\nPlaceholders:\n- " + Placeholders.GENERIC_AMOUNT + " - Formatted currency amount.", "+" + Placeholders.GENERIC_AMOUNT);
-    public static final JOption<Map<String, MobKillReward>> KILL_REWARD_VALUES                = new JOption<Map<String, MobKillReward>>("Mobs.Kill_Rewards.Table",
+    public static final JOption<Map<String, MobKillReward>> KILL_REWARD_VALUES                  = new JOption<Map<String, MobKillReward>>("Mobs.Kill_Rewards.Table",
         "A table with rewards given for killed mobs on arenas.\nFor Mob names, use mob identifiers from the /mobs/ sub-folder, or MythicMobs internal mob names.\nAlso, you can use the 'default' keyword for all other mobs not listed here.\nFor Currency, use currency identifiers from the /currency/ sub-folder.",
         (cfg, path, def) -> {
             Map<String, MobKillReward> map = new HashMap<>();
@@ -51,8 +51,8 @@ public class MobsConfig {
     });
 
     public static final JOption<Boolean>                     KILL_STREAK_ENABLED = JOption.create("Mobs.Kill_Streaks.Enabled", "Enables the Mob Kill Streak feature.", true);
-    public static final JOption<Integer>                     KILL_STREAK_DECAY = JOption.create("Mobs.Kill_Streaks.Streak_Decay", "Sets for how long (in seconds) kill streak will retain before reset to zero.", 5);
-    public static final JOption<Map<Integer, MobKillStreak>> KILL_STREAK_TABLE = new JOption<Map<Integer, MobKillStreak>>("Mobs.Kill_Streaks.Table",
+    public static final JOption<Integer>                     KILL_STREAK_DECAY   = JOption.create("Mobs.Kill_Streaks.Streak_Decay", "Sets for how long (in seconds) kill streak will retain before reset to zero.", 5);
+    public static final JOption<Map<Integer, MobKillStreak>> KILL_STREAK_TABLE   = new JOption<Map<Integer, MobKillStreak>>("Mobs.Kill_Streaks.Table",
         "A table with kill streaks. Each section is a streak kills amount.\nFor 'Bonus' section you can set percent values like 100%. Then it will be applied as a multiplier to the Mob Kill Reward value(s).\nFor 'Message' you can use " + Placeholders.GENERIC_AMOUNT + " placeholder for a kills amount. Please check: https://github.com/nulli0n/NexEngine-spigot/wiki/Language-Config#message-options\nFor 'Commands', please check https://github.com/nulli0n/NexEngine-spigot/wiki/Configuration-Tips#command-sections",
         (cfg, path, def) -> {
             Map<Integer, MobKillStreak> map = new TreeMap<>();

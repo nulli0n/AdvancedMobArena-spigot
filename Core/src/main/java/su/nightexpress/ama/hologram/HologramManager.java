@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class HologramManager extends AbstractManager<AMA> {
 
-    private final IHologramHandler<?>                handler;
+    private final IHologramHandler<?>                               handler;
     private final Map<HologramType, Map<UUID, IHologramWrapper<?>>> hologramIds;
 
     private LifeTask lifeTask;

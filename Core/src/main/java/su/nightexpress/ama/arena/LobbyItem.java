@@ -107,8 +107,7 @@ public class LobbyItem implements JWriter {
         KIT_SHOP((arena, arenaPlayer) -> ArenaAPI.getKitManager().getShopMenu().open(arenaPlayer.getPlayer(), 1)),
         EXIT((arena, arenaPlayer) -> arenaPlayer.leaveArena(LeaveReason.SELF)),
         STATS((arena, arenaPlayer) -> ArenaAPI.getStatsManager().getStatsMenu().open(arenaPlayer.getPlayer(), 1)),
-        READY((arena, arenaPlayer) -> arenaPlayer.setReady(!arenaPlayer.isReady()))
-        ;
+        READY((arena, arenaPlayer) -> arenaPlayer.setReady(!arenaPlayer.isReady()));
 
         private final BiConsumer<AbstractArena, ArenaPlayer> usage;
 

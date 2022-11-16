@@ -13,17 +13,17 @@ import java.util.stream.Collectors;
 
 public class ArenaWaveUpcoming {
 
-    private final ArenaRegionWave     regionWave;
+    private final ArenaRegionWave    regionWave;
     private final List<ArenaWaveMob> mobs;
-    private final List<Location>      spawners;
+    private final List<Location>     spawners;
 
     public ArenaWaveUpcoming(@NotNull ArenaRegionWave regionWave, @NotNull List<ArenaWaveMob> mobs) {
         this.regionWave = regionWave;
         this.mobs = mobs;
 
         this.spawners = regionWave.getRegion().getMobSpawners().entrySet().stream()
-                .filter(entry -> regionWave.getSpawnerIds().contains(entry.getKey()) || entry.getKey().equalsIgnoreCase(Placeholders.MASK_ANY))
-                .map(Map.Entry::getValue).collect(Collectors.toCollection(ArrayList::new));
+            .filter(entry -> regionWave.getSpawnerIds().contains(entry.getKey()) || entry.getKey().equalsIgnoreCase(Placeholders.MASK_ANY))
+            .map(Map.Entry::getValue).collect(Collectors.toCollection(ArrayList::new));
         Collections.shuffle(this.spawners);
     }
 

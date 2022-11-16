@@ -37,11 +37,11 @@ public class ArenaShopCategory implements IArenaGameEventListenerState, IArenaOb
     private final Map<ArenaLockState, Set<ArenaGameEventTrigger<?>>> stateTriggers;
     private final Map<String, ArenaShopProduct>                      products;
 
-    private String       name;
-    private List<String> description;
-    private ItemStack    icon;
+    private String         name;
+    private List<String>   description;
+    private ItemStack      icon;
     private ArenaLockState state;
-    private Set<String> allowedKits;
+    private Set<String>    allowedKits;
 
     private ArenaShopCategoryMenu      menu;
     private EditorShopCategorySettings editor;

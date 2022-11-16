@@ -12,42 +12,42 @@ import su.nightexpress.ama.arena.AbstractArena;
 
 public class McMMOHook extends AbstractHook<AMA> {
 
-	public McMMOHook(@NotNull AMA plugin, @NotNull String pluginName) {
-		super(plugin, pluginName);
-	}
-	
-	@Override
-	public boolean setup() {
-		this.registerListeners();
-		return true;
-	}
-	
-	@Override
-	public void shutdown() {
-		this.unregisterListeners();
-	}
+    public McMMOHook(@NotNull AMA plugin, @NotNull String pluginName) {
+        super(plugin, pluginName);
+    }
 
-	@EventHandler
-	public void onUseSkill(McMMOPlayerAbilityActivateEvent e) {
-		Player p = e.getPlayer();
-		ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(p);
-		if (arenaPlayer == null) return;
-		
-		AbstractArena arena = arenaPlayer.getArena();
-		if (!arena.getConfig().getGameplayManager().isExternalMcmmoEnabled()) {
-			e.setCancelled(true);
-		}
-	}
-	
-	@EventHandler
-	public void onExpGain(McMMOPlayerXpGainEvent e) {
-		Player p = e.getPlayer();
-		ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(p);
-		if (arenaPlayer == null) return;
-		
-		AbstractArena arena = arenaPlayer.getArena();
-		if (!arena.getConfig().getGameplayManager().isExternalMcmmoEnabled()) {
-			e.setCancelled(true);
-		}
-	}
+    @Override
+    public boolean setup() {
+        this.registerListeners();
+        return true;
+    }
+
+    @Override
+    public void shutdown() {
+        this.unregisterListeners();
+    }
+
+    @EventHandler
+    public void onUseSkill(McMMOPlayerAbilityActivateEvent e) {
+        Player p = e.getPlayer();
+        ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(p);
+        if (arenaPlayer == null) return;
+
+        AbstractArena arena = arenaPlayer.getArena();
+        if (!arena.getConfig().getGameplayManager().isExternalMcmmoEnabled()) {
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onExpGain(McMMOPlayerXpGainEvent e) {
+        Player p = e.getPlayer();
+        ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(p);
+        if (arenaPlayer == null) return;
+
+        AbstractArena arena = arenaPlayer.getArena();
+        if (!arena.getConfig().getGameplayManager().isExternalMcmmoEnabled()) {
+            e.setCancelled(true);
+        }
+    }
 }

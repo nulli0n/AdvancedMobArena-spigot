@@ -16,84 +16,84 @@ import java.util.function.UnaryOperator;
 
 public class ArenaWave implements IArenaObject, IEditable, ICleanable, IPlaceholder {
 
-	private final ArenaConfig                         arenaConfig;
-	private final String                              id;
-	private       Map<String, ArenaWaveMob>          mobs;
-	private       Map<String, ArenaWaveAmplificator> amplificators;
+    private final ArenaConfig                        arenaConfig;
+    private final String                             id;
+    private       Map<String, ArenaWaveMob>          mobs;
+    private       Map<String, ArenaWaveAmplificator> amplificators;
 
-	private EditorWaveSettings editor;
-	
-	public ArenaWave(
-			@NotNull ArenaConfig arenaConfig,
-			@NotNull String id,
-			@NotNull Map<String, ArenaWaveMob> mobs,
-			@NotNull Map<String, ArenaWaveAmplificator> amplificators
-			) {
-		this.arenaConfig = arenaConfig;
-		this.id = id.toLowerCase();
-		this.setMobs(mobs);
-		this.setAmplificators(amplificators);
-	}
+    private EditorWaveSettings editor;
 
-	@Override
-	public void clear() {
-		if (this.editor != null) {
-			this.editor.clear();
-			this.editor = null;
-		}
-	}
+    public ArenaWave(
+        @NotNull ArenaConfig arenaConfig,
+        @NotNull String id,
+        @NotNull Map<String, ArenaWaveMob> mobs,
+        @NotNull Map<String, ArenaWaveAmplificator> amplificators
+    ) {
+        this.arenaConfig = arenaConfig;
+        this.id = id.toLowerCase();
+        this.setMobs(mobs);
+        this.setAmplificators(amplificators);
+    }
 
-	@Override
-	@NotNull
-	public EditorWaveSettings getEditor() {
-		if (this.editor == null) {
-			this.editor = new EditorWaveSettings(this);
-		}
-		return this.editor;
-	}
+    @Override
+    public void clear() {
+        if (this.editor != null) {
+            this.editor.clear();
+            this.editor = null;
+        }
+    }
 
-	@Override
-	@NotNull
-	public UnaryOperator<String> replacePlaceholders() {
-		return str -> str
-			.replace(Placeholders.ARENA_WAVE_ID, this.getId())
-			.replace(Placeholders.ARENA_WAVE_MOBS, String.join(DELIMITER_DEFAULT, this.getMobs().values().stream()
-				.map(ArenaWaveMob::getMobId).toList()))
-			;
-	}
+    @Override
+    @NotNull
+    public EditorWaveSettings getEditor() {
+        if (this.editor == null) {
+            this.editor = new EditorWaveSettings(this);
+        }
+        return this.editor;
+    }
 
-	@NotNull
-	@Override
-	public ArenaConfig getArenaConfig() {
-		return arenaConfig;
-	}
+    @Override
+    @NotNull
+    public UnaryOperator<String> replacePlaceholders() {
+        return str -> str
+            .replace(Placeholders.ARENA_WAVE_ID, this.getId())
+            .replace(Placeholders.ARENA_WAVE_MOBS, String.join(DELIMITER_DEFAULT, this.getMobs().values().stream()
+                .map(ArenaWaveMob::getMobId).toList()))
+            ;
+    }
 
-	@NotNull
-	public String getId() {
-		return this.id;
-	}
-	
-	@NotNull
-	public Map<String, ArenaWaveMob> getMobs() {
-		return this.mobs;
-	}
+    @NotNull
+    @Override
+    public ArenaConfig getArenaConfig() {
+        return arenaConfig;
+    }
 
-	@NotNull
-	public List<ArenaWaveMob> getMobsByChance() {
-		return this.getMobs().values().stream()
-			.filter(mob -> mob.getAmount() > 0 && Rnd.chance(mob.getChance())).toList();
-	}
-	
-	public void setMobs(@NotNull Map<String, ArenaWaveMob> mobs) {
-		this.mobs = mobs;
-	}
+    @NotNull
+    public String getId() {
+        return this.id;
+    }
 
-	@NotNull
-	public Map<String, ArenaWaveAmplificator> getAmplificators() {
-		return amplificators;
-	}
+    @NotNull
+    public Map<String, ArenaWaveMob> getMobs() {
+        return this.mobs;
+    }
 
-	public void setAmplificators(@NotNull Map<String, ArenaWaveAmplificator> amplificators) {
-		this.amplificators = amplificators;
-	}
+    @NotNull
+    public List<ArenaWaveMob> getMobsByChance() {
+        return this.getMobs().values().stream()
+            .filter(mob -> mob.getAmount() > 0 && Rnd.chance(mob.getChance())).toList();
+    }
+
+    public void setMobs(@NotNull Map<String, ArenaWaveMob> mobs) {
+        this.mobs = mobs;
+    }
+
+    @NotNull
+    public Map<String, ArenaWaveAmplificator> getAmplificators() {
+        return amplificators;
+    }
+
+    public void setAmplificators(@NotNull Map<String, ArenaWaveAmplificator> amplificators) {
+        this.amplificators = amplificators;
+    }
 }

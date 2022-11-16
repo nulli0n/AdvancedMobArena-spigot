@@ -21,117 +21,117 @@ import java.util.UUID;
 
 public class PlayerSnapshot {
 
-	private final Location                 location;
-	private final int                      foodLevel;
-	private final float                   saturation;
-	private final double                   health;
-	private final ItemStack[]              inventory;
-	private final ItemStack[]              armor;
-	private final Collection<PotionEffect> effects;
-	private final GameMode                 gameMode;
+    private final Location                 location;
+    private final int                      foodLevel;
+    private final float                    saturation;
+    private final double                   health;
+    private final ItemStack[]              inventory;
+    private final ItemStack[]              armor;
+    private final Collection<PotionEffect> effects;
+    private final GameMode                 gameMode;
 
-	private static final Map<UUID, PlayerSnapshot> SNAPSHOTS  = new HashMap<>();
-	
-	PlayerSnapshot(@NotNull Player player) {
-		this.location = player.getLocation();
-		this.foodLevel = player.getFoodLevel();
-		this.saturation = player.getSaturation();
-		this.health = player.getHealth();
-		this.inventory = player.getInventory().getContents();
-		this.armor = player.getInventory().getArmorContents();
-		this.effects = player.getActivePotionEffects();
-		this.gameMode = player.getGameMode();
-	}
+    private static final Map<UUID, PlayerSnapshot> SNAPSHOTS = new HashMap<>();
 
-	public static void doSnapshot(@NotNull Player player) {
-		SNAPSHOTS.put(player.getUniqueId(), new PlayerSnapshot(player));
-	}
-
-	public static void clear(@NotNull Player player) {
-		player.setGameMode(GameMode.SURVIVAL);
-    	player.setAllowFlight(false);
-    	player.setFlying(false);
-    	player.setGliding(false);
-    	player.setSneaking(false);
-    	player.setSprinting(false);
-    	player.setFoodLevel(20);
-    	player.setSaturation(20F);
-    	player.setHealth(EntityUtil.getAttribute(player, Attribute.GENERIC_MAX_HEALTH));
-    	player.setFireTicks(0);
-    	player.leaveVehicle();
-    	player.getActivePotionEffects().forEach(effect -> player.removePotionEffect(effect.getType()));
-    	
-    	if (Hooks.hasPlugin(HookId.ESSENTIALS)) {
-    		EssentialsHook.disableGod(player);
-    	}
-    	if (Hooks.hasPlugin(HookId.SUNLIGHT)) {
-    		SunLightHook.disableGod(player);
-    	}
+    PlayerSnapshot(@NotNull Player player) {
+        this.location = player.getLocation();
+        this.foodLevel = player.getFoodLevel();
+        this.saturation = player.getSaturation();
+        this.health = player.getHealth();
+        this.inventory = player.getInventory().getContents();
+        this.armor = player.getInventory().getArmorContents();
+        this.effects = player.getActivePotionEffects();
+        this.gameMode = player.getGameMode();
     }
-	
-	public static void restore(@NotNull ArenaPlayer arenaPlayer) {
-		Player player = arenaPlayer.getPlayer();
-		PlayerSnapshot snapshot = SNAPSHOTS.remove(player.getUniqueId());
-		if (snapshot == null) return;
 
-		AbstractArena arena = arenaPlayer.getArena();
-		
-		Location exit = arena.getConfig().getLocation(ArenaLocationType.LEAVE);
-		player.teleport(exit != null ? exit : snapshot.getLocation());
+    public static void doSnapshot(@NotNull Player player) {
+        SNAPSHOTS.put(player.getUniqueId(), new PlayerSnapshot(player));
+    }
 
-		player.setFoodLevel(snapshot.getFoodLevel());
-		player.setSaturation(snapshot.getSaturation());
-		player.setHealth(snapshot.getHealth());
-		player.setGameMode(snapshot.getGameMode());
+    public static void clear(@NotNull Player player) {
+        player.setGameMode(GameMode.SURVIVAL);
+        player.setAllowFlight(false);
+        player.setFlying(false);
+        player.setGliding(false);
+        player.setSneaking(false);
+        player.setSprinting(false);
+        player.setFoodLevel(20);
+        player.setSaturation(20F);
+        player.setHealth(EntityUtil.getAttribute(player, Attribute.GENERIC_MAX_HEALTH));
+        player.setFireTicks(0);
+        player.leaveVehicle();
+        player.getActivePotionEffects().forEach(effect -> player.removePotionEffect(effect.getType()));
 
-		if (player.getGameMode() == GameMode.CREATIVE) {
-		   	player.setAllowFlight(true);
-		   	player.setFlying(true);
-		}
+        if (Hooks.hasPlugin(HookId.ESSENTIALS)) {
+            EssentialsHook.disableGod(player);
+        }
+        if (Hooks.hasPlugin(HookId.SUNLIGHT)) {
+            SunLightHook.disableGod(player);
+        }
+    }
 
-		player.getActivePotionEffects().stream().map(PotionEffect::getType).forEach(player::removePotionEffect);
-		player.addPotionEffects(snapshot.getPotionEffects());
-		   
-		// Return player inventory before the game
-		if (arena.getConfig().getGameplayManager().isKitsEnabled()) {
-			player.getInventory().setContents(snapshot.getInventory());
-			player.getInventory().setArmorContents(snapshot.getArmor());
-		}
-	}
-	
-	@NotNull
-	public Location getLocation() {
-		return this.location;
-	}
+    public static void restore(@NotNull ArenaPlayer arenaPlayer) {
+        Player player = arenaPlayer.getPlayer();
+        PlayerSnapshot snapshot = SNAPSHOTS.remove(player.getUniqueId());
+        if (snapshot == null) return;
 
-	public int getFoodLevel() {
-		return foodLevel;
-	}
+        AbstractArena arena = arenaPlayer.getArena();
 
-	public float getSaturation() {
-		return saturation;
-	}
+        Location exit = arena.getConfig().getLocation(ArenaLocationType.LEAVE);
+        player.teleport(exit != null ? exit : snapshot.getLocation());
 
-	public double getHealth() {
-		return health;
-	}
+        player.setFoodLevel(snapshot.getFoodLevel());
+        player.setSaturation(snapshot.getSaturation());
+        player.setHealth(snapshot.getHealth());
+        player.setGameMode(snapshot.getGameMode());
 
-	@NotNull
-	public ItemStack[] getInventory() {
-		return this.inventory;
-	}
-	
-	public ItemStack[] getArmor() {
-		return this.armor;
-	}
-	
-	@NotNull
-	public Collection<PotionEffect> getPotionEffects() {
-		return this.effects;
-	}
-	
-	@NotNull
-	public GameMode getGameMode() {
-		return this.gameMode;
-	}
+        if (player.getGameMode() == GameMode.CREATIVE) {
+            player.setAllowFlight(true);
+            player.setFlying(true);
+        }
+
+        player.getActivePotionEffects().stream().map(PotionEffect::getType).forEach(player::removePotionEffect);
+        player.addPotionEffects(snapshot.getPotionEffects());
+
+        // Return player inventory before the game
+        if (arena.getConfig().getGameplayManager().isKitsEnabled()) {
+            player.getInventory().setContents(snapshot.getInventory());
+            player.getInventory().setArmorContents(snapshot.getArmor());
+        }
+    }
+
+    @NotNull
+    public Location getLocation() {
+        return this.location;
+    }
+
+    public int getFoodLevel() {
+        return foodLevel;
+    }
+
+    public float getSaturation() {
+        return saturation;
+    }
+
+    public double getHealth() {
+        return health;
+    }
+
+    @NotNull
+    public ItemStack[] getInventory() {
+        return this.inventory;
+    }
+
+    public ItemStack[] getArmor() {
+        return this.armor;
+    }
+
+    @NotNull
+    public Collection<PotionEffect> getPotionEffects() {
+        return this.effects;
+    }
+
+    @NotNull
+    public GameMode getGameMode() {
+        return this.gameMode;
+    }
 }

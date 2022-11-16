@@ -8,26 +8,26 @@ import su.nightexpress.ama.arena.AbstractArena;
 
 public class ArenaPlayerJoinEvent extends ArenaGameGenericEvent implements Cancellable {
 
-	private final Player  player;
-	private       boolean isCancelled;
-	
-	public ArenaPlayerJoinEvent(@NotNull AbstractArena arena, @NotNull Player player) {
-		super(arena, ArenaGameEventType.PLAYER_JOIN);
-		this.player = player;
-	}
+    private final Player  player;
+    private       boolean isCancelled;
 
-	@NotNull
-	public Player getPlayer() {
-		return player;
-	}
+    public ArenaPlayerJoinEvent(@NotNull AbstractArena arena, @NotNull Player player) {
+        super(arena, ArenaGameEventType.PLAYER_JOIN);
+        this.player = player;
+    }
 
-	@Override
-	public boolean isCancelled() {
-		return this.isCancelled;
-	}
+    @NotNull
+    public Player getPlayer() {
+        return player;
+    }
 
-	@Override
-	public void setCancelled(boolean isCancelled) {
-		this.isCancelled = isCancelled;
-	}
+    @Override
+    public boolean isCancelled() {
+        return this.isCancelled;
+    }
+
+    @Override
+    public void setCancelled(boolean isCancelled) {
+        this.isCancelled = isCancelled;
+    }
 }

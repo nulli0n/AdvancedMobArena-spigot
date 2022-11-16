@@ -6,15 +6,15 @@ import su.nightexpress.ama.arena.AbstractArena;
 
 public class ArenaGameEndEvent extends ArenaGameGenericEvent {
 
-	private final ArenaEndType type;
+    private final ArenaEndType type;
 
-	public ArenaGameEndEvent(@NotNull AbstractArena arena, @NotNull ArenaEndType type) {
-		super(arena, type.getGameEventType());
-		this.type = type;
-	}
+    public ArenaGameEndEvent(@NotNull AbstractArena arena, @NotNull ArenaEndType type) {
+        super(arena, type.getGameEventType());
+        this.type = type;
+    }
 
-	@NotNull
-	public ArenaEndType getType() {
-		return this.type;
-	}
+    @NotNull
+    public ArenaEndType getType() {
+        return this.type;
+    }
 }

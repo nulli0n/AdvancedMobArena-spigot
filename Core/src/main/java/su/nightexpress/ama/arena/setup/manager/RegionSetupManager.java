@@ -96,7 +96,7 @@ public class RegionSetupManager extends AbstractSetupManager<ArenaRegion> {
         });
 
         region.getContainers().forEach(c -> {
-            ArenaSetupUtils.addVisualText(player, "&6« Container »", c.getLocation().clone().add(0,-1,0));
+            ArenaSetupUtils.addVisualText(player, "&6« Container »", c.getLocation().clone().add(0, -1, 0));
         });
     }
 
@@ -133,9 +133,9 @@ public class RegionSetupManager extends AbstractSetupManager<ArenaRegion> {
                 this.cuboidCache[pos] = location;
 
                 plugin.getMessage(Lang.Setup_Region_Cuboid_Set)
-                        .replace(region.replacePlaceholders())
-                        .replace("%corner%", String.valueOf(pos + 1))
-                        .send(player);
+                    .replace(region.replacePlaceholders())
+                    .replace("%corner%", String.valueOf(pos + 1))
+                    .send(player);
 
                 if (this.cuboidCache[0] == null || this.cuboidCache[1] == null) return;
                 ArenaCuboid cuboidNew = new ArenaCuboid(this.cuboidCache[0], this.cuboidCache[1]);
@@ -146,10 +146,10 @@ public class RegionSetupManager extends AbstractSetupManager<ArenaRegion> {
                 int contLost = (int) region.getContainers().stream().filter(con -> !cuboidNew.contains(con.getLocation())).count();
 
                 plugin.getMessage(Lang.Setup_Reigon_Cuboid_Preview)
-                        .replace("%spawn-lost%", LangManager.getBoolean(spawnLost))
-                        .replace("%spawners-lost%", String.valueOf(spawnersLost))
-                        .replace("%containers-lost%", String.valueOf(contLost))
-                        .send(player);
+                    .replace("%spawn-lost%", LangManager.getBoolean(spawnLost))
+                    .replace("%spawners-lost%", String.valueOf(spawnersLost))
+                    .replace("%containers-lost%", String.valueOf(contLost))
+                    .send(player);
             }
             case REGION_SPAWN -> {
                 Location location = player.getLocation();

@@ -26,101 +26,101 @@ import java.util.Map;
 import java.util.stream.IntStream;
 
 class EditorSpotStateList extends AbstractEditorMenuAuto<AMA, ArenaSpot, ArenaSpotState> {
-	
-	public EditorSpotStateList(@NotNull ArenaSpot spot) {
-		super(spot.plugin(), spot, ArenaEditorUtils.TITLE_SPOT_EDITOR, 45);
 
-		EditorInput<ArenaSpot, ArenaEditorType> input = (player, spot2, type, e) -> {
-			String msg = StringUtil.color(e.getMessage());
-			if (type == ArenaEditorType.SPOT_STATE_CREATE) {
-				String id = EditorManager.fineId(msg);
-				if (spot2.getState(id) != null) {
-					EditorManager.error(player, plugin.getMessage(Lang.Editor_Spot_State_Error_Id).getLocalized());
-					return false;
-				}
+    public EditorSpotStateList(@NotNull ArenaSpot spot) {
+        super(spot.plugin(), spot, ArenaEditorUtils.TITLE_SPOT_EDITOR, 45);
 
-				ArenaSpotState state = new ArenaSpotState(spot, id, new HashSet<>(), new ArrayList<>());
-				spot2.getStates().put(state.getId(), state);
-			}
+        EditorInput<ArenaSpot, ArenaEditorType> input = (player, spot2, type, e) -> {
+            String msg = StringUtil.color(e.getMessage());
+            if (type == ArenaEditorType.SPOT_STATE_CREATE) {
+                String id = EditorManager.fineId(msg);
+                if (spot2.getState(id) != null) {
+                    EditorManager.error(player, plugin.getMessage(Lang.Editor_Spot_State_Error_Id).getLocalized());
+                    return false;
+                }
 
-			spot2.save();
-			return true;
-		};
+                ArenaSpotState state = new ArenaSpotState(spot, id, new HashSet<>(), new ArrayList<>());
+                spot2.getStates().put(state.getId(), state);
+            }
 
-		IMenuClick click = (player, type, e) -> {
-			if (type == null) return;
+            spot2.save();
+            return true;
+        };
 
-			if (type instanceof MenuItemType type2) {
-				if (type2 == MenuItemType.RETURN) {
-					spot.getEditor().open(player, 1);
-				}
-				else this.onItemClickDefault(player, type2);
-			}
-			else if (type instanceof ArenaEditorType type2) {
-				if (type2 == ArenaEditorType.SPOT_STATE_CREATE) {
-					EditorManager.startEdit(player, spot, type2, input);
-					EditorManager.tip(player, plugin.getMessage(Lang.Editor_Spot_State_Enter_Id).getLocalized());
-					player.closeInventory();
-				}
-			}
-		};
-		
-		this.loadItems(click);
-	}
+        IMenuClick click = (player, type, e) -> {
+            if (type == null) return;
 
-	@Override
-	public void setTypes(@NotNull Map<EditorButtonType, Integer> map) {
-		map.put(ArenaEditorType.SPOT_STATE_CREATE, 41);
-		map.put(MenuItemType.RETURN, 39);
-		map.put(MenuItemType.PAGE_NEXT, 44);
-		map.put(MenuItemType.PAGE_PREVIOUS, 36);
-	}
+            if (type instanceof MenuItemType type2) {
+                if (type2 == MenuItemType.RETURN) {
+                    spot.getEditor().open(player, 1);
+                }
+                else this.onItemClickDefault(player, type2);
+            }
+            else if (type instanceof ArenaEditorType type2) {
+                if (type2 == ArenaEditorType.SPOT_STATE_CREATE) {
+                    EditorManager.startEdit(player, spot, type2, input);
+                    EditorManager.tip(player, plugin.getMessage(Lang.Editor_Spot_State_Enter_Id).getLocalized());
+                    player.closeInventory();
+                }
+            }
+        };
 
-	@Override
-	public int[] getObjectSlots() {
-		return IntStream.range(0, 36).toArray();
-	}
+        this.loadItems(click);
+    }
 
-	@Override
-	@NotNull
-	protected List<ArenaSpotState> getObjects(@NotNull Player player) {
-		return new ArrayList<>(this.parent.getStates().values());
-	}
+    @Override
+    public void setTypes(@NotNull Map<EditorButtonType, Integer> map) {
+        map.put(ArenaEditorType.SPOT_STATE_CREATE, 41);
+        map.put(MenuItemType.RETURN, 39);
+        map.put(MenuItemType.PAGE_NEXT, 44);
+        map.put(MenuItemType.PAGE_PREVIOUS, 36);
+    }
 
-	@Override
-	@NotNull
-	protected ItemStack getObjectStack(@NotNull Player player, @NotNull ArenaSpotState state) {
-		ItemStack item = ArenaEditorType.SPOT_STATE_OBJECT.getItem();
-		ItemUtil.replace(item, state.replacePlaceholders());
-		return item;
-	}
+    @Override
+    public int[] getObjectSlots() {
+        return IntStream.range(0, 36).toArray();
+    }
 
-	@Override
-	@NotNull
-	protected IMenuClick getObjectClick(@NotNull Player player, @NotNull ArenaSpotState state) {
-		return (p, type, e) -> {
-			if (e.isShiftClick()) {
-				if (e.isRightClick()) {
-					this.parent.getStates().remove(state.getId());
-					this.parent.save();
-					this.open(p, this.getPage(p));
-					return;
-				}
-				p.closeInventory();
-				plugin.getArenaSetupManager().getSpotStateSetupManager().startSetup(player, state);
-				return;
-			}
+    @Override
+    @NotNull
+    protected List<ArenaSpotState> getObjects(@NotNull Player player) {
+        return new ArrayList<>(this.parent.getStates().values());
+    }
 
-			ArenaEditorUtils.handleTriggersClick(player, state, ArenaEditorType.SPOT_STATE_CHANGE_TRIGGERS, e.isRightClick());
-			if (e.isRightClick()) {
-				this.parent.save();
-				this.open(p, this.getPage(p));
-			}
-		};
-	}
+    @Override
+    @NotNull
+    protected ItemStack getObjectStack(@NotNull Player player, @NotNull ArenaSpotState state) {
+        ItemStack item = ArenaEditorType.SPOT_STATE_OBJECT.getItem();
+        ItemUtil.replace(item, state.replacePlaceholders());
+        return item;
+    }
 
-	@Override
-	public boolean cancelClick(@NotNull InventoryClickEvent e, @NotNull SlotType slotType) {
-		return true;
-	}
+    @Override
+    @NotNull
+    protected IMenuClick getObjectClick(@NotNull Player player, @NotNull ArenaSpotState state) {
+        return (p, type, e) -> {
+            if (e.isShiftClick()) {
+                if (e.isRightClick()) {
+                    this.parent.getStates().remove(state.getId());
+                    this.parent.save();
+                    this.open(p, this.getPage(p));
+                    return;
+                }
+                p.closeInventory();
+                plugin.getArenaSetupManager().getSpotStateSetupManager().startSetup(player, state);
+                return;
+            }
+
+            ArenaEditorUtils.handleTriggersClick(player, state, ArenaEditorType.SPOT_STATE_CHANGE_TRIGGERS, e.isRightClick());
+            if (e.isRightClick()) {
+                this.parent.save();
+                this.open(p, this.getPage(p));
+            }
+        };
+    }
+
+    @Override
+    public boolean cancelClick(@NotNull InventoryClickEvent e, @NotNull SlotType slotType) {
+        return true;
+    }
 }

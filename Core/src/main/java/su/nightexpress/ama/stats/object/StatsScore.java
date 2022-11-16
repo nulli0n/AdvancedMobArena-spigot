@@ -11,10 +11,10 @@ public class StatsScore implements IPlaceholder {
 
     public static final String NO_NAME = "<?>";
 
-    private final String name;
+    private final String   name;
     private final StatType statType;
-    private final int score;
-    private final String arenaId;
+    private final int      score;
+    private final String   arenaId;
 
     public StatsScore(@NotNull String name, @NotNull StatType statType, int score, @NotNull String arenaId) {
         this.name = name;

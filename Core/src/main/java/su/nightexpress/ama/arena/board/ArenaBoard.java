@@ -18,17 +18,17 @@ import java.util.*;
 
 public class ArenaBoard {
 
-    private final ArenaPlayer arenaPlayer;
-    private final Player      player;
-    private final String title;
-    private final List<String> lines;
+    private final ArenaPlayer          arenaPlayer;
+    private final Player               player;
+    private final String               title;
+    private final List<String>         lines;
     private final String               playerId;
     private final Map<Integer, String> scores;
-    
+
     public ArenaBoard(@NotNull ArenaPlayer arenaPlayer, @NotNull ArenaBoardConfig boardConfig) {
-    	this.arenaPlayer = arenaPlayer;
-    	this.player = arenaPlayer.getPlayer();
-    	this.title = boardConfig.getTitle();
+        this.arenaPlayer = arenaPlayer;
+        this.player = arenaPlayer.getPlayer();
+        this.title = boardConfig.getTitle();
         this.lines = boardConfig.getLines();
         this.playerId = this.player.getUniqueId().toString().replace("-", "").substring(0, 15);
         this.scores = new HashMap<>();

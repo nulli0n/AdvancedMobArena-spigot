@@ -12,6 +12,7 @@ public interface IArenaGameEventListenerState extends IArenaGameEventListener {
     /**
      * Returns triggers for the OPPOSITE state of the current Lock State.
      * If it is LOCKED, then returns triggers for UNLOCKED state, and vice versa.
+     *
      * @return Set of GameEvent triggers.
      */
     @NotNull
@@ -20,7 +21,8 @@ public interface IArenaGameEventListenerState extends IArenaGameEventListener {
         return this.getStateTriggers(this.getState().getOpposite());
     }
 
-    @NotNull ArenaLockState getState();
+    @NotNull
+    ArenaLockState getState();
 
     void setState(@NotNull ArenaLockState state);
 
@@ -32,7 +34,8 @@ public interface IArenaGameEventListenerState extends IArenaGameEventListener {
         return this.getState() == ArenaLockState.UNLOCKED;
     }
 
-    @NotNull Map<ArenaLockState, Set<ArenaGameEventTrigger<?>>> getStateTriggers();
+    @NotNull
+    Map<ArenaLockState, Set<ArenaGameEventTrigger<?>>> getStateTriggers();
 
     @NotNull
     default Set<ArenaGameEventTrigger<?>> getStateTriggers(@NotNull ArenaLockState state) {

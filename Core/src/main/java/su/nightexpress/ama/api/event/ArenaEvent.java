@@ -7,26 +7,26 @@ import su.nightexpress.ama.arena.AbstractArena;
 
 public abstract class ArenaEvent extends Event {
 
-	private final AbstractArena arena;
+    private final AbstractArena arena;
 
-	private static final HandlerList handlerList = new HandlerList();
+    private static final HandlerList handlerList = new HandlerList();
 
-	public ArenaEvent(@NotNull AbstractArena arena) {
-	    this.arena = arena;
-	}
-	
-	@NotNull
-	public AbstractArena getArena() {
-		return this.arena;
-	}
+    public ArenaEvent(@NotNull AbstractArena arena) {
+        this.arena = arena;
+    }
 
-	public static HandlerList getHandlerList() {
-		return handlerList;
-	}
+    @NotNull
+    public AbstractArena getArena() {
+        return this.arena;
+    }
 
-	@NotNull
-	@Override
-	public HandlerList getHandlers() {
-		return handlerList;
-	}
+    public static HandlerList getHandlerList() {
+        return handlerList;
+    }
+
+    @NotNull
+    @Override
+    public HandlerList getHandlers() {
+        return handlerList;
+    }
 }

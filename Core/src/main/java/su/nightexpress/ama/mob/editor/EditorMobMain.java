@@ -76,7 +76,7 @@ public class EditorMobMain extends AbstractEditorMenu<AMA, MobConfig> {
             mob2.save();
             return true;
         };
-        
+
         IMenuClick click = (player, type, e) -> {
             if (type instanceof MenuItemType type2) {
                 if (type2 == MenuItemType.RETURN) {

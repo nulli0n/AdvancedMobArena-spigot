@@ -8,18 +8,18 @@ import su.nightexpress.ama.arena.spot.ArenaSpotState;
 
 public class ArenaSpotStateChangeEvent extends ArenaSpotEvent {
 
-	private final ArenaSpotState state;
+    private final ArenaSpotState state;
 
-	public ArenaSpotStateChangeEvent(
-			@NotNull AbstractArena arena,
-			@NotNull ArenaSpot spot,
-			@NotNull ArenaSpotState state) {
-		super(arena, ArenaGameEventType.SPOT_CHANGED, spot);
-		this.state = state;
-	}
+    public ArenaSpotStateChangeEvent(
+        @NotNull AbstractArena arena,
+        @NotNull ArenaSpot spot,
+        @NotNull ArenaSpotState state) {
+        super(arena, ArenaGameEventType.SPOT_CHANGED, spot);
+        this.state = state;
+    }
 
-	@NotNull
-	public ArenaSpotState getNewState() {
-		return this.state;
-	}
+    @NotNull
+    public ArenaSpotState getNewState() {
+        return this.state;
+    }
 }

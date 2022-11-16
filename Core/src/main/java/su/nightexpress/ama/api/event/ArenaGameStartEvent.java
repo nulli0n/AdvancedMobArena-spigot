@@ -6,7 +6,7 @@ import su.nightexpress.ama.arena.AbstractArena;
 
 public class ArenaGameStartEvent extends ArenaGameGenericEvent {
 
-	public ArenaGameStartEvent(@NotNull AbstractArena arena) {
-		super(arena, ArenaGameEventType.GAME_START);
-	}
+    public ArenaGameStartEvent(@NotNull AbstractArena arena) {
+        super(arena, ArenaGameEventType.GAME_START);
+    }
 }

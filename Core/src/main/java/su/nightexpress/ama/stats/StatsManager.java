@@ -30,68 +30,68 @@ import java.util.stream.Stream;
 
 public class StatsManager extends AbstractManager<AMA> implements ConfigHolder {
 
-	private JYML         config;
+    private JYML config;
 
-	private Map<StatType, Set<StatsScore>> statsScores;
-	private StatsMenu                      statsMenu;
-	private StatsTask                      statsTask;
+    private Map<StatType, Set<StatsScore>> statsScores;
+    private StatsMenu                      statsMenu;
+    private StatsTask                      statsTask;
 
-	public StatsManager(@NotNull AMA plugin) {
-		super(plugin);
-	}
-	
-	@Override
-	public void onLoad() {
-		this.config = JYML.loadOrExtract(plugin, "/stats/settings.yml");
-		this.config.initializeOptions(StatsConfig.class);
+    public StatsManager(@NotNull AMA plugin) {
+        super(plugin);
+    }
 
-		this.statsMenu = new StatsMenu(plugin, JYML.loadOrExtract(plugin, "/stats/gui.stats.yml"));
-		this.statsScores = new HashMap<>();
+    @Override
+    public void onLoad() {
+        this.config = JYML.loadOrExtract(plugin, "/stats/settings.yml");
+        this.config.initializeOptions(StatsConfig.class);
 
-		this.plugin.getMainCommand().addChildren(new StatsCommand(this));
+        this.statsMenu = new StatsMenu(plugin, JYML.loadOrExtract(plugin, "/stats/gui.stats.yml"));
+        this.statsScores = new HashMap<>();
 
-		this.statsTask = new StatsTask();
-		this.statsTask.start();
-	}
+        this.plugin.getMainCommand().addChildren(new StatsCommand(this));
 
-	@Override
-	public void onShutdown() {
-		this.getConfig().reload();
-		if (this.statsTask != null) {
-			this.statsTask.stop();
-			this.statsTask = null;
-		}
-		if (this.statsMenu != null) {
-			this.statsMenu.clear();
-			this.statsMenu = null;
-		}
-		this.statsScores.clear();
-	}
+        this.statsTask = new StatsTask();
+        this.statsTask.start();
+    }
 
-	@Override
-	@NotNull
-	public JYML getConfig() {
-		return config;
-	}
+    @Override
+    public void onShutdown() {
+        this.getConfig().reload();
+        if (this.statsTask != null) {
+            this.statsTask.stop();
+            this.statsTask = null;
+        }
+        if (this.statsMenu != null) {
+            this.statsMenu.clear();
+            this.statsMenu = null;
+        }
+        this.statsScores.clear();
+    }
 
-	@Override
-	public void onSave() {
+    @Override
+    @NotNull
+    public JYML getConfig() {
+        return config;
+    }
 
-	}
+    @Override
+    public void onSave() {
 
-	@NotNull
-	public StatsMenu getStatsMenu() {
-		return statsMenu;
-	}
+    }
 
-	public void update() {
-		this.statsScores.clear();
-		
-		List<ArenaUser> users = plugin.getData().getUsers();
-		List<String> arenaIds = plugin.getArenaManager().getArenaIds();
-		//arenaIds.add(null);
+    @NotNull
+    public StatsMenu getStatsMenu() {
+        return statsMenu;
+    }
 
-		// это всё ради скриншотиков (ну и тестов конечно же!!)
+    public void update() {
+        this.statsScores.clear();
+
+        List<ArenaUser> users = plugin.getData().getUsers();
+        List<String> arenaIds = plugin.getArenaManager().getArenaIds();
+        //arenaIds.add(null);
+
+        // это всё ради скриншотиков (ну и тестов конечно же!!)
 		/*String[] userNames = {"Jinx","_Turbo_","BigDaddy72","red_duck","SunThunder","The_Clown","TRexxx","iZoTope",
 			"Chocoboy","Katushka","VitorKhr","PURGEN","YaZanoZa","I_SEE_YOU", "EarthDragon"};
 
@@ -104,92 +104,92 @@ public class StatsManager extends AbstractManager<AMA> implements ConfigHolder {
 				});
 			});*/
 
-		users.forEach(user -> {
-			Stream.of(StatType.values()).forEach(statType -> {
-				arenaIds.forEach(arenaId -> {
-					int score = user.getStats(statType, arenaId);
-					StatsScore statsScore = new StatsScore(user.getName(), statType, score, arenaId);
-					this.getScores(statType).add(statsScore);
-				});
-			});
-		});
-		
-		this.plugin.getScheduler().runTask(this.plugin, () -> {
-			SignManager signManager = this.plugin.getSignManager();
-			if (signManager != null) {
-				signManager.update(SignType.STATS);
-			}
+        users.forEach(user -> {
+            Stream.of(StatType.values()).forEach(statType -> {
+                arenaIds.forEach(arenaId -> {
+                    int score = user.getStats(statType, arenaId);
+                    StatsScore statsScore = new StatsScore(user.getName(), statType, score, arenaId);
+                    this.getScores(statType).add(statsScore);
+                });
+            });
+        });
 
-			this.plugin.getArenaManager().getArenas().stream().map(AbstractArena::getConfig).forEach(arenaConfig -> {
-				for (StatType statType : StatType.values()) {
-					arenaConfig.getStatsHologram(statType).updateHolograms();
-				}
-			});
-		});
-	}
+        this.plugin.getScheduler().runTask(this.plugin, () -> {
+            SignManager signManager = this.plugin.getSignManager();
+            if (signManager != null) {
+                signManager.update(SignType.STATS);
+            }
 
-	@NotNull
-	private Set<StatsScore> getScores(@NotNull StatType statType) {
-		return this.statsScores.computeIfAbsent(statType, k -> new HashSet<>());
-	}
+            this.plugin.getArenaManager().getArenas().stream().map(AbstractArena::getConfig).forEach(arenaConfig -> {
+                for (StatType statType : StatType.values()) {
+                    arenaConfig.getStatsHologram(statType).updateHolograms();
+                }
+            });
+        });
+    }
+
+    @NotNull
+    private Set<StatsScore> getScores(@NotNull StatType statType) {
+        return this.statsScores.computeIfAbsent(statType, k -> new HashSet<>());
+    }
 
 	/*@NotNull
 	public StatsScore getScore(@NotNull StatType statType, int pos) {
 		return this.getScore(statType, pos, null);
 	}*/
 
-	@NotNull
-	public StatsScore getScore(@NotNull StatType statType, int pos, @NotNull String arena) {
-		List<StatsScore> scores = this.getScores(statType, pos, arena);
-		return scores.size() < pos || pos < 0 ? StatsScore.empty(statType) : scores.get(pos - 1);
-	}
+    @NotNull
+    public StatsScore getScore(@NotNull StatType statType, int pos, @NotNull String arena) {
+        List<StatsScore> scores = this.getScores(statType, pos, arena);
+        return scores.size() < pos || pos < 0 ? StatsScore.empty(statType) : scores.get(pos - 1);
+    }
 
 	/*@NotNull
 	public List<StatsScore> getScores(@NotNull StatType statType, int amount) {
 		return this.getScores(statType, amount, null);
 	}*/
 
-	@NotNull
-	public List<StatsScore> getScores(@NotNull StatType statType, int amount, @NotNull String arena) {
-		return this.getScores(statType).stream()
-			.filter(score -> /*arena == null ||*/ arena.equalsIgnoreCase(score.getArenaId()))
-			.sorted(Comparator.comparingInt(StatsScore::getScore).reversed()).limit(amount).toList();
-	}
+    @NotNull
+    public List<StatsScore> getScores(@NotNull StatType statType, int amount, @NotNull String arena) {
+        return this.getScores(statType).stream()
+            .filter(score -> /*arena == null ||*/ arena.equalsIgnoreCase(score.getArenaId()))
+            .sorted(Comparator.comparingInt(StatsScore::getScore).reversed()).limit(amount).toList();
+    }
 
-	public void setLeaderSkin(@NotNull Block block, @NotNull String name) {
-		if (!Hooks.hasPlugin(Hooks.CITIZENS)) return;
+    public void setLeaderSkin(@NotNull Block block, @NotNull String name) {
+        if (!Hooks.hasPlugin(Hooks.CITIZENS)) return;
 
-		Location location = block.getLocation();
-		World world = block.getWorld();
+        Location location = block.getLocation();
+        World world = block.getWorld();
 
-		if (name.length() > 16) name = name.substring(0, 16);
+        if (name.length() > 16) name = name.substring(0, 16);
 
-		Entity entity = world.getNearbyEntities(location, 0.25D, 1D, 0.25D, e -> {
-			return e.getType() == EntityType.PLAYER && Hooks.isCitizensNPC(e);
-		}).stream().findFirst().orElse(null);
+        Entity entity = world.getNearbyEntities(location, 0.25D, 1D, 0.25D, e -> {
+            return e.getType() == EntityType.PLAYER && Hooks.isCitizensNPC(e);
+        }).stream().findFirst().orElse(null);
 
-		NPC npc = entity == null ? null : CitizensAPI.getNPCRegistry().getNPC(entity);
-		if (npc != null) {
-			if (!npc.getName().equalsIgnoreCase(name)) {
-				npc.setName(name);
-			}
+        NPC npc = entity == null ? null : CitizensAPI.getNPCRegistry().getNPC(entity);
+        if (npc != null) {
+            if (!npc.getName().equalsIgnoreCase(name)) {
+                npc.setName(name);
+            }
 
-			SkinTrait skinTrait = npc.getTraitNullable(SkinTrait.class);
-			if (skinTrait != null && !name.equalsIgnoreCase(skinTrait.getSkinName())) {
-				skinTrait.setSkinName(name);
-			}
-		}
-	}
-	
-	class StatsTask extends AbstractTask<AMA> {
-	    
-	    public StatsTask() {
-	    	super(StatsManager.this.plugin, StatsConfig.UPDATE_INTERVAL.get(), true);
-	    }
-	    
-	    @Override
-	    public void action() {
-	    	update();
-	    }
-	}
+            SkinTrait skinTrait = npc.getTraitNullable(SkinTrait.class);
+            if (skinTrait != null && !name.equalsIgnoreCase(skinTrait.getSkinName())) {
+                skinTrait.setSkinName(name);
+            }
+        }
+    }
+
+    class StatsTask extends AbstractTask<AMA> {
+
+        public StatsTask() {
+            super(StatsManager.this.plugin, StatsConfig.UPDATE_INTERVAL.get(), true);
+        }
+
+        @Override
+        public void action() {
+            update();
+        }
+    }
 }

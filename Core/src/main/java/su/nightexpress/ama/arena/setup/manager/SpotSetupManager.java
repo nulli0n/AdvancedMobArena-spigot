@@ -89,7 +89,7 @@ public class SpotSetupManager extends AbstractSetupManager<ArenaSpot> {
 
     @Override
     protected void updateVisuals() {
-        if (this.cuboidCache!= null) {
+        if (this.cuboidCache != null) {
             if (cuboidCache[0] != null) {
                 ArenaSetupUtils.addVisualText(player, "&9« 1st Corner »", cuboidCache[0]);
                 ArenaSetupUtils.addVisualBlock(player, cuboidCache[0]);

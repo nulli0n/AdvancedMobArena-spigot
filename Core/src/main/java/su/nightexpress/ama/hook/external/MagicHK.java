@@ -16,188 +16,188 @@ import su.nightexpress.ama.api.ArenaAPI;
 import su.nightexpress.ama.arena.ArenaPlayer;
 
 public class MagicHK extends AbstractHook<AMA> {
-	
-	public MagicHK(@NotNull AMA plugin, @NotNull String pluginName) {
-		super(plugin, pluginName);
-	}
 
-	@Override
-	public boolean setup() {
-		this.registerListeners();
-		
-		return true;
-	}
+    public MagicHK(@NotNull AMA plugin, @NotNull String pluginName) {
+        super(plugin, pluginName);
+    }
 
-	@Override
-	public void shutdown() {
-		this.unregisterListeners();
-	}
+    @Override
+    public boolean setup() {
+        this.registerListeners();
 
-	@EventHandler
-	public void onMagicPreLoad(PreLoadEvent e) {
-		e.registerCurrency(new ArenaCurrency());
-		e.registerCurrency(new ArenaCurrencyScore());
-	}
-	
-	class ArenaCurrency implements Currency {
+        return true;
+    }
 
-		public ArenaCurrency() {
-			
-		}
-		
-		@Override
-		public void deduct(Mage m, CasterProperties caster, double amount) {
-			ArenaAPI.getUserManager().getUserData(m.getPlayer()).takeCoins((int) amount);
-		}
+    @Override
+    public void shutdown() {
+        this.unregisterListeners();
+    }
 
-		@Override
-		public String formatAmount(double amount, Messages messages) {
-			return NumberUtil.format(amount);
-		}
+    @EventHandler
+    public void onMagicPreLoad(PreLoadEvent e) {
+        e.registerCurrency(new ArenaCurrency());
+        e.registerCurrency(new ArenaCurrencyScore());
+    }
 
-		@Override
-		public double getBalance(Mage mage, CasterProperties caster) {
-			Player p = mage.getPlayer();
-			return ArenaAPI.getUserManager().getUserData(p).getCoins();
-		}
+    class ArenaCurrency implements Currency {
 
-		@Override
-		public double getDefaultValue() {
-			return 0;
-		}
+        public ArenaCurrency() {
 
-		@Override
-		public MaterialAndData getIcon() {
-			return null;
-		}
+        }
 
-		@Override
-		public String getKey() {
-			return "ama_coins";
-		}
+        @Override
+        public void deduct(Mage m, CasterProperties caster, double amount) {
+            ArenaAPI.getUserManager().getUserData(m.getPlayer()).takeCoins((int) amount);
+        }
 
-		@Override
-		public double getMaxValue() {
-			return 0;
-		}
+        @Override
+        public String formatAmount(double amount, Messages messages) {
+            return NumberUtil.format(amount);
+        }
 
-		@Override
-		public String getName(Messages messages) {
-			return "Coins";
-		}
+        @Override
+        public double getBalance(Mage mage, CasterProperties caster) {
+            Player p = mage.getPlayer();
+            return ArenaAPI.getUserManager().getUserData(p).getCoins();
+        }
 
-		@Override
-		public double getWorth() {
-			return 1;
-		}
+        @Override
+        public double getDefaultValue() {
+            return 0;
+        }
 
-		@Override
-		public boolean give(Mage mage, CasterProperties caster, double amount) {
-			ArenaAPI.getUserManager().getUserData(mage.getPlayer()).addCoins((int) amount);
-			return true;
-		}
+        @Override
+        public MaterialAndData getIcon() {
+            return null;
+        }
 
-		@Override
-		public boolean has(Mage mage, CasterProperties caster, double amount) {
-			if (!ArenaPlayer.isPlaying(mage.getPlayer())) {
-				return false;
-			}
-			return ArenaAPI.getUserManager().getUserData(mage.getPlayer()).getCoins() >= (int) amount;
-		}
+        @Override
+        public String getKey() {
+            return "ama_coins";
+        }
 
-		@Override
-		public boolean hasMaxValue() {
-			return false;
-		}
+        @Override
+        public double getMaxValue() {
+            return 0;
+        }
 
-		@Override
-		public boolean isValid() {
-			return true;
-		}
-	}
-	
-	class ArenaCurrencyScore implements Currency {
+        @Override
+        public String getName(Messages messages) {
+            return "Coins";
+        }
 
-		public ArenaCurrencyScore() {
-			
-		}
-		
-		@Override
-		public void deduct(Mage m, CasterProperties caster, double amount) {
-			ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(m.getPlayer());
-			if (arenaPlayer == null) return;
-			
-			arenaPlayer.addScore((int) -amount);
-		}
+        @Override
+        public double getWorth() {
+            return 1;
+        }
 
-		@Override
-		public String formatAmount(double amount, Messages messages) {
-			return NumberUtil.format(amount);
-		}
+        @Override
+        public boolean give(Mage mage, CasterProperties caster, double amount) {
+            ArenaAPI.getUserManager().getUserData(mage.getPlayer()).addCoins((int) amount);
+            return true;
+        }
 
-		@Override
-		public double getBalance(Mage mage, CasterProperties caster) {
-			ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(mage.getPlayer());
-			if (arenaPlayer == null) return 0;
-			
-			return arenaPlayer.getScore();
-		}
+        @Override
+        public boolean has(Mage mage, CasterProperties caster, double amount) {
+            if (!ArenaPlayer.isPlaying(mage.getPlayer())) {
+                return false;
+            }
+            return ArenaAPI.getUserManager().getUserData(mage.getPlayer()).getCoins() >= (int) amount;
+        }
 
-		@Override
-		public double getDefaultValue() {
-			return 0;
-		}
+        @Override
+        public boolean hasMaxValue() {
+            return false;
+        }
 
-		@Override
-		public MaterialAndData getIcon() {
-			return null;
-		}
+        @Override
+        public boolean isValid() {
+            return true;
+        }
+    }
 
-		@Override
-		public String getKey() {
-			return "ama_score";
-		}
+    class ArenaCurrencyScore implements Currency {
 
-		@Override
-		public double getMaxValue() {
-			return 0;
-		}
+        public ArenaCurrencyScore() {
 
-		@Override
-		public String getName(Messages messages) {
-			return "Score";
-		}
+        }
 
-		@Override
-		public double getWorth() {
-			return 1;
-		}
+        @Override
+        public void deduct(Mage m, CasterProperties caster, double amount) {
+            ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(m.getPlayer());
+            if (arenaPlayer == null) return;
 
-		@Override
-		public boolean give(Mage mage, CasterProperties caster, double amount) {
-			ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(mage.getPlayer());
-			if (arenaPlayer == null) return false;
-			
-			arenaPlayer.addScore((int) amount);
-			return true;
-		}
+            arenaPlayer.addScore((int) -amount);
+        }
 
-		@Override
-		public boolean has(Mage mage, CasterProperties caster, double amount) {
-			ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(mage.getPlayer());
-			if (arenaPlayer == null) return false;
-			
-			return arenaPlayer.getScore() >= (int) amount;
-		}
+        @Override
+        public String formatAmount(double amount, Messages messages) {
+            return NumberUtil.format(amount);
+        }
 
-		@Override
-		public boolean hasMaxValue() {
-			return false;
-		}
+        @Override
+        public double getBalance(Mage mage, CasterProperties caster) {
+            ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(mage.getPlayer());
+            if (arenaPlayer == null) return 0;
 
-		@Override
-		public boolean isValid() {
-			return true;
-		}
-	}
+            return arenaPlayer.getScore();
+        }
+
+        @Override
+        public double getDefaultValue() {
+            return 0;
+        }
+
+        @Override
+        public MaterialAndData getIcon() {
+            return null;
+        }
+
+        @Override
+        public String getKey() {
+            return "ama_score";
+        }
+
+        @Override
+        public double getMaxValue() {
+            return 0;
+        }
+
+        @Override
+        public String getName(Messages messages) {
+            return "Score";
+        }
+
+        @Override
+        public double getWorth() {
+            return 1;
+        }
+
+        @Override
+        public boolean give(Mage mage, CasterProperties caster, double amount) {
+            ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(mage.getPlayer());
+            if (arenaPlayer == null) return false;
+
+            arenaPlayer.addScore((int) amount);
+            return true;
+        }
+
+        @Override
+        public boolean has(Mage mage, CasterProperties caster, double amount) {
+            ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(mage.getPlayer());
+            if (arenaPlayer == null) return false;
+
+            return arenaPlayer.getScore() >= (int) amount;
+        }
+
+        @Override
+        public boolean hasMaxValue() {
+            return false;
+        }
+
+        @Override
+        public boolean isValid() {
+            return true;
+        }
+    }
 }

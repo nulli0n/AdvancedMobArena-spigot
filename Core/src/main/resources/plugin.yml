@@ -2,8 +2,8 @@ name: AdvancedMobArena
 version: '${project.version}'
 main: su.nightexpress.ama.AMA
 author: NightExpress
-depend: [NexEngine]
-softdepend: [Vault, MythicMobs, HolographicDisplays, DecentHolograms, Citizens, PlaceholderAPI, SunLight, Essentials]
-loadbefore: [Magic]
+depend: [ NexEngine ]
+softdepend: [ Vault, MythicMobs, HolographicDisplays, DecentHolograms, Citizens, PlaceholderAPI, SunLight, Essentials ]
+loadbefore: [ Magic ]
 description: An advanced mob arena with many cool features for your server. Enjoy!
 api-version: 1.17

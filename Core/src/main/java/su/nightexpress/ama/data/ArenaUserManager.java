@@ -7,14 +7,14 @@ import su.nightexpress.ama.AMA;
 import java.util.UUID;
 
 public class ArenaUserManager extends AbstractUserManager<AMA, ArenaUser> {
-	
-	public ArenaUserManager(@NotNull AMA plugin) {
-		super(plugin, plugin);
-	}
 
-	@Override
-	@NotNull
-	protected ArenaUser createData(@NotNull UUID uuid, @NotNull String name) {
-		return new ArenaUser(this.plugin, uuid, name);
-	}
+    public ArenaUserManager(@NotNull AMA plugin) {
+        super(plugin, plugin);
+    }
+
+    @Override
+    @NotNull
+    protected ArenaUser createData(@NotNull UUID uuid, @NotNull String name) {
+        return new ArenaUser(this.plugin, uuid, name);
+    }
 }

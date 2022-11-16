@@ -11,13 +11,17 @@ import java.util.UUID;
 
 public interface HologramHolder {
 
-    @NotNull Set<Location> getHologramLocations();
+    @NotNull
+    Set<Location> getHologramLocations();
 
-    @NotNull Set<UUID> getHologramIds();
+    @NotNull
+    Set<UUID> getHologramIds();
 
-    @NotNull List<String> getHologramFormat();
+    @NotNull
+    List<String> getHologramFormat();
 
-    @NotNull HologramType getHologramType();
+    @NotNull
+    HologramType getHologramType();
 
     default void createHolograms() {
         HologramManager holograms = ArenaAPI.PLUGIN.getHologramManager();

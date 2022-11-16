@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class CurrencyId {
 
-    public static final String COINS           = "coins";
+    public static final String COINS         = "coins";
     public static final String VAULT         = "vault";
     public static final String PLAYER_POINTS = "player_points";
     public static final String GAME_POINTS   = "game_points";

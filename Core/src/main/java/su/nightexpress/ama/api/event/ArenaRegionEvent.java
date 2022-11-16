@@ -7,19 +7,19 @@ import su.nightexpress.ama.arena.region.ArenaRegion;
 
 public class ArenaRegionEvent extends ArenaGameGenericEvent {
 
-	private final ArenaRegion arenaRegion;
+    private final ArenaRegion arenaRegion;
 
-	public ArenaRegionEvent(
-			@NotNull AbstractArena arena,
-			@NotNull ArenaGameEventType eventType,
-			@NotNull ArenaRegion arenaRegion
-			) {
-		super(arena, eventType);
-	    this.arenaRegion = arenaRegion;
-	}
+    public ArenaRegionEvent(
+        @NotNull AbstractArena arena,
+        @NotNull ArenaGameEventType eventType,
+        @NotNull ArenaRegion arenaRegion
+    ) {
+        super(arena, eventType);
+        this.arenaRegion = arenaRegion;
+    }
 
-	@NotNull
-	public ArenaRegion getArenaRegion() {
-		return this.arenaRegion;
-	}
+    @NotNull
+    public ArenaRegion getArenaRegion() {
+        return this.arenaRegion;
+    }
 }

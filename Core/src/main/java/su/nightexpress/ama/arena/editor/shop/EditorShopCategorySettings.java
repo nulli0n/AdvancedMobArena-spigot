@@ -41,7 +41,7 @@ public class EditorShopCategorySettings extends AbstractEditorMenu<AMA, ArenaSho
             category.getShopManager().save();
             return true;
         };
-        
+
         IMenuClick click = (player, type, e) -> {
             if (type == null) return;
 

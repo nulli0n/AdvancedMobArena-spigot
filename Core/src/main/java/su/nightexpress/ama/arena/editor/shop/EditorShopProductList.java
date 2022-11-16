@@ -26,100 +26,100 @@ import java.util.Map;
 import java.util.stream.IntStream;
 
 public class EditorShopProductList extends AbstractEditorMenuAuto<AMA, ArenaShopCategory, ArenaShopProduct> {
-	
-	public EditorShopProductList(@NotNull ArenaShopCategory shopCategory) {
-		super(shopCategory.plugin(), shopCategory, ArenaEditorUtils.TITLE_SHOP_EDITOR, 45);
 
-		EditorInput<ArenaShopCategory, ArenaEditorType> input = (player, category, type, e) -> {
-			String msg = StringUtil.color(e.getMessage());
-			if (type == ArenaEditorType.SHOP_PRODUCT_CREATE) {
-				String id = EditorManager.fineId(msg);
-				boolean hasProduct = category.getProduct(id) != null;
-				if (hasProduct) {
-					EditorManager.error(player, plugin.getMessage(Lang.Editor_Arena_Shop_Error_Product_Exist).getLocalized());
-					return false;
-				}
+    public EditorShopProductList(@NotNull ArenaShopCategory shopCategory) {
+        super(shopCategory.plugin(), shopCategory, ArenaEditorUtils.TITLE_SHOP_EDITOR, 45);
 
-				ArenaShopProduct product = new ArenaShopProduct(category, id, plugin.getCurrencyManager().getCurrencyFirst());
-				category.getProductsMap().put(product.getId(), product);
-			}
+        EditorInput<ArenaShopCategory, ArenaEditorType> input = (player, category, type, e) -> {
+            String msg = StringUtil.color(e.getMessage());
+            if (type == ArenaEditorType.SHOP_PRODUCT_CREATE) {
+                String id = EditorManager.fineId(msg);
+                boolean hasProduct = category.getProduct(id) != null;
+                if (hasProduct) {
+                    EditorManager.error(player, plugin.getMessage(Lang.Editor_Arena_Shop_Error_Product_Exist).getLocalized());
+                    return false;
+                }
 
-			category.getShopManager().save();
-			return true;
-		};
+                ArenaShopProduct product = new ArenaShopProduct(category, id, plugin.getCurrencyManager().getCurrencyFirst());
+                category.getProductsMap().put(product.getId(), product);
+            }
 
-		IMenuClick click = (player, type, e) -> {
-			if (type instanceof MenuItemType type2) {
-				if (type2 == MenuItemType.RETURN) {
-					shopCategory.getEditor().open(player, 1);
-				}
-				else this.onItemClickDefault(player, type2);
-			}
-			else if (type instanceof ArenaEditorType type2) {
-				if (type2 == ArenaEditorType.SHOP_PRODUCT_CREATE) {
-					EditorManager.startEdit(player, shopCategory, type2, input);
-					EditorManager.tip(player, plugin.getMessage(Lang.Editor_Arena_Shop_Enter_Product_Create).getLocalized());
-					player.closeInventory();
-				}
-			}
-		};
-		
-		this.loadItems(click);
-	}
+            category.getShopManager().save();
+            return true;
+        };
 
-	@Override
-	public void setTypes(@NotNull Map<EditorButtonType, Integer> map) {
-		map.put(ArenaEditorType.SHOP_PRODUCT_CREATE, 41);
-		map.put(MenuItemType.RETURN, 39);
-		map.put(MenuItemType.PAGE_NEXT, 44);
-		map.put(MenuItemType.PAGE_PREVIOUS, 36);
-	}
+        IMenuClick click = (player, type, e) -> {
+            if (type instanceof MenuItemType type2) {
+                if (type2 == MenuItemType.RETURN) {
+                    shopCategory.getEditor().open(player, 1);
+                }
+                else this.onItemClickDefault(player, type2);
+            }
+            else if (type instanceof ArenaEditorType type2) {
+                if (type2 == ArenaEditorType.SHOP_PRODUCT_CREATE) {
+                    EditorManager.startEdit(player, shopCategory, type2, input);
+                    EditorManager.tip(player, plugin.getMessage(Lang.Editor_Arena_Shop_Enter_Product_Create).getLocalized());
+                    player.closeInventory();
+                }
+            }
+        };
 
-	@Override
-	public int[] getObjectSlots() {
-		return IntStream.range(0, 36).toArray();
-	}
+        this.loadItems(click);
+    }
 
-	@Override
-	@NotNull
-	protected List<ArenaShopProduct> getObjects(@NotNull Player player) {
-		return new ArrayList<>(this.parent.getProducts());
-	}
+    @Override
+    public void setTypes(@NotNull Map<EditorButtonType, Integer> map) {
+        map.put(ArenaEditorType.SHOP_PRODUCT_CREATE, 41);
+        map.put(MenuItemType.RETURN, 39);
+        map.put(MenuItemType.PAGE_NEXT, 44);
+        map.put(MenuItemType.PAGE_PREVIOUS, 36);
+    }
 
-	@Override
-	@NotNull
-	protected ItemStack getObjectStack(@NotNull Player player, @NotNull ArenaShopProduct shopProduct) {
-		ItemStack item = new ItemStack(shopProduct.getIcon());
-		ItemMeta meta = item.getItemMeta();
-		if (meta == null) return item;
+    @Override
+    public int[] getObjectSlots() {
+        return IntStream.range(0, 36).toArray();
+    }
 
-		ItemStack object = ArenaEditorType.SHOP_PRODUCT_OBJECT.getItem();
+    @Override
+    @NotNull
+    protected List<ArenaShopProduct> getObjects(@NotNull Player player) {
+        return new ArrayList<>(this.parent.getProducts());
+    }
 
-		meta.setDisplayName(ItemUtil.getItemName(object));
-		meta.setLore(ItemUtil.getLore(object));
-		item.setItemMeta(meta);
-		ItemUtil.replace(item, shopProduct.replacePlaceholders());
+    @Override
+    @NotNull
+    protected ItemStack getObjectStack(@NotNull Player player, @NotNull ArenaShopProduct shopProduct) {
+        ItemStack item = new ItemStack(shopProduct.getIcon());
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return item;
 
-		return item;
-	}
+        ItemStack object = ArenaEditorType.SHOP_PRODUCT_OBJECT.getItem();
 
-	@Override
-	@NotNull
-	protected IMenuClick getObjectClick(@NotNull Player player, @NotNull ArenaShopProduct shopProduct) {
-		return (p2, type, e) -> {
-			if (e.isShiftClick() && e.isRightClick()) {
-				shopProduct.clear();
-				this.parent.getProducts().remove(shopProduct);
-				this.parent.getShopManager().save();
-				this.open(p2, 1);
-				return;
-			}
-			shopProduct.getEditor().open(p2, 1);
-		};
-	}
+        meta.setDisplayName(ItemUtil.getItemName(object));
+        meta.setLore(ItemUtil.getLore(object));
+        item.setItemMeta(meta);
+        ItemUtil.replace(item, shopProduct.replacePlaceholders());
 
-	@Override
-	public boolean cancelClick(@NotNull InventoryClickEvent e, @NotNull SlotType slotType) {
-		return true;
-	}
+        return item;
+    }
+
+    @Override
+    @NotNull
+    protected IMenuClick getObjectClick(@NotNull Player player, @NotNull ArenaShopProduct shopProduct) {
+        return (p2, type, e) -> {
+            if (e.isShiftClick() && e.isRightClick()) {
+                shopProduct.clear();
+                this.parent.getProducts().remove(shopProduct);
+                this.parent.getShopManager().save();
+                this.open(p2, 1);
+                return;
+            }
+            shopProduct.getEditor().open(p2, 1);
+        };
+    }
+
+    @Override
+    public boolean cancelClick(@NotNull InventoryClickEvent e, @NotNull SlotType slotType) {
+        return true;
+    }
 }

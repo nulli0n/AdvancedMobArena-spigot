@@ -10,18 +10,18 @@ import su.nightexpress.ama.arena.ArenaPlayer;
 @TraitName("ama-shop")
 public class ShopTrait extends Trait {
 
-	public ShopTrait() {
-		super("ama-shop");
-	}
+    public ShopTrait() {
+        super("ama-shop");
+    }
 
     @EventHandler
     public void click(NPCRightClickEvent e) {
         if (e.getNPC() == this.getNPC()) {
-        	Player player = e.getClicker();
-        	ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
-        	if (arenaPlayer == null) return;
-        	
-        	arenaPlayer.getArena().getConfig().getShopManager().open(player);
+            Player player = e.getClicker();
+            ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
+            if (arenaPlayer == null) return;
+
+            arenaPlayer.getArena().getConfig().getShopManager().open(player);
         }
     }
 }

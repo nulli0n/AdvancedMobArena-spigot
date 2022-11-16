@@ -37,7 +37,7 @@ public class EditorGameCommandSettings extends AbstractEditorMenu<AMA, ArenaGame
             gameCommand2.getArenaConfig().getGameplayManager().save();
             return true;
         };
-        
+
         IMenuClick click = (player, type, e) -> {
             if (type instanceof MenuItemType type2) {
                 if (type2 == MenuItemType.RETURN) {

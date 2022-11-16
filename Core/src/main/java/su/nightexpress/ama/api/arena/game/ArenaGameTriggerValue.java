@@ -12,21 +12,24 @@ import java.util.stream.Stream;
 
 public abstract class ArenaGameTriggerValue<T> {
 
-    protected final String  valueRaw;
+    protected final String                     valueRaw;
     protected final List<Pair<T, Operator<T>>> values;
-    protected final Map<String, Operator<T>> operators;
-    protected final Predicate<T> predicate;
+    protected final Map<String, Operator<T>>   operators;
+    protected final Predicate<T>               predicate;
 
-    protected static final String OPERATOR_NEGATE = "!";
+    protected static final String OPERATOR_NEGATE   = "!";
     protected static final String OPERATOR_INTERVAL = "%";
-    protected static final String OPERATOR_GREATER = ">";
-    protected static final String OPERATOR_SMALLER = "<";
+    protected static final String OPERATOR_GREATER  = ">";
+    protected static final String OPERATOR_SMALLER  = "<";
 
     public interface ValueParser<T> {
-        @NotNull T parse(@NotNull String valueRaw);
+
+        @NotNull
+        T parse(@NotNull String valueRaw);
     }
 
     public interface Operator<T> {
+
         boolean compare(@NotNull T arenaValue, @NotNull T triggerValue);
     }
 

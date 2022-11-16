@@ -11,33 +11,33 @@ import su.nightexpress.ama.stats.StatsManager;
 
 public class StatsCommand extends AbstractCommand<AMA> {
 
-	private final StatsManager statsManager;
-	
-	public StatsCommand(@NotNull StatsManager statsManager) {
-		super(statsManager.plugin(), new String[] {"stats"}, Perms.COMMAND_STATS);
-		this.statsManager = statsManager;
-	}
-	
-	@Override
-	@NotNull
-	public String getUsage() {
-		return "";
-	}
+    private final StatsManager statsManager;
 
-	@Override
-	@NotNull
-	public String getDescription() {
-		return plugin.getMessage(Lang.COMMAND_STATS_DESC).getLocalized();
-	}
+    public StatsCommand(@NotNull StatsManager statsManager) {
+        super(statsManager.plugin(), new String[]{"stats"}, Perms.COMMAND_STATS);
+        this.statsManager = statsManager;
+    }
 
-	@Override
-	public boolean isPlayerOnly() {
-		return true;
-	}
+    @Override
+    @NotNull
+    public String getUsage() {
+        return "";
+    }
 
-	@Override
-	public void onExecute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args) {
-		Player player = (Player) sender;
-		this.statsManager.getStatsMenu().open(player, 1);
-	}
+    @Override
+    @NotNull
+    public String getDescription() {
+        return plugin.getMessage(Lang.COMMAND_STATS_DESC).getLocalized();
+    }
+
+    @Override
+    public boolean isPlayerOnly() {
+        return true;
+    }
+
+    @Override
+    public void onExecute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args) {
+        Player player = (Player) sender;
+        this.statsManager.getStatsMenu().open(player, 1);
+    }
 }

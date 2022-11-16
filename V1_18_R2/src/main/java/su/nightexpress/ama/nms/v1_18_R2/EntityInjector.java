@@ -106,7 +106,7 @@ public class EntityInjector {
         org.bukkit.World bukkitWorld = location.getWorld();
         if (bukkitWorld == null) return null;
 
-        ServerLevel world = ((CraftWorld)bukkitWorld).getHandle();
+        ServerLevel world = ((CraftWorld) bukkitWorld).getHandle();
         Entity entity = typez.spawn(world,
             null,
             null,

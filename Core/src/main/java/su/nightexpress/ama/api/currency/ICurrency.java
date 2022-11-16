@@ -7,19 +7,24 @@ import su.nexmedia.engine.api.manager.IPlaceholder;
 
 public interface ICurrency extends IPlaceholder {
 
-	@NotNull ICurrencyConfig getConfig();
+    @NotNull
+    ICurrencyConfig getConfig();
 
-	@NotNull String getId();
+    @NotNull
+    String getId();
 
-	@NotNull String getFormat();
+    @NotNull
+    String getFormat();
 
-	@NotNull String format(double price);
+    @NotNull
+    String format(double price);
 
-	@NotNull ItemStack getIcon();
+    @NotNull
+    ItemStack getIcon();
 
-	double getBalance(@NotNull Player player);
+    double getBalance(@NotNull Player player);
 
-	void give(@NotNull Player player, double amount);
+    void give(@NotNull Player player, double amount);
 
-	void take(@NotNull Player player, double amount);
+    void take(@NotNull Player player, double amount);
 }

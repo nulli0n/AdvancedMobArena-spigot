@@ -37,8 +37,8 @@ public class EditorGameCommandList extends AbstractEditorMenuAuto<AMA, ArenaGame
             else if (type instanceof ArenaEditorType type2) {
                 if (type2 == ArenaEditorType.GAMEPLAY_AUTO_COMMAND_CREATE) {
                     ArenaGameCommand gameCommand = new ArenaGameCommand(
-                            gameplayManager.getArenaConfig(), new HashSet<>(),
-                            ArenaTargetType.GLOBAL, new ArrayList<>());
+                        gameplayManager.getArenaConfig(), new HashSet<>(),
+                        ArenaTargetType.GLOBAL, new ArrayList<>());
                     gameplayManager.getAutoCommands().add(gameCommand);
                     gameplayManager.save();
                     this.open(player, 1);

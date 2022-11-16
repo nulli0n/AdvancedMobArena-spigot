@@ -19,160 +19,160 @@ import java.util.stream.Collectors;
 
 public class ArenaRegionManager implements IArenaObject, ILoadable, IEditable, IProblematic {
 
-	private final ArenaConfig arenaConfig;
-	private final String      regionsPath;
+    private final ArenaConfig arenaConfig;
+    private final String      regionsPath;
 
-	private final Map<String, ArenaRegion> regions;
-	private final Map<ArenaRegion, Set<ArenaRegion>> regionsLinked;
+    private final Map<String, ArenaRegion>           regions;
+    private final Map<ArenaRegion, Set<ArenaRegion>> regionsLinked;
 
-	private EditorRegionList editor;
+    private EditorRegionList editor;
 
-	public static final String DIR_REGIONS = "/regions/";
-	
-	public ArenaRegionManager(@NotNull ArenaConfig arenaConfig) {
-		this.arenaConfig = arenaConfig;
-		this.regionsPath = this.arenaConfig.getFile().getParentFile().getAbsolutePath() + DIR_REGIONS;
-		
-		this.regions = new HashMap<>();
-		this.regionsLinked = new HashMap<>();
-	}
-	
-	@Override
-	public void setup() {
-		for (JYML rCfg : JYML.loadAll(this.getRegionsPath(), false)) {
-			try {
-				ArenaRegion region = new ArenaRegion(this.arenaConfig, rCfg);
-				this.addRegion(region);
-			}
-			catch (Exception e) {
-				arenaConfig.plugin().error("Could not load '" + rCfg.getFile().getName() + "' region in '" + arenaConfig.getFile().getName() + "' arena!");
-				e.printStackTrace();
-			}
-		}
+    public static final String DIR_REGIONS = "/regions/";
 
-		this.getRegions().forEach(region -> {
-			Set<ArenaRegion> linked = region.getLinkedRegions().stream().map(this::getRegion).filter(Objects::nonNull).collect(Collectors.toSet());
-			this.getLinkedRegionsMap().put(region, linked);
-		});
+    public ArenaRegionManager(@NotNull ArenaConfig arenaConfig) {
+        this.arenaConfig = arenaConfig;
+        this.regionsPath = this.arenaConfig.getFile().getParentFile().getAbsolutePath() + DIR_REGIONS;
 
-		this.getProblems().forEach(problem -> {
-			this.plugin().warn("Problem in '" + arenaConfig.getId() + "' arena Region Manager: " + problem);
-		});
-	}
-	
-	@Override
-	public void shutdown() {
-		if (this.editor != null) {
-			this.editor.clear();
-			this.editor = null;
-		}
-		this.getRegions().forEach(ArenaRegion::clear);
-		this.getRegions().clear();
-	}
+        this.regions = new HashMap<>();
+        this.regionsLinked = new HashMap<>();
+    }
 
-	public void save() {
-		this.regions.values().forEach(ArenaRegion::save);
-	}
+    @Override
+    public void setup() {
+        for (JYML rCfg : JYML.loadAll(this.getRegionsPath(), false)) {
+            try {
+                ArenaRegion region = new ArenaRegion(this.arenaConfig, rCfg);
+                this.addRegion(region);
+            }
+            catch (Exception e) {
+                arenaConfig.plugin().error("Could not load '" + rCfg.getFile().getName() + "' region in '" + arenaConfig.getFile().getName() + "' arena!");
+                e.printStackTrace();
+            }
+        }
 
-	@Override
-	@NotNull
-	public UnaryOperator<String> replacePlaceholders() {
-		return str -> str.replace(Placeholders.GENERIC_PROBLEMS, Placeholders.formatProblems(this.getProblems()));
-	}
+        this.getRegions().forEach(region -> {
+            Set<ArenaRegion> linked = region.getLinkedRegions().stream().map(this::getRegion).filter(Objects::nonNull).collect(Collectors.toSet());
+            this.getLinkedRegionsMap().put(region, linked);
+        });
 
-	@Override
-	@NotNull
-	public List<String> getProblems() {
-		List<String> list = new ArrayList<>();
-		if (this.regions.isEmpty()) {
-			list.add("No Regions Defined!");
-		}
-		if (this.getRegionDefault() == null) {
-			list.add("No Default Region!");
-		}
-		else if (!this.getRegionDefault().isActive()) {
-			list.add("Default Region is Inactive!");
-		}
-		
-		for (ArenaRegion region : this.getRegions()) {
-			if (region.isActive() && region.hasProblems()) {
-				list.add("Problems with " + region.getId() + " region!");
-			}
-		}
-		return list;
-	}
+        this.getProblems().forEach(problem -> {
+            this.plugin().warn("Problem in '" + arenaConfig.getId() + "' arena Region Manager: " + problem);
+        });
+    }
 
-	@NotNull
-	@Override
-	public EditorRegionList getEditor() {
-		if (editor == null) {
-			editor = new EditorRegionList(this);
-		}
-		return editor;
-	}
+    @Override
+    public void shutdown() {
+        if (this.editor != null) {
+            this.editor.clear();
+            this.editor = null;
+        }
+        this.getRegions().forEach(ArenaRegion::clear);
+        this.getRegions().clear();
+    }
 
-	@Override
-	@NotNull
-	public ArenaConfig getArenaConfig() {
-		return this.arenaConfig;
-	}
+    public void save() {
+        this.regions.values().forEach(ArenaRegion::save);
+    }
 
-	@NotNull
-	public String getRegionsPath() {
-		return this.regionsPath;
-	}
+    @Override
+    @NotNull
+    public UnaryOperator<String> replacePlaceholders() {
+        return str -> str.replace(Placeholders.GENERIC_PROBLEMS, Placeholders.formatProblems(this.getProblems()));
+    }
 
-	@NotNull
-	public Map<String, ArenaRegion> getRegionsMap() {
-		return this.regions;
-	}
+    @Override
+    @NotNull
+    public List<String> getProblems() {
+        List<String> list = new ArrayList<>();
+        if (this.regions.isEmpty()) {
+            list.add("No Regions Defined!");
+        }
+        if (this.getRegionDefault() == null) {
+            list.add("No Default Region!");
+        }
+        else if (!this.getRegionDefault().isActive()) {
+            list.add("Default Region is Inactive!");
+        }
 
-	@NotNull
-	public Map<ArenaRegion, Set<ArenaRegion>> getLinkedRegionsMap() {
-		return this.regionsLinked;
-	}
+        for (ArenaRegion region : this.getRegions()) {
+            if (region.isActive() && region.hasProblems()) {
+                list.add("Problems with " + region.getId() + " region!");
+            }
+        }
+        return list;
+    }
 
-	@NotNull
-	public Collection<ArenaRegion> getRegions() {
-		return this.getRegionsMap().values();
-	}
+    @NotNull
+    @Override
+    public EditorRegionList getEditor() {
+        if (editor == null) {
+            editor = new EditorRegionList(this);
+        }
+        return editor;
+    }
 
-	@Nullable
-	public ArenaRegion getRegionDefault() {
-		return this.getRegions().stream().filter(ArenaRegion::isDefault).findFirst().orElse(null);
-	}
+    @Override
+    @NotNull
+    public ArenaConfig getArenaConfig() {
+        return this.arenaConfig;
+    }
 
-	@Nullable
-	public ArenaRegion getRegionAnyAvailable() {
-		return this.getRegions().stream().filter(reg -> reg.getState() == ArenaLockState.UNLOCKED).findFirst().orElse(null);
-	}
+    @NotNull
+    public String getRegionsPath() {
+        return this.regionsPath;
+    }
 
-	@Nullable
-	public ArenaRegion getRegion(@NotNull String id) {
-		return this.getRegionsMap().get(id.toLowerCase());
-	}
+    @NotNull
+    public Map<String, ArenaRegion> getRegionsMap() {
+        return this.regions;
+    }
 
-	@Nullable
-	public ArenaRegion getRegion(@NotNull Location location) {
-		return this.getRegions().stream().filter(reg -> reg.getCuboid().contains(location)).findFirst().orElse(null);
-	}
+    @NotNull
+    public Map<ArenaRegion, Set<ArenaRegion>> getLinkedRegionsMap() {
+        return this.regionsLinked;
+    }
 
-	public Set<ArenaRegion> getLinkedRegions(@NotNull ArenaRegion region) {
-		return this.getLinkedRegionsMap().computeIfAbsent(region, k -> new HashSet<>());
-	}
+    @NotNull
+    public Collection<ArenaRegion> getRegions() {
+        return this.getRegionsMap().values();
+    }
 
-	public void addRegion(@NotNull ArenaRegion region) {
-		this.getRegionsMap().put(region.getId(), region);
-	}
+    @Nullable
+    public ArenaRegion getRegionDefault() {
+        return this.getRegions().stream().filter(ArenaRegion::isDefault).findFirst().orElse(null);
+    }
 
-	public boolean removeRegion(@NotNull ArenaRegion region) {
-		if (region.getFile().delete()) {
-			region.clear();
-			this.getRegionsMap().remove(region.getId());
-			this.getLinkedRegionsMap().remove(region);
-			this.getLinkedRegionsMap().values().forEach(linked -> linked.remove(region));
-			return true;
-		}
-		return false;
-	}
+    @Nullable
+    public ArenaRegion getRegionAnyAvailable() {
+        return this.getRegions().stream().filter(reg -> reg.getState() == ArenaLockState.UNLOCKED).findFirst().orElse(null);
+    }
+
+    @Nullable
+    public ArenaRegion getRegion(@NotNull String id) {
+        return this.getRegionsMap().get(id.toLowerCase());
+    }
+
+    @Nullable
+    public ArenaRegion getRegion(@NotNull Location location) {
+        return this.getRegions().stream().filter(reg -> reg.getCuboid().contains(location)).findFirst().orElse(null);
+    }
+
+    public Set<ArenaRegion> getLinkedRegions(@NotNull ArenaRegion region) {
+        return this.getLinkedRegionsMap().computeIfAbsent(region, k -> new HashSet<>());
+    }
+
+    public void addRegion(@NotNull ArenaRegion region) {
+        this.getRegionsMap().put(region.getId(), region);
+    }
+
+    public boolean removeRegion(@NotNull ArenaRegion region) {
+        if (region.getFile().delete()) {
+            region.clear();
+            this.getRegionsMap().remove(region.getId());
+            this.getLinkedRegionsMap().remove(region);
+            this.getLinkedRegionsMap().values().forEach(linked -> linked.remove(region));
+            return true;
+        }
+        return false;
+    }
 }

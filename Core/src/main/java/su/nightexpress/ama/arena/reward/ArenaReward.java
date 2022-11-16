@@ -27,157 +27,157 @@ import java.util.function.UnaryOperator;
 
 public class ArenaReward implements IArenaGameEventListener, IArenaObject, IEditable, ICleanable {
 
-	private final ArenaConfig arenaConfig;
+    private final ArenaConfig arenaConfig;
 
-	private       String                        name;
-	private       boolean                       isLate;
-	private final Set<ArenaGameEventTrigger<?>> triggers;
-	private       ArenaTargetType               targetType;
-	private       double                        chance;
-	private       List<String>                  commands;
-	private       List<ItemStack>               items;
+    private       String                        name;
+    private       boolean                       isLate;
+    private final Set<ArenaGameEventTrigger<?>> triggers;
+    private       ArenaTargetType               targetType;
+    private       double                        chance;
+    private       List<String>                  commands;
+    private       List<ItemStack>               items;
 
-	private EditorRewardSettings editor;
-	
-	public ArenaReward(
-			@NotNull ArenaConfig arenaConfig,
+    private EditorRewardSettings editor;
 
-			@NotNull String name,
-			boolean isLate,
-			@NotNull Set<ArenaGameEventTrigger<?>> triggers,
-			@NotNull ArenaTargetType targetType,
-			double chance, 
-			@NotNull List<String> commands,
-			@NotNull List<ItemStack> items
-			) {
-		this.arenaConfig = arenaConfig;
+    public ArenaReward(
+        @NotNull ArenaConfig arenaConfig,
 
-		this.setName(name);
-		this.setLate(isLate);
-		this.triggers = triggers;
-		this.setTargetType(targetType);
-		this.setChance(chance);
-		this.setCommands(commands);
-		this.setItems(items);
-	}
+        @NotNull String name,
+        boolean isLate,
+        @NotNull Set<ArenaGameEventTrigger<?>> triggers,
+        @NotNull ArenaTargetType targetType,
+        double chance,
+        @NotNull List<String> commands,
+        @NotNull List<ItemStack> items
+    ) {
+        this.arenaConfig = arenaConfig;
 
-	@Override
-	@NotNull
-	public UnaryOperator<String> replacePlaceholders() {
-		return str -> str
-			.replace(Placeholders.REWARD_TRIGGERS, Placeholders.format(this.getTriggers()))
-			.replace(Placeholders.REWARD_NAME, this.getName())
-			.replace(Placeholders.REWARD_TARGET_TYPE, plugin().getLangManager().getEnum(this.getTargetType()))
-			.replace(Placeholders.REWARD_CHANCE, NumberUtil.format(this.getChance()))
-			.replace(Placeholders.REWARD_IS_LATE, LangManager.getBoolean(this.isLate()))
-			.replace(Placeholders.REWARD_COMMANDS, String.join("\n", this.getCommands()))
-			;
-	}
+        this.setName(name);
+        this.setLate(isLate);
+        this.triggers = triggers;
+        this.setTargetType(targetType);
+        this.setChance(chance);
+        this.setCommands(commands);
+        this.setItems(items);
+    }
 
-	@Override
-	public void clear() {
-		if (this.editor != null) {
-			this.editor.clear();
-			this.editor = null;
-		}
-	}
+    @Override
+    @NotNull
+    public UnaryOperator<String> replacePlaceholders() {
+        return str -> str
+            .replace(Placeholders.REWARD_TRIGGERS, Placeholders.format(this.getTriggers()))
+            .replace(Placeholders.REWARD_NAME, this.getName())
+            .replace(Placeholders.REWARD_TARGET_TYPE, plugin().getLangManager().getEnum(this.getTargetType()))
+            .replace(Placeholders.REWARD_CHANCE, NumberUtil.format(this.getChance()))
+            .replace(Placeholders.REWARD_IS_LATE, LangManager.getBoolean(this.isLate()))
+            .replace(Placeholders.REWARD_COMMANDS, String.join("\n", this.getCommands()))
+            ;
+    }
 
-	@NotNull
-	@Override
-	public EditorRewardSettings getEditor() {
-		if (this.editor == null) {
-			this.editor = new EditorRewardSettings(this);
-		}
-		return editor;
-	}
+    @Override
+    public void clear() {
+        if (this.editor != null) {
+            this.editor.clear();
+            this.editor = null;
+        }
+    }
 
-	@Override
-	public boolean onGameEvent(@NotNull ArenaGameGenericEvent gameEvent) {
-		if (!this.isReady(gameEvent)) return false;
+    @NotNull
+    @Override
+    public EditorRewardSettings getEditor() {
+        if (this.editor == null) {
+            this.editor = new EditorRewardSettings(this);
+        }
+        return editor;
+    }
 
-		this.give(gameEvent.getArena());
-		return true;
-	}
+    @Override
+    public boolean onGameEvent(@NotNull ArenaGameGenericEvent gameEvent) {
+        if (!this.isReady(gameEvent)) return false;
 
-	public void give(@NotNull AbstractArena arena) {
-		if (Rnd.get(true) >= this.getChance()) return;
+        this.give(gameEvent.getArena());
+        return true;
+    }
 
-		arena.getPlayers(this.getTargetType()).forEach(arenaPlayer -> {
-			if (this.isLate()) {
-				arenaPlayer.getRewards().add(this);
-			}
-			else this.give(arenaPlayer.getPlayer());
-		});
-	}
+    public void give(@NotNull AbstractArena arena) {
+        if (Rnd.get(true) >= this.getChance()) return;
 
-	public void give(@NotNull Player player) {
-		this.getItems().forEach(item -> PlayerUtil.addItem(player, item));
-		this.getCommands().forEach(command -> PlayerUtil.dispatchCommand(player, command));
+        arena.getPlayers(this.getTargetType()).forEach(arenaPlayer -> {
+            if (this.isLate()) {
+                arenaPlayer.getRewards().add(this);
+            }
+            else this.give(arenaPlayer.getPlayer());
+        });
+    }
 
-		plugin().getMessage(Lang.Arena_Game_Notify_Reward).replace(this.replacePlaceholders()).send(player);
-	}
+    public void give(@NotNull Player player) {
+        this.getItems().forEach(item -> PlayerUtil.addItem(player, item));
+        this.getCommands().forEach(command -> PlayerUtil.dispatchCommand(player, command));
 
-	@NotNull
-	@Override
-	public ArenaConfig getArenaConfig() {
-		return arenaConfig;
-	}
+        plugin().getMessage(Lang.Arena_Game_Notify_Reward).replace(this.replacePlaceholders()).send(player);
+    }
 
-	@NotNull
-	public String getName() {
-		return this.name;
-	}
-	
-	public void setName(@NotNull String name) {
-		this.name = StringUtil.color(name);
-	}
-	
-	public boolean isLate() {
-		return isLate;
-	}
-	
-	public void setLate(boolean late) {
-		this.isLate = late;
-	}
+    @NotNull
+    @Override
+    public ArenaConfig getArenaConfig() {
+        return arenaConfig;
+    }
 
-	@NotNull
-	@Override
-	public Set<ArenaGameEventTrigger<?>> getTriggers() {
-		return triggers;
-	}
+    @NotNull
+    public String getName() {
+        return this.name;
+    }
 
-	@NotNull
-	public ArenaTargetType getTargetType() {
-		return targetType;
-	}
+    public void setName(@NotNull String name) {
+        this.name = StringUtil.color(name);
+    }
 
-	public void setTargetType(@NotNull ArenaTargetType targetType) {
-		this.targetType = targetType;
-	}
+    public boolean isLate() {
+        return isLate;
+    }
 
-	public double getChance() {
-		return this.chance;
-	}
-	
-	public void setChance(double chance) {
-		this.chance = chance;
-	}
-	
-	@NotNull
-	public List<String> getCommands() {
-		return this.commands;
-	}
-	
-	public void setCommands(@NotNull List<String> commands) {
-		this.commands = commands;
-	}
-	
-	@NotNull
-	public List<ItemStack> getItems() {
-		return this.items;
-	}
-	
-	public void setItems(@NotNull List<ItemStack> items) {
-		this.items = items;
-	}
+    public void setLate(boolean late) {
+        this.isLate = late;
+    }
+
+    @NotNull
+    @Override
+    public Set<ArenaGameEventTrigger<?>> getTriggers() {
+        return triggers;
+    }
+
+    @NotNull
+    public ArenaTargetType getTargetType() {
+        return targetType;
+    }
+
+    public void setTargetType(@NotNull ArenaTargetType targetType) {
+        this.targetType = targetType;
+    }
+
+    public double getChance() {
+        return this.chance;
+    }
+
+    public void setChance(double chance) {
+        this.chance = chance;
+    }
+
+    @NotNull
+    public List<String> getCommands() {
+        return this.commands;
+    }
+
+    public void setCommands(@NotNull List<String> commands) {
+        this.commands = commands;
+    }
+
+    @NotNull
+    public List<ItemStack> getItems() {
+        return this.items;
+    }
+
+    public void setItems(@NotNull List<ItemStack> items) {
+        this.items = items;
+    }
 }

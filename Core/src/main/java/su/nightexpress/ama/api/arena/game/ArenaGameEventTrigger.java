@@ -86,8 +86,8 @@ public abstract class ArenaGameEventTrigger<T> {
             case WAVE_END, WAVE_START, SCORE_DECREASED, SCORE_INCREASED -> new GameTriggerNumber(eventType, input);
             case MOB_KILLED, SHOP_ITEM_LOCKED, SHOP_ITEM_UNLOCKED, SPOT_CHANGED,
                 SHOP_CATEGORY_LOCKED, SHOP_CATEGORY_UNLOCKED,
-                    REGION_LOCKED, REGION_UNLOCKED,
-                    PLAYER_DEATH, PLAYER_JOIN, PLAYER_LEAVE -> new GameTriggerString(eventType, input);
+                REGION_LOCKED, REGION_UNLOCKED,
+                PLAYER_DEATH, PLAYER_JOIN, PLAYER_LEAVE -> new GameTriggerString(eventType, input);
         };
     }
 }

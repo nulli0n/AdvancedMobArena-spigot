@@ -7,9 +7,10 @@ import java.util.List;
 
 public interface IProblematic extends IPlaceholder {
 
-	default boolean hasProblems() {
-		return !this.getProblems().isEmpty();
-	}
-	
-	@NotNull List<String> getProblems();
+    default boolean hasProblems() {
+        return !this.getProblems().isEmpty();
+    }
+
+    @NotNull
+    List<String> getProblems();
 }

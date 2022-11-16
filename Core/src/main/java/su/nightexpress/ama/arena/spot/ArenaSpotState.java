@@ -23,114 +23,114 @@ import java.util.function.UnaryOperator;
 
 public class ArenaSpotState implements IArenaGameEventListener, IArenaObject {
 
-	private final ArenaSpot spot;
-	
-	private final String                        id;
-	private final Set<ArenaGameEventTrigger<?>> triggers;
-	private       List<String>                  schemeRaw;
-	private final Map<Location, BlockData>      scheme;
-	
-	public ArenaSpotState(
-			@NotNull ArenaSpot spot,
-			@NotNull String id,
-			@NotNull Set<ArenaGameEventTrigger<?>> triggers,
-			@NotNull List<String> schemeRaw
-			) {
-		this.spot = spot;
-		this.id = id.toLowerCase();
-		
-		this.triggers = triggers;
-		this.scheme = new HashMap<>();
-		this.setSchemeRaw(schemeRaw);
-	}
+    private final ArenaSpot spot;
 
-	@Override
-	@NotNull
-	public UnaryOperator<String> replacePlaceholders() {
-		return str -> str
-			.replace(Placeholders.SPOT_STATE_TRIGGERS, Placeholders.format(this.getTriggers()))
-			.replace(Placeholders.SPOT_STATE_ID, this.getId())
-			;
-	}
+    private final String                        id;
+    private final Set<ArenaGameEventTrigger<?>> triggers;
+    private       List<String>                  schemeRaw;
+    private final Map<Location, BlockData>      scheme;
 
-	@NotNull
-	public String getId() {
-		return this.id;
-	}
+    public ArenaSpotState(
+        @NotNull ArenaSpot spot,
+        @NotNull String id,
+        @NotNull Set<ArenaGameEventTrigger<?>> triggers,
+        @NotNull List<String> schemeRaw
+    ) {
+        this.spot = spot;
+        this.id = id.toLowerCase();
 
-	@NotNull
-	public ArenaSpot getSpot() {
-		return this.spot;
-	}
+        this.triggers = triggers;
+        this.scheme = new HashMap<>();
+        this.setSchemeRaw(schemeRaw);
+    }
 
-	@NotNull
-	@Override
-	public Set<ArenaGameEventTrigger<?>> getTriggers() {
-		return triggers;
-	}
+    @Override
+    @NotNull
+    public UnaryOperator<String> replacePlaceholders() {
+        return str -> str
+            .replace(Placeholders.SPOT_STATE_TRIGGERS, Placeholders.format(this.getTriggers()))
+            .replace(Placeholders.SPOT_STATE_ID, this.getId())
+            ;
+    }
 
-	@Override
-	public boolean onGameEvent(@NotNull ArenaGameGenericEvent gameEvent) {
-		if (!this.isReady(gameEvent)) return false;
+    @NotNull
+    public String getId() {
+        return this.id;
+    }
 
-		this.build(gameEvent.getArena());
-		return true;
-	}
+    @NotNull
+    public ArenaSpot getSpot() {
+        return this.spot;
+    }
 
-	@NotNull
-	@Override
-	public ArenaConfig getArenaConfig() {
-		return this.getSpot().getArenaConfig();
-	}
+    @NotNull
+    @Override
+    public Set<ArenaGameEventTrigger<?>> getTriggers() {
+        return triggers;
+    }
 
-	public void setSchemeRaw(@NotNull List<String> schemeRaw) {
-		this.schemeRaw = schemeRaw;
-		this.scheme.clear();
-		
-		AMA plugin = this.getSpot().plugin();
-		for (String block : schemeRaw) {
-			String[] blockSplit = block.split("~");
-			if (blockSplit.length != 2) {
-				plugin.error("Invalid block '" + block + "' in '" + id + "' state of '" + spot.getFile().getName() + "' spot in '" + spot.getArenaConfig().getId() + "' arena!");
-				continue;
-			}
-			Location blockLoc = LocationUtil.deserialize(blockSplit[0]);
-			if (blockLoc == null) {
-				plugin.error("Invalid block location '" + block + "' in '" + id + "' state of '" + spot.getFile().getName() + "' spot in '" + spot.getArenaConfig().getId() + "' arena!");
-				continue;
-			}
-			if (this.spot.getCuboid().isEmpty() || !this.spot.getCuboid().contains(blockLoc)) {
-				plugin.error("Block is outside of the spot region: '" + block + "' in '" + id + "' state of '" + spot.getFile().getName() + "' spot in '" + spot.getArenaConfig().getId() + "' arena!");
-				continue;
-			}
-			
-			BlockData blockData = plugin.getServer().createBlockData(blockSplit[1]);
-			this.scheme.put(blockLoc, blockData);
-		}
-	}
+    @Override
+    public boolean onGameEvent(@NotNull ArenaGameGenericEvent gameEvent) {
+        if (!this.isReady(gameEvent)) return false;
 
-	@NotNull
-	public List<String> getSchemeRaw() {
-		return this.schemeRaw;
-	}
+        this.build(gameEvent.getArena());
+        return true;
+    }
 
-	@NotNull
-	public Map<Location, BlockData> getScheme() {
-		return scheme;
-	}
+    @NotNull
+    @Override
+    public ArenaConfig getArenaConfig() {
+        return this.getSpot().getArenaConfig();
+    }
 
-	public void build() {
-		this.getScheme().forEach((location, data) -> {
-			Block block = location.getBlock();
-			if (block.getBlockData().matches(data)) return;
-			block.setBlockData(data);
-		});
-	}
+    public void setSchemeRaw(@NotNull List<String> schemeRaw) {
+        this.schemeRaw = schemeRaw;
+        this.scheme.clear();
 
-	public void build(@NotNull AbstractArena arena) {
-		this.build();
+        AMA plugin = this.getSpot().plugin();
+        for (String block : schemeRaw) {
+            String[] blockSplit = block.split("~");
+            if (blockSplit.length != 2) {
+                plugin.error("Invalid block '" + block + "' in '" + id + "' state of '" + spot.getFile().getName() + "' spot in '" + spot.getArenaConfig().getId() + "' arena!");
+                continue;
+            }
+            Location blockLoc = LocationUtil.deserialize(blockSplit[0]);
+            if (blockLoc == null) {
+                plugin.error("Invalid block location '" + block + "' in '" + id + "' state of '" + spot.getFile().getName() + "' spot in '" + spot.getArenaConfig().getId() + "' arena!");
+                continue;
+            }
+            if (this.spot.getCuboid().isEmpty() || !this.spot.getCuboid().contains(blockLoc)) {
+                plugin.error("Block is outside of the spot region: '" + block + "' in '" + id + "' state of '" + spot.getFile().getName() + "' spot in '" + spot.getArenaConfig().getId() + "' arena!");
+                continue;
+            }
 
-		ArenaSpotStateChangeEvent event = new ArenaSpotStateChangeEvent(arena, this.getSpot(), this);
-		this.getSpot().plugin().getPluginManager().callEvent(event);
-	}
+            BlockData blockData = plugin.getServer().createBlockData(blockSplit[1]);
+            this.scheme.put(blockLoc, blockData);
+        }
+    }
+
+    @NotNull
+    public List<String> getSchemeRaw() {
+        return this.schemeRaw;
+    }
+
+    @NotNull
+    public Map<Location, BlockData> getScheme() {
+        return scheme;
+    }
+
+    public void build() {
+        this.getScheme().forEach((location, data) -> {
+            Block block = location.getBlock();
+            if (block.getBlockData().matches(data)) return;
+            block.setBlockData(data);
+        });
+    }
+
+    public void build(@NotNull AbstractArena arena) {
+        this.build();
+
+        ArenaSpotStateChangeEvent event = new ArenaSpotStateChangeEvent(arena, this.getSpot(), this);
+        this.getSpot().plugin().getPluginManager().callEvent(event);
+    }
 }

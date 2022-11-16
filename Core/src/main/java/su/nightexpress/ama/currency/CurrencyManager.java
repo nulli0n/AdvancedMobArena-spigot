@@ -21,88 +21,88 @@ import java.util.stream.Stream;
 
 public class CurrencyManager extends AbstractManager<AMA> {
 
-	public static final String DIR_CURRENCY = "/currency/";
+    public static final String DIR_CURRENCY = "/currency/";
 
-	private Map<String, ICurrency> currencyMap;
+    private Map<String, ICurrency> currencyMap;
 
-	public CurrencyManager(@NotNull AMA plugin) {
-		super(plugin);
-	}
+    public CurrencyManager(@NotNull AMA plugin) {
+        super(plugin);
+    }
 
-	@Override
-	public void onLoad() {
-		this.currencyMap = new HashMap<>();
-		this.plugin.getConfigManager().extract(DIR_CURRENCY);
+    @Override
+    public void onLoad() {
+        this.currencyMap = new HashMap<>();
+        this.plugin.getConfigManager().extract(DIR_CURRENCY);
 
-		this.loadDefault();
-	}
+        this.loadDefault();
+    }
 
-	private void loadDefault() {
-		Stream.of(CurrencyId.values()).forEach(currencyId -> {
-			CurrencyConfig config = this.loadConfigDefault(currencyId);
-			config.save();
+    private void loadDefault() {
+        Stream.of(CurrencyId.values()).forEach(currencyId -> {
+            CurrencyConfig config = this.loadConfigDefault(currencyId);
+            config.save();
 
-			ICurrency currency = switch (currencyId) {
-				case CurrencyId.COINS -> new ArenaCoinsCurrency(config);
-				case CurrencyId.VAULT -> !Hooks.hasVault() || !VaultHook.hasEconomy() ? null : new VaultEcoCurrency(config);
-				case CurrencyId.GAME_POINTS -> !Hooks.hasPlugin(HookId.GAME_POINTS) ? null : new GamePointsCurrency(config);
-				case CurrencyId.PLAYER_POINTS -> !Hooks.hasPlugin(HookId.PLAYER_POINTS) ? null : new PlayerPointsCurrency(config);
-				default -> null;
-			};
-			if (currency == null) return;
+            ICurrency currency = switch (currencyId) {
+                case CurrencyId.COINS -> new ArenaCoinsCurrency(config);
+                case CurrencyId.VAULT -> !Hooks.hasVault() || !VaultHook.hasEconomy() ? null : new VaultEcoCurrency(config);
+                case CurrencyId.GAME_POINTS -> !Hooks.hasPlugin(HookId.GAME_POINTS) ? null : new GamePointsCurrency(config);
+                case CurrencyId.PLAYER_POINTS -> !Hooks.hasPlugin(HookId.PLAYER_POINTS) ? null : new PlayerPointsCurrency(config);
+                default -> null;
+            };
+            if (currency == null) return;
 
-			this.registerCurrency(currency);
-		});
-	}
+            this.registerCurrency(currency);
+        });
+    }
 
-	@NotNull
-	private CurrencyConfig loadConfigDefault(@NotNull String id) {
-		JYML cfg = JYML.loadOrExtract(plugin, DIR_CURRENCY + id + ".yml");
-		return new CurrencyConfig(this.plugin, cfg);
-	}
+    @NotNull
+    private CurrencyConfig loadConfigDefault(@NotNull String id) {
+        JYML cfg = JYML.loadOrExtract(plugin, DIR_CURRENCY + id + ".yml");
+        return new CurrencyConfig(this.plugin, cfg);
+    }
 
-	@Override
-	public void onShutdown() {
-		if (this.currencyMap != null) {
-			this.currencyMap.clear();
-			this.currencyMap = null;
-		}
-	}
+    @Override
+    public void onShutdown() {
+        if (this.currencyMap != null) {
+            this.currencyMap.clear();
+            this.currencyMap = null;
+        }
+    }
 
-	public boolean registerCurrency(@NotNull ICurrency currency) {
-		if (currency.getConfig().isEnabled()) {
-			if (currency instanceof ArenaCoinsCurrency coinsCurrency) {
-				this.plugin.getCommandManager().getMainCommand().addChildren(new BalanceCommand(this.plugin, coinsCurrency));
-			}
-			this.currencyMap.put(currency.getId(), currency);
-			this.plugin.info("Registered currency: " + currency.getId());
-			return true;
-		}
-		return false;
-	}
+    public boolean registerCurrency(@NotNull ICurrency currency) {
+        if (currency.getConfig().isEnabled()) {
+            if (currency instanceof ArenaCoinsCurrency coinsCurrency) {
+                this.plugin.getCommandManager().getMainCommand().addChildren(new BalanceCommand(this.plugin, coinsCurrency));
+            }
+            this.currencyMap.put(currency.getId(), currency);
+            this.plugin.info("Registered currency: " + currency.getId());
+            return true;
+        }
+        return false;
+    }
 
-	public boolean hasCurrency() {
-		return !this.currencyMap.isEmpty();
-	}
+    public boolean hasCurrency() {
+        return !this.currencyMap.isEmpty();
+    }
 
-	@NotNull
-	public Collection<ICurrency> getCurrencies() {
-		return currencyMap.values();
-	}
+    @NotNull
+    public Collection<ICurrency> getCurrencies() {
+        return currencyMap.values();
+    }
 
-	@NotNull
-	public Set<String> getCurrencyIds() {
-		return this.currencyMap.keySet();
-	}
+    @NotNull
+    public Set<String> getCurrencyIds() {
+        return this.currencyMap.keySet();
+    }
 
-	@Nullable
-	public ICurrency getCurrency(@NotNull String id) {
-		return this.currencyMap.get(id.toLowerCase());
-	}
+    @Nullable
+    public ICurrency getCurrency(@NotNull String id) {
+        return this.currencyMap.get(id.toLowerCase());
+    }
 
-	@NotNull
-	public ICurrency getCurrencyFirst() {
-		return this.getCurrencies().stream().filter(Objects::nonNull).findFirst()
-			.orElseThrow(() -> new IllegalStateException("No currencies are available!"));
-	}
+    @NotNull
+    public ICurrency getCurrencyFirst() {
+        return this.getCurrencies().stream().filter(Objects::nonNull).findFirst()
+            .orElseThrow(() -> new IllegalStateException("No currencies are available!"));
+    }
 }

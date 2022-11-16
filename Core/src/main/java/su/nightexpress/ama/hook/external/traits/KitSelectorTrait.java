@@ -14,12 +14,12 @@ public class KitSelectorTrait extends Trait {
     public KitSelectorTrait() {
         super("ama-kit-select");
     }
-    
+
     @EventHandler
     public void click(NPCRightClickEvent e) {
         if (e.getNPC() == this.getNPC()) {
-        	Player p = e.getClicker();
-        	ArenaAPI.getKitManager().getSelectMenu().open(p, 1);
+            Player p = e.getClicker();
+            ArenaAPI.getKitManager().getSelectMenu().open(p, 1);
         }
     }
 }

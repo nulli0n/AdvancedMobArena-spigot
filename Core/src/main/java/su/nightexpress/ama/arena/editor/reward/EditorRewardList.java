@@ -39,8 +39,8 @@ public class EditorRewardList extends AbstractEditorMenuAuto<AMA, ArenaRewardMan
                 switch (type2) {
                     case REWARD_CREATE -> {
                         ArenaReward reward = new ArenaReward(rewardManager.getArenaConfig(), "New Reward",
-                                        true, new HashSet<>(), ArenaTargetType.PLAYER_ALL, 0D,
-                                        new ArrayList<>(), new ArrayList<>());
+                            true, new HashSet<>(), ArenaTargetType.PLAYER_ALL, 0D,
+                            new ArrayList<>(), new ArrayList<>());
                         rewardManager.getRewards().add(reward);
                     }
                     case REWARDS_CHANGE_RETAIN -> {

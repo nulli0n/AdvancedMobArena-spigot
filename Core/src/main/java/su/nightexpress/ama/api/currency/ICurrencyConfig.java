@@ -9,13 +9,18 @@ public interface ICurrencyConfig {
 
     boolean isEnabled();
 
-    @NotNull String getId();
+    @NotNull
+    String getId();
 
-    @NotNull String getName();
+    @NotNull
+    String getName();
 
-    @NotNull String getFormat();
+    @NotNull
+    String getFormat();
 
-    @NotNull DecimalFormat getNumberFormat();
+    @NotNull
+    DecimalFormat getNumberFormat();
 
-    @NotNull ItemStack getIcon();
+    @NotNull
+    ItemStack getIcon();
 }

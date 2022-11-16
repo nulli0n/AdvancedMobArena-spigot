@@ -23,91 +23,91 @@ import java.util.*;
 import java.util.stream.IntStream;
 
 public class EditorRegionWaveList extends AbstractEditorMenuAuto<AMA, ArenaRegion, ArenaRegionWave> {
-	
-	public EditorRegionWaveList(@NotNull ArenaRegion region) {
-		super(region.plugin(), region, ArenaEditorUtils.TITLE_REGION_EDITOR, 45);
 
-		EditorInput<ArenaRegion, ArenaEditorType> input = (player, region2, type, e) -> {
-			String msg = StringUtil.color(e.getMessage());
-			if (type == ArenaEditorType.REGION_WAVE_CREATE) {
-				String id = EditorManager.fineId(msg);
-				boolean has = region2.getWaves().stream().anyMatch(wave -> wave.getId().equalsIgnoreCase(id));
-				if (has) {
-					EditorManager.error(player, plugin.getMessage(Lang.Editor_Region_Wave_Error_Create).getLocalized());
-					return false;
-				}
+    public EditorRegionWaveList(@NotNull ArenaRegion region) {
+        super(region.plugin(), region, ArenaEditorUtils.TITLE_REGION_EDITOR, 45);
 
-				ArenaRegionWave wave = new ArenaRegionWave(region2, id, new HashSet<>(Collections.singletonList(id)), new HashSet<>(), new HashSet<>());
-				region2.getWaves().add(wave);
-			}
-			region2.save();
-			return true;
-		};
+        EditorInput<ArenaRegion, ArenaEditorType> input = (player, region2, type, e) -> {
+            String msg = StringUtil.color(e.getMessage());
+            if (type == ArenaEditorType.REGION_WAVE_CREATE) {
+                String id = EditorManager.fineId(msg);
+                boolean has = region2.getWaves().stream().anyMatch(wave -> wave.getId().equalsIgnoreCase(id));
+                if (has) {
+                    EditorManager.error(player, plugin.getMessage(Lang.Editor_Region_Wave_Error_Create).getLocalized());
+                    return false;
+                }
 
-		IMenuClick click = (player, type, e) -> {
-			if (type instanceof MenuItemType type2) {
-				if (type2 == MenuItemType.RETURN) {
-					region.getEditor().open(player, 1);
-				}
-				else super.onItemClickDefault(player, type2);
-			}
-			else if (type instanceof ArenaEditorType type2) {
-				if (type2 == ArenaEditorType.REGION_WAVE_CREATE) {
-					EditorManager.startEdit(player, region, type2, input);
-					EditorManager.tip(player, plugin.getMessage(Lang.Editor_Arena_Waves_Enter_Wave_Create).getLocalized());
-					EditorManager.suggestValues(player, region.getArenaConfig().getWaveManager().getWaves().keySet(), true);
-					player.closeInventory();
-				}
-			}
-		};
-		
-		this.loadItems(click);
-	}
+                ArenaRegionWave wave = new ArenaRegionWave(region2, id, new HashSet<>(Collections.singletonList(id)), new HashSet<>(), new HashSet<>());
+                region2.getWaves().add(wave);
+            }
+            region2.save();
+            return true;
+        };
 
-	@Override
-	public void setTypes(@NotNull Map<EditorButtonType, Integer> map) {
-		map.put(ArenaEditorType.REGION_WAVE_CREATE, 41);
-		map.put(MenuItemType.PAGE_NEXT, 44);
-		map.put(MenuItemType.PAGE_PREVIOUS, 36);
-		map.put(MenuItemType.RETURN, 39);
-	}
+        IMenuClick click = (player, type, e) -> {
+            if (type instanceof MenuItemType type2) {
+                if (type2 == MenuItemType.RETURN) {
+                    region.getEditor().open(player, 1);
+                }
+                else super.onItemClickDefault(player, type2);
+            }
+            else if (type instanceof ArenaEditorType type2) {
+                if (type2 == ArenaEditorType.REGION_WAVE_CREATE) {
+                    EditorManager.startEdit(player, region, type2, input);
+                    EditorManager.tip(player, plugin.getMessage(Lang.Editor_Arena_Waves_Enter_Wave_Create).getLocalized());
+                    EditorManager.suggestValues(player, region.getArenaConfig().getWaveManager().getWaves().keySet(), true);
+                    player.closeInventory();
+                }
+            }
+        };
 
-	@Override
-	public boolean cancelClick(@NotNull InventoryClickEvent e, @NotNull SlotType slotType) {
-		return true;
-	}
+        this.loadItems(click);
+    }
 
-	@Override
-	public int[] getObjectSlots() {
-		return IntStream.range(0, 36).toArray();
-	}
+    @Override
+    public void setTypes(@NotNull Map<EditorButtonType, Integer> map) {
+        map.put(ArenaEditorType.REGION_WAVE_CREATE, 41);
+        map.put(MenuItemType.PAGE_NEXT, 44);
+        map.put(MenuItemType.PAGE_PREVIOUS, 36);
+        map.put(MenuItemType.RETURN, 39);
+    }
 
-	@Override
-	@NotNull
-	protected List<ArenaRegionWave> getObjects(@NotNull Player player) {
-		return new ArrayList<>(this.parent.getWaves());
-	}
+    @Override
+    public boolean cancelClick(@NotNull InventoryClickEvent e, @NotNull SlotType slotType) {
+        return true;
+    }
 
-	@Override
-	@NotNull
-	protected ItemStack getObjectStack(@NotNull Player player, @NotNull ArenaRegionWave wave) {
-		ItemStack item = ArenaEditorType.REGION_WAVE_OBJECT.getItem();
-		ItemUtil.replace(item, wave.replacePlaceholders());
-		return item;
-	}
+    @Override
+    public int[] getObjectSlots() {
+        return IntStream.range(0, 36).toArray();
+    }
 
-	@Override
-	@NotNull
-	protected IMenuClick getObjectClick(@NotNull Player player, @NotNull ArenaRegionWave wave) {
-		return (p2, type, e) -> {
-			if (e.isShiftClick() && e.isRightClick()) {
-				wave.clear();
-				this.parent.getWaves().remove(wave);
-				this.parent.save();
-				this.open(p2, 1);
-				return;
-			}
-			wave.getEditor().open(p2, 1);
-		};
-	}
+    @Override
+    @NotNull
+    protected List<ArenaRegionWave> getObjects(@NotNull Player player) {
+        return new ArrayList<>(this.parent.getWaves());
+    }
+
+    @Override
+    @NotNull
+    protected ItemStack getObjectStack(@NotNull Player player, @NotNull ArenaRegionWave wave) {
+        ItemStack item = ArenaEditorType.REGION_WAVE_OBJECT.getItem();
+        ItemUtil.replace(item, wave.replacePlaceholders());
+        return item;
+    }
+
+    @Override
+    @NotNull
+    protected IMenuClick getObjectClick(@NotNull Player player, @NotNull ArenaRegionWave wave) {
+        return (p2, type, e) -> {
+            if (e.isShiftClick() && e.isRightClick()) {
+                wave.clear();
+                this.parent.getWaves().remove(wave);
+                this.parent.save();
+                this.open(p2, 1);
+                return;
+            }
+            wave.getEditor().open(p2, 1);
+        };
+    }
 }

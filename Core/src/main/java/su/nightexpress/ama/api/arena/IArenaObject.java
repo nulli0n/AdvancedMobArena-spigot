@@ -7,7 +7,8 @@ import su.nightexpress.ama.arena.config.ArenaConfig;
 
 public interface IArenaObject {
 
-    @NotNull ArenaConfig getArenaConfig();
+    @NotNull
+    ArenaConfig getArenaConfig();
 
     @NotNull
     default AMA plugin() {

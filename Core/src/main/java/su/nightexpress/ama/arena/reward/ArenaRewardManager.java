@@ -20,133 +20,133 @@ import java.util.function.UnaryOperator;
 
 public class ArenaRewardManager implements IArenaObject, ConfigHolder, ILoadable, IEditable, IProblematic {
 
-	private final ArenaConfig      arenaConfig;
-	private final JYML             config;
-	private       EditorRewardList editor;
-	
-	private boolean           isRetainOnLeave;
-	private boolean           isRetainOnDeath;
-	private Set<ArenaReward> rewards;
+    private final ArenaConfig      arenaConfig;
+    private final JYML             config;
+    private       EditorRewardList editor;
 
-	private static final String CONFIG_NAME = "rewards.yml";
+    private boolean          isRetainOnLeave;
+    private boolean          isRetainOnDeath;
+    private Set<ArenaReward> rewards;
 
-	public ArenaRewardManager(@NotNull ArenaConfig arenaConfig) {
-		this.arenaConfig = arenaConfig;
-		this.config = new JYML(this.arenaConfig.getFile().getParentFile().getAbsolutePath(), CONFIG_NAME);
-	}
+    private static final String CONFIG_NAME = "rewards.yml";
 
-	@Override
-	@Deprecated
-	public void setup() {
-		this.isRetainOnLeave = config.getBoolean("Retain_On_Leave");
-		this.isRetainOnDeath = config.getBoolean("Retain_On_Death");
-		this.rewards = new HashSet<>();
-		for (String sId : config.getSection("List")) {
-			String path2 = "List." + sId + ".";
+    public ArenaRewardManager(@NotNull ArenaConfig arenaConfig) {
+        this.arenaConfig = arenaConfig;
+        this.config = new JYML(this.arenaConfig.getFile().getParentFile().getAbsolutePath(), CONFIG_NAME);
+    }
 
-			String name = config.getString(path2 + "Name", sId);
-			boolean isLate = config.getBoolean(path2 + "Late");
-			double chance = config.getDouble(path2 + "Chance");
-			Set<ArenaGameEventTrigger<?>> triggers = ArenaGameEventTrigger.parse(config, path2 + "Triggers");
-			ArenaTargetType targetType = config.getEnum(path2 + "Target", ArenaTargetType.class, ArenaTargetType.PLAYER_ALL);
-			List<String> commands = config.getStringList(path2 + "Commands");
-			List<ItemStack> items = new ArrayList<>(Arrays.asList(config.getItemsEncoded(path2 + "Items")));
+    @Override
+    @Deprecated
+    public void setup() {
+        this.isRetainOnLeave = config.getBoolean("Retain_On_Leave");
+        this.isRetainOnDeath = config.getBoolean("Retain_On_Death");
+        this.rewards = new HashSet<>();
+        for (String sId : config.getSection("List")) {
+            String path2 = "List." + sId + ".";
 
-			ArenaReward reward = new ArenaReward(arenaConfig, name, isLate, triggers, targetType, chance, commands, items);
-			this.getRewards().add(reward);
-		}
-	}
+            String name = config.getString(path2 + "Name", sId);
+            boolean isLate = config.getBoolean(path2 + "Late");
+            double chance = config.getDouble(path2 + "Chance");
+            Set<ArenaGameEventTrigger<?>> triggers = ArenaGameEventTrigger.parse(config, path2 + "Triggers");
+            ArenaTargetType targetType = config.getEnum(path2 + "Target", ArenaTargetType.class, ArenaTargetType.PLAYER_ALL);
+            List<String> commands = config.getStringList(path2 + "Commands");
+            List<ItemStack> items = new ArrayList<>(Arrays.asList(config.getItemsEncoded(path2 + "Items")));
 
-	@Override
-	public void shutdown() {
-		if (this.editor != null) {
-			this.editor.clear();
-			this.editor = null;
-		}
-		if (this.rewards != null) {
-			this.rewards.clear();
-			this.rewards = null;
-		}
-	}
+            ArenaReward reward = new ArenaReward(arenaConfig, name, isLate, triggers, targetType, chance, commands, items);
+            this.getRewards().add(reward);
+        }
+    }
 
-	@Override
-	@NotNull
-	public UnaryOperator<String> replacePlaceholders() {
-		return str -> str
-			.replace(Placeholders.GENERIC_PROBLEMS, Placeholders.formatProblems(this.getProblems()))
-			.replace(Placeholders.REWARD_MANAGER_RETAIN_ON_DEATH, LangManager.getBoolean(this.isRetainOnDeath()))
-			.replace(Placeholders.REWARD_MANAGER_RETAIN_ON_LEAVE, LangManager.getBoolean(this.isRetainOnLeave()))
-			;
-	}
+    @Override
+    public void shutdown() {
+        if (this.editor != null) {
+            this.editor.clear();
+            this.editor = null;
+        }
+        if (this.rewards != null) {
+            this.rewards.clear();
+            this.rewards = null;
+        }
+    }
 
-	@NotNull
-	@Override
-	public EditorRewardList getEditor() {
-		if (this.editor == null) {
-			this.editor = new EditorRewardList(this);
-		}
-		return editor;
-	}
+    @Override
+    @NotNull
+    public UnaryOperator<String> replacePlaceholders() {
+        return str -> str
+            .replace(Placeholders.GENERIC_PROBLEMS, Placeholders.formatProblems(this.getProblems()))
+            .replace(Placeholders.REWARD_MANAGER_RETAIN_ON_DEATH, LangManager.getBoolean(this.isRetainOnDeath()))
+            .replace(Placeholders.REWARD_MANAGER_RETAIN_ON_LEAVE, LangManager.getBoolean(this.isRetainOnLeave()))
+            ;
+    }
 
-	@NotNull
-	@Override
-	public JYML getConfig() {
-		return config;
-	}
+    @NotNull
+    @Override
+    public EditorRewardList getEditor() {
+        if (this.editor == null) {
+            this.editor = new EditorRewardList(this);
+        }
+        return editor;
+    }
 
-	@Override
-	@NotNull
-	public List<String> getProblems() {
-		return new ArrayList<>();
-	}
+    @NotNull
+    @Override
+    public JYML getConfig() {
+        return config;
+    }
 
-	@Override
-	public void onSave() {
-		config.set("Retain_On_Death", this.isRetainOnDeath());
-		config.set("Retain_On_Leave", this.isRetainOnLeave());
-		config.set("List", null);
-		this.getRewards().forEach(reward -> {
-			String path2 = "List." + UUID.randomUUID() + ".";
-			reward.getTriggers().forEach(trigger -> {
-				config.set(path2 + "Triggers." + trigger.getType().name(), trigger.getValuesRaw());
-			});
-			config.set(path2 + "Name", reward.getName());
-			config.set(path2 + "Late", reward.isLate());
-			config.set(path2 + "Chance", reward.getChance());
-			config.set(path2 + "Target", reward.getTargetType().name());
-			config.set(path2 + "Commands", reward.getCommands());
-			config.setItemsEncoded(path2 + "Items", reward.getItems());
-		});
-	}
+    @Override
+    @NotNull
+    public List<String> getProblems() {
+        return new ArrayList<>();
+    }
 
-	@NotNull
-	@Override
-	public ArenaConfig getArenaConfig() {
-		return arenaConfig;
-	}
+    @Override
+    public void onSave() {
+        config.set("Retain_On_Death", this.isRetainOnDeath());
+        config.set("Retain_On_Leave", this.isRetainOnLeave());
+        config.set("List", null);
+        this.getRewards().forEach(reward -> {
+            String path2 = "List." + UUID.randomUUID() + ".";
+            reward.getTriggers().forEach(trigger -> {
+                config.set(path2 + "Triggers." + trigger.getType().name(), trigger.getValuesRaw());
+            });
+            config.set(path2 + "Name", reward.getName());
+            config.set(path2 + "Late", reward.isLate());
+            config.set(path2 + "Chance", reward.getChance());
+            config.set(path2 + "Target", reward.getTargetType().name());
+            config.set(path2 + "Commands", reward.getCommands());
+            config.setItemsEncoded(path2 + "Items", reward.getItems());
+        });
+    }
 
-	public boolean isRetainOnDeath() {
-		return isRetainOnDeath;
-	}
-	
-	public boolean isRetainOnLeave() {
-		return isRetainOnLeave;
-	}
-	
-	public void setRetainOnDeath(boolean isRetainOnDeath) {
-		this.isRetainOnDeath = isRetainOnDeath;
-	}
-	
-	public void setRetainOnLeave(boolean retainOnLeave) {
-		this.isRetainOnLeave = retainOnLeave;
-	}
-	
-	@NotNull
-	public Set<ArenaReward> getRewards() {
-		return rewards;
-	}
+    @NotNull
+    @Override
+    public ArenaConfig getArenaConfig() {
+        return arenaConfig;
+    }
 
-	public void setRewards(@NotNull Set<ArenaReward> rewards) {
-		this.rewards = rewards;
-	}
+    public boolean isRetainOnDeath() {
+        return isRetainOnDeath;
+    }
+
+    public boolean isRetainOnLeave() {
+        return isRetainOnLeave;
+    }
+
+    public void setRetainOnDeath(boolean isRetainOnDeath) {
+        this.isRetainOnDeath = isRetainOnDeath;
+    }
+
+    public void setRetainOnLeave(boolean retainOnLeave) {
+        this.isRetainOnLeave = retainOnLeave;
+    }
+
+    @NotNull
+    public Set<ArenaReward> getRewards() {
+        return rewards;
+    }
+
+    public void setRewards(@NotNull Set<ArenaReward> rewards) {
+        this.rewards = rewards;
+    }
 }

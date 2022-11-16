@@ -7,18 +7,18 @@ import su.nightexpress.ama.arena.spot.ArenaSpot;
 
 public abstract class ArenaSpotEvent extends ArenaGameGenericEvent {
 
-	private final ArenaSpot spot;
-	
-	public ArenaSpotEvent(
-			@NotNull AbstractArena arena,
-			@NotNull ArenaGameEventType eventType,
-			@NotNull ArenaSpot spot) {
-		super(arena, eventType);
-		this.spot = spot;
-	}
+    private final ArenaSpot spot;
 
-	@NotNull
-	public ArenaSpot getSpot() {
-		return this.spot;
-	}
+    public ArenaSpotEvent(
+        @NotNull AbstractArena arena,
+        @NotNull ArenaGameEventType eventType,
+        @NotNull ArenaSpot spot) {
+        super(arena, eventType);
+        this.spot = spot;
+    }
+
+    @NotNull
+    public ArenaSpot getSpot() {
+        return this.spot;
+    }
 }

@@ -25,87 +25,87 @@ import java.util.Map;
 import java.util.stream.IntStream;
 
 public class EditorArenaList extends AbstractEditorMenuAuto<AMA, AMA, AbstractArena> {
-	
-	public EditorArenaList(@NotNull AMA plugin) {
-		super(plugin, plugin, ArenaEditorUtils.TITLE_ARENA_EDITOR, 45);
 
-		EditorInput<ArenaManager, ArenaEditorType> input = (player, arenaManager, type, e) -> {
-			String msg = e.getMessage();
-			if (type == ArenaEditorType.ARENA_CREATE) {
-				String id = EditorManager.fineId(msg);
-				if (arenaManager.getArenaById(id) != null) {
-					EditorManager.error(player, plugin.getMessage(Lang.Editor_Arena_Error_Exist).getLocalized());
-					return false;
-				}
+    public EditorArenaList(@NotNull AMA plugin) {
+        super(plugin, plugin, ArenaEditorUtils.TITLE_ARENA_EDITOR, 45);
 
-				ArenaConfig arenaConfig = new ArenaConfig(plugin, plugin.getDataFolder() + "/arenas/" + id + "/" + id + ".yml");
-				arenaConfig.save();
-				arenaManager.getArenasMap().put(arenaConfig.getId(), arenaConfig.getArena());
-			}
-			return true;
-		};
+        EditorInput<ArenaManager, ArenaEditorType> input = (player, arenaManager, type, e) -> {
+            String msg = e.getMessage();
+            if (type == ArenaEditorType.ARENA_CREATE) {
+                String id = EditorManager.fineId(msg);
+                if (arenaManager.getArenaById(id) != null) {
+                    EditorManager.error(player, plugin.getMessage(Lang.Editor_Arena_Error_Exist).getLocalized());
+                    return false;
+                }
 
-		IMenuClick click = (player, type, e) -> {
-			if (type instanceof MenuItemType type2) {
-				if (type2 == MenuItemType.RETURN) {
-					plugin.getEditor().open(player, 1);
-				}
-				else super.onItemClickDefault(player, type2);
-			}
-			else if (type instanceof ArenaEditorType type2) {
-				if (type2 == ArenaEditorType.ARENA_CREATE) {
-					EditorManager.startEdit(player, plugin.getArenaManager(), type2, input);
-					EditorManager.tip(player, plugin.getMessage(Lang.Editor_Arena_Tip_Create).getLocalized());
-					player.closeInventory();
-				}
-			}
-		};
-		
-		this.loadItems(click);
-	}
+                ArenaConfig arenaConfig = new ArenaConfig(plugin, plugin.getDataFolder() + "/arenas/" + id + "/" + id + ".yml");
+                arenaConfig.save();
+                arenaManager.getArenasMap().put(arenaConfig.getId(), arenaConfig.getArena());
+            }
+            return true;
+        };
 
-	@Override
-	public void setTypes(@NotNull Map<EditorButtonType, Integer> map) {
-		map.put(ArenaEditorType.ARENA_CREATE, 41);
-		map.put(MenuItemType.RETURN, 39);
-		map.put(MenuItemType.PAGE_NEXT, 44);
-		map.put(MenuItemType.PAGE_PREVIOUS, 36);
-	}
+        IMenuClick click = (player, type, e) -> {
+            if (type instanceof MenuItemType type2) {
+                if (type2 == MenuItemType.RETURN) {
+                    plugin.getEditor().open(player, 1);
+                }
+                else super.onItemClickDefault(player, type2);
+            }
+            else if (type instanceof ArenaEditorType type2) {
+                if (type2 == ArenaEditorType.ARENA_CREATE) {
+                    EditorManager.startEdit(player, plugin.getArenaManager(), type2, input);
+                    EditorManager.tip(player, plugin.getMessage(Lang.Editor_Arena_Tip_Create).getLocalized());
+                    player.closeInventory();
+                }
+            }
+        };
 
-	@Override
-	public int[] getObjectSlots() {
-		return IntStream.range(0, 36).toArray();
-	}
+        this.loadItems(click);
+    }
 
-	@Override
-	@NotNull
-	protected List<AbstractArena> getObjects(@NotNull Player player) {
-		return new ArrayList<>(this.plugin.getArenaManager().getArenas());
-	}
+    @Override
+    public void setTypes(@NotNull Map<EditorButtonType, Integer> map) {
+        map.put(ArenaEditorType.ARENA_CREATE, 41);
+        map.put(MenuItemType.RETURN, 39);
+        map.put(MenuItemType.PAGE_NEXT, 44);
+        map.put(MenuItemType.PAGE_PREVIOUS, 36);
+    }
 
-	@Override
-	@NotNull
-	protected ItemStack getObjectStack(@NotNull Player player, @NotNull AbstractArena arena) {
-		ItemStack item = ArenaEditorType.ARENA_OBJECT.getItem();
-		ItemUtil.replace(item, arena.getConfig().replacePlaceholders());
-		return item;
-	}
+    @Override
+    public int[] getObjectSlots() {
+        return IntStream.range(0, 36).toArray();
+    }
 
-	@Override
-	@NotNull
-	protected IMenuClick getObjectClick(@NotNull Player player, @NotNull AbstractArena arena) {
-		return (player2, type, e) -> {
-			if (e.isShiftClick() && e.isRightClick()) {
-				this.plugin.getArenaManager().delete(arena);
-				this.open(player2, this.getPage(player2));
-				return;
-			}
-			arena.getConfig().getEditor().open(player2, 1);
-		};
-	}
+    @Override
+    @NotNull
+    protected List<AbstractArena> getObjects(@NotNull Player player) {
+        return new ArrayList<>(this.plugin.getArenaManager().getArenas());
+    }
 
-	@Override
-	public boolean cancelClick(@NotNull InventoryClickEvent e, @NotNull SlotType slotType) {
-		return true;
-	}
+    @Override
+    @NotNull
+    protected ItemStack getObjectStack(@NotNull Player player, @NotNull AbstractArena arena) {
+        ItemStack item = ArenaEditorType.ARENA_OBJECT.getItem();
+        ItemUtil.replace(item, arena.getConfig().replacePlaceholders());
+        return item;
+    }
+
+    @Override
+    @NotNull
+    protected IMenuClick getObjectClick(@NotNull Player player, @NotNull AbstractArena arena) {
+        return (player2, type, e) -> {
+            if (e.isShiftClick() && e.isRightClick()) {
+                this.plugin.getArenaManager().delete(arena);
+                this.open(player2, this.getPage(player2));
+                return;
+            }
+            arena.getConfig().getEditor().open(player2, 1);
+        };
+    }
+
+    @Override
+    public boolean cancelClick(@NotNull InventoryClickEvent e, @NotNull SlotType slotType) {
+        return true;
+    }
 }

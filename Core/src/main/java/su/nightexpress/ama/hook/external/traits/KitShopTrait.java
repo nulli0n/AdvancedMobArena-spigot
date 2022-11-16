@@ -14,12 +14,12 @@ public class KitShopTrait extends Trait {
     public KitShopTrait() {
         super("ama-kit-shop");
     }
-    
+
     @EventHandler
     public void click(NPCRightClickEvent e) {
         if (e.getNPC() == this.getNPC()) {
-        	Player p = e.getClicker();
-        	ArenaAPI.getKitManager().getShopMenu().open(p, 1);
+            Player p = e.getClicker();
+            ArenaAPI.getKitManager().getShopMenu().open(p, 1);
         }
     }
 }

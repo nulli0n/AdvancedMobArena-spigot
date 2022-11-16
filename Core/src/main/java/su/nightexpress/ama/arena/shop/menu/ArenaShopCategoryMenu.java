@@ -26,7 +26,7 @@ public class ArenaShopCategoryMenu extends AbstractMenuAuto<AMA, ArenaShopProduc
 
     protected ArenaShopCategory shopCategory;
 
-    private final String objectName;
+    private final String                            objectName;
     private final Map<ArenaLockState, List<String>> objectLore;
     private final int[]                             objectSlots;
 
@@ -93,7 +93,8 @@ public class ArenaShopCategoryMenu extends AbstractMenuAuto<AMA, ArenaShopProduc
     @NotNull
     protected IMenuClick getObjectClick(@NotNull Player player, @NotNull ArenaShopProduct shopProduct) {
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
-        if (arenaPlayer == null || arenaPlayer.getArena().getState() != ArenaState.INGAME) return (p, type, e) -> {};
+        if (arenaPlayer == null || arenaPlayer.getArena().getState() != ArenaState.INGAME) return (p, type, e) -> {
+        };
 
         return (player2, type, e) -> {
             if (shopProduct.getState() == ArenaLockState.LOCKED) {

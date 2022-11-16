@@ -15,63 +15,63 @@ import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.AbstractArena;
 
 public class ArenaListMenu extends AbstractMenu<AMA> {
-	
-	public ArenaListMenu(@NotNull AMA plugin) {
-		super(plugin, JYML.loadOrExtract(plugin, "/menu/arena.list.yml"), "");
 
-		IMenuClick click = (player, type, e) -> {
-			if (type instanceof MenuItemType type2) {
-				this.onItemClickDefault(player, type2);
-			}
-		};
-		
-		for (String sId : cfg.getSection("Content")) {
-			IMenuItem menuItem = cfg.getMenuItem("Content." + sId, MenuItemType.class);
-			
-			if (menuItem.getType() != null) {
-				menuItem.setClick(click);
-			}
-			this.addItem(menuItem);
-		}
-		
-		for (String sId : cfg.getSection("Arenas")) {
-			IMenuItem menuItem = cfg.getMenuItem("Arenas." + sId);
-			
-			AbstractArena arena = plugin.getArenaManager().getArenaById(menuItem.getId());
-			if (arena == null) {
-				plugin.error("Invalid arena '" + sId + "' in Arenas Menu!");
-				continue;
-			}
-			
-			menuItem.setClick((p, type, e) -> {
-				arena.joinLobby(p);
-			});
-			this.addItem(menuItem);
-		}
-	}
+    public ArenaListMenu(@NotNull AMA plugin) {
+        super(plugin, JYML.loadOrExtract(plugin, "/menu/arena.list.yml"), "");
 
-	@Override
-	public void onPrepare(@NotNull Player player, @NotNull Inventory inventory) {
+        IMenuClick click = (player, type, e) -> {
+            if (type instanceof MenuItemType type2) {
+                this.onItemClickDefault(player, type2);
+            }
+        };
 
-	}
+        for (String sId : cfg.getSection("Content")) {
+            IMenuItem menuItem = cfg.getMenuItem("Content." + sId, MenuItemType.class);
 
-	@Override
-	public void onReady(@NotNull Player player, @NotNull Inventory inventory) {
+            if (menuItem.getType() != null) {
+                menuItem.setClick(click);
+            }
+            this.addItem(menuItem);
+        }
 
-	}
+        for (String sId : cfg.getSection("Arenas")) {
+            IMenuItem menuItem = cfg.getMenuItem("Arenas." + sId);
 
-	@Override
-	public void onItemPrepare(@NotNull Player player, @NotNull IMenuItem menuItem, @NotNull ItemStack item) {
-		super.onItemPrepare(player, menuItem, item);
+            AbstractArena arena = plugin.getArenaManager().getArenaById(menuItem.getId());
+            if (arena == null) {
+                plugin.error("Invalid arena '" + sId + "' in Arenas Menu!");
+                continue;
+            }
 
-		AbstractArena arena = plugin.getArenaManager().getArenaById(menuItem.getId());
-		if (arena == null) return;
+            menuItem.setClick((p, type, e) -> {
+                arena.joinLobby(p);
+            });
+            this.addItem(menuItem);
+        }
+    }
 
-		ItemUtil.replace(item, arena.replacePlaceholders());
-	}
+    @Override
+    public void onPrepare(@NotNull Player player, @NotNull Inventory inventory) {
 
-	@Override
-	public boolean cancelClick(@NotNull InventoryClickEvent e, @NotNull SlotType slotType) {
-		return true;
-	}
+    }
+
+    @Override
+    public void onReady(@NotNull Player player, @NotNull Inventory inventory) {
+
+    }
+
+    @Override
+    public void onItemPrepare(@NotNull Player player, @NotNull IMenuItem menuItem, @NotNull ItemStack item) {
+        super.onItemPrepare(player, menuItem, item);
+
+        AbstractArena arena = plugin.getArenaManager().getArenaById(menuItem.getId());
+        if (arena == null) return;
+
+        ItemUtil.replace(item, arena.replacePlaceholders());
+    }
+
+    @Override
+    public boolean cancelClick(@NotNull InventoryClickEvent e, @NotNull SlotType slotType) {
+        return true;
+    }
 }

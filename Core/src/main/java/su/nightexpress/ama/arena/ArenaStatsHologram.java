@@ -14,9 +14,9 @@ import java.util.*;
 
 public class ArenaStatsHologram implements HologramHolder {
 
-    private final ArenaConfig arena;
-    private final StatType    statType;
-    private final Set<UUID> hologramIds;
+    private final ArenaConfig   arena;
+    private final StatType      statType;
+    private final Set<UUID>     hologramIds;
     private final Set<Location> hologramLocations;
 
     public ArenaStatsHologram(@NotNull ArenaConfig arena, @NotNull StatType statType, @NotNull Set<Location> hologramLocations) {

@@ -51,271 +51,271 @@ import java.sql.SQLException;
 
 public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser>, EditorHolder<AMA, ArenaEditorType> {
 
-	private ArenaUserData      userData;
-	private ArenaUserManager userManager;
+    private ArenaUserData    userData;
+    private ArenaUserManager userManager;
 
-	private CurrencyManager   currencyManager;
-	private ArenaManager      arenaManager;
-	private ArenaSetupManager arenaSetupManager;
-	private MobManager        mobManager;
-	private KitManager        kitManager;
-	private StatsManager      statsManager;
-	private ArenaEditorHub editorHub;
-	private SignManager       signManager;
-	private HologramManager   hologramManager;
+    private CurrencyManager   currencyManager;
+    private ArenaManager      arenaManager;
+    private ArenaSetupManager arenaSetupManager;
+    private MobManager        mobManager;
+    private KitManager        kitManager;
+    private StatsManager      statsManager;
+    private ArenaEditorHub    editorHub;
+    private SignManager       signManager;
+    private HologramManager   hologramManager;
 
-	private ArenaNMS                arenaNMS;
+    private ArenaNMS arenaNMS;
 
-	@Override
-	@NotNull
-	protected AMA getSelf() {
-		return this;
-	}
+    @Override
+    @NotNull
+    protected AMA getSelf() {
+        return this;
+    }
 
-	@Override
-	public void enable() {
-		switch (Version.CURRENT) {
-			case V1_17_R1 -> this.arenaNMS = new V1_17_R1();
-			case V1_18_R2 -> this.arenaNMS = new V1_18_R2();
-			case V1_19_R1 -> this.arenaNMS = new V1_19_R1();
-			default -> { }
-		}
-		if (this.arenaNMS == null) {
-			this.error("Could not setup NMS interface! (Unsupported server version)");
-			this.getPluginManager().disablePlugin(this);
-			return;
-		}
-		
-		this.currencyManager = new CurrencyManager(this);
-		this.currencyManager.setup();
-		if (!this.getCurrencyManager().hasCurrency()) {
-			this.error("No currencies are enabled/available! Plugin will be disabled.");
-			this.getPluginManager().disablePlugin(this);
-			return;
-		}
+    @Override
+    public void enable() {
+        switch (Version.CURRENT) {
+            case V1_17_R1 -> this.arenaNMS = new V1_17_R1();
+            case V1_18_R2 -> this.arenaNMS = new V1_18_R2();
+            case V1_19_R1 -> this.arenaNMS = new V1_19_R1();
+            default -> { }
+        }
+        if (this.arenaNMS == null) {
+            this.error("Could not setup NMS interface! (Unsupported server version)");
+            this.getPluginManager().disablePlugin(this);
+            return;
+        }
 
-		if (Config.HOLOGRAMS_ENABLED.get()) {
-			IHologramHandler<?> hologramHandler = null;
-			if (Hooks.hasPlugin(HookId.HOLOGRAPHIC_DISPLAYS)) {
-				hologramHandler = new HologramDisplaysHandler();
-			}
-			else if (Hooks.hasPlugin(HookId.DECENT_HOLOGRAMS)) {
-				hologramHandler = new HologramDecentHandler();
-			}
-			if (hologramHandler != null) {
-				this.info("Found compatible holograms plugin! Let's use hologram features.");
-				this.hologramManager = new HologramManager(this, hologramHandler);
-				this.hologramManager.setup();
-			}
-			else {
-				this.warn("Can not found a compatible holograms plugin. Holograms feature will be disabled.");
-			}
-		}
+        this.currencyManager = new CurrencyManager(this);
+        this.currencyManager.setup();
+        if (!this.getCurrencyManager().hasCurrency()) {
+            this.error("No currencies are enabled/available! Plugin will be disabled.");
+            this.getPluginManager().disablePlugin(this);
+            return;
+        }
 
-		this.mobManager = new MobManager(this);
-		this.mobManager.setup();
-		
-		this.kitManager = new KitManager(this);
-		this.kitManager.setup();
-		
-		this.arenaManager = new ArenaManager(this);
-		this.arenaManager.setup();
+        if (Config.HOLOGRAMS_ENABLED.get()) {
+            IHologramHandler<?> hologramHandler = null;
+            if (Hooks.hasPlugin(HookId.HOLOGRAPHIC_DISPLAYS)) {
+                hologramHandler = new HologramDisplaysHandler();
+            }
+            else if (Hooks.hasPlugin(HookId.DECENT_HOLOGRAMS)) {
+                hologramHandler = new HologramDecentHandler();
+            }
+            if (hologramHandler != null) {
+                this.info("Found compatible holograms plugin! Let's use hologram features.");
+                this.hologramManager = new HologramManager(this, hologramHandler);
+                this.hologramManager.setup();
+            }
+            else {
+                this.warn("Can not found a compatible holograms plugin. Holograms feature will be disabled.");
+            }
+        }
 
-		this.arenaSetupManager = new ArenaSetupManager(this);
-		this.arenaSetupManager.setup();
-		
-		this.statsManager = new StatsManager(this);
-		this.statsManager.setup();
+        this.mobManager = new MobManager(this);
+        this.mobManager.setup();
 
-		if (Config.SIGNS_ENABLED.get()) {
-			this.signManager = new SignManager(this);
-			this.signManager.setup();
-		}
-	}
+        this.kitManager = new KitManager(this);
+        this.kitManager.setup();
 
-	@Override
-	public void disable() {
-		if (this.hologramManager != null) {
-			this.hologramManager.shutdown();
-			this.hologramManager = null;
-		}
-		if (this.editorHub != null) {
-			this.editorHub.clear();
-			this.editorHub = null;
-		}
-		if (this.arenaSetupManager != null) {
-			this.arenaSetupManager.shutdown();
-			this.arenaSetupManager = null;
-		}
-		if (this.arenaManager != null) {
-			this.arenaManager.shutdown();
-			this.arenaManager = null;
-		}
-		if (this.mobManager != null) {
-			this.mobManager.shutdown();
-			this.mobManager = null;
-		}
-		if (this.kitManager != null) {
-			this.kitManager.shutdown();
-			this.kitManager = null;
-		}
-		if (this.statsManager != null) {
-			this.statsManager.shutdown();
-			this.statsManager = null;
-		}
-		if (this.currencyManager != null) {
-			this.currencyManager.shutdown();
-			this.currencyManager = null;
-		}
-		if (this.signManager != null) {
-			this.signManager.shutdown();
-			this.signManager = null;
-		}
-	}
+        this.arenaManager = new ArenaManager(this);
+        this.arenaManager.setup();
 
-	@Override
-	public boolean setupDataHandlers() {
-		try {
-			this.userData = ArenaUserData.getInstance(this);
-			this.userData.setup();
-		} 
-		catch (SQLException e) {
-			this.error("Could not setup database handler!");
-			e.printStackTrace();
-			return false;
-		}
-		
-		this.userManager = new ArenaUserManager(this);
-		this.userManager.setup();
-		
-		return true;
-	}
+        this.arenaSetupManager = new ArenaSetupManager(this);
+        this.arenaSetupManager.setup();
 
-	@Override
-	public void loadConfig() {
-		this.getConfig().initializeOptions(Config.class);
-	}
+        this.statsManager = new StatsManager(this);
+        this.statsManager.setup();
 
-	@Override
-	public void loadLang() {
-		this.getLangManager().loadMissing(Lang.class);
-		this.getLangManager().setupEnum(ArenaState.class);
-		this.getLangManager().setupEnum(ArenaLockState.class);
-		this.getLangManager().setupEnum(ArenaGameEventType.class);
-		this.getLangManager().setupEnum(ArenaTargetType.class);
-		this.getLangManager().setupEnum(StatType.class);
-		this.getLangManager().setupEnum(HologramType.class);
-		this.getLangManager().setupEnum(MobStyleType.class);
-		this.getLangManager().setupEditorEnum(ArenaEditorType.class);
-		this.getLangManager().setupEditorEnum(SetupItemType.class);
-		this.getLang().saveChanges();
-	}
+        if (Config.SIGNS_ENABLED.get()) {
+            this.signManager = new SignManager(this);
+            this.signManager.setup();
+        }
+    }
 
-	@Override
-	@NotNull
-	public ArenaUserData getData() {
-		return this.userData;
-	}
+    @Override
+    public void disable() {
+        if (this.hologramManager != null) {
+            this.hologramManager.shutdown();
+            this.hologramManager = null;
+        }
+        if (this.editorHub != null) {
+            this.editorHub.clear();
+            this.editorHub = null;
+        }
+        if (this.arenaSetupManager != null) {
+            this.arenaSetupManager.shutdown();
+            this.arenaSetupManager = null;
+        }
+        if (this.arenaManager != null) {
+            this.arenaManager.shutdown();
+            this.arenaManager = null;
+        }
+        if (this.mobManager != null) {
+            this.mobManager.shutdown();
+            this.mobManager = null;
+        }
+        if (this.kitManager != null) {
+            this.kitManager.shutdown();
+            this.kitManager = null;
+        }
+        if (this.statsManager != null) {
+            this.statsManager.shutdown();
+            this.statsManager = null;
+        }
+        if (this.currencyManager != null) {
+            this.currencyManager.shutdown();
+            this.currencyManager = null;
+        }
+        if (this.signManager != null) {
+            this.signManager.shutdown();
+            this.signManager = null;
+        }
+    }
 
-	@NotNull
-	@Override
-	public ArenaUserManager getUserManager() {
-		return userManager;
-	}
+    @Override
+    public void loadConfig() {
+        this.getConfig().initializeOptions(Config.class);
+    }
 
-	@Override
-	public void registerHooks() {
-		this.registerHook(HookId.ESSENTIALS, EssentialsHook.class);
-		this.registerHook(HookId.MCMMO, McMMOHook.class);
-		if (Hooks.hasPlaceholderAPI()) {
-			this.registerHook(Hooks.PLACEHOLDER_API, PlaceholderHook.class);
-		}
-		this.registerHook(HookId.SUNLIGHT, SunLightHook.class);
-		this.registerHook(HookId.MAGIC, MagicHK.class);
+    @Override
+    public void loadLang() {
+        this.getLangManager().loadMissing(Lang.class);
+        this.getLangManager().setupEnum(ArenaState.class);
+        this.getLangManager().setupEnum(ArenaLockState.class);
+        this.getLangManager().setupEnum(ArenaGameEventType.class);
+        this.getLangManager().setupEnum(ArenaTargetType.class);
+        this.getLangManager().setupEnum(StatType.class);
+        this.getLangManager().setupEnum(HologramType.class);
+        this.getLangManager().setupEnum(MobStyleType.class);
+        this.getLangManager().setupEditorEnum(ArenaEditorType.class);
+        this.getLangManager().setupEditorEnum(SetupItemType.class);
+        this.getLang().saveChanges();
+    }
 
-		if (Hooks.hasCitizens()) {
-			CitizensHook.registerTrait(this, ArenasTrait.class);
-			CitizensHook.registerTrait(this, KitSelectorTrait.class);
-			CitizensHook.registerTrait(this, KitShopTrait.class);
-			CitizensHook.registerTrait(this, ShopTrait.class);
-			CitizensHook.registerTrait(this, StatsTrait.class);
-		}
-	}
+    @Override
+    public void registerHooks() {
+        this.registerHook(HookId.ESSENTIALS, EssentialsHook.class);
+        this.registerHook(HookId.MCMMO, McMMOHook.class);
+        if (Hooks.hasPlaceholderAPI()) {
+            this.registerHook(Hooks.PLACEHOLDER_API, PlaceholderHook.class);
+        }
+        this.registerHook(HookId.SUNLIGHT, SunLightHook.class);
+        this.registerHook(HookId.MAGIC, MagicHK.class);
 
-	@Override
-	public void registerCommands(@NotNull GeneralCommand<AMA> mainCommand) {
-		mainCommand.addChildren(new CurrencyMainCommand(this));
-		mainCommand.addChildren(new EditorSubCommand<>(this, this, Perms.COMMAND_EDITOR));
-		mainCommand.addChildren(new ReloadSubCommand<>(this, Perms.COMMAND_RELOAD));
-		mainCommand.addChildren(new ForceEndCommand(this));
-		mainCommand.addChildren(new ForceStartCommand(this));
-		mainCommand.addChildren(new JoinCommand(this));
-		mainCommand.addChildren(new LeaveCommand(this));
-		mainCommand.addChildren(new ListCmd(this));
-		mainCommand.addChildren(new RegionCommand(this));
-		mainCommand.addChildren(new ScoreCmd(this));
-		mainCommand.addChildren(new ShopCommand(this));
-		mainCommand.addChildren(new SkipwaveCmd(this));
-		mainCommand.addChildren(new SpectateCmd(this));
-		mainCommand.addChildren(new SpotCmd(this));
-	}
+        if (Hooks.hasCitizens()) {
+            CitizensHook.registerTrait(this, ArenasTrait.class);
+            CitizensHook.registerTrait(this, KitSelectorTrait.class);
+            CitizensHook.registerTrait(this, KitShopTrait.class);
+            CitizensHook.registerTrait(this, ShopTrait.class);
+            CitizensHook.registerTrait(this, StatsTrait.class);
+        }
+    }
 
-	@Override
-	public void registerPermissions() {
-		this.registerPermissions(Perms.class);
-	}
+    @Override
+    public void registerCommands(@NotNull GeneralCommand<AMA> mainCommand) {
+        mainCommand.addChildren(new CurrencyMainCommand(this));
+        mainCommand.addChildren(new EditorSubCommand<>(this, this, Perms.COMMAND_EDITOR));
+        mainCommand.addChildren(new ReloadSubCommand<>(this, Perms.COMMAND_RELOAD));
+        mainCommand.addChildren(new ForceEndCommand(this));
+        mainCommand.addChildren(new ForceStartCommand(this));
+        mainCommand.addChildren(new JoinCommand(this));
+        mainCommand.addChildren(new LeaveCommand(this));
+        mainCommand.addChildren(new ListCmd(this));
+        mainCommand.addChildren(new RegionCommand(this));
+        mainCommand.addChildren(new ScoreCmd(this));
+        mainCommand.addChildren(new ShopCommand(this));
+        mainCommand.addChildren(new SkipwaveCmd(this));
+        mainCommand.addChildren(new SpectateCmd(this));
+        mainCommand.addChildren(new SpotCmd(this));
+    }
 
-	@Override
-	@NotNull
-	public ArenaEditorHub getEditor() {
-		if (this.editorHub == null) {
-			this.editorHub = new ArenaEditorHub(this);
-		}
-		return this.editorHub;
-	}
+    @Override
+    public void registerPermissions() {
+        this.registerPermissions(Perms.class);
+    }
 
-	@NotNull
-	public CurrencyManager getCurrencyManager() {
-		return this.currencyManager;
-	}
-	
-	@NotNull
-	public ArenaManager getArenaManager() {
-		return this.arenaManager;
-	}
+    @Override
+    public boolean setupDataHandlers() {
+        try {
+            this.userData = ArenaUserData.getInstance(this);
+            this.userData.setup();
+        }
+        catch (SQLException e) {
+            this.error("Could not setup database handler!");
+            e.printStackTrace();
+            return false;
+        }
 
-	@NotNull
-	public ArenaSetupManager getArenaSetupManager() {
-		return arenaSetupManager;
-	}
+        this.userManager = new ArenaUserManager(this);
+        this.userManager.setup();
 
-	@NotNull
-	public MobManager getMobManager() {
-		return this.mobManager;
-	}
-	
-	@NotNull
-	public KitManager getKitManager() {
-		return this.kitManager;
-	}
-	
-	@NotNull
-	public StatsManager getStatsManager() {
-		return this.statsManager;
-	}
+        return true;
+    }
 
-	@Nullable
-	public HologramManager getHologramManager() {
-		return hologramManager;
-	}
+    @Override
+    @NotNull
+    public ArenaUserData getData() {
+        return this.userData;
+    }
 
-	@Nullable
-	public SignManager getSignManager() {
-		return signManager;
-	}
+    @NotNull
+    @Override
+    public ArenaUserManager getUserManager() {
+        return userManager;
+    }
 
-	@NotNull
-	public ArenaNMS getArenaNMS() {
-		return this.arenaNMS;
-	}
+    @Override
+    @NotNull
+    public ArenaEditorHub getEditor() {
+        if (this.editorHub == null) {
+            this.editorHub = new ArenaEditorHub(this);
+        }
+        return this.editorHub;
+    }
+
+    @NotNull
+    public CurrencyManager getCurrencyManager() {
+        return this.currencyManager;
+    }
+
+    @NotNull
+    public ArenaManager getArenaManager() {
+        return this.arenaManager;
+    }
+
+    @NotNull
+    public ArenaSetupManager getArenaSetupManager() {
+        return arenaSetupManager;
+    }
+
+    @NotNull
+    public MobManager getMobManager() {
+        return this.mobManager;
+    }
+
+    @NotNull
+    public KitManager getKitManager() {
+        return this.kitManager;
+    }
+
+    @NotNull
+    public StatsManager getStatsManager() {
+        return this.statsManager;
+    }
+
+    @Nullable
+    public HologramManager getHologramManager() {
+        return hologramManager;
+    }
+
+    @Nullable
+    public SignManager getSignManager() {
+        return signManager;
+    }
+
+    @NotNull
+    public ArenaNMS getArenaNMS() {
+        return this.arenaNMS;
+    }
 }

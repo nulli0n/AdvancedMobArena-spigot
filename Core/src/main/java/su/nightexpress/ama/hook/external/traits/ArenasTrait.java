@@ -14,12 +14,12 @@ public class ArenasTrait extends Trait {
     public ArenasTrait() {
         super("ama-arenas");
     }
-    
+
     @EventHandler
     public void click(NPCRightClickEvent e) {
         if (e.getNPC() == this.getNPC()) {
-        	Player p = e.getClicker();
-        	ArenaAPI.getArenaManager().getArenaListMenu().open(p, 1);
+            Player p = e.getClicker();
+            ArenaAPI.getArenaManager().getArenaListMenu().open(p, 1);
         }
     }
 }

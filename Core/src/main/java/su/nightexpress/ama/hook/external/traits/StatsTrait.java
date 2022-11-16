@@ -14,12 +14,12 @@ public class StatsTrait extends Trait {
     public StatsTrait() {
         super("ama-stats");
     }
-    
+
     @EventHandler
     public void click(NPCRightClickEvent e) {
         if (e.getNPC() == this.getNPC()) {
-        	Player p = e.getClicker();
-        	ArenaAPI.getStatsManager().getStatsMenu().open(p, 1);
+            Player p = e.getClicker();
+            ArenaAPI.getStatsManager().getStatsMenu().open(p, 1);
         }
     }
 }

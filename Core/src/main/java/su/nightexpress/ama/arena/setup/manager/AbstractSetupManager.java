@@ -16,7 +16,7 @@ import su.nightexpress.ama.arena.setup.SetupItemType;
 public abstract class AbstractSetupManager<T> extends AbstractManager<AMA> implements IListener {
 
     protected Player player;
-    protected T object;
+    protected T      object;
 
     protected ItemStack[] inventorySave;
 
@@ -76,13 +76,12 @@ public abstract class AbstractSetupManager<T> extends AbstractManager<AMA> imple
     protected abstract void onSetupEnd(@NotNull Player player, @NotNull T object);
 
     protected abstract void handleItem(
-            @NotNull PlayerInteractEvent e, @NotNull Player player, @NotNull T object,
-            @NotNull ItemStack item, @NotNull SetupItemType itemType);
+        @NotNull PlayerInteractEvent e, @NotNull Player player, @NotNull T object,
+        @NotNull ItemStack item, @NotNull SetupItemType itemType);
 
     protected abstract void updateVisuals();
 
     protected abstract void removeVisuals();
-
 
 
     @EventHandler(priority = EventPriority.NORMAL)

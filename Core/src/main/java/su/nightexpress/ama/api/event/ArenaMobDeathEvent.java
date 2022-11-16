@@ -9,7 +9,7 @@ import su.nightexpress.ama.arena.ArenaPlayer;
 
 public class ArenaMobDeathEvent extends ArenaGameGenericEvent {
 
-    private ArenaPlayer  killer;
+    private       ArenaPlayer  killer;
     private final LivingEntity entity;
     private final String       mobId;
 

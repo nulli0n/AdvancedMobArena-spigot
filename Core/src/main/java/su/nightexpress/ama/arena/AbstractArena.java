@@ -38,9 +38,9 @@ import java.util.stream.Stream;
 
 public abstract class AbstractArena implements IPlaceholder {
 
-    protected AMA         plugin;
-    protected ArenaConfig config;
-    protected ArenaState  state;
+    protected AMA                          plugin;
+    protected ArenaConfig                  config;
+    protected ArenaState                   state;
     protected Set<IArenaGameEventListener> gameEventListeners;
 
     protected int  lobbyTimeleft;
@@ -58,16 +58,16 @@ public abstract class AbstractArena implements IPlaceholder {
     protected int gradualMobsPrepare;
     protected int gradualMobsKilled;
 
-    protected int waveNumber;
-    protected int  waveNextTimeleft;
-    protected int waveMobsTotalAmount;
+    protected int                    waveNumber;
+    protected int                    waveNextTimeleft;
+    protected int                    waveMobsTotalAmount;
     protected Set<ArenaWaveUpcoming> waveUpcoming;
-    protected Map<String, double[]> waveAmplificatorValues; // [Amount, Level]
+    protected Map<String, double[]>  waveAmplificatorValues; // [Amount, Level]
 
     private static final DateTimeFormatter FORMAT_TIMELEFT = DateTimeFormatter.ofPattern("HH:mm:ss");
     // TODO Final Arena Stats Most Damager, Killer, etc
 
-    public AbstractArena(@NotNull ArenaConfig config)  {
+    public AbstractArena(@NotNull ArenaConfig config) {
         this.plugin = config.plugin();
         this.config = config;
         this.gameEventListeners = new LinkedHashSet<>();
@@ -323,7 +323,8 @@ public abstract class AbstractArena implements IPlaceholder {
     @NotNull
     public Set<ArenaPlayer> getPlayers(@NotNull ArenaTargetType targetType) {
         if (targetType == ArenaTargetType.PLAYER_ALL) return this.getPlayersIngame();
-        if (targetType == ArenaTargetType.PLAYER_RANDOM) return Stream.of(Rnd.get(this.getPlayersIngame())).filter(Objects::nonNull).collect(Collectors.toSet());
+        if (targetType == ArenaTargetType.PLAYER_RANDOM)
+            return Stream.of(Rnd.get(this.getPlayersIngame())).filter(Objects::nonNull).collect(Collectors.toSet());
         return Collections.emptySet();
     }
 

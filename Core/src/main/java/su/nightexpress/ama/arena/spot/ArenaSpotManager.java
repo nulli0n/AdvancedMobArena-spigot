@@ -17,105 +17,105 @@ import java.util.function.UnaryOperator;
 
 public class ArenaSpotManager implements IArenaObject, ILoadable, IEditable, IProblematic {
 
-	private final ArenaConfig arenaConfig;
-	
-	private Map<String, ArenaSpot> spots;
-	private EditorSpotList          editor;
+    private final ArenaConfig arenaConfig;
 
-	public static final String DIR_SPOTS = "/spots/";
+    private Map<String, ArenaSpot> spots;
+    private EditorSpotList         editor;
 
-	public ArenaSpotManager(@NotNull ArenaConfig arenaConfig) {
-		this.arenaConfig = arenaConfig;
-	}
-	
-	@Override
-	public void setup() {
-		this.spots = new HashMap<>();
-		
-		for (JYML cfg : JYML.loadAll(arenaConfig.getFile().getParentFile().getAbsolutePath() + DIR_SPOTS, false)) {
-			try {
-				ArenaSpot spot = new ArenaSpot(this.arenaConfig, cfg);
-				this.spots.put(spot.getId(), spot);
-			}
-			catch (Exception ex) {
-				arenaConfig.plugin().error("Could not load '" + cfg.getFile().getName() + "' spot for '" + arenaConfig.getId() + "' arena!");
-				ex.printStackTrace();
-			}
-		}
-	}
-	
-	@Override
-	public void shutdown() {
-		if (this.editor != null) {
-			this.editor.clear();
-			this.editor = null;
-		}
-		this.getSpots().forEach(ArenaSpot::clear);
-		this.getSpots().clear();
-	}
+    public static final String DIR_SPOTS = "/spots/";
 
-	@Override
-	@NotNull
-	public UnaryOperator<String> replacePlaceholders() {
-		return str -> str.replace(Placeholders.GENERIC_PROBLEMS, Placeholders.formatProblems(this.getProblems()));
-	}
+    public ArenaSpotManager(@NotNull ArenaConfig arenaConfig) {
+        this.arenaConfig = arenaConfig;
+    }
 
-	@Override
-	@NotNull
-	public List<String> getProblems() {
-		List<String> list = new ArrayList<>();
-		this.getSpots().forEach(spot -> {
-			if (spot.isActive() && spot.hasProblems()) {
-				list.add("Problems with " + spot.getId() + " spot!");
-			}
-		});
+    @Override
+    public void setup() {
+        this.spots = new HashMap<>();
 
-		return list;
-	}
+        for (JYML cfg : JYML.loadAll(arenaConfig.getFile().getParentFile().getAbsolutePath() + DIR_SPOTS, false)) {
+            try {
+                ArenaSpot spot = new ArenaSpot(this.arenaConfig, cfg);
+                this.spots.put(spot.getId(), spot);
+            }
+            catch (Exception ex) {
+                arenaConfig.plugin().error("Could not load '" + cfg.getFile().getName() + "' spot for '" + arenaConfig.getId() + "' arena!");
+                ex.printStackTrace();
+            }
+        }
+    }
 
-	@NotNull
-	@Override
-	public EditorSpotList getEditor() {
-		if (this.editor == null) {
-			this.editor = new EditorSpotList(this);
-		}
-		return editor;
-	}
+    @Override
+    public void shutdown() {
+        if (this.editor != null) {
+            this.editor.clear();
+            this.editor = null;
+        }
+        this.getSpots().forEach(ArenaSpot::clear);
+        this.getSpots().clear();
+    }
 
-	@Override
-	@NotNull
-	public ArenaConfig getArenaConfig() {
-		return this.arenaConfig;
-	}
+    @Override
+    @NotNull
+    public UnaryOperator<String> replacePlaceholders() {
+        return str -> str.replace(Placeholders.GENERIC_PROBLEMS, Placeholders.formatProblems(this.getProblems()));
+    }
 
-	@NotNull
-	public Map<String, ArenaSpot> getSpotsMap() {
-		return this.spots;
-	}
+    @Override
+    @NotNull
+    public List<String> getProblems() {
+        List<String> list = new ArrayList<>();
+        this.getSpots().forEach(spot -> {
+            if (spot.isActive() && spot.hasProblems()) {
+                list.add("Problems with " + spot.getId() + " spot!");
+            }
+        });
 
-	@NotNull
-	public Collection<ArenaSpot> getSpots() {
-		return this.getSpotsMap().values();
-	}
+        return list;
+    }
 
-	public void addSpot(@NotNull ArenaSpot spot) {
-		this.getSpotsMap().put(spot.getId(), spot);
-	}
+    @NotNull
+    @Override
+    public EditorSpotList getEditor() {
+        if (this.editor == null) {
+            this.editor = new EditorSpotList(this);
+        }
+        return editor;
+    }
 
-	public void removeSpot(@NotNull ArenaSpot spot) {
-		if (spot.getFile().delete()) {
-			spot.clear();
-			this.getSpotsMap().remove(spot.getId());
-		}
-	}
+    @Override
+    @NotNull
+    public ArenaConfig getArenaConfig() {
+        return this.arenaConfig;
+    }
 
-	@Nullable
-	public ArenaSpot getSpot(@NotNull String id) {
-		return this.getSpotsMap().get(id.toLowerCase());
-	}
+    @NotNull
+    public Map<String, ArenaSpot> getSpotsMap() {
+        return this.spots;
+    }
 
-	@Nullable
-	public ArenaSpot getSpot(@NotNull Location location) {
-		return this.getSpots().stream().filter(spot -> spot.getCuboid().contains(location)).findFirst().orElse(null);
-	}
+    @NotNull
+    public Collection<ArenaSpot> getSpots() {
+        return this.getSpotsMap().values();
+    }
+
+    public void addSpot(@NotNull ArenaSpot spot) {
+        this.getSpotsMap().put(spot.getId(), spot);
+    }
+
+    public void removeSpot(@NotNull ArenaSpot spot) {
+        if (spot.getFile().delete()) {
+            spot.clear();
+            this.getSpotsMap().remove(spot.getId());
+        }
+    }
+
+    @Nullable
+    public ArenaSpot getSpot(@NotNull String id) {
+        return this.getSpotsMap().get(id.toLowerCase());
+    }
+
+    @Nullable
+    public ArenaSpot getSpot(@NotNull Location location) {
+        return this.getSpots().stream().filter(spot -> spot.getCuboid().contains(location)).findFirst().orElse(null);
+    }
 }

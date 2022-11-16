@@ -5,8 +5,8 @@ Core:
     Help:
       Format: '&6» &e/%label% %cmd% %usage% &7- %description%'
       List:
-      - '&8&m━━━━━━━━━━━━&8&l[ &e&l高级怪物竞技场 &7- &6&l帮助 &8&l]&8&m━━━━━━━━━━━━'
-      - '%cmds%'
+        - '&8&m━━━━━━━━━━━━&8&l[ &e&l高级怪物竞技场 &7- &6&l帮助 &8&l]&8&m━━━━━━━━━━━━'
+        - '%cmds%'
       Desc: 显示帮助页面.
     Editor:
       Desc: 打开GUI编辑.
@@ -34,12 +34,12 @@ Error:
   Sender: 只有玩家能使用这条指令.
 Help:
   Coins:
-  - '&2» &a/ama coins add <player> <amount> &7- 添加玩家硬币.'
-  - '&2» &a/ama coins take <player> <amount> &7- 扣除玩家硬币.'
-  - '&2» &a/ama coins set <player> <amount> &7- 设置玩家硬币.'
+    - '&2» &a/ama coins add <player> <amount> &7- 添加玩家硬币.'
+    - '&2» &a/ama coins take <player> <amount> &7- 扣除玩家硬币.'
+    - '&2» &a/ama coins set <player> <amount> &7- 设置玩家硬币.'
   Hologram:
-  - '&2» &a/ama hologram add <stat type> [arena] &7- 在你当前的位置添加全息图.'
-  - '&2» &a/ama hologram remove &7- 移除附近的全息图.'
+    - '&2» &a/ama hologram add <stat type> [arena] &7- 在你当前的位置添加全息图.'
+    - '&2» &a/ama hologram remove &7- 移除附近的全息图.'
 Command:
   Balance:
     Desc: 显示竞技场余额.
@@ -159,8 +159,8 @@ Kit:
   Format:
     RequiredKits:
       List:
-      - '&7所需职业:'
-      - '%kits%'
+        - '&7所需职业:'
+        - '%kits%'
       Line: '&7• %kit% &7[%has-kit%&7]'
 Shop:
   Buy:
@@ -188,17 +188,17 @@ Shop:
     Kits:
       Line: '&e» %kit% &7[%my-kit%&7]'
       List:
-      - '&e&l允许的职业:'
-      - '%kits%'
+        - '&e&l允许的职业:'
+        - '%kits%'
 Holograms:
   Shop:
     Item:
-    - '%icon%'
-    - '%name%'
-    - '%lore%'
-    - ''
-    - '%lock_state%'
-    - '%price%'
+      - '%icon%'
+      - '%name%'
+      - '%lore%'
+      - ''
+      - '%lock_state%'
+      - '%price%'
     Wave:
       Locked: '&c&l* 锁定到 %wave%th 怪物潮. *'
       UnLocked: '&2&l* 解锁到 %wave%th 怪物潮. *'
@@ -234,62 +234,62 @@ ActionBar:
     Next: '&4&l剩余怪物血量: &e&l%mobs%% &8&l| &4&l剩余BOSS血量: &e&l%bosses%%'
 Titles:
   Join:
-  - '&a&l欢迎来到怪物竞技场! '
-  - ' &2&l请选择你的职业'
+    - '&a&l欢迎来到怪物竞技场! '
+    - ' &2&l请选择你的职业'
   StartIn:
-  - '&e&l游戏即将开始 '
-  - ' &a&l%time% 秒!'
+    - '&e&l游戏即将开始 '
+    - ' &a&l%time% 秒!'
   Play:
-  - '&a&l你加入了竞技场! '
-  - ' &2&l拿起武器战斗!'
+    - '&a&l你加入了竞技场! '
+    - ' &2&l拿起武器战斗!'
   Wave:
-  - '&6&l怪物潮 &e&l#%wave% '
-  - ' &4&l准备战斗!'
+    - '&6&l怪物潮 &e&l#%wave% '
+    - ' &4&l准备战斗!'
   Lives:
-  - '&c&l你战死了! '
-  - ' &7进入观战模式: &c&lx%lives%'
+    - '&c&l你战死了! '
+    - ' &7进入观战模式: &c&lx%lives%'
   Leave:
     Death:
-    - '&c&l你死了! '
-    - ' &7&l你离开了竞技场.'
+      - '&c&l你死了! '
+      - ' &7&l你离开了竞技场.'
     Finish:
-    - '&a&l恭喜! 你战胜了! '
-    - ' &2&l检查你的背包查看奖励!'
+      - '&a&l恭喜! 你战胜了! '
+      - ' &2&l检查你的背包查看奖励!'
     Timeleft:
-    - '&4&l时间到了! '
-    - ' &7&l你离开了竞技场.'
+      - '&4&l时间到了! '
+      - ' &7&l你离开了竞技场.'
     ForceEnd:
-    - '&4&l强制结束! '
-    - ' &7&l你离开了竞技场.'
+      - '&4&l强制结束! '
+      - ' &7&l你离开了竞技场.'
     Outside:
-    - '&4&l你离开竞技场了! '
-    - ' &7&l你离开竞技场了.'
+      - '&4&l你离开竞技场了! '
+      - ' &7&l你离开竞技场了.'
     Self:
-    - '&4&l怪物竞技场 '
-    - ' &7&l你离开了竞技场.'
+      - '&4&l怪物竞技场 '
+      - ' &7&l你离开了竞技场.'
     NoKit:
-    - '&4&l你没有足够的职业! '
-    - ' &7&l你离开竞技场了.'
+      - '&4&l你没有足够的职业! '
+      - ' &7&l你离开竞技场了.'
     Kick:
-    - '&4&l踢出! '
-    - ' &7&l你离开竞技场了.'
+      - '&4&l踢出! '
+      - ' &7&l你离开竞技场了.'
 Scoreboard:
   Title: '&8[&a怪物竞技场&8]'
   List:
-  - '&8» &f竞技场: &c%arena%'
-  - '&7» &f电波流: &c%wave%'
-  - '&7» &f怪物: &c%mobs%'
-  - '&7» &f玩家总数: &c%players%'
-  - '&7» &f剩余时间: &c%time%'
-  - '&7» &f下一波怪物潮将在: &c%next-wave% 秒后到来.'
-  - '&8&m------&8[&e你的状态&8]&8&m------'
-  - '&7» &f分数: &e%score%'
-  - '&7» &f硬币: &e%money%$'
-  - '&8&m------&8[&e顶级状态&8]&8&m------'
-  - '&7» &f%top_name_1%: &e%top_score_1%'
-  - '&7» &f%top_name_2%: &e%top_score_2%'
-  - '&7» &f%top_name_3%: &e%top_score_3%'
-  - §r
+    - '&8» &f竞技场: &c%arena%'
+    - '&7» &f电波流: &c%wave%'
+    - '&7» &f怪物: &c%mobs%'
+    - '&7» &f玩家总数: &c%players%'
+    - '&7» &f剩余时间: &c%time%'
+    - '&7» &f下一波怪物潮将在: &c%next-wave% 秒后到来.'
+    - '&8&m------&8[&e你的状态&8]&8&m------'
+    - '&7» &f分数: &e%score%'
+    - '&7» &f硬币: &e%money%$'
+    - '&8&m------&8[&e顶级状态&8]&8&m------'
+    - '&7» &f%top_name_1%: &e%top_score_1%'
+    - '&7» &f%top_name_2%: &e%top_score_2%'
+    - '&7» &f%top_name_3%: &e%top_score_3%'
+    - §r
 Editmode:
   AlreadyIn: 你已经在 &c编辑模式中&7!
   Enabled: '&7编辑模式: &a&l开启&7. 竞技场: &a%id%&7.'
