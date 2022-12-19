@@ -136,10 +136,10 @@ public class ArenaRegion extends AbstractLoadableItem<AMA> implements IArenaGame
             Set<String> waveSpawners = new HashSet<>();
             for (String spawnerName : cfg.getStringList(path2 + "Spawners")) {
                 // Support for wildcard '*'
-                if (spawnerName.equals(Placeholders.MASK_ANY)) {
-                    waveSpawners.add(Placeholders.MASK_ANY);
+                if (spawnerName.equals(Placeholders.WILDCARD)) {
+                    waveSpawners.add(Placeholders.WILDCARD);
                     //waveSpawners.addAll(this.mobSpawners.keySet());
-                    break;
+                    continue;
                 }
 
                 spawnerName = spawnerName.toLowerCase();
@@ -169,7 +169,7 @@ public class ArenaRegion extends AbstractLoadableItem<AMA> implements IArenaGame
             int cMaxItems = cfg.getInt(path2 + "Refill.Items.Max");
             List<ItemStack> cItems = Arrays.asList(cfg.getItemsEncoded(path2 + "Items"));
 
-            ArenaRegionContainer container = new ArenaRegionContainer(this, chest, triggers, cMinItems, cMaxItems, cItems);
+            ArenaRegionContainer container = new ArenaRegionContainer(this, chest.getLocation(), triggers, cMinItems, cMaxItems, cItems);
             this.containers.add(container);
         }
 

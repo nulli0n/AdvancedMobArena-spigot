@@ -1,14 +1,14 @@
 package su.nightexpress.ama.arena.board;
 
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.api.config.JWriter;
+import su.nexmedia.engine.api.config.JOption;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.utils.StringUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArenaBoardConfig implements JWriter {
+public class ArenaBoardConfig implements JOption.Writer {
 
     private final String       id;
     private final String       title;

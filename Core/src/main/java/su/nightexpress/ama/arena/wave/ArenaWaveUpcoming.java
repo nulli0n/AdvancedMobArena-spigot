@@ -22,7 +22,7 @@ public class ArenaWaveUpcoming {
         this.mobs = mobs;
 
         this.spawners = regionWave.getRegion().getMobSpawners().entrySet().stream()
-            .filter(entry -> regionWave.getSpawnerIds().contains(entry.getKey()) || entry.getKey().equalsIgnoreCase(Placeholders.MASK_ANY))
+            .filter(entry -> regionWave.getSpawnerIds().contains(entry.getKey()) || regionWave.getSpawnerIds().contains(Placeholders.WILDCARD))
             .map(Map.Entry::getValue).collect(Collectors.toCollection(ArrayList::new));
         Collections.shuffle(this.spawners);
     }

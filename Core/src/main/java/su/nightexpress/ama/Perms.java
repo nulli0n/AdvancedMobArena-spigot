@@ -47,7 +47,7 @@ public class Perms {
     public static final JPermission COMMAND_STATS           = new JPermission(PREFIX + "command.stats", "Allows to use '/ama stats' command.");
 
     static {
-        PLUGIN.addChildren(PLUGIN_COMMAND, PLUGIN_BYPASS, CREATOR);
+        PLUGIN.addChildren(PLUGIN_COMMAND, PLUGIN_BYPASS, CREATOR, ARENA_ALL, KIT_ALL);
         PLUGIN_BYPASS.addChildren(BYPASS_ARENA, BYPASS_KIT);
         PLUGIN_COMMAND.addChildren(COMMAND_EDITOR, COMMAND_RELOAD, COMMAND_BALANCE, COMMAND_BALANCE_OTHERS,
             COMMAND_CURRENCY, COMMAND_HOLOGRAM, COMMAND_FORCEEND, COMMAND_FORCESTART,

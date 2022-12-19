@@ -83,7 +83,7 @@ public class EditorArenaGameplay extends AbstractEditorMenu<AMA, ArenaGameplayMa
                 case GAMEPLAY_CHANGE_KITS_ADD_ALLOWED -> {
                     String id = StringUtil.colorOff(msg);
                     Kit kit = plugin.getKitManager().getKitById(id);
-                    if (kit == null && !id.equals(Placeholders.MASK_ANY)) {
+                    if (kit == null && !id.equals(Placeholders.WILDCARD)) {
                         EditorManager.error(player, plugin.getMessage(Lang.Editor_Arena_Gameplay_Error_Kits_InvalidKit).getLocalized());
                         return false;
                     }
@@ -142,7 +142,7 @@ public class EditorArenaGameplay extends AbstractEditorMenu<AMA, ArenaGameplayMa
                     case GAMEPLAY_CHANGE_ANNOUNCES -> gameplayManager.setAnnouncesEnabled(!gameplayManager.isAnnouncesEnabled());
                     case GAMEPLAY_CHANGE_SCOREBOARD -> {
                         if (e.isRightClick()) {
-                            EditorManager.startEdit(player, gameplayManager, type2, input);
+                            EditorManager.startEdit(player, gameplayManager, ArenaEditorType.GAMEPLAY_CHANGE_SCOREBOARD_ID, input);
                             EditorManager.tip(player, plugin.getMessage(Lang.Editor_Arena_Gameplay_Enter_ScoreboardId).getLocalized());
                             EditorManager.suggestValues(player, Config.SCOREBOARDS.get().keySet(), true);
                             player.closeInventory();

@@ -19,16 +19,13 @@ import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
 import su.nightexpress.ama.arena.config.ArenaConfig;
 import su.nightexpress.ama.arena.editor.region.EditorRegionContainerSettings;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.UnaryOperator;
 
 public class ArenaRegionContainer implements IArenaGameEventListener, IArenaObject, IEditable, ICleanable {
 
     private final ArenaRegion                   region;
-    private final Chest                         chest;
+    private final Location location;
     private final Set<ArenaGameEventTrigger<?>> triggers;
 
     private int             minItems;
@@ -37,11 +34,11 @@ public class ArenaRegionContainer implements IArenaGameEventListener, IArenaObje
 
     private EditorRegionContainerSettings editor;
 
-    public ArenaRegionContainer(@NotNull ArenaRegion region, @NotNull Chest chest,
+    public ArenaRegionContainer(@NotNull ArenaRegion region, @NotNull Location location,
                                 @NotNull Set<ArenaGameEventTrigger<?>> triggers,
                                 int minItems, int maxItems, @NotNull List<ItemStack> items) {
         this.region = region;
-        this.chest = chest;
+        this.location = location;
         this.triggers = triggers;
 
         this.setMinItems(minItems);
@@ -101,9 +98,7 @@ public class ArenaRegionContainer implements IArenaGameEventListener, IArenaObje
         if (roll <= 0) return false;
 
         Chest chest = this.getChest();
-        chest.getChunk().load();
-
-        Inventory inventory = chest.getInventory();
+        Inventory inventory = chest.getBlockInventory();
 
         Collections.shuffle(items);
         while (items.size() > roll) {
@@ -132,12 +127,12 @@ public class ArenaRegionContainer implements IArenaGameEventListener, IArenaObje
 
     @NotNull
     public Chest getChest() {
-        return this.chest;
+        return (Chest) this.getLocation().getBlock().getState();
     }
 
     @NotNull
     public Location getLocation() {
-        return this.getChest().getLocation().clone();
+        return this.location.clone();
     }
 
     @NotNull

@@ -5,7 +5,7 @@
     <parent>
         <artifactId>AdvancedMobArena</artifactId>
         <groupId>su.nightexpress.ama</groupId>
-        <version>7.7.0</version>
+        <version>7.7.2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -28,22 +28,37 @@
         <repository>
             <id>lumine-repo</id>
             <url>https://mvn.lumine.io/repository/maven-public/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
         <repository>
             <id>lumine-snapshot</id>
             <url>http://mvn.lumine.io/repository/maven-snapshots/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
         <repository>
             <id>sk89q-repo</id>
             <url>https://maven.enginehub.org/repo/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
         <repository>
             <id>everything</id>
             <url>https://repo.citizensnpcs.co/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
         <repository>
             <id>rosewood-repo</id>
             <url>https://repo.rosewooddev.io/repository/public/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
         <repository>
             <id>placeholderapi</id>
@@ -71,22 +86,27 @@
         <dependency>
             <groupId>su.nightexpress.ama</groupId>
             <artifactId>NMS</artifactId>
-            <version>7.7.0</version>
+            <version>7.7.2</version>
         </dependency>
         <dependency>
             <groupId>su.nightexpress.ama</groupId>
             <artifactId>V1_17_R1</artifactId>
-            <version>7.7.0</version>
+            <version>7.7.2</version>
         </dependency>
         <dependency>
             <groupId>su.nightexpress.ama</groupId>
             <artifactId>V1_18_R2</artifactId>
-            <version>7.7.0</version>
+            <version>7.7.2</version>
         </dependency>
         <dependency>
             <groupId>su.nightexpress.ama</groupId>
             <artifactId>V1_19_R1</artifactId>
-            <version>7.7.0</version>
+            <version>7.7.2</version>
+        </dependency>
+        <dependency>
+            <groupId>su.nightexpress.ama</groupId>
+            <artifactId>V1_19_R2</artifactId>
+            <version>7.7.2</version>
         </dependency>
         <dependency>
             <groupId>su.nightexpress.sunlight</groupId>

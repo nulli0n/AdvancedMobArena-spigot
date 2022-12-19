@@ -14,13 +14,27 @@ import java.util.*;
 
 public class MobsConfig {
 
-    public static final JOption<Boolean>                    KILL_REWARD_ENABLED                 = JOption.create("Mobs.Kill_Rewards.Enabled", "Enables/Disables the Mob Kill Rewards feature.", true);
-    public static final JOption<Boolean>                    KILL_REWARD_HOLOGRAM_ENABLED        = JOption.create("Mobs.Kill_Rewards.Hologram.Enabled", "When enabled, creates a hologram displaying amount of given reward(s) at mob death location.\nSupported Plugins: " + HookId.HOLOGRAPHIC_DISPLAYS + ", " + HookId.DECENT_HOLOGRAMS, true);
-    public static final JOption<Integer>                    KILL_REWARD_HOLOGRAM_LIFETIME       = JOption.create("Mobs.Kill_Rewards.Hologram.Lifetime", "Sets how long (in seconds) reward hologram will stay there before disappear.", 3);
-    public static final JOption<String>                     KILL_REWARD_HOLOGRAM_FORMAT_SCORE   = JOption.create("Mobs.Kill_Rewards.Hologram.Format.Score", "Sets the hologram line format for score amount.\nPlaceholders:\n- " + Placeholders.GENERIC_AMOUNT + " - Formatted score amount.", "+" + Placeholders.GENERIC_AMOUNT + " Score");
-    public static final JOption<String>                     KILL_REWARD_HOLOGRAM_FORMAT_PAYMENT = JOption.create("Mobs.Kill_Rewards.Hologram.Format.Currency", "Sets the hologram line format for currencies.\nPlaceholders:\n- " + Placeholders.GENERIC_AMOUNT + " - Formatted currency amount.", "+" + Placeholders.GENERIC_AMOUNT);
+    public static final JOption<Boolean>                    KILL_REWARD_ENABLED                 = JOption.create("Mobs.Kill_Rewards.Enabled", true,
+        "Enables/Disables the Mob Kill Rewards feature."
+    );
+    public static final JOption<Boolean>                    KILL_REWARD_HOLOGRAM_ENABLED        = JOption.create("Mobs.Kill_Rewards.Hologram.Enabled", true,
+        "When enabled, creates a hologram displaying amount of given reward(s) at mob death location.",
+        "Supported Plugins: " + HookId.HOLOGRAPHIC_DISPLAYS + ", " + HookId.DECENT_HOLOGRAMS
+    );
+    public static final JOption<Integer>                    KILL_REWARD_HOLOGRAM_LIFETIME       = JOption.create("Mobs.Kill_Rewards.Hologram.Lifetime", 3,
+        "Sets how long (in seconds) reward hologram will stay there before disappear."
+    );
+    public static final JOption<String>                     KILL_REWARD_HOLOGRAM_FORMAT_SCORE   = JOption.create("Mobs.Kill_Rewards.Hologram.Format.Score", "+" + Placeholders.GENERIC_AMOUNT + " Score",
+        "Sets the hologram line format for score amount.",
+        "Placeholders:",
+        "- " + Placeholders.GENERIC_AMOUNT + " - Formatted score amount."
+    );
+    public static final JOption<String>                     KILL_REWARD_HOLOGRAM_FORMAT_PAYMENT = JOption.create("Mobs.Kill_Rewards.Hologram.Format.Currency", "+" + Placeholders.GENERIC_AMOUNT,
+        "Sets the hologram line format for currencies.",
+        "Placeholders:",
+        "- " + Placeholders.GENERIC_AMOUNT + " - Formatted currency amount."
+    );
     public static final JOption<Map<String, MobKillReward>> KILL_REWARD_VALUES                  = new JOption<Map<String, MobKillReward>>("Mobs.Kill_Rewards.Table",
-        "A table with rewards given for killed mobs on arenas.\nFor Mob names, use mob identifiers from the /mobs/ sub-folder, or MythicMobs internal mob names.\nAlso, you can use the 'default' keyword for all other mobs not listed here.\nFor Currency, use currency identifiers from the /currency/ sub-folder.",
         (cfg, path, def) -> {
             Map<String, MobKillReward> map = new HashMap<>();
             for (String mobId : cfg.getSection(path)) {
@@ -42,18 +56,23 @@ public class MobsConfig {
                 map.put(killReward.mobId(), killReward);
             }
             return map;
-        }, () -> {
+        },
+        () -> {
         Map<String, MobKillReward> map = new HashMap<>();
         Map<ICurrency, Double> payment = new HashMap<>();
         ArenaAPI.getCurrencyManager().getCurrencies().forEach(currency -> payment.put(currency, 1D));
         map.put(Placeholders.DEFAULT, new MobKillReward(Placeholders.DEFAULT, payment, 1));
         return map;
-    });
+        },
+        "A table with rewards given for killed mobs on arenas.",
+        "For Mob names, use mob identifiers from the /mobs/ sub-folder, or MythicMobs internal mob names.",
+        "Also, you can use the 'default' keyword for all other mobs not listed here.",
+        "For Currency, use currency identifiers from the /currency/ sub-folder."
+    );
 
-    public static final JOption<Boolean>                     KILL_STREAK_ENABLED = JOption.create("Mobs.Kill_Streaks.Enabled", "Enables the Mob Kill Streak feature.", true);
-    public static final JOption<Integer>                     KILL_STREAK_DECAY   = JOption.create("Mobs.Kill_Streaks.Streak_Decay", "Sets for how long (in seconds) kill streak will retain before reset to zero.", 5);
+    public static final JOption<Boolean>                     KILL_STREAK_ENABLED = JOption.create("Mobs.Kill_Streaks.Enabled", true, "Enables the Mob Kill Streak feature.");
+    public static final JOption<Integer>                     KILL_STREAK_DECAY   = JOption.create("Mobs.Kill_Streaks.Streak_Decay", 5, "Sets for how long (in seconds) kill streak will retain before reset to zero.");
     public static final JOption<Map<Integer, MobKillStreak>> KILL_STREAK_TABLE   = new JOption<Map<Integer, MobKillStreak>>("Mobs.Kill_Streaks.Table",
-        "A table with kill streaks. Each section is a streak kills amount.\nFor 'Bonus' section you can set percent values like 100%. Then it will be applied as a multiplier to the Mob Kill Reward value(s).\nFor 'Message' you can use " + Placeholders.GENERIC_AMOUNT + " placeholder for a kills amount. Please check: https://github.com/nulli0n/NexEngine-spigot/wiki/Language-Config#message-options\nFor 'Commands', please check https://github.com/nulli0n/NexEngine-spigot/wiki/Configuration-Tips#command-sections",
         (cfg, path, def) -> {
             Map<Integer, MobKillStreak> map = new TreeMap<>();
             for (String sId : cfg.getSection(path)) {
@@ -82,5 +101,10 @@ public class MobsConfig {
         map.put(20, new MobKillStreak(20, new LangMessage(ArenaAPI.PLUGIN, "{message: ~type: TITLES; ~fadeIn: 10; ~stay: 50; ~fadeOut: 10;}&e&lx" + Placeholders.GENERIC_AMOUNT + " Kill! \\n &a(x10 Payment)"), "900%", "0", new ArrayList<>()));
         map.put(30, new MobKillStreak(30, new LangMessage(ArenaAPI.PLUGIN, "{message: ~type: TITLES; ~fadeIn: 10; ~stay: 50; ~fadeOut: 10;}&e&lx" + Placeholders.GENERIC_AMOUNT + " Kill! \\n &a(x10 Score)"), "0", "900%", new ArrayList<>()));
         return map;
-    });
+        },
+        "A table with kill streaks. Each section is a streak kills amount.",
+        "For 'Bonus' section you can set percent values like 100%. Then it will be applied as a multiplier to the Mob Kill Reward value(s).",
+        "For 'Message' you can use " + Placeholders.GENERIC_AMOUNT + " placeholder for a kills amount. Please check: https://github.com/nulli0n/NexEngine-spigot/wiki/Language-Config#message-options",
+        "For 'Commands', please check https://github.com/nulli0n/NexEngine-spigot/wiki/Configuration-Tips#command-sections"
+        );
 }

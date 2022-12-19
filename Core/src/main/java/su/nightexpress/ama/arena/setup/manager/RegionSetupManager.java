@@ -208,7 +208,7 @@ public class RegionSetupManager extends AbstractSetupManager<ArenaRegion> {
                             return;
                         }
 
-                        ArenaRegionContainer container = new ArenaRegionContainer(region, chest, new HashSet<>(), 1, 27, new ArrayList<>());
+                        ArenaRegionContainer container = new ArenaRegionContainer(region, chest.getLocation(), new HashSet<>(), 1, 27, new ArrayList<>());
                         region.getContainers().add(container);
                         plugin.getMessage(Lang.Setup_Region_Container_Add).replace(region.replacePlaceholders()).send(player);
                     }

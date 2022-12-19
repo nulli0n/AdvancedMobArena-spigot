@@ -132,7 +132,7 @@ public class ArenaGameplayManager implements IArenaObject, ConfigHolder, ILoadab
         this.setKitsEnabled(config.getBoolean(path + "Enabled", true));
         this.setKitsAllowed(config.getStringSet(path + "Allowed"));
         if (this.isKitsEnabled() && this.getKitsAllowed().isEmpty()) {
-            this.getKitsAllowed().add(Placeholders.MASK_ANY);
+            this.getKitsAllowed().add(Placeholders.WILDCARD);
         }
 
         Map<String, Integer> kitLimitsMap = new HashMap<>();
@@ -515,7 +515,7 @@ public class ArenaGameplayManager implements IArenaObject, ConfigHolder, ILoadab
     }
 
     public boolean isKitAllowed(@NotNull String id) {
-        return this.getKitsAllowed().contains(id) || this.getKitsAllowed().contains(Placeholders.MASK_ANY);
+        return this.getKitsAllowed().contains(id) || this.getKitsAllowed().contains(Placeholders.WILDCARD);
     }
 
     @NotNull
