@@ -1,29 +1,14 @@
 package su.nightexpress.ama.hook.external;
 
 import com.earth2me.essentials.Essentials;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.api.hook.AbstractHook;
-import su.nightexpress.ama.AMA;
+import su.nightexpress.ama.hook.HookId;
 
-public class EssentialsHook extends AbstractHook<AMA> {
+public class EssentialsHook {
 
-    private static Essentials essentials;
-
-    public EssentialsHook(@NotNull AMA plugin, @NotNull String pluginName) {
-        super(plugin, pluginName);
-    }
-
-    @Override
-    public boolean setup() {
-        essentials = (Essentials) this.plugin.getPluginManager().getPlugin(this.getPluginName());
-        return essentials != null;
-    }
-
-    @Override
-    public void shutdown() {
-
-    }
+    private static Essentials essentials = (Essentials) Bukkit.getPluginManager().getPlugin(HookId.ESSENTIALS);
 
     public static void disableGod(@NotNull Player player) {
         essentials.getUser(player).setGodModeEnabled(false);

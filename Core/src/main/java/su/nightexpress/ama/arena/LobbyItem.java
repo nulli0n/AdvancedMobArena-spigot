@@ -7,7 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import su.nexmedia.engine.api.config.JWriter;
+import su.nexmedia.engine.api.config.JOption;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.utils.CollectionsUtil;
 import su.nexmedia.engine.utils.PDCUtil;
@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.function.BiConsumer;
 
-public class LobbyItem implements JWriter {
+public class LobbyItem implements JOption.Writer {
 
     private final Type      type;
     private final boolean   isEnabled;

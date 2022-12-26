@@ -6,7 +6,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.editor.EditorButtonType;
 import su.nexmedia.engine.api.editor.EditorInput;
-import su.nexmedia.engine.api.menu.IMenuClick;
+import su.nexmedia.engine.api.menu.MenuClick;
 import su.nexmedia.engine.api.menu.MenuItemType;
 import su.nexmedia.engine.editor.AbstractEditorMenuAuto;
 import su.nexmedia.engine.editor.EditorManager;
@@ -44,7 +44,7 @@ public class EditorRegionWaveList extends AbstractEditorMenuAuto<AMA, ArenaRegio
             return true;
         };
 
-        IMenuClick click = (player, type, e) -> {
+        MenuClick click = (player, type, e) -> {
             if (type instanceof MenuItemType type2) {
                 if (type2 == MenuItemType.RETURN) {
                     region.getEditor().open(player, 1);
@@ -98,7 +98,7 @@ public class EditorRegionWaveList extends AbstractEditorMenuAuto<AMA, ArenaRegio
 
     @Override
     @NotNull
-    protected IMenuClick getObjectClick(@NotNull Player player, @NotNull ArenaRegionWave wave) {
+    protected MenuClick getObjectClick(@NotNull Player player, @NotNull ArenaRegionWave wave) {
         return (p2, type, e) -> {
             if (e.isShiftClick() && e.isRightClick()) {
                 wave.clear();

@@ -6,14 +6,14 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.editor.EditorButtonType;
 import su.nexmedia.engine.api.editor.EditorInput;
-import su.nexmedia.engine.api.menu.IMenuClick;
+import su.nexmedia.engine.api.menu.MenuClick;
 import su.nexmedia.engine.api.menu.MenuItemType;
 import su.nexmedia.engine.editor.AbstractEditorMenuAuto;
 import su.nexmedia.engine.editor.EditorManager;
 import su.nexmedia.engine.utils.ItemUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
-import su.nightexpress.ama.arena.ArenaCuboid;
+import su.nightexpress.ama.arena.util.ArenaCuboid;
 import su.nightexpress.ama.arena.spot.ArenaSpot;
 import su.nightexpress.ama.arena.spot.ArenaSpotManager;
 import su.nightexpress.ama.config.Lang;
@@ -46,7 +46,7 @@ public class EditorSpotList extends AbstractEditorMenuAuto<AMA, ArenaSpotManager
             return true;
         };
 
-        IMenuClick click = (player, type, e) -> {
+        MenuClick click = (player, type, e) -> {
             if (type instanceof MenuItemType type2) {
                 if (type2 == MenuItemType.RETURN) {
                     spotManager.getArenaConfig().getEditor().open(player, 1);
@@ -95,7 +95,7 @@ public class EditorSpotList extends AbstractEditorMenuAuto<AMA, ArenaSpotManager
 
     @Override
     @NotNull
-    protected IMenuClick getObjectClick(@NotNull Player player, @NotNull ArenaSpot spot) {
+    protected MenuClick getObjectClick(@NotNull Player player, @NotNull ArenaSpot spot) {
         return (p, type, e) -> {
             if (e.isShiftClick() && e.isRightClick()) {
                 this.parent.removeSpot(spot);

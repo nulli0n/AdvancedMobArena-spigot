@@ -5,8 +5,8 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.editor.EditorButtonType;
-import su.nexmedia.engine.api.menu.IMenuClick;
-import su.nexmedia.engine.api.menu.IMenuItem;
+import su.nexmedia.engine.api.menu.MenuClick;
+import su.nexmedia.engine.api.menu.MenuItem;
 import su.nexmedia.engine.api.menu.MenuItemType;
 import su.nexmedia.engine.editor.AbstractEditorMenuAuto;
 import su.nexmedia.engine.utils.ItemUtil;
@@ -28,7 +28,7 @@ public class EditorRewardList extends AbstractEditorMenuAuto<AMA, ArenaRewardMan
     public EditorRewardList(@NotNull ArenaRewardManager rewardManager) {
         super(rewardManager.plugin(), rewardManager, ArenaEditorUtils.TITLE_REWARD_EDITOR, 45);
 
-        IMenuClick click = (player, type, e) -> {
+        MenuClick click = (player, type, e) -> {
             if (type instanceof MenuItemType type2) {
                 if (type == MenuItemType.RETURN) {
                     rewardManager.getArenaConfig().getEditor().open(player, 1);
@@ -86,7 +86,7 @@ public class EditorRewardList extends AbstractEditorMenuAuto<AMA, ArenaRewardMan
 
     @Override
     @NotNull
-    protected IMenuClick getObjectClick(@NotNull Player player, @NotNull ArenaReward reward) {
+    protected MenuClick getObjectClick(@NotNull Player player, @NotNull ArenaReward reward) {
         return (player1, type, e) -> {
             if (e.isShiftClick() && e.isRightClick()) {
                 this.parent.getRewards().remove(reward);
@@ -100,7 +100,7 @@ public class EditorRewardList extends AbstractEditorMenuAuto<AMA, ArenaRewardMan
     }
 
     @Override
-    public void onItemPrepare(@NotNull Player player, @NotNull IMenuItem menuItem, @NotNull ItemStack item) {
+    public void onItemPrepare(@NotNull Player player, @NotNull MenuItem menuItem, @NotNull ItemStack item) {
         super.onItemPrepare(player, menuItem, item);
         ItemUtil.replace(item, this.parent.replacePlaceholders());
     }

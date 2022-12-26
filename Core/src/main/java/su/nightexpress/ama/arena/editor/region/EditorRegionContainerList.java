@@ -5,7 +5,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.editor.EditorButtonType;
-import su.nexmedia.engine.api.menu.IMenuClick;
+import su.nexmedia.engine.api.menu.MenuClick;
 import su.nexmedia.engine.api.menu.MenuItemType;
 import su.nexmedia.engine.editor.AbstractEditorMenuAuto;
 import su.nexmedia.engine.utils.ItemUtil;
@@ -25,7 +25,7 @@ public class EditorRegionContainerList extends AbstractEditorMenuAuto<AMA, Arena
     public EditorRegionContainerList(@NotNull ArenaRegion region) {
         super(region.plugin(), region, ArenaEditorUtils.TITLE_REGION_EDITOR, 45);
 
-        IMenuClick click = (player, type, e) -> {
+        MenuClick click = (player, type, e) -> {
             if (type instanceof MenuItemType type2) {
                 if (type == MenuItemType.RETURN) {
                     region.getEditor().open(player, 1);
@@ -65,7 +65,7 @@ public class EditorRegionContainerList extends AbstractEditorMenuAuto<AMA, Arena
 
     @Override
     @NotNull
-    protected IMenuClick getObjectClick(@NotNull Player player, @NotNull ArenaRegionContainer container) {
+    protected MenuClick getObjectClick(@NotNull Player player, @NotNull ArenaRegionContainer container) {
         return (player2, type, e) -> {
             if (e.isShiftClick()) {
                 if (e.isRightClick()) {

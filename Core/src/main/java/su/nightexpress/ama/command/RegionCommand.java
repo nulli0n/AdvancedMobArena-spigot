@@ -14,6 +14,7 @@ import su.nightexpress.ama.config.Lang;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class RegionCommand extends AbstractCommand<AMA> {
 
@@ -55,7 +56,7 @@ public class RegionCommand extends AbstractCommand<AMA> {
     }
 
     @Override
-    protected void onExecute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args) {
+    protected void onExecute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args, @NotNull Map<String, String> flags) {
         if (args.length < 3) {
             this.printUsage(sender);
             return;

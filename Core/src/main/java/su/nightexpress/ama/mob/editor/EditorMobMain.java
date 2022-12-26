@@ -14,8 +14,8 @@ import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.editor.EditorButtonType;
 import su.nexmedia.engine.api.editor.EditorInput;
 import su.nexmedia.engine.api.menu.AbstractMenu;
-import su.nexmedia.engine.api.menu.IMenuClick;
-import su.nexmedia.engine.api.menu.IMenuItem;
+import su.nexmedia.engine.api.menu.MenuClick;
+import su.nexmedia.engine.api.menu.MenuItem;
 import su.nexmedia.engine.api.menu.MenuItemType;
 import su.nexmedia.engine.editor.AbstractEditorMenu;
 import su.nexmedia.engine.editor.EditorManager;
@@ -24,8 +24,8 @@ import su.nexmedia.engine.utils.ItemUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.config.Lang;
-import su.nightexpress.ama.editor.ArenaEditorUtils;
 import su.nightexpress.ama.editor.ArenaEditorType;
+import su.nightexpress.ama.editor.ArenaEditorUtils;
 import su.nightexpress.ama.mob.config.MobConfig;
 import su.nightexpress.ama.mob.config.MobHealthBar;
 
@@ -77,7 +77,7 @@ public class EditorMobMain extends AbstractEditorMenu<AMA, MobConfig> {
             return true;
         };
 
-        IMenuClick click = (player, type, e) -> {
+        MenuClick click = (player, type, e) -> {
             if (type instanceof MenuItemType type2) {
                 if (type2 == MenuItemType.RETURN) {
                     plugin.getEditor().getMobEditor().open(player, 1);
@@ -189,7 +189,7 @@ public class EditorMobMain extends AbstractEditorMenu<AMA, MobConfig> {
     }
 
     @Override
-    public void onItemPrepare(@NotNull Player player, @NotNull IMenuItem menuItem, @NotNull ItemStack item) {
+    public void onItemPrepare(@NotNull Player player, @NotNull MenuItem menuItem, @NotNull ItemStack item) {
         super.onItemPrepare(player, menuItem, item);
         ItemUtil.replace(item, this.object.replacePlaceholders());
     }
@@ -230,15 +230,11 @@ public class EditorMobMain extends AbstractEditorMenu<AMA, MobConfig> {
         }
 
         @Override
-        public void onPrepare(@NotNull Player player, @NotNull Inventory inventory) {
-
-        }
-
-        @Override
-        public void onReady(@NotNull Player player, @NotNull Inventory inventory) {
+        public boolean onReady(@NotNull Player player, @NotNull Inventory inventory) {
             for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
                 inventory.setItem(this.equipmentSlots.getOrDefault(equipmentSlot, 0), this.mob.getEquipment(equipmentSlot));
             }
+            return true;
         }
 
         @Override

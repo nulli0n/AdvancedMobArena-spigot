@@ -364,6 +364,7 @@ public abstract class AbstractArena implements IPlaceholder {
         new HashSet<>(this.getMobs()).forEach(mob -> {
             mob.setLastDamageCause(null);
             mob.setHealth(0);
+            mob.remove();
         });
         this.getMobs().clear();
     }

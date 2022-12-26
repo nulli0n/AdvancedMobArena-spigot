@@ -14,4 +14,5 @@ public class HookId {
     public static final String MAGIC                = "Magic";
     public static final String PLAYER_POINTS        = "PlayerPoints";
     public static final String GAME_POINTS          = "GamePoints";
+    public static final String MMOCORE              = "MMOCore";
 }

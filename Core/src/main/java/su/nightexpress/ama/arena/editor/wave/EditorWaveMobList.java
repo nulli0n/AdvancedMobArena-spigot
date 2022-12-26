@@ -9,7 +9,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.editor.EditorButtonType;
 import su.nexmedia.engine.api.editor.EditorInput;
-import su.nexmedia.engine.api.menu.IMenuClick;
+import su.nexmedia.engine.api.menu.MenuClick;
 import su.nexmedia.engine.api.menu.MenuItemType;
 import su.nexmedia.engine.editor.AbstractEditorMenuAuto;
 import su.nexmedia.engine.editor.EditorManager;
@@ -58,7 +58,7 @@ public class EditorWaveMobList extends AbstractEditorMenuAuto<AMA, ArenaWave, Ar
             return true;
         };
 
-        IMenuClick click = (player, type, e) -> {
+        MenuClick click = (player, type, e) -> {
             if (type instanceof MenuItemType type2) {
                 if (type2 == MenuItemType.RETURN) {
                     this.parent.getEditor().open(player, 1);
@@ -121,14 +121,14 @@ public class EditorWaveMobList extends AbstractEditorMenuAuto<AMA, ArenaWave, Ar
 
     @Override
     @NotNull
-    protected IMenuClick getObjectClick(@NotNull Player player, @NotNull ArenaWaveMob waveMob) {
+    protected MenuClick getObjectClick(@NotNull Player player, @NotNull ArenaWaveMob waveMob) {
         EditorInput<ArenaWaveMob, ArenaEditorType> input = (player2, waveMob2, type, e) -> {
             String msg = StringUtil.color(e.getMessage());
             switch (type) {
                 case WAVES_WAVE_MOB_CHANGE_AMOUNT -> {
                     int value = StringUtil.getInteger(msg, -1);
                     if (value < 0) {
-                        EditorManager.error(player2, EditorManager.ERROR_NUM_NOT_INT);
+                        EditorManager.error(player2, plugin.getMessage(Lang.EDITOR_ERROR_NUMBER_NOT_INT).getLocalized());
                         return false;
                     }
                     waveMob2.setAmount(value);
@@ -136,7 +136,7 @@ public class EditorWaveMobList extends AbstractEditorMenuAuto<AMA, ArenaWave, Ar
                 case WAVES_WAVE_MOB_CHANGE_LEVEL -> {
                     int value = StringUtil.getInteger(msg, -1);
                     if (value < 0) {
-                        EditorManager.error(player2, EditorManager.ERROR_NUM_NOT_INT);
+                        EditorManager.error(player2, plugin.getMessage(Lang.EDITOR_ERROR_NUMBER_NOT_INT).getLocalized());
                         return false;
                     }
                     waveMob2.setLevel(value);
@@ -144,7 +144,7 @@ public class EditorWaveMobList extends AbstractEditorMenuAuto<AMA, ArenaWave, Ar
                 case WAVES_WAVE_MOB_CHANGE_CHANCE -> {
                     double value = StringUtil.getDouble(msg, -1);
                     if (value < 0) {
-                        EditorManager.error(player2, EditorManager.ERROR_NUM_INVALID);
+                        EditorManager.error(player2, plugin.getMessage(Lang.EDITOR_ERROR_NUMBER_GENERIC).getLocalized());
                         return false;
                     }
                     waveMob2.setChance(value);

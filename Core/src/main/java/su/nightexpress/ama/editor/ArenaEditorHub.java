@@ -3,7 +3,7 @@ package su.nightexpress.ama.editor;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.editor.EditorButtonType;
-import su.nexmedia.engine.api.menu.IMenuClick;
+import su.nexmedia.engine.api.menu.MenuClick;
 import su.nexmedia.engine.api.menu.MenuItemType;
 import su.nexmedia.engine.editor.AbstractEditorMenu;
 import su.nightexpress.ama.AMA;
@@ -22,7 +22,7 @@ public class ArenaEditorHub extends AbstractEditorMenu<AMA, AMA> {
     public ArenaEditorHub(@NotNull AMA plugin) {
         super(plugin, plugin, ArenaEditorUtils.TITLE_EDITOR, 36);
 
-        IMenuClick click = (player, type, e) -> {
+        MenuClick click = (player, type, e) -> {
             if (type instanceof MenuItemType type2) {
                 if (type2 == MenuItemType.CLOSE) {
                     player.closeInventory();

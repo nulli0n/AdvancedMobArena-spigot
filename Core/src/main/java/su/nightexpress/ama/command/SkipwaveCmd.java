@@ -9,9 +9,11 @@ import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.api.arena.type.ArenaState;
-import su.nightexpress.ama.arena.ArenaPlayer;
 import su.nightexpress.ama.arena.AbstractArena;
+import su.nightexpress.ama.arena.ArenaPlayer;
 import su.nightexpress.ama.config.Lang;
+
+import java.util.Map;
 
 public class SkipwaveCmd extends AbstractCommand<AMA> {
 
@@ -37,7 +39,7 @@ public class SkipwaveCmd extends AbstractCommand<AMA> {
     }
 
     @Override
-    public void onExecute(@NotNull CommandSender sender, @NotNull String labe, @NotNull String[] args) {
+    public void onExecute(@NotNull CommandSender sender, @NotNull String labe, @NotNull String[] args, @NotNull Map<String, String> flags) {
         Player player = (Player) sender;
 
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);

@@ -14,6 +14,7 @@ import su.nightexpress.ama.config.Lang;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class ForceEndCommand extends AbstractCommand<AMA> {
 
@@ -52,7 +53,7 @@ public class ForceEndCommand extends AbstractCommand<AMA> {
     }
 
     @Override
-    public void onExecute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args) {
+    public void onExecute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args, @NotNull Map<String, String> flags) {
         if (args.length < 2) {
             this.printUsage(sender);
             return;

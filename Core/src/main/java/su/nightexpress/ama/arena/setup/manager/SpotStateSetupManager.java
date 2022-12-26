@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.task.AbstractTask;
 import su.nexmedia.engine.utils.LocationUtil;
 import su.nightexpress.ama.AMA;
-import su.nightexpress.ama.arena.ArenaCuboid;
+import su.nightexpress.ama.arena.util.ArenaCuboid;
 import su.nightexpress.ama.arena.editor.spot.EditorSpotMain;
 import su.nightexpress.ama.arena.setup.ArenaSetupUtils;
 import su.nightexpress.ama.arena.setup.SetupItemType;

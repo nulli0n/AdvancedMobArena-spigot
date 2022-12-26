@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.task.AbstractTask;
 import su.nexmedia.engine.lang.LangManager;
 import su.nightexpress.ama.AMA;
-import su.nightexpress.ama.arena.ArenaCuboid;
+import su.nightexpress.ama.arena.util.ArenaCuboid;
 import su.nightexpress.ama.arena.region.ArenaRegion;
 import su.nightexpress.ama.arena.region.ArenaRegionContainer;
 import su.nightexpress.ama.arena.setup.ArenaSetupUtils;

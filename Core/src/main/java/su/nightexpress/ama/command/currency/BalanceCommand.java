@@ -10,6 +10,8 @@ import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.currency.internal.ArenaCoinsCurrency;
 
+import java.util.Map;
+
 public class BalanceCommand extends AbstractCommand<AMA> {
 
     private final ArenaCoinsCurrency currency;
@@ -37,7 +39,7 @@ public class BalanceCommand extends AbstractCommand<AMA> {
     }
 
     @Override
-    public void onExecute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args) {
+    public void onExecute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args, @NotNull Map<String, String> flags) {
         if (args.length >= 2 && !sender.hasPermission(Perms.COMMAND_BALANCE_OTHERS)) {
             this.errorPermission(sender);
             return;

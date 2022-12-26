@@ -2,15 +2,14 @@ package su.nightexpress.ama.kit.menu;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.menu.AbstractMenuAuto;
-import su.nexmedia.engine.api.menu.IMenuClick;
-import su.nexmedia.engine.api.menu.IMenuItem;
+import su.nexmedia.engine.api.menu.MenuClick;
+import su.nexmedia.engine.api.menu.MenuItem;
 import su.nexmedia.engine.api.menu.MenuItemType;
 import su.nexmedia.engine.lang.LangManager;
 import su.nexmedia.engine.utils.ItemUtil;
@@ -38,25 +37,20 @@ public abstract class AbstractKitListMenu extends AbstractMenuAuto<AMA, Kit> {
         this.objectLore = StringUtil.color(cfg.getStringList(path + "Object.Lore"));
         this.objectSlots = cfg.getIntArray(path + "Object.Slots");
 
-        IMenuClick click = (player, type, e) -> {
+        MenuClick click = (player, type, e) -> {
             if (type instanceof MenuItemType type2) {
                 this.onItemClickDefault(player, type2);
             }
         };
 
         for (String sId : cfg.getSection(path + "Content")) {
-            IMenuItem guiItem = cfg.getMenuItem(path + "Content." + sId, MenuItemType.class);
+            MenuItem guiItem = cfg.getMenuItem(path + "Content." + sId, MenuItemType.class);
 
             if (guiItem.getType() != null) {
-                guiItem.setClick(click);
+                guiItem.setClickHandler(click);
             }
             this.addItem(guiItem);
         }
-    }
-
-    @Override
-    public void onReady(@NotNull Player player, @NotNull Inventory inventory) {
-
     }
 
     @NotNull

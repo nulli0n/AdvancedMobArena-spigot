@@ -7,8 +7,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.menu.AbstractMenu;
-import su.nexmedia.engine.api.menu.IMenuClick;
-import su.nexmedia.engine.api.menu.IMenuItem;
+import su.nexmedia.engine.api.menu.MenuClick;
+import su.nexmedia.engine.api.menu.MenuItem;
 import su.nexmedia.engine.api.menu.MenuItemType;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.data.ArenaUser;
@@ -30,7 +30,7 @@ public class KitPreviewMenu extends AbstractMenu<AMA> {
             armorSlots = cfg.getIntArray("Armor_Slots");
         }
 
-        IMenuClick click = (player, type, e) -> {
+        MenuClick click = (player, type, e) -> {
             if (type == null) return;
 
             if (type instanceof MenuItemType type2) {
@@ -51,17 +51,17 @@ public class KitPreviewMenu extends AbstractMenu<AMA> {
         };
 
         for (String sId : cfg.getSection("Content")) {
-            IMenuItem menuItem = cfg.getMenuItem("Content." + sId, MenuItemType.class);
+            MenuItem menuItem = cfg.getMenuItem("Content." + sId, MenuItemType.class);
 
             if (menuItem.getType() != null) {
-                menuItem.setClick(click);
+                menuItem.setClickHandler(click);
             }
             this.addItem(menuItem);
         }
     }
 
     @Override
-    public void onPrepare(@NotNull Player player, @NotNull Inventory inventory) {
+    public boolean onPrepare(@NotNull Player player, @NotNull Inventory inventory) {
         ItemStack[] items = kit.getItems();
         ItemStack[] armor = kit.getArmor();
 
@@ -84,11 +84,7 @@ public class KitPreviewMenu extends AbstractMenu<AMA> {
         }
 
         player.playSound(player.getLocation(), Sound.BLOCK_CHEST_OPEN, 1.0f, 1.0f);
-    }
-
-    @Override
-    public void onReady(@NotNull Player player, @NotNull Inventory inventory) {
-
+        return true;
     }
 
     @Override

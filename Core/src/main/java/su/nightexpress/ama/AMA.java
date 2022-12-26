@@ -36,6 +36,8 @@ import su.nightexpress.ama.hologram.handler.HologramDisplaysHandler;
 import su.nightexpress.ama.hook.HookId;
 import su.nightexpress.ama.hook.external.*;
 import su.nightexpress.ama.hook.external.traits.*;
+import su.nightexpress.ama.hook.level.PluginLevelProvider;
+import su.nightexpress.ama.hook.level.impl.MMOCoreLevelProvider;
 import su.nightexpress.ama.kit.KitManager;
 import su.nightexpress.ama.mob.MobManager;
 import su.nightexpress.ama.mob.style.MobStyleType;
@@ -197,13 +199,15 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
 
     @Override
     public void registerHooks() {
-        this.registerHook(HookId.ESSENTIALS, EssentialsHook.class);
-        this.registerHook(HookId.MCMMO, McMMOHook.class);
-        if (Hooks.hasPlaceholderAPI()) {
-            this.registerHook(Hooks.PLACEHOLDER_API, PlaceholderHook.class);
+        if (Hooks.hasPlugin(HookId.MCMMO)) {
+            McMMOHook.setup();
         }
-        this.registerHook(HookId.SUNLIGHT, SunLightHook.class);
-        this.registerHook(HookId.MAGIC, MagicHK.class);
+        if (Hooks.hasPlaceholderAPI()) {
+            PlaceholderHook.setup();
+        }
+        if (Hooks.hasPlugin(HookId.MMOCORE)) {
+            PluginLevelProvider.registerProvider(new MMOCoreLevelProvider());
+        }
 
         if (Hooks.hasCitizens()) {
             CitizensHook.registerTrait(this, ArenasTrait.class);

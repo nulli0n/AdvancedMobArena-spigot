@@ -9,6 +9,8 @@ import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.stats.StatsManager;
 
+import java.util.Map;
+
 public class StatsCommand extends AbstractCommand<AMA> {
 
     private final StatsManager statsManager;
@@ -36,7 +38,7 @@ public class StatsCommand extends AbstractCommand<AMA> {
     }
 
     @Override
-    public void onExecute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args) {
+    public void onExecute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args, @NotNull Map<String, String> flags) {
         Player player = (Player) sender;
         this.statsManager.getStatsMenu().open(player, 1);
     }

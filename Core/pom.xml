@@ -5,7 +5,7 @@
     <parent>
         <artifactId>AdvancedMobArena</artifactId>
         <groupId>su.nightexpress.ama</groupId>
-        <version>7.7.2</version>
+        <version>7.7.3</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -80,33 +80,38 @@
             <id>essentialsx</id>
             <url>https://repo.essentialsx.net/releases/</url>
         </repository>
+        <repository>
+            <id>phoenix</id>
+            <url>https://nexus.phoenixdvpt.fr/repository/maven-public/</url>
+        </repository>
+
     </repositories>
 
     <dependencies>
         <dependency>
             <groupId>su.nightexpress.ama</groupId>
             <artifactId>NMS</artifactId>
-            <version>7.7.2</version>
+            <version>7.7.3</version>
         </dependency>
         <dependency>
             <groupId>su.nightexpress.ama</groupId>
             <artifactId>V1_17_R1</artifactId>
-            <version>7.7.2</version>
+            <version>7.7.3</version>
         </dependency>
         <dependency>
             <groupId>su.nightexpress.ama</groupId>
             <artifactId>V1_18_R2</artifactId>
-            <version>7.7.2</version>
+            <version>7.7.3</version>
         </dependency>
         <dependency>
             <groupId>su.nightexpress.ama</groupId>
             <artifactId>V1_19_R1</artifactId>
-            <version>7.7.2</version>
+            <version>7.7.3</version>
         </dependency>
         <dependency>
             <groupId>su.nightexpress.ama</groupId>
             <artifactId>V1_19_R2</artifactId>
-            <version>7.7.2</version>
+            <version>7.7.3</version>
         </dependency>
         <dependency>
             <groupId>su.nightexpress.sunlight</groupId>
@@ -182,6 +187,13 @@
             <artifactId>mcMMO</artifactId>
             <version>1.5.05</version>
         </dependency>
+        <dependency>
+            <groupId>net.Indyuce</groupId>
+            <artifactId>MMOCore-API</artifactId>
+            <version>1.9.5-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
 
     <build>

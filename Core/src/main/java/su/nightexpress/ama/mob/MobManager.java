@@ -37,7 +37,7 @@ public class MobManager extends AbstractManager<AMA> {
     @Override
     public void onLoad() {
         this.mobs = new HashMap<>();
-        this.plugin.getConfigManager().extract("/mobs/");
+        this.plugin.getConfigManager().extractResources("/mobs/");
 
 		/*for (EntityType entityType : EntityType.values()) {
 			if (!entityType.isAlive() || !entityType.isSpawnable()) continue;

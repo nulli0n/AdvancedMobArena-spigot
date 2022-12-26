@@ -6,7 +6,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.editor.EditorButtonType;
 import su.nexmedia.engine.api.editor.EditorInput;
-import su.nexmedia.engine.api.menu.IMenuClick;
+import su.nexmedia.engine.api.menu.MenuClick;
 import su.nexmedia.engine.api.menu.MenuItemType;
 import su.nexmedia.engine.editor.AbstractEditorMenuAuto;
 import su.nexmedia.engine.editor.EditorManager;
@@ -47,7 +47,7 @@ class EditorSpotStateList extends AbstractEditorMenuAuto<AMA, ArenaSpot, ArenaSp
             return true;
         };
 
-        IMenuClick click = (player, type, e) -> {
+        MenuClick click = (player, type, e) -> {
             if (type == null) return;
 
             if (type instanceof MenuItemType type2) {
@@ -97,7 +97,7 @@ class EditorSpotStateList extends AbstractEditorMenuAuto<AMA, ArenaSpot, ArenaSp
 
     @Override
     @NotNull
-    protected IMenuClick getObjectClick(@NotNull Player player, @NotNull ArenaSpotState state) {
+    protected MenuClick getObjectClick(@NotNull Player player, @NotNull ArenaSpotState state) {
         return (p, type, e) -> {
             if (e.isShiftClick()) {
                 if (e.isRightClick()) {

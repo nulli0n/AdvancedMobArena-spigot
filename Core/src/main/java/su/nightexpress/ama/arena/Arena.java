@@ -4,6 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.PiglinAbstract;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.jetbrains.annotations.NotNull;
@@ -683,6 +684,16 @@ public class Arena extends AbstractArena {
         // Spawn mobs for new wave
         ArenaWaveManager waveManager = this.getConfig().getWaveManager();
         this.spawnMobs(waveManager.isGradualSpawnEnabled() ? waveManager.getGradualSpawnPercentFirst() : 100D);
+
+        // TODO
+        // Quick fix for Piglings target, due to PiglinAi class with a lot of shit
+        this.getMobs().forEach(mob -> {
+            if (mob instanceof PiglinAbstract piglinAbstract) {
+                ArenaPlayer arenaPlayer = this.getPlayerRandom();
+                if (arenaPlayer == null) return;
+                this.plugin.getArenaNMS().setTarget(piglinAbstract, arenaPlayer.getPlayer());
+            }
+        });
 
         //this.setLastBossAmount(this.getBosses().size());
 

@@ -2,14 +2,13 @@ package su.nightexpress.ama.arena.shop.menu;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.menu.AbstractMenuAuto;
-import su.nexmedia.engine.api.menu.IMenuClick;
-import su.nexmedia.engine.api.menu.IMenuItem;
+import su.nexmedia.engine.api.menu.MenuClick;
+import su.nexmedia.engine.api.menu.MenuItem;
 import su.nexmedia.engine.api.menu.MenuItemType;
 import su.nexmedia.engine.utils.ItemUtil;
 import su.nexmedia.engine.utils.StringUtil;
@@ -43,17 +42,17 @@ public class ArenaShopMainMenu extends AbstractMenuAuto<AMA, ArenaShopCategory> 
             this.objectLore.put(lockState, StringUtil.color(cfg.getStringList("Category.Lore." + lockState.name())));
         }
 
-        IMenuClick click = (player, type, e) -> {
+        MenuClick click = (player, type, e) -> {
             if (type instanceof MenuItemType type2) {
                 this.onItemClickDefault(player, type2);
             }
         };
 
         for (String sId : cfg.getSection("Content")) {
-            IMenuItem menuItem = cfg.getMenuItem("Content." + sId, MenuItemType.class);
+            MenuItem menuItem = cfg.getMenuItem("Content." + sId, MenuItemType.class);
 
             if (menuItem.getType() != null) {
-                menuItem.setClick(click);
+                menuItem.setClickHandler(click);
             }
             this.addItem(menuItem);
         }
@@ -86,7 +85,7 @@ public class ArenaShopMainMenu extends AbstractMenuAuto<AMA, ArenaShopCategory> 
 
     @Override
     @NotNull
-    protected IMenuClick getObjectClick(@NotNull Player player, @NotNull ArenaShopCategory shopCategory) {
+    protected MenuClick getObjectClick(@NotNull Player player, @NotNull ArenaShopCategory shopCategory) {
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
         if (arenaPlayer == null || arenaPlayer.getArena().getState() != ArenaState.INGAME) return (p, type, e) -> {
         };
@@ -103,11 +102,6 @@ public class ArenaShopMainMenu extends AbstractMenuAuto<AMA, ArenaShopCategory> 
 
             shopCategory.open(arenaPlayer);
         };
-    }
-
-    @Override
-    public void onReady(@NotNull Player player, @NotNull Inventory inventory) {
-
     }
 
     @Override

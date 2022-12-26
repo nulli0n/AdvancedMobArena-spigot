@@ -6,8 +6,8 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.editor.EditorButtonType;
-import su.nexmedia.engine.api.menu.IMenuClick;
-import su.nexmedia.engine.api.menu.IMenuItem;
+import su.nexmedia.engine.api.menu.MenuClick;
+import su.nexmedia.engine.api.menu.MenuItem;
 import su.nexmedia.engine.api.menu.MenuItemType;
 import su.nexmedia.engine.editor.AbstractEditorMenu;
 import su.nexmedia.engine.utils.ItemUtil;
@@ -25,7 +25,7 @@ public class EditorShopManager extends AbstractEditorMenu<AMA, ArenaShopManager>
     public EditorShopManager(@NotNull ArenaShopManager shopManager) {
         super(shopManager.plugin(), shopManager, ArenaEditorUtils.TITLE_SHOP_EDITOR, 45);
 
-        IMenuClick click = (player, type, e) -> {
+        MenuClick click = (player, type, e) -> {
             if (type instanceof MenuItemType type2) {
                 if (type2 == MenuItemType.RETURN) {
                     shopManager.getArenaConfig().getEditor().open(player, 1);
@@ -83,7 +83,7 @@ public class EditorShopManager extends AbstractEditorMenu<AMA, ArenaShopManager>
     }
 
     @Override
-    public void onItemPrepare(@NotNull Player player, @NotNull IMenuItem menuItem, @NotNull ItemStack item) {
+    public void onItemPrepare(@NotNull Player player, @NotNull MenuItem menuItem, @NotNull ItemStack item) {
         super.onItemPrepare(player, menuItem, item);
         if (menuItem.getType() instanceof ArenaEditorType editorType) {
             if (editorType == ArenaEditorType.SHOP_CHANGE_ACTIVE) {

@@ -8,29 +8,21 @@ import com.elmakers.mine.bukkit.api.magic.Mage;
 import com.elmakers.mine.bukkit.api.magic.Messages;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.api.hook.AbstractHook;
 import su.nexmedia.engine.utils.NumberUtil;
-import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.api.ArenaAPI;
 import su.nightexpress.ama.arena.ArenaPlayer;
 
-public class MagicHK extends AbstractHook<AMA> {
+@Deprecated
+public class MagicHK {
 
-    public MagicHK(@NotNull AMA plugin, @NotNull String pluginName) {
-        super(plugin, pluginName);
-    }
-
-    @Override
     public boolean setup() {
-        this.registerListeners();
+        // TODO this.registerListeners();
 
         return true;
     }
 
-    @Override
     public void shutdown() {
-        this.unregisterListeners();
+        // TODO this.unregisterListeners();
     }
 
     @EventHandler

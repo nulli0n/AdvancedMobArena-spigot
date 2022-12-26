@@ -14,6 +14,7 @@ import su.nightexpress.ama.config.Lang;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class SpotCmd extends AbstractCommand<AMA> {
@@ -66,7 +67,7 @@ public class SpotCmd extends AbstractCommand<AMA> {
     }
 
     @Override
-    protected void onExecute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args) {
+    protected void onExecute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args, @NotNull Map<String, String> flags) {
         if (args.length < 2) {
             this.printUsage(sender);
             return;

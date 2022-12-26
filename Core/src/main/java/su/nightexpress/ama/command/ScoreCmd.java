@@ -13,6 +13,7 @@ import su.nightexpress.ama.config.Lang;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ScoreCmd extends AbstractCommand<AMA> {
@@ -60,7 +61,7 @@ public class ScoreCmd extends AbstractCommand<AMA> {
     }
 
     @Override
-    public void onExecute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args) {
+    public void onExecute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args, @NotNull Map<String, String> flags) {
         if (args.length != 4) {
             plugin.getMessage(Lang.Help_Score).send(sender);
             return;

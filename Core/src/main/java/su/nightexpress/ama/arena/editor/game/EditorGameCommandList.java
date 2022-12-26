@@ -5,7 +5,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.editor.EditorButtonType;
-import su.nexmedia.engine.api.menu.IMenuClick;
+import su.nexmedia.engine.api.menu.MenuClick;
 import su.nexmedia.engine.api.menu.MenuItemType;
 import su.nexmedia.engine.editor.AbstractEditorMenuAuto;
 import su.nexmedia.engine.utils.ItemUtil;
@@ -27,7 +27,7 @@ public class EditorGameCommandList extends AbstractEditorMenuAuto<AMA, ArenaGame
     public EditorGameCommandList(@NotNull ArenaGameplayManager gameplayManager) {
         super(gameplayManager.plugin(), gameplayManager, ArenaEditorUtils.TITLE_GAMEPLAY_EDITOR, 45);
 
-        IMenuClick click = (player, type, e) -> {
+        MenuClick click = (player, type, e) -> {
             if (type instanceof MenuItemType type2) {
                 if (type2 == MenuItemType.RETURN) {
                     gameplayManager.getEditor().open(player, 1);
@@ -78,7 +78,7 @@ public class EditorGameCommandList extends AbstractEditorMenuAuto<AMA, ArenaGame
 
     @Override
     @NotNull
-    protected IMenuClick getObjectClick(@NotNull Player player, @NotNull ArenaGameCommand gameCommand) {
+    protected MenuClick getObjectClick(@NotNull Player player, @NotNull ArenaGameCommand gameCommand) {
         return (player1, type, e) -> {
             if (e.isShiftClick() && e.isRightClick()) {
                 gameCommand.clear();

@@ -6,6 +6,7 @@ import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
 
@@ -23,8 +24,11 @@ public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
     public static final String ARENA_ID                     = "%arena_id%";
     public static final String ARENA_ACTIVE                 = "%arena_active%";
     public static final String ARENA_NAME                   = "%arena_name%";
+    public static final String ARENA_AUTO_STATE_OPEN_TIMES = "%arena_auto_state_open_times%";
+    public static final String ARENA_AUTO_STATE_CLOSE_TIMES = "%arena_auto_state_close_times%";
     public static final String ARENA_REQUIREMENT_PERMISSION = "%arena_requirement_permission%";
     public static final String ARENA_REQUIREMENT_PAYMENT    = "%arena_requirement_payment%";
+    public static final String ARENA_REQUIREMENT_LEVEL      = "%arena_requirement_level%";
     public static final String ARENA_PERMISSION             = "%arena_permission%";
     public static final String ARENA_STATE                  = "%arena_state%";
     public static final String ARENA_PLAYERS                = "%arena_players%";
@@ -213,7 +217,10 @@ public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
     @NotNull
     @Deprecated
     public static String format(@NotNull Collection<ArenaGameEventTrigger<?>> triggers) {
-        return StringUtil.color(String.join("\n", "&a" + triggers.stream().map(trigger -> trigger.getType() + ": &f" + trigger.getValuesRaw()).toList()));
+        return StringUtil.color("&a" + triggers.stream()
+            .map(trigger -> trigger.getType() + ": &f" + trigger.getValuesRaw())
+            .collect(Collectors.joining("\n"))
+        );
     }
 
     @NotNull

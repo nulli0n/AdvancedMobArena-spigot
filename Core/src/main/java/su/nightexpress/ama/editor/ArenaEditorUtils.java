@@ -16,6 +16,8 @@ import su.nightexpress.ama.api.arena.type.ArenaLockState;
 import su.nightexpress.ama.arena.config.ArenaConfig;
 import su.nightexpress.ama.config.Lang;
 
+import java.util.Set;
+
 public class ArenaEditorUtils {
 
     public static final String TITLE_EDITOR          = "AdvancedMobArena Editor";
@@ -83,13 +85,19 @@ public class ArenaEditorUtils {
             return false;
         }
 
+        Set<ArenaGameEventTrigger<?>> triggers;
         if (listener instanceof IArenaGameEventListenerState listenerState) {
             ArenaLockState state = ArenaLockState.fromEditor(editorType);
-            listenerState.getStateTriggers(state).add(trigger);
+            //listenerState.getStateTriggers(state).add(trigger);
+            triggers = listenerState.getStateTriggers(state);
         }
         else {
-            listener.getTriggers().add(trigger);
+            //listener.getTriggers().add(trigger);
+            triggers = listener.getTriggers();
         }
+        triggers.removeIf(triggerHas -> triggerHas.getType() == trigger.getType());
+        triggers.add(trigger);
+
         arenaConfig.save();
         return true;
     }

@@ -2,7 +2,7 @@ package su.nightexpress.ama.mob.kill;
 
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.api.config.JWriter;
+import su.nexmedia.engine.api.config.JOption;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.lang.LangMessage;
 import su.nexmedia.engine.utils.PlayerUtil;
@@ -12,7 +12,7 @@ import su.nightexpress.ama.Placeholders;
 import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 
-public class MobKillStreak implements JWriter {
+public class MobKillStreak implements JOption.Writer {
 
     private final int                 amount;
     private final LangMessage         message;

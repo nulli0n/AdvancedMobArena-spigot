@@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.task.AbstractTask;
 import su.nightexpress.ama.AMA;
-import su.nightexpress.ama.arena.ArenaCuboid;
+import su.nightexpress.ama.arena.util.ArenaCuboid;
 import su.nightexpress.ama.arena.setup.ArenaSetupUtils;
 import su.nightexpress.ama.arena.setup.SetupItemType;
 import su.nightexpress.ama.arena.spot.ArenaSpot;

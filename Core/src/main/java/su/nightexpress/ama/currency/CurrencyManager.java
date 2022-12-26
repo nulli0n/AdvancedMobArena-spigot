@@ -32,7 +32,7 @@ public class CurrencyManager extends AbstractManager<AMA> {
     @Override
     public void onLoad() {
         this.currencyMap = new HashMap<>();
-        this.plugin.getConfigManager().extract(DIR_CURRENCY);
+        this.plugin.getConfigManager().extractResources(DIR_CURRENCY);
 
         this.loadDefault();
     }

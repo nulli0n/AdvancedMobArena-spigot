@@ -110,7 +110,7 @@ public class Kit extends AbstractLoadableItem<AMA> implements ConfigHolder, Holo
             int level = cfg.getInt("Content.Potion_Effects." + sId);
             if (level == 0) continue;
 
-            PotionEffect effect = new PotionEffect(pet, Integer.MAX_VALUE, level - 1);
+            PotionEffect effect = new PotionEffect(pet, 60 * 60 * 20, level - 1);
             this.getPotionEffects().add(effect);
         }
 
@@ -185,7 +185,11 @@ public class Kit extends AbstractLoadableItem<AMA> implements ConfigHolder, Holo
     }
 
     public void applyPotionEffects(@NotNull Player player) {
-        this.getPotionEffects().forEach(player::addPotionEffect);
+        this.getPotionEffects().forEach(effect -> {
+            if (!player.hasPotionEffect(effect.getType())) {
+                player.addPotionEffect(effect);
+            }
+        });
     }
 
     public void give(@NotNull ArenaPlayer arenaPlayer) {

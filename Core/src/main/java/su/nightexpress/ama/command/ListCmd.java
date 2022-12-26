@@ -8,6 +8,8 @@ import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.config.Lang;
 
+import java.util.Map;
+
 public class ListCmd extends AbstractCommand<AMA> {
 
     public ListCmd(@NotNull AMA plugin) {
@@ -32,7 +34,7 @@ public class ListCmd extends AbstractCommand<AMA> {
     }
 
     @Override
-    public void onExecute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args) {
+    public void onExecute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args, @NotNull Map<String, String> flags) {
         Player player = (Player) sender;
         plugin.getArenaManager().getArenaListMenu().open(player, 1);
     }

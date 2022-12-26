@@ -9,8 +9,8 @@ import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.editor.EditorButtonType;
 import su.nexmedia.engine.api.editor.EditorInput;
 import su.nexmedia.engine.api.menu.AbstractMenu;
-import su.nexmedia.engine.api.menu.IMenuClick;
-import su.nexmedia.engine.api.menu.IMenuItem;
+import su.nexmedia.engine.api.menu.MenuClick;
+import su.nexmedia.engine.api.menu.MenuItem;
 import su.nexmedia.engine.api.menu.MenuItemType;
 import su.nexmedia.engine.editor.AbstractEditorMenu;
 import su.nexmedia.engine.editor.EditorManager;
@@ -39,7 +39,7 @@ public class EditorRewardSettings extends AbstractEditorMenu<AMA, ArenaReward> {
                 case REWARD_CHANGE_CHANCE -> {
                     double value = StringUtil.getDouble(msg, -1D);
                     if (value < 0) {
-                        EditorManager.error(player, EditorManager.ERROR_NUM_INVALID);
+                        EditorManager.error(player, plugin.getMessage(Lang.EDITOR_ERROR_NUMBER_GENERIC).getLocalized());
                         return false;
                     }
                     reward2.setChance(value);
@@ -50,7 +50,7 @@ public class EditorRewardSettings extends AbstractEditorMenu<AMA, ArenaReward> {
             return true;
         };
 
-        IMenuClick click = (player, type, e) -> {
+        MenuClick click = (player, type, e) -> {
             if (type instanceof MenuItemType type2) {
                 if (type == MenuItemType.RETURN) {
                     reward.getArenaConfig().getRewardManager().getEditor().open(player, 1);
@@ -114,7 +114,7 @@ public class EditorRewardSettings extends AbstractEditorMenu<AMA, ArenaReward> {
     }
 
     @Override
-    public void onItemPrepare(@NotNull Player player, @NotNull IMenuItem menuItem, @NotNull ItemStack item) {
+    public void onItemPrepare(@NotNull Player player, @NotNull MenuItem menuItem, @NotNull ItemStack item) {
         super.onItemPrepare(player, menuItem, item);
         ItemUtil.replace(item, this.object.replacePlaceholders());
     }
@@ -134,13 +134,9 @@ public class EditorRewardSettings extends AbstractEditorMenu<AMA, ArenaReward> {
         }
 
         @Override
-        public void onPrepare(@NotNull Player player, @NotNull Inventory inventory) {
+        public boolean onPrepare(@NotNull Player player, @NotNull Inventory inventory) {
             inventory.setContents(this.reward.getItems().toArray(new ItemStack[this.getSize()]));
-        }
-
-        @Override
-        public void onReady(@NotNull Player player, @NotNull Inventory inventory) {
-
+            return true;
         }
 
         @Override

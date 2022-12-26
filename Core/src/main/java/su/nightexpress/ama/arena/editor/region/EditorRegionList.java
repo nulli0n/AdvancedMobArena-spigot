@@ -6,7 +6,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.editor.EditorButtonType;
 import su.nexmedia.engine.api.editor.EditorInput;
-import su.nexmedia.engine.api.menu.IMenuClick;
+import su.nexmedia.engine.api.menu.MenuClick;
 import su.nexmedia.engine.api.menu.MenuItemType;
 import su.nexmedia.engine.editor.AbstractEditorMenuAuto;
 import su.nexmedia.engine.editor.EditorManager;
@@ -45,7 +45,7 @@ public class EditorRegionList extends AbstractEditorMenuAuto<AMA, ArenaRegionMan
             return true;
         };
 
-        IMenuClick click = (player, type, e) -> {
+        MenuClick click = (player, type, e) -> {
             if (type instanceof MenuItemType type2) {
                 if (type2 == MenuItemType.RETURN) {
                     regionManager.getArenaConfig().getEditor().open(player, 1);
@@ -93,7 +93,7 @@ public class EditorRegionList extends AbstractEditorMenuAuto<AMA, ArenaRegionMan
 
     @Override
     @NotNull
-    protected IMenuClick getObjectClick(@NotNull Player player, @NotNull ArenaRegion region) {
+    protected MenuClick getObjectClick(@NotNull Player player, @NotNull ArenaRegion region) {
         return (p, type, e) -> {
             if (e.isShiftClick() && e.isRightClick()) {
                 if (this.parent.removeRegion(region)) {

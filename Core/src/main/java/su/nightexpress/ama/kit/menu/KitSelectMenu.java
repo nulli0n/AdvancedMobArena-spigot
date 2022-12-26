@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
-import su.nexmedia.engine.api.menu.IMenuClick;
+import su.nexmedia.engine.api.menu.MenuClick;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.ArenaPlayer;
 import su.nightexpress.ama.config.Lang;
@@ -28,7 +28,7 @@ public class KitSelectMenu extends AbstractKitListMenu {
 
     @Override
     @NotNull
-    public IMenuClick getObjectClick(@NotNull Player player, @NotNull Kit kit) {
+    public MenuClick getObjectClick(@NotNull Player player, @NotNull Kit kit) {
         return (player1, type, e) -> {
             ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player1);
             if (arenaPlayer == null) return;

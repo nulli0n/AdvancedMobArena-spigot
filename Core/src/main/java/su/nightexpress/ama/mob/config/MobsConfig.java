@@ -107,4 +107,9 @@ public class MobsConfig {
         "For 'Message' you can use " + Placeholders.GENERIC_AMOUNT + " placeholder for a kills amount. Please check: https://github.com/nulli0n/NexEngine-spigot/wiki/Language-Config#message-options",
         "For 'Commands', please check https://github.com/nulli0n/NexEngine-spigot/wiki/Configuration-Tips#command-sections"
         );
+
+    static {
+        KILL_REWARD_VALUES.setWriter((cfg, path) -> KILL_REWARD_VALUES.get().forEach((id, reward) -> reward.write(cfg, path + "." + id)));
+        KILL_STREAK_TABLE.setWriter((cfg, path) -> KILL_STREAK_TABLE.get().forEach((ks, streak) -> streak.write(cfg, path + "." + ks)));
+    }
 }

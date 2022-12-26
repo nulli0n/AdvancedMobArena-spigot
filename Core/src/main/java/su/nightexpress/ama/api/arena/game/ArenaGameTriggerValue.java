@@ -1,8 +1,8 @@
 package su.nightexpress.ama.api.arena.game;
 
 import org.jetbrains.annotations.NotNull;
+import su.nexmedia.engine.utils.Pair;
 import su.nexmedia.engine.utils.StringUtil;
-import su.nexmedia.engine.utils.data.Pair;
 
 import java.util.LinkedHashMap;
 import java.util.List;

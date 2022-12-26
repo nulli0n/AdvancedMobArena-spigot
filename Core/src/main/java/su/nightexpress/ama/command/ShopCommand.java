@@ -9,6 +9,8 @@ import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.arena.ArenaPlayer;
 import su.nightexpress.ama.config.Lang;
 
+import java.util.Map;
+
 public class ShopCommand extends AbstractCommand<AMA> {
 
     public ShopCommand(@NotNull AMA plugin) {
@@ -33,7 +35,7 @@ public class ShopCommand extends AbstractCommand<AMA> {
     }
 
     @Override
-    public void onExecute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args) {
+    public void onExecute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args, @NotNull Map<String, String> flags) {
         Player player = (Player) sender;
 
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);

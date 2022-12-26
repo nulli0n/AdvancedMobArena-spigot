@@ -296,7 +296,7 @@ public class MobConfig extends AbstractLoadableItem<AMA> implements IPlaceholder
             styleType.getWrapper().apply(entity, value);
         }));
 
-        if (entity instanceof Piglin piglin) {
+        if (entity instanceof PiglinAbstract piglin) {
             piglin.setImmuneToZombification(true);
         }
         else if (entity instanceof Hoglin hoglin) {

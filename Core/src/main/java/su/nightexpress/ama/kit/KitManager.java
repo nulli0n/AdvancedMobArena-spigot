@@ -35,7 +35,7 @@ public class KitManager extends AbstractManager<AMA> {
 
     @Override
     public void onLoad() {
-        this.plugin.getConfigManager().extract("/kits/kits/");
+        this.plugin.getConfigManager().extractResources("/kits/kits/");
         this.cfg = JYML.loadOrExtract(plugin, "/kits/settings.yml");
         this.configPreview = JYML.loadOrExtract(plugin, "/kits/gui.preview.yml");
         this.isSavePurchasedKits = cfg.getBoolean("General.Save_Purchased_Kits");

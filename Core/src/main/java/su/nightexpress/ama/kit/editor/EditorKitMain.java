@@ -13,8 +13,8 @@ import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.editor.EditorButtonType;
 import su.nexmedia.engine.api.editor.EditorInput;
 import su.nexmedia.engine.api.menu.AbstractMenu;
-import su.nexmedia.engine.api.menu.IMenuClick;
-import su.nexmedia.engine.api.menu.IMenuItem;
+import su.nexmedia.engine.api.menu.MenuClick;
+import su.nexmedia.engine.api.menu.MenuItem;
 import su.nexmedia.engine.api.menu.MenuItemType;
 import su.nexmedia.engine.editor.AbstractEditorMenu;
 import su.nexmedia.engine.editor.EditorManager;
@@ -65,7 +65,7 @@ public class EditorKitMain extends AbstractEditorMenu<AMA, Kit> {
                 case KIT_CHANGE_COST -> {
                     int cost = StringUtil.getInteger(msg, -999);
                     if (cost == -999) {
-                        EditorManager.error(player, EditorManager.ERROR_NUM_INVALID);
+                        EditorManager.error(player, plugin.getMessage(Lang.EDITOR_ERROR_NUMBER_GENERIC).getLocalized());
                         return false;
                     }
                     kit2.setCost(cost);
@@ -77,7 +77,7 @@ public class EditorKitMain extends AbstractEditorMenu<AMA, Kit> {
             return true;
         };
 
-        IMenuClick click = (player, type, e) -> {
+        MenuClick click = (player, type, e) -> {
             if (type instanceof MenuItemType type2) {
                 if (type2 == MenuItemType.RETURN) {
                     plugin.getEditor().getKitEditor().open(player, 1);
@@ -185,7 +185,7 @@ public class EditorKitMain extends AbstractEditorMenu<AMA, Kit> {
     }
 
     @Override
-    public void onItemPrepare(@NotNull Player player, @NotNull IMenuItem menuItem, @NotNull ItemStack item) {
+    public void onItemPrepare(@NotNull Player player, @NotNull MenuItem menuItem, @NotNull ItemStack item) {
         super.onItemPrepare(player, menuItem, item);
         if (menuItem.getType() instanceof ArenaEditorType type2) {
             if (type2 == ArenaEditorType.KIT_CHANGE_DEFAULT) {
@@ -215,13 +215,9 @@ public class EditorKitMain extends AbstractEditorMenu<AMA, Kit> {
         }
 
         @Override
-        public void onPrepare(@NotNull Player player, @NotNull Inventory inventory) {
+        public boolean onPrepare(@NotNull Player player, @NotNull Inventory inventory) {
             inventory.setContents(this.isArmor ? this.kit.getArmor() : this.kit.getItems());
-        }
-
-        @Override
-        public void onReady(@NotNull Player player, @NotNull Inventory inventory) {
-
+            return true;
         }
 
         @Override

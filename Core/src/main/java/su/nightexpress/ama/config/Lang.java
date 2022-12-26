@@ -6,6 +6,7 @@ import su.nexmedia.engine.api.lang.LangKey;
 import su.nexmedia.engine.lang.EngineLang;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.type.LeaveReason;
+import su.nightexpress.ama.hook.HookId;
 
 public class Lang extends EngineLang {
 
@@ -123,6 +124,9 @@ public class Lang extends EngineLang {
     public static final LangKey ARENA_JOIN_SPECTATE_SUCCESS        = new LangKey("Arena.Join.Spectate.Success", "Now you are spectating arena &a%arena_name%");
     public static final LangKey ARENA_JOIN_SPECTATE_ERROR_DISABLED = new LangKey("Arena.Join.Spectate.Error.Disabled", "Spectating is disabled on this arena.");
 
+    public static final LangKey ARENA_SCHEDULER_OPEN_ANNOUNCE = LangKey.of("Arena.Scheduler.Open.Announce", "&7Arena &a" + Placeholders.ARENA_NAME + "&7 is opened for play!");
+    public static final LangKey ARENA_SCHEDULER_CLOSE_ANNOUNCE = LangKey.of("Arena.Scheduler.Close.Announce", "&7Arena &c" + Placeholders.ARENA_NAME + "&7 have been closed!");
+
     public static final LangKey Arena_Game_Notify_Start  = new LangKey("Arena.Game.Notify.Start", "{message: ~type: TITLES; ~fadeIn: 10; ~stay: 40; ~fadeOut: 10; ~sound: ENTITY_ENDERMAN_TELEPORT;}&a&lYou have joined the arena! \n &2&lPickup your weapons and fight!");
     public static final LangKey Arena_Game_Notify_Reward = new LangKey("Arena.Game.Notify.Reward", "You recieved reward: &a%reward_name%");
 
@@ -222,7 +226,11 @@ public class Lang extends EngineLang {
     public static final LangKey Editor_Arena_Tip_Create         = new LangKey("Editor.Arena.Tip.Create", "&7Enter &aunqiue &7arena &aidentifier&7...");
     public static final LangKey Editor_Arena_Error_Exist        = new LangKey("Editor.Arena.Error.Exist", "&cArena already exists!");
     public static final LangKey EDITOR_ARENA_ENTER_NAME         = LangKey.of("Editor.Arena.Enter.Name", "&7Enter arena &aname&7...");
+    public static final LangKey EDITOR_ARENA_ENTER_SCHEDULER_TIME = new LangKey("Editor.Arena.Enter.SchedulerTime", "&7Syntax: &a<day> <time>&8 | &aMonday 15:30:00");
     public static final LangKey EDITOR_ARENA_ENTER_JOIN_PAYMENT = new LangKey("Editor.Arena.Enter.JoinPayment", "&7Syntax: &a<currency> <amount>&8 | &avault 500");
+    public static final LangKey EDITOR_ARENA_ENTER_JOIN_LEVEL = new LangKey("Editor.Arena.Enter.JoinLevel", "&7Syntax: &a<plugin> <value>&8 | &a" + HookId.MMOCORE + " 10");
+    public static final LangKey EDITOR_ARENA_ERROR_LEVEL_PROVIDER = LangKey.of("Editor.Arena.Error.Level_Provider", "&cSuch plugin is not supported!");
+    public static final LangKey EDITOR_ARENA_ERROR_SCHEDULER_TIME = LangKey.of("Editor.Arena.Error.SchedulerTime", "&cInvalid day/time!");
 
     public static final LangKey Editor_Arena_Gameplay_Enter_Timeleft             = new LangKey("Editor.Arena.Gameplay.Enter.Timeleft", "&7Enter time &c(in minutes)");
     public static final LangKey Editor_Arena_Gameplay_Enter_LobbyTime            = new LangKey("Editor.Arena.Gameplay.Enter.LobbyTime", "&7Enter time &c(in seconds)");

@@ -122,4 +122,11 @@ public class Config {
         "You can use 'Arena', 'Arena Player' placeholders: https://github.com/nulli0n/AdvancedMobArena-spigot/wiki/Internal-Placeholders",
         "PlaceholderAPI is also supported here."
     );
+
+    static {
+        LOBBY_ITEMS.setWriter((cfg, path) -> LOBBY_ITEMS.get().forEach((type, lobbyItem) -> lobbyItem.write(cfg, path + "." + type.name())));
+        SIGNS_FORMAT.setWriter((cfg, path) -> SIGNS_FORMAT.get().forEach((type, list) -> cfg.set(path + "." + type.name(), list)));
+        HOLOGRAMS_FORMAT.setWriter((cfg, path) -> HOLOGRAMS_FORMAT.get().forEach((type, list) -> cfg.set(path + "." + type.name(), list)));
+        SCOREBOARDS.setWriter((cfg, path) -> SCOREBOARDS.get().forEach((id, board) -> cfg.set(path + "." + id, board)));
+    }
 }

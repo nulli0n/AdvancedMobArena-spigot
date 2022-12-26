@@ -25,7 +25,7 @@ import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
 import su.nightexpress.ama.api.event.ArenaRegionEvent;
 import su.nightexpress.ama.api.hologram.HologramHolder;
 import su.nightexpress.ama.api.hologram.HologramType;
-import su.nightexpress.ama.arena.ArenaCuboid;
+import su.nightexpress.ama.arena.util.ArenaCuboid;
 import su.nightexpress.ama.arena.ArenaPlayer;
 import su.nightexpress.ama.arena.config.ArenaConfig;
 import su.nightexpress.ama.arena.editor.region.EditorRegionMain;

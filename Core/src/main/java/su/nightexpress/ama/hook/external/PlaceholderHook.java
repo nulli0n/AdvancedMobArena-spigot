@@ -3,11 +3,11 @@ package su.nightexpress.ama.hook.external;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.api.hook.AbstractHook;
 import su.nexmedia.engine.utils.CollectionsUtil;
 import su.nexmedia.engine.utils.NumberUtil;
 import su.nexmedia.engine.utils.TimeUtil;
 import su.nightexpress.ama.AMA;
+import su.nightexpress.ama.api.ArenaAPI;
 import su.nightexpress.ama.arena.AbstractArena;
 import su.nightexpress.ama.arena.ArenaPlayer;
 import su.nightexpress.ama.data.ArenaUser;
@@ -16,40 +16,30 @@ import su.nightexpress.ama.stats.object.StatType;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
-public class PlaceholderHook extends AbstractHook<AMA> {
+public class PlaceholderHook {
 
-    public PlaceholderHook(@NotNull AMA plugin, @NotNull String pluginName) {
-        super(plugin, pluginName);
-    }
+    private static AMAExpansion expansion;
 
-    @Override
-    public boolean setup() {
-        new PPatch().patch();
-        return true;
-    }
-
-    @Override
-    public void shutdown() {
-
-    }
-
-    public void register() {
-
-    }
-
-    class PPatch {
-
-        public void patch() {
-            new AMAExpansion().register();
+    public static void setup() {
+        if (expansion == null) {
+            expansion = new AMAExpansion();
+            expansion.register();
         }
     }
 
-    public class AMAExpansion extends PlaceholderExpansion {
+    public void shutdown() {
+        if (expansion != null) {
+            expansion.unregister();
+            expansion = null;
+        }
+    }
+
+    static class AMAExpansion extends PlaceholderExpansion {
 
         @Override
         @NotNull
         public String getAuthor() {
-            return plugin.getAuthor();
+            return ArenaAPI.PLUGIN.getDescription().getAuthors().get(0);
         }
 
         @Override
@@ -61,7 +51,7 @@ public class PlaceholderHook extends AbstractHook<AMA> {
         @Override
         @NotNull
         public String getVersion() {
-            return plugin.getDescription().getVersion();
+            return ArenaAPI.PLUGIN.getDescription().getVersion();
         }
 
         @Override
@@ -71,6 +61,8 @@ public class PlaceholderHook extends AbstractHook<AMA> {
 
         @Override
         public String onPlaceholderRequest(Player player, String tmp) {
+            AMA plugin = ArenaAPI.PLUGIN;
+
             if (tmp.startsWith("stats_")) {
                 String typeRaw = tmp.replace("stats_", "");
 

@@ -5,26 +5,32 @@ import com.gmail.nossr50.events.skills.abilities.McMMOPlayerAbilityActivateEvent
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.api.hook.AbstractHook;
+import su.nexmedia.engine.api.manager.AbstractListener;
 import su.nightexpress.ama.AMA;
-import su.nightexpress.ama.arena.ArenaPlayer;
+import su.nightexpress.ama.api.ArenaAPI;
 import su.nightexpress.ama.arena.AbstractArena;
+import su.nightexpress.ama.arena.ArenaPlayer;
 
-public class McMMOHook extends AbstractHook<AMA> {
+public final class McMMOHook extends AbstractListener<AMA> {
 
-    public McMMOHook(@NotNull AMA plugin, @NotNull String pluginName) {
-        super(plugin, pluginName);
-    }
+    private static McMMOHook instance;
 
-    @Override
-    public boolean setup() {
+    private McMMOHook(@NotNull AMA plugin) {
+        super(plugin);
         this.registerListeners();
-        return true;
     }
 
-    @Override
-    public void shutdown() {
-        this.unregisterListeners();
+    public static void setup() {
+        if (instance == null) {
+            instance = new McMMOHook(ArenaAPI.PLUGIN);
+        }
+    }
+
+    public static void shutdown() {
+        if (instance != null) {
+            instance.unregisterListeners();
+            instance = null;
+        }
     }
 
     @EventHandler

@@ -6,14 +6,14 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.editor.EditorButtonType;
 import su.nexmedia.engine.api.editor.EditorInput;
-import su.nexmedia.engine.api.menu.IMenuClick;
+import su.nexmedia.engine.api.menu.MenuClick;
 import su.nexmedia.engine.api.menu.MenuItemType;
 import su.nexmedia.engine.editor.AbstractEditorMenuAuto;
 import su.nexmedia.engine.editor.EditorManager;
 import su.nexmedia.engine.utils.ItemUtil;
 import su.nightexpress.ama.AMA;
-import su.nightexpress.ama.arena.ArenaManager;
 import su.nightexpress.ama.arena.AbstractArena;
+import su.nightexpress.ama.arena.ArenaManager;
 import su.nightexpress.ama.arena.config.ArenaConfig;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.editor.ArenaEditorType;
@@ -45,7 +45,7 @@ public class EditorArenaList extends AbstractEditorMenuAuto<AMA, AMA, AbstractAr
             return true;
         };
 
-        IMenuClick click = (player, type, e) -> {
+        MenuClick click = (player, type, e) -> {
             if (type instanceof MenuItemType type2) {
                 if (type2 == MenuItemType.RETURN) {
                     plugin.getEditor().open(player, 1);
@@ -93,7 +93,7 @@ public class EditorArenaList extends AbstractEditorMenuAuto<AMA, AMA, AbstractAr
 
     @Override
     @NotNull
-    protected IMenuClick getObjectClick(@NotNull Player player, @NotNull AbstractArena arena) {
+    protected MenuClick getObjectClick(@NotNull Player player, @NotNull AbstractArena arena) {
         return (player2, type, e) -> {
             if (e.isShiftClick() && e.isRightClick()) {
                 this.plugin.getArenaManager().delete(arena);

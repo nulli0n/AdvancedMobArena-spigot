@@ -12,7 +12,7 @@ import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.IArenaObject;
 import su.nightexpress.ama.api.arena.IProblematic;
 import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
-import su.nightexpress.ama.arena.ArenaCuboid;
+import su.nightexpress.ama.arena.util.ArenaCuboid;
 import su.nightexpress.ama.arena.AbstractArena;
 import su.nightexpress.ama.arena.config.ArenaConfig;
 import su.nightexpress.ama.arena.editor.spot.EditorSpotMain;
