@@ -80,6 +80,10 @@ public class Lang extends EngineLang {
     public static final LangKey Command_Region_State_Error_NotInGame     = new LangKey("Command.Region.State.Error.NotInGame", "&cYou must be in-game to do that!");
     public static final LangKey Command_Region_State_Error_InvalidRegion = new LangKey("Command.Region.State.Error.InvalidRegion", "&cInvalid region id!");
 
+    public static final LangKey COMMAND_SETACTIVE_DESC              = new LangKey("Command.SetActive.Desc", "Set arena active state.");
+    public static final LangKey COMMAND_SETACTIVE_USAGE             = new LangKey("Command.SetActive.Usage", "<arenaId> <true/false>");
+    public static final LangKey COMMAND_SETACTIVE_DONE              = new LangKey("Command.SetActive.Done", "Arena &a%arena_id%&7 active state: &f%state%&7.");
+
     public static final LangKey Command_Score_Desc            = new LangKey("Command.Score.Desc", "Manage player's game score.");
     public static final LangKey Command_Score_Usage           = new LangKey("Command.Score.Usage", "<add|take|set>");
     public static final LangKey Command_Score_Add_Usage       = new LangKey("Command.Score.Add.Usage", "&cUsage: &f/ama score add <player> <amount>");
@@ -117,6 +121,7 @@ public class Lang extends EngineLang {
 
     public static final LangKey ARENA_JOIN_ERROR_PERMISSION = new LangKey("Arena.Join.Error.Permission", "&cYou don't have permission to join this arena!");
     public static final LangKey ARENA_JOIN_ERROR_PAYMENT    = new LangKey("Arena.Join.Error.Payment", "&cYou must have &e%arena_requirement_payment% &cto join the arena!");
+    public static final LangKey ARENA_JOIN_ERROR_LEVEL    = new LangKey("Arena.Join.Error.Level", "&cYour level is not suitable to join the arena!");
     public static final LangKey ARENA_JOIN_ERROR_IN_GAME    = new LangKey("Arena.Join.Error.InGame", "&cYou are already in game!");
     public static final LangKey ARENA_JOIN_ERROR_MAXIMUM    = new LangKey("Arena.Join.Error.Maximum", "&cThere is maximum players on the arena.");
     public static final LangKey ARENA_JOIN_ERROR_STARTED    = new LangKey("Arena.Join.Error.Started", "Arena &a%arena_name% &7is already in game. You can not join now.");

@@ -159,7 +159,7 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
 
         Location location = entity.getLocation();
         AbstractArena arena = plugin.getArenaManager().getArenaAtLocation(location);
-        if (arena == null || !arena.getConfig().isActive()) return;
+        if (arena == null/* || !arena.getConfig().isActive()*/) return;
 
         if (arena.getState() == ArenaState.INGAME) {
             CreatureSpawnEvent.SpawnReason reason = e.getSpawnReason();
@@ -307,6 +307,27 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
         AbstractArena arena = plugin.getArenaManager().getArenaAtLocation(entity.getLocation());
         return arena == null;
     }
+
+    /*@EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onArenaPlayerTeleport(PlayerTeleportEvent e) {
+        Location to = e.getTo();
+        if (to == null) return;
+
+        Player player = e.getPlayer();
+        ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
+        AbstractArena arenaTo = this.manager.getArenaAtLocation(to);
+        if (arenaPlayer == null) {
+            if (arenaTo != null && !to.equals(arenaTo.getConfig().getLocation(ArenaLocationType.SPECTATE))) {
+                e.setCancelled(true);
+            }
+        }
+        else {
+            AbstractArena arenaFrom = arenaPlayer.getArena();
+            if (arenaTo != arenaFrom) {
+                e.setCancelled(true);
+            }
+        }
+    }*/
 
     /**
      * Prevent interact with non-mob entities in arena

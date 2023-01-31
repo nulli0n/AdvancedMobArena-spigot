@@ -1,0 +1,2700 @@
+Help:
+  Score:
+  - '{message: ~prefix: false;}'
+  - '&a/ama score add <player> <amount> &7- 給玩家加分。'
+  - '&a/ama score take <player> <amount> &7- 移除玩家分數'
+  - '&a/ama score set <player> <amount> &7- 設定玩家分數'
+Command:
+  Balance:
+    Desc: View your or other player's balance.
+    Usage: '[player]'
+    Done:
+      Self: 'Your balance: &a%amount%&7.'
+      Others: '&a%player_name%&7''s balance: &a%amount%&7.'
+  Currency:
+    Desc: Manage plugin currencies.
+    Usage: '[help]'
+    Give:
+      Desc: Give specified currency to a player.
+      Usage: <currency> <player> <amount>
+      Done: Given &ax%amount% %currency_name%&7 to &a%player_name%&7.
+    Take:
+      Desc: Take specified currency from a player.
+      Usage: <currency> <player> <amount>
+      Done: Took &ax%amount% %currency_name%&7 from &a%player_name%&7.
+  ForceStart:
+    Desc: 強制啟動指定的競技場。
+    Usage: <arenaId>
+    Done: 強制啟動競技場 &a%arena_id%&7!
+    Error:
+      NotReady: 競技場 &c%arena_id%&7 尚未準備好開始或已經在遊戲中
+  ForceEnd:
+    Desc: 強制停止指定的競技場。
+    Usage: <arenaId> [reason]
+    Done: 強制結束競技場 &a%arena_id%&7!
+    Error:
+      NotInGame: 競技場 &c%arena_id% &7 不在遊戲中。
+  Hologram:
+    Desc: Arena hologram management.
+    Usage: '[help]'
+    Remove:
+      Desc: Removes nearest stats hologram.
+      Usage: <HologramType> [args]
+      Done: '&7Removed all &a%type%&7 holograms!'
+    Add:
+      Desc: Creates a hologram for specified object.
+      Usage: <HologramType> [args]
+      Done: '&7Successfully created &a%type%&7 hologram!'
+    Error: '&cCould not perform operation! (Invalid arguments)'
+  Join:
+    Desc: Join the specified (or random) arena.
+    Usage: '[arena]'
+    Nothing: '&cNo available arenas to join.'
+  Region:
+    Desc: Manage in-game arena regions.
+    Usage: <lock|unlock>
+    State:
+      Done: Region &a%region%'s &7lock state to &a%state%&7!
+      Error:
+        NotInGame: '&cYou must be in-game to do that!'
+        InvalidRegion: '&cInvalid region id!'
+  Score:
+    Desc: Manage player's game score.
+    Usage: <add|take|set>
+    Add:
+      Usage: '&cUsage: &f/ama score add <player> <amount>'
+      Done: '&aAdded &f%points% points to &a%player%''s &fscore!'
+    Take:
+      Usage: '&cUsage: &f/ama score take <player> <amount>'
+      Done: '&aTaken &f%points% points from &a%player%''s &fscore!'
+    Set:
+      Usage: '&cUsage: &f/ama score set <player> <amount>'
+      Done: '&aSet &a%player%''s &fscore to &a%score%&f!'
+    Error:
+      NotInGame: '&cThis player is not in game!'
+  Spot:
+    Desc: Manage in-game arena spots.
+    Usage: '[state]'
+    State:
+      Done: Changed &a%spot%'s &7state to &a%state%&7!
+      Error:
+        NotInGame: '&cYou must be in-game to do that!'
+        InvalidSpot: '&cInvalid spot id!'
+        InvalidState: '&cInvalid spot state id!'
+  Leave:
+    Desc: 離開當前競技場。
+  List:
+    Desc: 顯示競技場列表。
+  Skipwave:
+    Desc: 跳過當前的競技場波。
+    Usage: '[amount]'
+  Spectate:
+    Desc: 以旁觀者身份加入指定競技場。
+    Usage: <arena>
+  Shop:
+    Desc: 開競技場商店。
+  Stats:
+    Desc: 查看您當前的統計數據。
+Error:
+  Currency:
+    Invalid: '&c貨幣無效！'
+Arena:
+  Error:
+    Disabled: 競技場 &c%arena_name% &7 已禁用。
+    Invalid: 競技場不存在。
+  Join:
+    Error:
+      Permission: '&c您無權加入此競技場！'
+      Payment: '&c您必須有 &e %arena_requirement_payment% &c 才能加入競技場！'
+      InGame: '&c你已經在遊戲中了！'
+      Maximum: '&c競技場上已經無法容納更多的的玩家。'
+      Started: 競技場 &a%arena_name% &7 已經在遊戲中。 你現在不能加入。
+    Spectate:
+      Success: 現在你正在觀看競技場 &a%arena_name%
+      Error:
+        Disabled: 此競技場禁止觀看。
+  Scheduler:
+    Open:
+      Announce: '&7競技場 &a%arena_name%&7 現已開放！'
+    Close:
+      Announce: '&7競技場 &c%arena_name%&7 已經關閉！'
+  Game:
+    Notify:
+      Start:
+      - '{message: ~type: TITLES; ~fadeIn: 10; ~stay: 40; ~fadeOut: 10; ~sound: ENTITY_ENDERMAN_TELEPORT;}&a&l你加入了競技場! '
+      - ' &2&l拿起你的武器準備打鬥吧!'
+      Reward: '你得到了獎賞: &a%reward_name%'
+    Announce:
+      End: 遊戲 &a%arena_name% &7已經結束. 輸入 &a/ama join &a%arena_id% &7重新加入!
+      Start: 遊戲 &a%arena_name% &7將會在 &2%time% &7秒後開始.  輸入 &a/ama join &a%arena_id% &7加入!
+    Restrict:
+      Commands: 在此競技場上禁用外部命令。 輸入 &c/ama leave&7 離開。
+      Kits: 套件在這個競技場上被禁用。
+      NoPets: 這個競技場不允許攜帶寵物。 你的寵物不見了。
+    Error:
+      NotInGame: 你不在遊戲中！
+    Leave:
+      Death:
+      - '{message: ~type: TITLES; ~fadeIn: 10; ~stay: 60; ~fadeOut: 10;}&c&l你死了! '
+      - ' &7&l你已經離開了競技場。'
+      Finish:
+      - '{message: ~type: TITLES; ~fadeIn: 10; ~stay: 60; ~fadeOut: 10;}&a&l恭喜！ 你完成了競技場！'
+      - ' &2&l檢查您的背包以獲取獎勵！'
+      Timeleft:
+      - '{message: ~type: TITLES; ~fadeIn: 10; ~stay: 60; ~fadeOut: 10;}&4&l時間結束了！ '
+      - ' &7&l你已經離開了競技場。'
+      NoRegion:
+      - '{message: ~type: TITLES; ~fadeIn: 10; ~stay: 60; ~fadeOut: 10;}&4&l沒有區域！ '
+      - ' &7&l你已經離開了競技場。'
+      ForceEnd:
+      - '{message: ~type: TITLES; ~fadeIn: 10; ~stay: 60; ~fadeOut: 10;}&4&l強制結束！ '
+      - ' &7&l你已經離開了競技場。'
+      Outside:
+      - '{message: ~type: TITLES; ~fadeIn: 10; ~stay: 60; ~fadeOut: 10;}&4&l你離開競技場了！ '
+      - ' &7&l你已經離開了競技場。'
+      Self:
+      - '{message: ~type: TITLES; ~fadeIn: 10; ~stay: 60; ~fadeOut: 10;}&4&l自行離開! '
+      - ' &7&l你已經離開了競技場。'
+      NoKit:
+      - '{message: ~type: TITLES; ~fadeIn: 10; ~stay: 60; ~fadeOut: 10;}&4&l你沒有裝備！ '
+      - ' &7&l你已經離開了競技場。'
+      Kick:
+      - '{message: ~type: TITLES; ~fadeIn: 10; ~stay: 60; ~fadeOut: 10;}&4&l你被踢了！ '
+      - ' &7&l你已經離開了競技場。'
+    Lobby:
+      Ready:
+        'True': '&a%player_name% &7 準備好了！'
+        'False': '&c%player_name% &7 還沒準備好...'
+      Enter:
+      - '{message: ~type: TITLES; ~fadeIn: 10; ~stay: 40; ~fadeOut: 10;}&a&l歡迎來到高級怪物競技場！ '
+      - ' &2&l請選擇您的套件'
+      Timer:
+      - '{message: ~type: TITLES; ~fadeIn: 10; ~stay: 40; ~fadeOut: 10; ~sound: BLOCK_NOTE_BLOCK_PLING;}&e&l競技場將於 '
+      - ' &a&l%time% 秒後開始！'
+      MinPlayers: '最低玩家開始： &c%min%'
+      Joined: '&a%player_name% &7已加入競技場。'
+    Death:
+      Lives:
+      - '{message: ~type: TITLES; ~fadeIn: 10; ~stay: 40; ~fadeOut: 10;}&4&l你死了！ '
+      - ' &c剩下的生命： &e&lx%player_lives%'
+      Player: '&c%player_name% &7死了！ 剩餘玩家：&c%arena_players%'
+    Wave:
+      Latest: '&a&l恭喜！ &7你剛剛到達最新的競技場波數！'
+      Start:
+      - '{message: ~type: TITLES; ~fadeIn: 10; ~stay: 40; ~fadeOut: 10;}&6&l波數 &e&l#%arena_wave_number% '
+      - ' &4&l準備戰鬥！'
+      Timer: '{message: ~type: ACTION_BAR;}&6&l下一波：&e&l%arena_wave_next_in% &6&l秒！'
+      TimerEnd: '{message: ~type: ACTION_BAR;}&b&l&n遊戲結束於：&d&l %arena_wave_next_in% &b&l 秒！'
+      Progress: '{message: ~type: ACTION_BAR;}&b[怪物] &a活著：&2%arena_mobs_alive% &7| &e 剩餘：&6%arena_mobs_left%'
+  Region:
+    Unlocked:
+      Notify:
+      - '{message: ~type: TITLES; ~fadeIn: 0; ~stay: 30; ~fadeOut: 10; ~sound: BLOCK_NOTE_BLOCK_BELL;}&a&l區域解鎖！'
+      - '&f%region_name%'
+    Locked:
+      Notify:
+      - '{message: ~type: TITLES; ~fadeIn: 0; ~stay: 30; ~fadeOut: 10;}&c&l新區域！'
+      - '&4&l跟隨到下一個競技場區域！'
+Kit:
+  Buy:
+    Error:
+      NoMoney: 你買不起 &c%kit_name% &7 套件！
+      NoPermission: '&c您無權購買此套件！'
+    Success: 您以 &a%kit_cost%&7 的價格成功購買了 &a%kit_name% &7 套件！
+  Select:
+    Error:
+      NoPermission: '&c您沒有使用該工具包的權限！'
+      Disabled: 該套件在該競技場中被禁用。
+      NotObtained: 你沒有這個工具包！
+      Limit: 您不能使用此套件，因為已經有足夠多的玩家使用它。
+    Success: 您選擇 &a%kit_name%&7 作為您的工具包。
+Shop:
+  Notify:
+    NewItems: '&a新商品出現在商店裡！'
+  Buy:
+    Success: 您以 &a%shop_product_price%7 的價格成功購買了 &a%shop_product_name% &7！
+    Error:
+      NoMoney: '&c您沒有足夠的錢購買 &e%shop_product_name%&c！'
+      Locked: '&c此商品暫無貨！'
+      BadKit: '&c此項目不適用於您的套件！'
+  Open:
+    Error:
+      Locked: '&c商店以上鎖！'
+      Disabled: '&c商店在這個競技場上被禁用。'
+  Category:
+    Open:
+      Error:
+        Locked: '&c店鋪類別 &e%category_name%&c 暫不可用！'
+Editor:
+  Tip:
+    Triggers:
+    - '{message: ~prefix: false;}'
+    - '&7'
+    - '&b&lTrigger Tips:'
+    - '&2▸ &aMain Syntax: &2<Trigger_Type> <Value(s)>'
+    - '&2▸ &aGroup Syntax: &2<Trigger_Type> <Value(s) OR Value(s) OR Value(s)...>'
+    - '&2▸ &aExample #1: &2WAVE_START %5,!10'
+    - '&2▸ &aExample #2: &2WAVE_START %2 OR %5 OR >15'
+    - '&2▸ &aExample #3: &2WAVE_START !%5,>10'
+    - '&7'
+    - '&b&lValue Operators:'
+    - '&6▸ &ePercent (%): &6Means each X number.'
+    - '&dExample #1: &bWAVE_START %5 &7- Each 5th wave = 5/10/15/20/etc.'
+    - '&7'
+    - '&6▸ &eGreater/Smaller (> or <): &6Means greater or smaller than X number.'
+    - '&dExample #1: &bWAVE_START >10,<20 &7- Any wave above 10th and below 20th.'
+    - '&dExample #2: &bWAVE_START >10 OR <5 &7- Any wave above 10th or below 5th.'
+    - '&7'
+    - '&6▸ &eNegate (!): &6Any except X value.'
+    - '&dExample #1: &bWAVE_START %5,!10 &7- Each 5th wave, but 10th.'
+    - '&dExample #2: &bWAVE_START !%5 &7- Each NOT 5th wave = 1/2/3/4/6/7/8/9/11/etc.'
+    - '&dExample #3: &bREGION_UNLOCKED !my_region &7- Any region except ''my_region''.'
+    - '&7'
+    - '&bList of all available trigger types is below.'
+    - '&dFor more details please visit &aPlugin Wiki'
+  Enter:
+    Triggers: '&7Enter trigger type and value(s)...'
+  Error:
+    Triggers: '&7Invalid trigger &ctype &7or &cvalue!'
+  Generic:
+    Enter:
+      Currency: '&7Enter &acurrency&7 id...'
+      Name: '&7Enter display &aname&7...'
+      Description: '&7Enter &adescription&7...'
+  Arena:
+    Tip:
+      Create: '&7Enter &aunqiue &7arena &aidentifier&7...'
+    Error:
+      Exist: '&cArena already exists!'
+      Level_Provider: '&cSuch plugin is not supported!'
+      SchedulerTime: '&cInvalid day/time!'
+    Enter:
+      Name: '&7Enter arena &aname&7...'
+      SchedulerTime: '&7Syntax: &a<day> <time>&8 | &aMonday 15:30:00'
+      JoinPayment: '&7Syntax: &a<currency> <amount>&8 | &avault 500'
+      JoinLevel: '&7Syntax: &a<plugin> <value>&8 | &aMMOCore 10'
+    Gameplay:
+      Enter:
+        Timeleft: '&7Enter time &c(in minutes)'
+        LobbyTime: '&7Enter time &c(in seconds)'
+        ScoreboardId: '&7Enter &ascoreboard&7 id...'
+        Mob:
+          Highlight:
+            Amount: '&7Enter mob &aamount percent&7...'
+        Players:
+          Lives: '&7Enter lives amount'
+          MinMax: '&7Enter players amount'
+        BannedItems: '&7Enter &amaterial &7name...'
+        AllowedSpawnReason: '&7Enter &aspawn reason&7...'
+        Commands:
+          AddWhite: '&7Enter a command'
+        Kits:
+          AddLimit: '&7Enter a limit like: &a2 warrior'
+          AddAllowed: '&7Enter a kit id'
+      Error:
+        BannedItems: '&7Invalid material!'
+        Kits:
+          InvalidKit: '&7Invalid kit!'
+          InvalidLimit: '&7Use format like: &c2 warrior'
+    Waves:
+      Enter:
+        Delay:
+          First: '&7Enter &afirst&7 wave delay...'
+          Default: '&7Enter &adefault&7 wave delay...'
+        FinalWave: '&7Enter &afinal wave&7...'
+        Gradual:
+          First:
+            Percent: '&7Enter first spawn &apercent&7...'
+          Next:
+            Percent: '&7Enter next spawn &apercent&7...'
+            Interval: '&7Enter next spawn &ainterval&7...'
+            KillPercent: '&7Enter next spawn kill &apercent&7...'
+        Wave:
+          Create: '&7Enter &aunique &7wave &aidentifier&7...'
+        Mob:
+          Create: '&7Enter mob &aidentifier&7...'
+          Amount: '&7Enter mob &astart amount&7...'
+          Level: '&7Enter mob &astart level&7...'
+          Chance: '&7Enter mob &aspawn chance&7...'
+        Amplificator:
+          Create: '&7Enter &aunique &7amplificator &aidentifier&7...'
+          Value: '&7Enter amplificator &avalue&7...'
+      Error:
+        Wave:
+          Exist: '&7Wave already exist!'
+        Mob:
+          Exist: '&7Mob already exist!'
+          Invalid: '&7No such Arena Mob or Mythic Mob!'
+        Amplificator:
+          Exist: '&7Amplificator already exist!'
+    Shop:
+      Enter:
+        Product:
+          Create: '&7Enter &aunique &7product &aidentifier&7...'
+          Price: '&7Enter product &aprice&7...'
+          Command: '&7Enter a command...'
+          RequiredKit: '&7Enter &akit identifier&7...'
+      Error:
+        Product:
+          Exist: '&cProduct already exist!'
+  Region:
+    Enter:
+      Create: '&7Enter &aunique &7region identifier...'
+      Id: '&7Enter region &aidentifier&7...'
+      Name: '&7Enter region name...'
+    Error:
+      Create: '&7Region already exists!'
+    Wave:
+      Enter:
+        Id: '&7Enter &aarena wave &7identifier...'
+        SpawnerId: '&7Enter &aspawner &7identifier...'
+        Create: '&7Enter &aunique &7wave identifier'
+      Error:
+        Create: '&7Wave already exist!'
+    Container:
+      Enter:
+        Amount: '&7Enter &aitems &7amount...'
+  Reward:
+    Enter:
+      Name: '&7Enter reward &aname&7...'
+      Command: '&7Enter a &acommand&7...'
+      Chance: '&7Enter reward &achance&7...'
+  Spot:
+    Enter:
+      Id: '&7Enter &aunique&7 spot identifier...'
+      Name: '&7Enter spot name...'
+    Error:
+      Id: '&7Such spot already exist!'
+    State:
+      Enter:
+        Id: '&7Enter &aunique&7 state identifier...'
+      Error:
+        Id: '&7Such state already exist!'
+        NoCuboid: '&cYou must set a spot cuboid!'
+  Kit:
+    Enter:
+      Create: '&7Enter &aunique &7kit &aidentifier&7...'
+      Name: '&7Enter new &aname&7...'
+      Command: '&7Enter &acommand&7...'
+      Effect: '&7Enter &aEffect:Level&7...'
+      Cost: '&7Enter &acost&7...'
+    Error:
+      Exist: '&cKit already exists!'
+  Mob:
+    Enter:
+      Create: '&7Enter &aunique &7mob &aidentifier&7...'
+      Name: '&7Enter &acustom &7mob &aname&7...'
+      Type: '&7Enter &aentity type&7...'
+      Level: '&7Enter &alevel&7 value...'
+      BossBar:
+        Title: '&7Enter bossbar &atitle&7...'
+      Attribute: '&7Enter &aattribute &7and &avalue&7...'
+      Style: '&7Enter &avalue&7...'
+    Error:
+      Exist: '&cMob already exists!'
+  ArenaEditorType:
+    EDITOR_ARENA:
+      Name: Arena Editor
+      Lore:
+      - '&6&l[?] 描述:'
+      - '&7這裡你可以創建和配置你的競技場。'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] 動作：'
+      - '&x&8&6&d&e&2&a左鍵單擊 &f 導航'
+    EDITOR_KITS:
+      Name: Kit Editor
+      Lore:
+      - '&6&l[?] 描述:'
+      - '&7您可以在那裡創建和配置競技場套件。'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] 動作：'
+      - '&x&8&6&d&e&2&a左鍵單擊 &f 導航'
+    EDITOR_MOBS:
+      Name: Mob Editor
+      Lore:
+      - '&6&l[?] 描述:'
+      - '&7在那裡你可以創建和配置競技場生物。'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] 動作：'
+      - '&x&8&6&d&e&2&a左鍵單擊 &f 導航'
+    ARENA_OBJECT:
+      Name: '&6%arena_name% &7(&f%arena_id%&7)'
+      Lore:
+      - '&6&l[?] 描述'
+      - '&7是否啟用: &f%arena_active%'
+      - ' '
+      - '&c&l[!] 警告:'
+      - '&x&c&7&0&0&3&9請確保競技場沒有問題:'
+      - '&x&c&7&0&0&3&9%problems%'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+      - '&x&8&6&d&e&2&aRight-Click to &fDelete &7(No Undo)'
+    ARENA_CREATE:
+      Name: 創建競技場
+      Lore:
+      - '&6&l[?] 描述'
+      - '&7創建一個新的競技場配置。'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fCreate'
+    ARENA_CHANGE_ACTIVE:
+      Name: 競技場活躍
+      Lore:
+      - '&b&l[?] 當前:'
+      - '&aArena Enabled: &f%arena_active%'
+      - ' '
+      - '&6&l[?] 描述'
+      - '&7啟用/禁用競技場。'
+      - ' '
+      - '&c&l[!] 警告:'
+      - '&x&c&7&0&0&3&9請確保競技場沒有問題:'
+      - '&x&c&7&0&0&3&9%problems%'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fToggle'
+    ARENA_CHANGE_NAME:
+      Name: 競技場顯示名稱
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%arena_name%'
+      - ' '
+      - '&6&l[?] 描述'
+      - '&7設置競技場顯示名稱。 此名稱用於消息、GUI、全息圖等。'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+    ARENA_SETUP_KIT:
+      Name: 競技場設置套件
+      Lore:
+      - '&6&l[?] 描述'
+      - '&7一套用於設置競技場遊樂場的工具。'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fGet Kit'
+    ARENA_AUTO_STATE_SCHEDULERS:
+      Name: Arena 自動狀態調度器
+      Lore:
+      - '&b&l[?] 當前:'
+      - '&a開放時間：'
+      - '&a%arena_auto_state_open_times%'
+      - '&a關閉時間：'
+      - '&a%arena_auto_state_close_times%'
+      - ' '
+      - '&6&l[?] 描述'
+      - '&7此設置允許您設置在特定日期時間自動打開/關閉競技場。'
+      - ' '
+      - '&e&l[!] 注解:'
+      - '&x&f&f&c&3&0&0競技場將保持啟用/禁用狀態，直到下一個調度程序觸發！'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Open Time'
+      - '&x&8&6&d&e&2&aRight-Click to &fAdd Close Time'
+      - '&x&8&6&d&e&2&aShift-Left to &fClear Open Times'
+      - '&x&8&6&d&e&2&aShift-Right to &fClear Close Times'
+    ARENA_OPEN_GAMEPLAY_MANAGER:
+      Name: 競技場遊戲管理器
+      Lore:
+      - '&6&l[?] 描述'
+      - '&7一組競技場遊戲功能和選項。'
+      - ' '
+      - '&c&l[!] 警告:'
+      - '&x&c&7&0&0&3&9請確保競技場沒有問題:'
+      - '&x&c&7&0&0&3&9%problems%'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fNavigate'
+    ARENA_OPEN_WAVE_MANAGER:
+      Name: 競技場波數管理
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7在競技場區域使用和生成的所有競技場波的列表。'
+      - '&7在那裡你只能創建波浪配置。'
+      - ' '
+      - '&c&l[!] 警告:'
+      - '&x&c&7&0&0&3&9請確保競技場沒有問題:'
+      - '&x&c&7&0&0&3&9%problems%'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fNavigate'
+    ARENA_OPEN_REGION_MANAGER:
+      Name: 競技場區域管理
+      Lore:
+      - '&6&l[?] 描述:'
+      - '&7所有競技場區域的列表。'
+      - '&7在那裡你可以創建競技場可玩區域並配置波浪生成。'
+      - ' '
+      - '&c&l[!] 警告:'
+      - '&x&c&7&0&0&3&9請確保競技場沒有問題:'
+      - '&x&c&7&0&0&3&9%problems%'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fNavigate'
+    ARENA_OPEN_REWARD_MANAGER:
+      Name: 競技場獎勵管理
+      Lore:
+      - '&6&l[?] 描述:'
+      - '&7所有競技場獎勵的列表。'
+      - '&7在那裡你可以創建和配置在競技場上玩的獎勵。'
+      - ' '
+      - '&c&l[!] 警告:'
+      - '&x&c&7&0&0&3&9請確保競技場沒有問題:'
+      - '&x&c&7&0&0&3&9%problems%'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fNavigate'
+    ARENA_OPEN_SHOP_MANAGER:
+      Name: 競技場商店管理
+      Lore:
+      - '&6&l[?] 描述:'
+      - '&7Arena in-game shop. There you can'
+      - '&7create and configure shop products and'
+      - '&7categories.'
+      - ' '
+      - '&c&l[!] 警告:'
+      - '&x&c&7&0&0&3&9請確保競技場沒有問題:'
+      - '&x&c&7&0&0&3&9%problems%'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fNavigate'
+    ARENA_OPEN_SPOT_MANAGER:
+      Name: 競技場現場管理
+      Lore:
+      - '&6&l[?] 描述:'
+      - '&7所有競技場點的列表。 '
+      - '&7在那裡您可以創建特殊區域，這些區域將在遊戲過程中發生變化。 '
+      - '&7它可以是可打開的門或大門、景觀變化等。'
+      - ' '
+      - '&c&l[!] 警告:'
+      - '&x&c&7&0&0&3&9請確保競技場沒有問題:'
+      - '&x&c&7&0&0&3&9%problems%'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fNavigate'
+    ARENA_CHANGE_REQUIREMENT_PERMISSION:
+      Name: 加入權限要求
+      Lore:
+      - '&b&l[?] 當前:'
+      - '&a需要 &f%arena_requirement_permission%'
+      - '&a節點： &f%arena_permission%'
+      - ' '
+      - '&6&l[?] 描述:'
+      - '&7Sets permission requirement to be able'
+      - '&7to join the arena.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fToggle'
+    ARENA_CHANGE_REQUIREMENT_PAYMENT:
+      Name: 加入付款要求
+      Lore:
+      - '&b&l[?] 當前:'
+      - '&a%arena_requirement_payment%'
+      - ' '
+      - '&6&l[?] 描述:'
+      - '&7Sets payments to join the arena.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd/Edit'
+      - '&x&8&6&d&e&2&aRight-Click to &fClear/Disable'
+    ARENA_CHANGE_REQUIREMENT_LEVEL:
+      Name: 加入等級要求
+      Lore:
+      - '&b&l[?] 當前:'
+      - '&a%arena_requirement_level%'
+      - ' '
+      - '&6&l[?] 描述:'
+      - '&7設定加入競技場的等級要求。'
+      - ' '
+      - '&e&l[!] 註解:'
+      - '&x&f&f&c&3&0&0支援的插件:'
+      - '&x&f&f&c&3&0&0&fMMOCore'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd/Edit'
+      - '&x&8&6&d&e&2&aRight-Click to &fClear/Disable'
+    REGION_OBJECT:
+      Name: '地區: &6%region_name% &7(&f%region_id%&7)'
+      Lore:
+      - '&6&l[?] 描述:'
+      - '&7是否啟用: &f%region_active%'
+      - '&7是否預設: &f%region_default%'
+      - ' '
+      - '&c&l[!] 警告:'
+      - '&x&c&7&0&0&3&9請確保競技場沒有問題:'
+      - '&x&c&7&0&0&3&9%problems%'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+      - '&x&8&6&d&e&2&aShift-Right to &fDelete &7(No Undo)'
+    REGION_CREATE:
+      Name: Create a Region
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Creates a new arena region.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fCreate'
+    REGION_OPEN_CONTAINERS:
+      Name: Region Containers
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7A list of all the region'
+      - '&7containers.'
+      - '&7Containers are chests where you'
+      - '&7can generate different items during the'
+      - '&7game on certain events.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0To be able to configure them,'
+      - '&x&f&f&c&3&0&0you have to create (place) them'
+      - '&x&f&f&c&3&0&0using the Region Setup Kit first.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fNavigate'
+    REGION_OPEN_WAVES:
+      Name: Region Waves
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7A list of all the region'
+      - '&7waves.'
+      - '&7Region Waves is the actual'
+      - '&7mob waves, that will be spawned'
+      - '&7during the game on certain events.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0To be able to configure them,'
+      - '&x&f&f&c&3&0&0you have to create wave configs'
+      - '&x&f&f&c&3&0&0in the Arena Waves Manager first.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fNavigate'
+    REGION_SETUP_KIT:
+      Name: Region Setup Kit
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7A set of tools to setup'
+      - '&7the region playground.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fGet Kit'
+    REGION_CHANGE_ACTIVE:
+      Name: Region Active
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aEnabled: &f%region_active%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Enables/Disables the region.'
+      - ' '
+      - '&c&l[!] 警告:'
+      - '&x&c&7&0&0&3&9請確保競技場沒有問題:'
+      - '&x&c&7&0&0&3&9%problems%'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fToggle'
+    REGION_CHANGE_DEFAULT:
+      Name: Region Default
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aIs Default: &f%region_default%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets the region as default arena'
+      - '&7region.'
+      - '&7Default region is the first'
+      - '&7place, where players will be spawned,'
+      - '&7and the first wave will be'
+      - '&7spawned.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fToggle'
+    REGION_CHANGE_LINKED:
+      Name: Linked Regions
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aLinked Regions:'
+      - '&a&a%region_linked_regions%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7A list of regions that are'
+      - '&7linked with the current region. Mobs'
+      - '&7in THIS region will be spawned'
+      - '&7as long as there are players'
+      - '&7in any of linked regions.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Region'
+      - '&x&8&6&d&e&2&aRight-Click to &fClear List'
+    REGION_CHANGE_NAME:
+      Name: Region Name
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%region_name%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets the region display name. This'
+      - '&7name is used in messages, GUIs'
+      - '&7and holograms.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+    REGION_CHANGE_TRIGGERS_LOCKED:
+      Name: Region Lock Triggers
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%region_triggers_locked%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7A list of Game Triggers (Events)'
+      - '&7when the region will be locked.'
+      - '&7Locked regions are not available to'
+      - '&7play and no mobs spawns there.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0Detailed information about Game Triggers is'
+      - '&x&f&f&c&3&0&0on the plugin wiki.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Trigger'
+      - '&x&8&6&d&e&2&aRight-Click to &fClear List'
+    REGION_CHANGE_TRIGGERS_UNLOCKED:
+      Name: Region Unlock Triggers
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%region_triggers_unlocked%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7A list of Game Triggers (Events)'
+      - '&7when the region will be unlocked.'
+      - '&7Unlocked regions are available to play'
+      - '&7and mobs spawn.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0Detailed information about Game Triggers is'
+      - '&x&f&f&c&3&0&0on the plugin wiki.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Trigger'
+      - '&x&8&6&d&e&2&aRight-Click to &fClear List'
+    REGION_CONTAINER_OBJECT:
+      Name: Container
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Location: &ax: %container_location_x%&7, &ay: %container_location_y%&7, &az:'
+      - '&7%container_location_z%&7 in &a%container_location_world%'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+      - '&x&8&6&d&e&2&aRight-Click to &fTeleport'
+      - '&x&8&6&d&e&2&aShift-Right to &fDelete &7(No Undo)'
+    REGION_CONTAINER_CHANGE_ITEMS:
+      Name: Items Content
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7A list of items that will'
+      - '&7be used on container refill.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0Simply put items there and use'
+      - '&x&f&f&c&3&0&0ESC to save & return.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fNavigate'
+    REGION_CONTAINER_CHANGE_REFILL_TRIGGERS:
+      Name: Refill Game Triggers
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%container_triggers%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7A list of Game Triggers (Events)'
+      - '&7when items in this container will'
+      - '&7be refreshed.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0Detailed information about Game Triggers is'
+      - '&x&f&f&c&3&0&0on the plugin wiki.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Trigger'
+      - '&x&8&6&d&e&2&aRight-Click to &fClear List'
+    REGION_CONTAINER_CHANGE_REFILL_AMOUNT:
+      Name: Refill Items Amount
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aMin: &f%container_refill_items_min%'
+      - '&aMax: &f%container_refill_items_max%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets how many items will be'
+      - '&7added to this container on refill.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0When container is about to be'
+      - '&x&f&f&c&3&0&0refilled, all previous content will be'
+      - '&x&f&f&c&3&0&0wiped!'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fChange Min'
+      - '&x&8&6&d&e&2&aRight-Click to &fChange Max'
+    REGION_WAVE_OBJECT:
+      Name: 'Wave: &6%region_wave_id%'
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Contains Arena Waves:'
+      - '&7&a%region_wave_wave_ids%'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+      - '&x&8&6&d&e&2&aShift-Right to &fDelete &7(No Undo)'
+    REGION_WAVE_CREATE:
+      Name: Create Region Wave
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Creates a new region wave.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fCreate'
+    REGION_WAVE_CHANGE_ID:
+      Name: Arena Wave Ids
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%region_wave_wave_ids%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7A list of Arena Wave identifiers,'
+      - '&7that will be used to spawn'
+      - '&7mobs from.'
+      - '&7&7'
+      - '&7It will spawn'
+      - '&7all mobs from specified wave with'
+      - '&7respect of wave amplificator settings.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0To be able to add wave'
+      - '&x&f&f&c&3&0&0identifiers here, you have to create'
+      - '&x&f&f&c&3&0&0them in the Arena Wave Manager'
+      - '&x&f&f&c&3&0&0first.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0If you set multiple identifiers, only'
+      - '&x&f&f&c&3&0&0one of them will be randomly'
+      - '&x&f&f&c&3&0&0selected and spawned.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Wave Id'
+      - '&x&8&6&d&e&2&aRight-Click to &fClear List'
+    REGION_WAVE_CHANGE_SPAWNERS:
+      Name: Wave Spawners
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%region_wave_spawners%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7A list of spawners, where mobs'
+      - '&7from this wave will be spawned.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0To be able to add spawners'
+      - '&x&f&f&c&3&0&0here, you have to create them'
+      - '&x&f&f&c&3&0&0using the Region Setup Kit first.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0You can use asterisk (*) to'
+      - '&x&f&f&c&3&0&0include all the region spawners'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Spawner'
+      - '&x&8&6&d&e&2&aRight-Click to &fClear List'
+    REGION_WAVE_CHANGE_TRIGGERS:
+      Name: Spawn Game Triggers
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%region_wave_triggers%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7A list of Game Triggers (Events)'
+      - '&7when this wave will spawn mobs'
+      - '&7in the region.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0Detailed information about Game Triggers is'
+      - '&x&f&f&c&3&0&0on the plugin wiki.'
+      - ' '
+      - '&c&l[!] Warning:'
+      - '&x&c&7&0&0&3&9Currently, only WAVE_START trigger is supported.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Trigger'
+      - '&x&8&6&d&e&2&aRight-Click to &fClear List'
+    GAMEPLAY_CHANGE_TIMELEFT:
+      Name: Game Timeleft
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%gameplay_timeleft% min.'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets the time at the end'
+      - '&7of which a game will be'
+      - '&7stopped and lost for players, if'
+      - '&7they didn''t reach the final wave.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+      - '&x&8&6&d&e&2&aRight-Click to &fDisable'
+    GAMEPLAY_CHANGE_LOBBY_TIME:
+      Name: Lobby Time
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%gameplay_lobby_time% sec.'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets the lobby timer at the'
+      - '&7end of which a game will'
+      - '&7be started.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+    GAMEPLAY_CHANGE_ANNOUNCES:
+      Name: Announcements
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aEnabled: &f%gameplay_announcements%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Enables server-wide announcements when arena is'
+      - '&7about to start/end.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fToggle'
+    GAMEPLAY_CHANGE_SCOREBOARD:
+      Name: Scoreboard
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aEnabled: &f%gameplay_scoreboard_enabled%'
+      - '&aScoreboard Id: &f%gameplay_scoreboard_id%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets and enables specified scoreboard for'
+      - '&7the arena.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0You must have ProtocolLib installed!'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fToggle'
+      - '&x&8&6&d&e&2&aRight-Click to &fChange Id'
+    GAMEPLAY_CHANGE_HUNGER:
+      Name: Natural Hunger
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aEnabled: &f%gameplay_hunger_enabled%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Enables natural hunger mechanic for players.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fToggle'
+    GAMEPLAY_CHANGE_REGENERATION:
+      Name: Natural Regeneration
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aEnabled: &f%gameplay_regeneration_enabled%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Enables natural health regeneration for players.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fToggle'
+    GAMEPLAY_CHANGE_ITEM:
+      Name: Player Item Settings
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aDrop Allowed: &f%gameplay_item_drop_enabled%'
+      - '&aPickup Allowed: &f%gameplay_item_pickup_enabled%'
+      - '&aDurability Enabled: &f%gameplay_item_durability_enabled%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Allows players to pickup and drop'
+      - '&7items on the arena. Enables vanilla'
+      - '&7item durability mechanic.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fToggle Drop'
+      - '&x&8&6&d&e&2&aRight-Click to &fToggle Pickup'
+      - '&x&8&6&d&e&2&aShift-Left tp &fToggle Durability'
+    GAMEPLAY_CHANGE_MOB_HIGHLIGHT:
+      Name: Mobs Highlight
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aEnabled: &f%gameplay_mob_highlight_enabled%'
+      - '&aFor Amount: &f%gameplay_mob_highlight_amount%%'
+      - '&aColor: &f%gameplay_mob_highlight_color%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Enables mob''s model highlighting (glowing) when'
+      - '&7amount of alive mobs is less'
+      - '&7or equal to specified value.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0Due to game limitations, set of'
+      - '&x&f&f&c&3&0&0colors is limited and can not'
+      - '&x&f&f&c&3&0&0be really customized.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fToggle'
+      - '&x&8&6&d&e&2&aRight-Click to &fChange Amount'
+      - '&x&8&6&d&e&2&aShift-Left to &fToggle Color'
+    GAMEPLAY_CHANGE_MOB_DROP:
+      Name: Mob Drops
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aItems: &f%gameplay_mob_drop_items%'
+      - '&aExp: &f%gameplay_mob_drop_exp%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Enables mob items and exp drop'
+      - '&7on death.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fToggle Items'
+      - '&x&8&6&d&e&2&aRight-Click to &fToggle Exp'
+    GAMEPLAY_CHANGE_BANNED_ITEMS:
+      Name: Banned Items
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%gameplay_banned_items%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7A list of items that can'
+      - '&7not be used on the arena.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Item'
+      - '&x&8&6&d&e&2&aRight-Click to &fClear List'
+    GAMEPLAY_CHANGE_ALLOWED_SPAWN_REASONS:
+      Name: Entity Spawn Reasons
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%gameplay_allowed_spawn_reasons%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7A list of Spawn Reasons that'
+      - '&7will be allowed to spawn entities'
+      - '&7in the arena. This option can'
+      - '&7be useful when using third-party plugins'
+      - '&7that can summon custom mobs.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Reason'
+      - '&x&8&6&d&e&2&aRight-Click to &fClear List'
+    GAMEPLAY_CHANGE_PLAYERS_AMOUNT:
+      Name: Players Amount
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aMin: &f%gameplay_players_amount_min%'
+      - '&aMax: &f%gameplay_players_amount_max%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets minimal and maximal amount of'
+      - '&7players to play on the arena.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fChange Min'
+      - '&x&8&6&d&e&2&aRight-Click to &fChange Max'
+    GAMEPLAY_CHANGE_PLAYERS_DEATH:
+      Name: Player Death Settings
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aDrop Items: &f%gameplay_player_death_drop_items%'
+      - '&aLives Amount: &f%gameplay_player_death_lives_amount%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Enables item drop on player death.'
+      - '&7Sets how many lives a player'
+      - '&7will have.'
+      - '&7Amount of lives defines'
+      - '&7how many times player can die'
+      - '&7on the arena before being kicked.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fToggle Drop'
+      - '&x&8&6&d&e&2&aRight-Click to &fChange Lives'
+    GAMEPLAY_CHANGE_SPECTATE:
+      Name: Spectate Settings
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aEnabled: &f%gameplay_spectate_enabled%'
+      - '&aOn Death: &f%gameplay_spectate_on_death%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Enables spectate feature for the arena.'
+      - '&7Sets if player will be auto'
+      - '&7moved to spectate location on death.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fToggle Spectate'
+      - '&x&8&6&d&e&2&aRight-Click to &fToggle On Death'
+    GAMEPLAY_CHANGE_COMMANDS:
+      Name: Commands Usage
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aAllowed: &f%gameplay_command_usage_enabled%'
+      - '&aWhiteList:'
+      - '&a%gameplay_command_usage_whitelist%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Enables external (non-arena) commands usage on'
+      - '&7the arena. Or sets a list'
+      - '&7of commands, allowed for usage on'
+      - '&7the arena.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fToggle'
+      - '&x&8&6&d&e&2&aShift-Left to &fAdd Command'
+      - '&x&8&6&d&e&2&aShift-Right to &fClear List'
+    GAMEPLAY_CHANGE_KITS:
+      Name: Kits Usage
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aEnabled: &f%gameplay_kits_enabled%'
+      - '&aAllowed Kits:'
+      - '&a%gameplay_kits_allowed%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Enables kits usage on the arena.'
+      - '&7Sets a list of kits available'
+      - '&7to use on this arena.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fToggle'
+      - '&x&8&6&d&e&2&aShift-Left to &fAdd Kit'
+      - '&x&8&6&d&e&2&aShift-Right to &fClear List'
+    GAMEPLAY_CHANGE_KITS_LIMITS:
+      Name: Kits Limits
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%gameplay_kits_limits%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets how many players on the'
+      - '&7arena can use the same kit.'
+      - '&7Set -1 for unlimited usage.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Limit'
+      - '&x&8&6&d&e&2&aRight-Click to &fClear List'
+    GAMEPLAY_CHANGE_PETS_ALLOWED:
+      Name: Player Pets
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aEnabled: &f%gameplay_pets_allowed%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Allows players to bring their pets'
+      - '&7on the arena.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fToggle'
+    GAMEPLAY_CHANGE_MCMMO_ALLOWED:
+      Name: mcMMO
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aEnabled: &f%gameplay_mcmmo_allowed%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Allows players to use mcMMO abilities'
+      - '&7on the arena.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0This option has effect only if'
+      - '&x&f&f&c&3&0&0you have mcMMO installed.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fToggle'
+    GAMEPLAY_CHANGE_AUTO_COMMANDS:
+      Name: Auto-Commands
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7There you can create and configure'
+      - '&7commands, that will be executed during'
+      - '&7the game on certain events.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fNavigate'
+    GAMEPLAY_AUTO_COMMAND_OBJECT:
+      Name: Auto-Command
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Target: &f%game_command_target%'
+      - '&7Game Triggers:'
+      - '&7%game_command_triggers%'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+      - '&x&8&6&d&e&2&aShift-Right to &fDelete &7(No Undo)'
+    GAMEPLAY_AUTO_COMMAND_CREATE:
+      Name: Create an Auto-Command
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Create a new auto-command executor.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fCreate'
+    GAMEPLAY_AUTO_COMMAND_CHANGE_TRIGGERS:
+      Name: Game Triggers
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%game_command_triggers%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7A list of Game Triggers (Events)'
+      - '&7when these commands will be executed.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0Detailed information about Game Triggers is'
+      - '&x&f&f&c&3&0&0on the plugin wiki.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Trigger'
+      - '&x&8&6&d&e&2&aRight-Click to &fClear List'
+    GAMEPLAY_AUTO_COMMAND_CHANGE_TARGET_TYPE:
+      Name: Target Type
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%game_command_target%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets the Target Type for these'
+      - '&7commands. Depends on a Target Type,'
+      - '&7a different player(s) will be affected'
+      - '&7by it.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0Set to GLOBAL to execute commands'
+      - '&x&f&f&c&3&0&0by server console.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fToggle'
+    GAMEPLAY_AUTO_COMMAND_CHANGE_COMMANDS:
+      Name: Commands
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%game_command_commands%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7A list of commands that will'
+      - '&7be executed.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0For player-targetted commands you can use'
+      - '&x&f&f&c&3&0&0PlaceholderAPI and Player placeholders from NexEngine.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Command'
+      - '&x&8&6&d&e&2&aRight-Click to &fClear List'
+    WAVES_CHANGE_DELAY:
+      Name: New Wave Timer
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aFirst: &f%arena_waves_delay_first%'
+      - '&aDefault: &f%arena_waves_delay_default%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets the time before the first'
+      - '&7one and other waves starts.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit First'
+      - '&x&8&6&d&e&2&aRight-Click to &fEdit Default'
+    WAVES_CHANGE_FINAL_WAVE:
+      Name: Final Wave Number
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%arena_waves_final_wave%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets the final wave number. When'
+      - '&7the final wave is cleared, the'
+      - '&7game will be finished.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0Set to -1 to disable final'
+      - '&x&f&f&c&3&0&0wave.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+    WAVES_CHANGE_WAVES:
+      Name: Waves
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7A list of all the arena'
+      - '&7waves. There you create and configure'
+      - '&7Arena Waves. These wave configurations are'
+      - '&7used in Arena Regions.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aClick to &fNavigate'
+    WAVES_CHANGE_GRADUAL:
+      Name: Gradual Spawn Feature
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7A feature, that allows you to'
+      - '&7split amount of mobs spawned at'
+      - '&7the same time during the round.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fNavigate'
+    WAVES_CHANGE_GRADUAL_ENABLED:
+      Name: Gradual Spawn Enabled
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aEnabled: &f%arena_waves_gradual_enabled%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Enables the Gradual Spawn feature.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fToggle'
+    WAVES_CHANGE_GRADUAL_FIRST_PERCENT:
+      Name: First Spawn Percent
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%arena_waves_gradual_first_percent%%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets how many mobs (in percent'
+      - '&7of total) mobs will be spawned'
+      - '&7at the start of a round.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+    WAVES_CHANGE_GRADUAL_NEXT_PERCENT:
+      Name: Next Spawn Percent
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%arena_waves_gradual_next_percent%%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets how many mobs (in percent'
+      - '&7of total mobs) will be spawned'
+      - '&7during the round.'
+      - ' '
+      - '&c&l[!] Warning:'
+      - '&x&c&7&0&0&3&9Can not be greater than ''First'
+      - '&x&c&7&0&0&3&9Spawn Percent'' value.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+    WAVES_CHANGE_GRADUAL_NEXT_INTERVAL:
+      Name: Next Spawn Interval
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%arena_waves_gradual_next_interval%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets how often (in seconds) arena'
+      - '&7will attempt to spawn next mob'
+      - '&7group.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+    WAVES_CHANGE_GRADUAL_NEXT_KILL_PERCENT:
+      Name: Next Spawn for Killed Percent
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%arena_waves_gradual_next_kill_percent%%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets how many mobs (in percent'
+      - '&7of total mobs) have to be'
+      - '&7killed, before a new mob group'
+      - '&7will be prepared to spawn.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0You can set this value to'
+      - '&x&f&f&c&3&0&0zero. Then new mob groups will'
+      - '&x&f&f&c&3&0&0be spawned by specified interval no'
+      - '&x&f&f&c&3&0&0matter how many mobs are killed'
+      - '&x&f&f&c&3&0&0or alive.'
+      - ' '
+      - '&c&l[!] Warning:'
+      - '&x&c&7&0&0&3&9Can not be greater than ''Next'
+      - '&x&c&7&0&0&3&9Spawn Percent'' value.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+    WAVES_WAVE_OBJECT:
+      Name: 'Wave: &6%arena_wave_id%'
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Contains the following mobs:'
+      - '&7&a%arena_wave_mobs%'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+      - '&x&8&6&d&e&2&aShift-Right to &fDelete &7(No Undo)'
+    WAVES_WAVE_CREATE:
+      Name: Create Wave
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Creates a new Arena Wave configuration.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fCreate'
+    WAVES_WAVE_CHANGE_MOBS:
+      Name: Wave Mobs
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%arena_wave_mobs%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7A list of mobs contained in'
+      - '&7this wave. There you can add'
+      - '&7mobs that will be spawned by'
+      - '&7this wave.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0To be able to add mobs'
+      - '&x&f&f&c&3&0&0there, you have to create them'
+      - '&x&f&f&c&3&0&0in the Mob Manager first.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0However, you can use MythicMobs if'
+      - '&x&f&f&c&3&0&0you have it installed.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fNavigate'
+    WAVES_WAVE_CHANGE_AMPLIFICATORS:
+      Name: Wave Amplificators
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7A list of amplificators to be'
+      - '&7applied to the wave mobs. Amplificators'
+      - '&7allows you to increase waves difficulty'
+      - '&7during the game after certain game'
+      - '&7events.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fNavigate'
+    WAVES_WAVE_MOB_OBJECT:
+      Name: 'Mob: &6%arena_wave_mob_id%'
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aStart Amount: &f%arena_wave_mob_amount%'
+      - '&aStart Level: &f%arena_wave_mob_level%'
+      - '&aSpawn Chance: &f%arena_wave_mob_chance%%'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0Mob level and amount can be'
+      - '&x&f&f&c&3&0&0adjusted by the Wave Amplificators.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit Amount'
+      - '&x&8&6&d&e&2&aRight-Click to &fEdit Level'
+      - '&x&8&6&d&e&2&a[Q] Key to &fEdit Chance'
+      - '&x&8&6&d&e&2&aShift-Right to &fDelete &7(No Undo)'
+    WAVES_WAVE_MOB_CREATE:
+      Name: Add Mob
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Adds a new mob to the'
+      - '&7wave.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd'
+    WAVES_WAVE_AMPLIFICATOR_OBJECT:
+      Name: 'Amplificator: &6%wave_amplificator_id%'
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Mob Level: &f%wave_amplificator_value_level%'
+      - '&7Mob Amount: &f%wave_amplificator_value_amount%'
+      - '&7Game Triggers:'
+      - '&7%wave_amplificator_triggers%'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+      - '&x&8&6&d&e&2&aRight-Click to &fDelete &7(No Undo)'
+    WAVES_WAVE_AMPLIFICATOR_CREATE:
+      Name: Create Amplificator
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Creates a new wave amplificator.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fCreate'
+    WAVES_WAVE_AMPLIFICATOR_CHANGE_VALUES:
+      Name: Values
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aMob Level: &f%wave_amplificator_value_level%'
+      - '&aMob Amount: &f%wave_amplificator_value_amount%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Here you set amplificator values, that'
+      - '&7will be applied to the wave.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0Negative values are allowed!'
+      - ' '
+      - '&c&l[!] Warning:'
+      - '&x&c&7&0&0&3&9Values have an incremental behavior!'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit Level'
+      - '&x&8&6&d&e&2&aRight-Click to &fEdit Amount'
+    WAVES_WAVE_AMPLIFICATOR_CHANGE_TRIGGERS:
+      Name: Amplificator Game Triggers
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%wave_amplificator_triggers%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7A list of Game Triggers (Events)'
+      - '&7when this amplificator will be applied.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0Detailed information about Game Triggers is'
+      - '&x&f&f&c&3&0&0on the plugin wiki.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Trigger'
+      - '&x&8&6&d&e&2&aRight-Click to &fClear List'
+    REWARDS_CHANGE_RETAIN:
+      Name: Reward Retain
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aOn Death: &f%reward_manager_retain_on_death%'
+      - '&aOn Leave: &f%reward_manager_retain_on_leave%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets if rewards a player have'
+      - '&7obtained during the game should be'
+      - '&7saved when player dies or leaves'
+      - '&7the arena until the final wave.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0This setting will have effect on'
+      - '&x&f&f&c&3&0&0''Late'' rewards only.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fToggle On Death'
+      - '&x&8&6&d&e&2&aRight-Click to &fToggle On Leave'
+    REWARD_OBJECT:
+      Name: 'Reward: &6%reward_name%'
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Target: &f%reward_target_type%'
+      - '&7Chance: &f%reward_chance%%'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+      - '&x&8&6&d&e&2&aShift-Right to &fDelete &7(No Undo)'
+    REWARD_CREATE:
+      Name: Create Reward
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Creates a new reward.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fCreate'
+    REWARD_CHANGE_TRIGGERS:
+      Name: Reward Game Triggers
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%reward_triggers%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7A list of Game Triggers (Events)'
+      - '&7when this reward will be given.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0Detailed information about Game Triggers is'
+      - '&x&f&f&c&3&0&0on the plugin wiki.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Trigger'
+      - '&x&8&6&d&e&2&aRight-Click to &fClear List'
+    REWARD_CHANGE_NAME:
+      Name: Display Name
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%reward_name%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7This name will be displayed in'
+      - '&7messages, GUIs, holograms.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+    REWARD_CHANGE_LATE:
+      Name: Is Late
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aIs Late: &f%reward_is_late%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets if the reward should be'
+      - '&7given after the game end or'
+      - '&7right in the game.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fToggle'
+    REWARD_CHANGE_TARGET_TYPE:
+      Name: Target Type
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%reward_target_type%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets the Target Type for this'
+      - '&7reward. Depends on a Target Type,'
+      - '&7a different player(s) will be affected'
+      - '&7by it.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0GLOBAL Target Type has no effect'
+      - '&x&f&f&c&3&0&0there.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fToggle'
+    REWARD_CHANGE_CHANCE:
+      Name: Chance
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%reward_chance%%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets the chance for the reward'
+      - '&7to be given out.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+    REWARD_CHANGE_COMMANDS:
+      Name: Commands
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%reward_commands%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7A list of commands, that will'
+      - '&7be executed when this reward is'
+      - '&7triggered.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Command'
+      - '&x&8&6&d&e&2&aShift-Right to &fClear List'
+    REWARD_CHANGE_ITEMS:
+      Name: Items
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7A list of items, that will'
+      - '&7be added to player inventories when'
+      - '&7this reward is triggered.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0Simply put items there and use'
+      - '&x&f&f&c&3&0&0ESC to save & return'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fNavigate'
+    SHOP_OPEN_CATEGORIES:
+      Name: Categories
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7A list of all the shop'
+      - '&7categories.'
+      - '&7There you can create and'
+      - '&7configure categories and products.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fNavigate'
+    SHOP_CHANGE_ACTIVE:
+      Name: Is Active
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aIs Active: &f%shop_manager_is_active%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Enables shop for the arena.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fToggle'
+    SHOP_CHANGE_TRIGGERS_LOCKED:
+      Name: Shop Lock Triggers
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%shop_triggers_locked%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7A list of Game Triggers (Events)'
+      - '&7when the shop will be locked.'
+      - '&7Locked shop is not available to'
+      - '&7use until being unlocked back.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0Detailed information about Game Triggers is'
+      - '&x&f&f&c&3&0&0on the plugin wiki.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Trigger'
+      - '&x&8&6&d&e&2&aRight-Click to &fClear List'
+    SHOP_CHANGE_TRIGGERS_UNLOCKED:
+      Name: Shop Unlock Triggers
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%shop_triggers_unlocked%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7A list of Game Triggers (Events)'
+      - '&7when the shop will be unlocked.'
+      - '&7Unlocked shop is available to use'
+      - '&7until being locked back.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0Detailed information about Game Triggers is'
+      - '&x&f&f&c&3&0&0on the plugin wiki.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Trigger'
+      - '&x&8&6&d&e&2&aRight-Click to &fClear List'
+    SHOP_CHANGE_HIDE_OTHER_KIT_ITEMS:
+      Name: Hide Other Kit Items
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aHide: &f%shop_manager_hide_other_kit_items%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets if shop should hide products'
+      - '&7for players who does not met'
+      - '&7kit requirements.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fToggle'
+    SHOP_CATEGORY_OBJECT:
+      Name: 'Category: &6%shop_category_name% &7(&f%shop_category_id%&7)'
+      Lore:
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+      - '&x&8&6&d&e&2&aShift-Right to &fDelete &7(No Undo)'
+    SHOP_CATEGORY_CREATE:
+      Name: Create Category
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Creates a new shop category.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fCreate'
+    SHOP_CATEGORY_CHANGE_NAME:
+      Name: Display Name
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%shop_category_name%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets the category display name. This'
+      - '&7name will be used in messages,'
+      - '&7GUIs, holograms, etc.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+    SHOP_CATEGORY_CHANGE_DESCRIPTION:
+      Name: Category Description
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%shop_category_description%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets the category description. It''s used'
+      - '&7in GUIs, holograms, etc.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Line'
+      - '&x&8&6&d&e&2&aRight-Click to &fClear'
+    SHOP_CATEGORY_CHANGE_ICON:
+      Name: Icon
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%shop_category_icon_type%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets display icon for the category.'
+      - '&7This icon will be displayed in'
+      - '&7shop GUIs.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aDrag & Drop to &fReplace'
+    SHOP_CATEGORY_CHANGE_ALLOWED_KITS:
+      Name: Allowed Kits
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%shop_category_allowed_kits%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7A list of kits players with'
+      - '&7which can access the category.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0If no kits are set, then'
+      - '&x&f&f&c&3&0&0anyone can access the category.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Kit'
+      - '&x&8&6&d&e&2&aRight-Click to &fClear List'
+    SHOP_CATEGORY_CHANGE_TRIGGERS_LOCKED:
+      Name: Category Lock Triggers
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%shop_category_triggers_locked%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7A list of Game Triggers (Events)'
+      - '&7when the category will be locked.'
+      - '&7Locked category is not available to'
+      - '&7use until being unlocked back.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0Detailed information about Game Triggers is'
+      - '&x&f&f&c&3&0&0on the plugin wiki.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Trigger'
+      - '&x&8&6&d&e&2&aRight-Click to &fClear List'
+    SHOP_CATEGORY_CHANGE_TRIGGERS_UNLOCKED:
+      Name: Category Unlock Triggers
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%shop_category_triggers_unlocked%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7A list of Game Triggers (Events)'
+      - '&7when the category will be unlocked.'
+      - '&7Unlocked category is available to use'
+      - '&7until being locked back.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0Detailed information about Game Triggers is'
+      - '&x&f&f&c&3&0&0on the plugin wiki.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Trigger'
+      - '&x&8&6&d&e&2&aRight-Click to &fClear List'
+    SHOP_CATEGORY_CHANGE_PRODUCTS:
+      Name: Products
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7A list of all the category'
+      - '&7products. There you can create and'
+      - '&7configure category products.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fNavigate'
+    SHOP_PRODUCT_OBJECT:
+      Name: 'Product: &6%shop_product_name% &7(&f%shop_product_id%&7)'
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Price: &f%shop_product_price%'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+      - '&x&8&6&d&e&2&aShift-Right to &fDelete &7(No Undo)'
+    SHOP_PRODUCT_CREATE:
+      Name: Create Product
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Creates a new product.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fCreate'
+    SHOP_PRODUCT_CHANGE_NAME:
+      Name: Display Name
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%shop_product_name%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets the product display name. This'
+      - '&7name will be used in messages,'
+      - '&7GUIs, holograms, etc.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+    SHOP_PRODUCT_CHANGE_DESCRIPTION:
+      Name: Product Description
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%shop_product_description%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets the product description. It''s used'
+      - '&7in GUIs, holograms, etc.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Line'
+      - '&x&8&6&d&e&2&aRight-Click to &fClear'
+    SHOP_PRODUCT_CHANGE_CURRENCY:
+      Name: Currency
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%shop_product_currency%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets the product currency.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+    SHOP_PRODUCT_CHANGE_PRICE:
+      Name: Price
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%shop_product_price%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets the product price.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+    SHOP_PRODUCT_CHANGE_ICON:
+      Name: Icon
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%shop_product_icon_type%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets display icon for the product.'
+      - '&7This icon will be displayed in'
+      - '&7shop GUIs.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aDrag & Drop to &fReplace'
+    SHOP_PRODUCT_CHANGE_REQUIRED_KITS:
+      Name: Allowed Kits
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%shop_product_applicable_kits%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7A list of kits players with'
+      - '&7which can access the product.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0If no kits are set, then'
+      - '&x&f&f&c&3&0&0anyone can access the product.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Kit'
+      - '&x&8&6&d&e&2&aRight-Click to &fClear List'
+    SHOP_PRODUCT_CHANGE_ITEMS:
+      Name: Items
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7A list of items, that will'
+      - '&7be added to player inventories when'
+      - '&7this product is purchased.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0Simply put items there and use'
+      - '&x&f&f&c&3&0&0ESC to save & return'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fNavigate'
+    SHOP_PRODUCT_CHANGE_COMMANDS:
+      Name: Commands
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%shop_product_commands%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7A list of commands, that will'
+      - '&7be executed when this product is'
+      - '&7purchased.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Command'
+      - '&x&8&6&d&e&2&aShift-Right to &fClear List'
+    SHOP_PRODUCT_CHANGE_TRIGGERS_LOCKED:
+      Name: Product Lock Triggers
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%shop_product_triggers_locked%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7A list of Game Triggers (Events)'
+      - '&7when the product will be locked.'
+      - '&7Locked product is not available to'
+      - '&7purchase until being unlocked back.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0Detailed information about Game Triggers is'
+      - '&x&f&f&c&3&0&0on the plugin wiki.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Trigger'
+      - '&x&8&6&d&e&2&aRight-Click to &fClear List'
+    SHOP_PRODUCT_CHANGE_TRIGGERS_UNLOCKED:
+      Name: Product Unlock Triggers
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%shop_product_triggers_locked%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7A list of Game Triggers (Events)'
+      - '&7when the product will be unlocked.'
+      - '&7Unocked product is available to purchase'
+      - '&7until being locked back.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0Detailed information about Game Triggers is'
+      - '&x&f&f&c&3&0&0on the plugin wiki.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Trigger'
+      - '&x&8&6&d&e&2&aRight-Click to &fClear List'
+    SPOT_OBJECT:
+      Name: 'Spot: &6%spot_name% &7(&f%spot_id%&7)'
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Spot Active: %spot_active%'
+      - ' '
+      - '&c&l[!] Warning:'
+      - '&x&c&7&0&0&3&9Please ensure there are no problems'
+      - '&x&c&7&0&0&3&9with the spot:'
+      - '&x&c&7&0&0&3&9%problems%'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+      - '&x&8&6&d&e&2&aShift+Right to &fDelete &7(No Undo)'
+    SPOT_CREATE:
+      Name: Create a Spot
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Create a new spot for the'
+      - '&7arena.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fCreate'
+    SPOT_SETUP_KIT:
+      Name: Spot Setup Kit
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7A set of tools to setup'
+      - '&7the spot.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fGet Kit'
+    SPOT_CHANGE_ACTIVE:
+      Name: Spot Active
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%spot_active%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Enables/Disables the spot.'
+      - ' '
+      - '&c&l[!] Warning:'
+      - '&x&c&7&0&0&3&9Please ensure there are no problems'
+      - '&x&c&7&0&0&3&9with the spot:'
+      - '&x&c&7&0&0&3&9%problems%'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fToggle'
+    SPOT_CHANGE_NAME:
+      Name: Spot Name
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%spot_name%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets the spot display name.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+    SPOT_CHANGE_STATES:
+      Name: Spot States
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7List of spot states to be'
+      - '&7constructed during the game.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fNavigate'
+    SPOT_STATE_OBJECT:
+      Name: 'State: &6%spot_state_id%'
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7This state will be auto-constructed on'
+      - '&7following events:'
+      - '&7%spot_state_triggers%'
+      - '&7Simply build something'
+      - '&7inside the spot area and save'
+      - '&7it.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Trigger'
+      - '&x&8&6&d&e&2&aRight-Click to &fClear Triggers'
+      - '&x&8&6&d&e&2&aShift-Left to &fBuild/Edit'
+      - '&x&8&6&d&e&2&aShift-Right to &fDelete &7(No Undo)'
+    SPOT_STATE_CREATE:
+      Name: Create a State
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Create a new spot state.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fCreate'
+    KIT_OBJECT:
+      Name: 'Kit: &6%kit_name% &7(&f%kit_id%&7)'
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Is Default: &f%kit_is_default%'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+      - '&x&8&6&d&e&2&aShift-Right to &fDelete &7(No Undo)'
+    KIT_CREATE:
+      Name: Create Kit
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Creates a new arena kit.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fCreate'
+    KIT_CHANGE_NAME:
+      Name: Kit Display Name
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%kit_name%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets the kit display name. It''s'
+      - '&7is used in messages, GUIs, signs,'
+      - '&7holograms, etc.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+    KIT_CHANGE_DESCRIPTION:
+      Name: Kit Description
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%kit_description%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets the kit description. It''s used'
+      - '&7in GUIs, holograms, etc.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Line'
+      - '&x&8&6&d&e&2&aRight-Click to &fClear'
+    KIT_CHANGE_ICON:
+      Name: Kit Icon
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Represents a kit icon used in'
+      - '&7Kit Selector and Kit Shop GUIs.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aDrag & Drop to &fReplace'
+    KIT_CHANGE_COMMANDS:
+      Name: Kit Commands
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%kit_commands%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7A list of commands that will'
+      - '&7be executed when the kit is'
+      - '&7given to a player.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Command'
+      - '&x&8&6&d&e&2&aRight-Click to &fClear List'
+    KIT_CHANGE_POTIONS:
+      Name: Kit Potion Effects
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%kit_potion_effects%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7A list of Potion Effects, that'
+      - '&7will be permanently applied to the'
+      - '&7player.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Effect'
+      - '&x&8&6&d&e&2&aRight-Click to &fClear List'
+    KIT_CHANGE_ARMOR:
+      Name: Kit Armor Content
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7A set of armors that will'
+      - '&7be equipped to a player.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0Simply put items there and use'
+      - '&x&f&f&c&3&0&0ESC to save & return.'
+      - ' '
+      - '&c&l[!] Warning:'
+      - '&x&c&7&0&0&3&9Please, follow the order:'
+      - '&x&c&7&0&0&3&9Boots →'
+      - '&x&c&7&0&0&3&9Legs → Chest → Head'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fNavigate'
+    KIT_CHANGE_INVENTORY:
+      Name: Kit Inventory
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7A list of items that will'
+      - '&7be added to a player''s inventory.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0Simply put items there and use'
+      - '&x&f&f&c&3&0&0ESC to save & return.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fNavigate'
+    KIT_CHANGE_PERMISSION:
+      Name: Permission Requirement
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aIs Required: &f%kit_is_permission%'
+      - '&aNode: &f%kit_permission%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets if player will need a'
+      - '&7permission in order to use this'
+      - '&7kit.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fToggle'
+    KIT_CHANGE_COST:
+      Name: Kit Cost
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%kit_cost%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets the kit cost in Kit'
+      - '&7Shop.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0Set this to 0 to make'
+      - '&x&f&f&c&3&0&0the kit available without purchase.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+    KIT_CHANGE_DEFAULT:
+      Name: Kit Default
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aIs Default: &f%kit_is_default%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets if this kit is default'
+      - '&7kit.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0Default kit is used to be'
+      - '&x&f&f&c&3&0&0given to players, who didn''t select'
+      - '&x&f&f&c&3&0&0it in the lobby until the'
+      - '&x&f&f&c&3&0&0game start.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fToggle'
+    KIT_CHANGE_CURRENCY:
+      Name: Kit Currency
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%kit_currency%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets the currency used to purchase'
+      - '&7this kit.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+    MOB_OBJECT:
+      Name: 'Mob: &6%mob_name% &7(&f%mob_id%&7)'
+      Lore:
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+      - '&x&8&6&d&e&2&aRight-Click to &fDelete &7(No Undo)'
+    MOB_CREATE:
+      Name: Create Mob
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Creates a new mob configuration.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fCreate'
+    MOB_CHANGE_NAME:
+      Name: Mob Display Name
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aName: &f%mob_name%'
+      - '&aIs Visible: &f%mob_name_visible%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets the mob display name and'
+      - '&7if this name is always visible'
+      - '&7(above head).'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit Name'
+      - '&x&8&6&d&e&2&aRight-Click to &fToggle Visibility'
+    MOB_CHANGE_ENTITY_TYPE:
+      Name: Mob Entity Type
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%mob_entity_type%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets the mob entity type.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+    MOB_CHANGE_LEVEL:
+      Name: Mob Levels
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aMin: &f%mob_level_min%'
+      - '&aMax: &f%mob_level_max%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets the mob min. and max.'
+      - '&7level.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0Mob level can be adjusted during'
+      - '&x&f&f&c&3&0&0the game with Wave Amplificators'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit Min'
+      - '&x&8&6&d&e&2&aRight-Click to &fEdit Max'
+    MOB_CHANGE_BOSSBAR:
+      Name: Mob Boss Bar
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aEnabled: &f%mob_bossbar_enabled%'
+      - '&aTitle: &f%mob_bossbar_title%'
+      - '&aColor: &f%mob_bossbar_color%'
+      - '&aStyle: &f%mob_bossbar_style%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets if the mob should have'
+      - '&7a health Boss Bar with specified'
+      - '&7title.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fToggle'
+      - '&x&8&6&d&e&2&aRight-Click to &fEdit Title'
+      - '&x&8&6&d&e&2&aShift-Left to &fToggle Color'
+      - '&x&8&6&d&e&2&aShift-Right to &fToggle Style'
+    MOB_CHANGE_ATTRIBUTES:
+      Name: Mob Attributes
+      Lore:
+      - '&b&l[?] Current:'
+      - '&aBase:'
+      - '&a%mob_attributes_base%'
+      - '&a&7'
+      - '&aPer Level:'
+      - '&a%mob_attributes_level%'
+      - ' '
+      - '&6&l[?] Description:'
+      - '&7Sets the mob default and per-level'
+      - '&7attributes.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0Base attribute with zero value means'
+      - '&x&f&f&c&3&0&0that default mob''s attribute value won''t'
+      - '&x&f&f&c&3&0&0be changed.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit Base'
+      - '&x&8&6&d&e&2&aRight-Click to &fEdit Per-Level'
+      - '&x&8&6&d&e&2&aShift-Left to &fClear All'
+    MOB_CHANGE_EQUIPMENT:
+      Name: Mob Equipment
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Here you can set items that'
+      - '&7will be equipped to the mob'
+      - '&7on spawn.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0Simply put items there and use'
+      - '&x&f&f&c&3&0&0ESC to save & return.'
+      - ' '
+      - '&c&l[!] Warning:'
+      - '&x&c&7&0&0&3&9Please, follow the order:'
+      - '&x&c&7&0&0&3&9Boots →'
+      - '&x&c&7&0&0&3&9Legs → Chest → Head →'
+      - '&x&c&7&0&0&3&9Main Hand → Off Hand'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fNavigate'
+    MOB_CHANGE_STYLES:
+      Name: Mob Styles
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7A list of settings applicable to'
+      - '&7the current mob. It can be'
+      - '&7color, type, age, etc.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fNavigate'
+    MOB_STYLE_OBJECT:
+      Name: 'Style Type: &6%mob_style_type%'
+      Lore:
+      - '&b&l[?] Current:'
+      - '&a%mob_style_value%'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fEdit'
+      - '&x&8&6&d&e&2&aRight-Click to &fRemove'
+  SetupItemType:
+    REGION_CUBOID:
+      Name: Region Cuboid Selector
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Sets the arena region corners.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fSet 1st'
+      - '&x&8&6&d&e&2&aRight-Click to &fSet 2nd'
+    REGION_SPAWN:
+      Name: Region Spawn Tool
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Sets the region spawn location.'
+      - ' '
+      - '&c&l[!] Warning:'
+      - '&x&c&7&0&0&3&9Location is set at your current'
+      - '&x&c&7&0&0&3&9location. Not of a clicked block!'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aRight-Click to &fSet'
+    REGION_SPAWNER:
+      Name: Region Spawner Tool
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Sets the mob spawner on a'
+      - '&7clicked block.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fAdd Spawner'
+      - '&x&8&6&d&e&2&aRight-Click to &fRemove Spawner'
+    REGION_CONTAINER:
+      Name: Region Container Tool
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Places/Creates a region container at a'
+      - '&7clicked chest.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fDestroy/Remove'
+      - '&x&8&6&d&e&2&aRight-Click to &fPlace/Create'
+    REGION_SAVE:
+      Name: Save & Exit
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Saves the changes you made and'
+      - '&7exit the setup mode.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aRight-Click to &fSave'
+    SPOT_CUBOID:
+      Name: Spot Cuboid Selector
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Sets the arena spot corners.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aLeft-Click to &fSet 1st'
+      - '&x&8&6&d&e&2&aRight-Click to &fSet 2nd'
+    SPOT_STATE_PREVIEW:
+      Name: Spot State Preview
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Previews the current state.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aRight-Click to &fPreview'
+    SPOT_STATE_EXIT:
+      Name: Exit
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Exit the setup mode.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aRight-Click to &fExit'
+    SPOT_SAVE:
+      Name: Save & Exit
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Saves the changes you made and'
+      - '&7exit the setup mode.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aRight-Click to &fSave'
+    ARENA_LOCATION_LOBBY:
+      Name: Arena Lobby Location
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Sets the arena lobby location.'
+      - ' '
+      - '&c&l[!] Warning:'
+      - '&x&c&7&0&0&3&9Location is set at your current'
+      - '&x&c&7&0&0&3&9location. Not of a clicked block!'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aRight-Click to &fSet'
+    ARENA_LOCATION_SPECTATE:
+      Name: Arena Spectate Location
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Sets the arena spectate location.'
+      - ' '
+      - '&c&l[!] Warning:'
+      - '&x&c&7&0&0&3&9Location is set at your current'
+      - '&x&c&7&0&0&3&9location. Not of a clicked block!'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aRight-Click to &fSet'
+    ARENA_LOCATION_LEAVE:
+      Name: Arena Leave Location
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Sets the arena leave location.'
+      - ' '
+      - '&e&l[!] Note:'
+      - '&x&f&f&c&3&0&0You may to not set this'
+      - '&x&f&f&c&3&0&0location. So, players will be teleported'
+      - '&x&f&f&c&3&0&0back to their original location.'
+      - ' '
+      - '&c&l[!] Warning:'
+      - '&x&c&7&0&0&3&9Location is set at your current'
+      - '&x&c&7&0&0&3&9location. Not of a clicked block!'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aRight-Click to &fSet'
+    ARENA_EXIT:
+      Name: Exit
+      Lore:
+      - '&6&l[?] Description:'
+      - '&7Exit the setup mode.'
+      - ' '
+      - '&x&5&5&e&1&3&6&l[>] Actions:'
+      - '&x&8&6&d&e&2&aRight-Click to &fExit'
+Setup:
+  Arena:
+    Lobby:
+      Set: '&7Defined lobby location for &a%arena_id% &7arena!'
+    Leave:
+      Set: '&7Defined leave location for &a%arena_id% &7arena!'
+      Unset: '&7Undefined leave location for &a%arena_id% &7arena!'
+    Spectate:
+      Set: '&7Defined spectate location for &a%arena_id% &7arena!'
+  Region:
+    Error:
+      Enabled: '&cYou must disable region first!'
+      Outside: '&cLocation is outside of the editing region!'
+    Spawn:
+      Set: '&7Defined spawn location for &a%region_id% &7region!'
+    Spawner:
+      Add: '&7Added spawner to &a%region_id% &7region!'
+      Remove: '&7Removed spawner from &a%region_id% &7region!'
+    Container:
+      Add: '&7Added container to &a%region_id% &7region!'
+      Remove: '&7Removed container from &a%region_id% &7region!'
+    Cuboid:
+      Error:
+        Overlap: '&7This position is overlaps with &c%region_id% &7arena region!'
+      Set: '&7Set &a#%corner% &7corner for the &a%region_id% &7region!'
+      Preview:
+      - '{message: ~prefix: false;}'
+      - '&c&m----------------------------------------'
+      - '&eYou defined new region position(s). The following changes will be made:'
+      - '&c▸ &7Mob Spawners Lost: &c%spawners-lost%'
+      - '&c▸ &7Region Containers Lost: &c%containers-lost%'
+      - '&c▸ &7Region Spawn Location Lost: &c%spawn-lost%'
+      - '&7'
+      - '&eIf you want to cancel these changes simply use &cExit Tool&7.'
+      - '&c&m----------------------------------------'
+  Spot:
+    Cuboid:
+      Error:
+        Overlap: '&cThis location is overlaps with other &e%spot_id% &cspot!'
+      Set: '&7Set &a#%corner% &7corner for the &a%spot_id% &7spot!'
+    State:
+      Error:
+        Outside: '&cLocation is outside of the editing spot!'
+ArenaState:
+  WAITING: Waiting
+  READY: Ready
+  INGAME: Ingame
+ArenaLockState:
+  UNLOCKED: Unlocked
+  LOCKED: Locked
+ArenaGameEventType:
+  GAME_START: Game Start
+  GAME_END_WIN: Game End Win
+  GAME_END_LOSE: Game End Lose
+  GAME_END_TIME: Game End Time
+  WAVE_START: Wave Start
+  WAVE_END: Wave End
+  SHOP_LOCKED: Shop Locked
+  SHOP_UNLOCKED: Shop Unlocked
+  SHOP_CATEGORY_LOCKED: Shop Category Locked
+  SHOP_CATEGORY_UNLOCKED: Shop Category Unlocked
+  SHOP_ITEM_UNLOCKED: Shop Item Unlocked
+  SHOP_ITEM_LOCKED: Shop Item Locked
+  PLAYER_JOIN: Player Join
+  PLAYER_LEAVE: Player Leave
+  PLAYER_DEATH: Player Death
+  MOB_KILLED: Mob Killed
+  SCORE_INCREASED: Score Increased
+  SCORE_DECREASED: Score Decreased
+  REGION_LOCKED: Region Locked
+  REGION_UNLOCKED: Region Unlocked
+  SPOT_CHANGED: Spot Changed
+ArenaTargetType:
+  PLAYER_ALL: Player All
+  PLAYER_RANDOM: Player Random
+  GLOBAL: Global
+StatType:
+  MOB_KILLS: Mob Kills
+  GAMES_WON: Games Won
+  GAMES_LOST: Games Lost
+  GAMES_PLAYED: Games Played
+  DEATHS: Deaths
+  COINS_SPENT: Coins Spent
+  TNT_EXPLODED: Tnt Exploded
+  ARROWS_LAUNCHED: Arrows Launched
+  POTIONS_DRUNK: Potions Drunk
+  FOOD_EATEN: Food Eaten
+  EQUIPMENT_BROKEN: Equipment Broken
+  WAVES_PASSED: Waves Passed
+  BEST_KILL_STREAK: Best Kill Streak
+HologramType:
+  DEFAULT: Default
+  ARENA: Arena
+  ARENA_STATS: Arena Stats
+  REGION_UNLOCKED: Region Unlocked
+  REGION_LOCKED: Region Locked
+  KIT: Kit
+MobStyleType:
+  BABY: Baby
+  SHEEP_COLOR: Sheep Color
+  HORSE_COLOR: Horse Color
+  HORSE_STYLE: Horse Style
+  FOX_TYPE: Fox Type
+  CREEPER_CHARGE: Creeper Charge
+  SLIME_SIZE: Slime Size
+  LLAMA_COLOR: Llama Color
+  PARROT_VARIANT: Parrot Variant
+  RABBIT_TYPE: Rabbit Type
+  CAT_TYPE: Cat Type
+  MUSHROOM_VARIANT: Mushroom Variant
+  VILLAGER_PROFESSION: Villager Profession
+  ZOMBIE_VILLAGER_PROFESSION: Zombie Villager Profession

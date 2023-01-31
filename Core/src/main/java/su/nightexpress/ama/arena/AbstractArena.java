@@ -49,6 +49,7 @@ public abstract class AbstractArena implements IPlaceholder {
 
     protected Set<ArenaPlayer>  players;
     protected Set<LivingEntity> mobs;
+    protected Set<LivingEntity> allyMobs;
     protected Set<Item>         groundItems;
 
     protected Team    mobHighlightTeam;
@@ -73,6 +74,7 @@ public abstract class AbstractArena implements IPlaceholder {
         this.gameEventListeners = new LinkedHashSet<>();
         this.players = new HashSet<>();
         this.mobs = new HashSet<>();
+        this.allyMobs = new HashSet<>();
         this.groundItems = new HashSet<>();
         this.waveUpcoming = new HashSet<>();
         this.waveAmplificatorValues = new HashMap<>();
@@ -99,7 +101,7 @@ public abstract class AbstractArena implements IPlaceholder {
 
     private void reset() {
         this.updateGameEventListeners();
-        this.killMobs();
+        this.killMobs(true);
         this.killItems();
 
         int gameTimeleft = this.getConfig().getGameplayManager().getTimeleft();
@@ -348,6 +350,11 @@ public abstract class AbstractArena implements IPlaceholder {
         return this.mobs;
     }
 
+    @NotNull
+    public Set<LivingEntity> getAllyMobs() {
+        return allyMobs;
+    }
+
     public int getMobsAmountLeft() {
         return this.getUpcomingWaves().stream()
             .filter(Predicate.not(ArenaWaveUpcoming::isAllMobsSpawned))
@@ -360,13 +367,17 @@ public abstract class AbstractArena implements IPlaceholder {
         return Rnd.get(list);
     }
 
-    public void killMobs() {
-        new HashSet<>(this.getMobs()).forEach(mob -> {
+    public void killMobs(boolean withAlly) {
+        Set<LivingEntity> mobs = new HashSet<>(this.getMobs());
+        if (withAlly) mobs.addAll(this.getAllyMobs());
+
+        mobs.forEach(mob -> {
             mob.setLastDamageCause(null);
             mob.setHealth(0);
             mob.remove();
         });
         this.getMobs().clear();
+        if (withAlly) this.getAllyMobs().clear();
     }
 
     public abstract void updateMobTarget(@NotNull LivingEntity entity, boolean force);
@@ -446,7 +457,7 @@ public abstract class AbstractArena implements IPlaceholder {
 
     public void skipWave() {
         this.getUpcomingWaves().clear();
-        this.killMobs();
+        this.killMobs(false);
 
         // Call an event that will call arena region and spot triggers.
         ArenaWaveCompleteEvent event = new ArenaWaveCompleteEvent(this);

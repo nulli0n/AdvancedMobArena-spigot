@@ -229,6 +229,7 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
         mainCommand.addChildren(new LeaveCommand(this));
         mainCommand.addChildren(new ListCmd(this));
         mainCommand.addChildren(new RegionCommand(this));
+        mainCommand.addChildren(new SetActiveCommand(this));
         mainCommand.addChildren(new ScoreCmd(this));
         mainCommand.addChildren(new ShopCommand(this));
         mainCommand.addChildren(new SkipwaveCmd(this));

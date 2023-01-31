@@ -46,6 +46,7 @@ public class Kit extends AbstractLoadableItem<AMA> implements ConfigHolder, Holo
     private Set<PotionEffect> potionEffects;
     private ItemStack[]       armor;
     private ItemStack[]       items;
+    private ItemStack[]       extras;
 
     private final Set<UUID>     hologramIds;
     private final Set<Location> hologramLocations;
@@ -68,6 +69,7 @@ public class Kit extends AbstractLoadableItem<AMA> implements ConfigHolder, Holo
         this.setCommands(new ArrayList<>());
         this.setPotionEffects(new HashSet<>());
         this.setArmor(new ItemStack[4]);
+        this.setExtras(new ItemStack[1]);
 
         this.hologramIds = new HashSet<>();
         this.hologramLocations = new HashSet<>();
@@ -116,6 +118,7 @@ public class Kit extends AbstractLoadableItem<AMA> implements ConfigHolder, Holo
 
         this.setArmor(cfg.getItemsEncoded("Content.Armor"));
         this.setItems(cfg.getItemsEncoded("Content.Inventory"));
+        this.setExtras(cfg.getItemsEncoded("Content.Extras"));
 
         this.hologramIds = new HashSet<>();
         this.hologramLocations = new HashSet<>();
@@ -143,6 +146,7 @@ public class Kit extends AbstractLoadableItem<AMA> implements ConfigHolder, Holo
         });
         cfg.setItemsEncoded("Content.Armor", Arrays.asList(this.getArmor()));
         cfg.setItemsEncoded("Content.Inventory", Arrays.asList(this.getItems()));
+        cfg.setItemsEncoded("Content.Extras", Arrays.asList(this.getExtras()));
         cfg.set("Hologram.Locations", this.getHologramLocations().stream().map(LocationUtil::serialize).toList());
     }
 
@@ -196,6 +200,7 @@ public class Kit extends AbstractLoadableItem<AMA> implements ConfigHolder, Holo
         Player player = arenaPlayer.getPlayer();
         player.getInventory().setContents(this.getItems());
         player.getInventory().setArmorContents(this.getArmor());
+        player.getInventory().setExtraContents(this.getExtras());
 
         this.getCommands().forEach(cmd -> PlayerUtil.dispatchCommand(player, cmd));
 
@@ -316,7 +321,7 @@ public class Kit extends AbstractLoadableItem<AMA> implements ConfigHolder, Holo
     }
 
     public void setArmor(@NotNull ItemStack[] armor) {
-        this.armor = Arrays.copyOf(armor, 4);
+        this.armor = Arrays.copyOf(this.fineItems(armor), 4);
     }
 
     @NotNull
@@ -325,7 +330,24 @@ public class Kit extends AbstractLoadableItem<AMA> implements ConfigHolder, Holo
     }
 
     public void setItems(@NotNull ItemStack[] items) {
-        this.items = Arrays.copyOf(items, 27);
+        this.items = Arrays.copyOf(this.fineItems(items), 27);
+    }
+
+    public ItemStack[] getExtras() {
+        return extras;
+    }
+
+    public void setExtras(@NotNull  ItemStack[] extras) {
+        this.extras = Arrays.copyOf(this.fineItems(extras), 1);
+    }
+
+    private ItemStack[] fineItems(@NotNull ItemStack[] array) {
+        for (int index = 0; index < array.length; index++) {
+            if (array[index] == null) {
+                array[index] = new ItemStack(Material.AIR);
+            }
+        }
+        return array;
     }
 
     @Override

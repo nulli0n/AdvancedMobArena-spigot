@@ -14,6 +14,10 @@ import java.util.*;
 
 public class MobsConfig {
 
+    public static final JOption<Set<String>> ALLY_MYTHIC_MOBS = JOption.create("Mobs.Ally_Mythic_Mobs", Set.of("SummonedMinion"),
+        "List of MythicMobs mob internal names that should not be counted as arena mobs.",
+        "This option might be useful when you have plugins to summon MythicMobs that are allied with players.");
+
     public static final JOption<Boolean>                    KILL_REWARD_ENABLED                 = JOption.create("Mobs.Kill_Rewards.Enabled", true,
         "Enables/Disables the Mob Kill Rewards feature."
     );

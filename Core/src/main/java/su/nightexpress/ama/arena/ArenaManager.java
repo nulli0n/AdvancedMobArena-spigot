@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.AbstractManager;
+import su.nexmedia.engine.hooks.Hooks;
 import su.nexmedia.engine.utils.FileUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.api.arena.type.ArenaEndType;
@@ -14,6 +15,7 @@ import su.nightexpress.ama.arena.listener.ArenaGameplayListener;
 import su.nightexpress.ama.arena.listener.ArenaGenericListener;
 import su.nightexpress.ama.arena.menu.ArenaListMenu;
 import su.nightexpress.ama.arena.task.ArenaTickTask;
+import su.nightexpress.ama.arena.listener.ArenaMythicListener;
 
 import java.io.File;
 import java.util.*;
@@ -52,6 +54,9 @@ public class ArenaManager extends AbstractManager<AMA> {
 
         this.addListener(new ArenaGenericListener(this));
         this.addListener(new ArenaGameplayListener(this));
+        if (Hooks.hasMythicMobs()) {
+            this.addListener(new ArenaMythicListener(this.plugin));
+        }
 
         this.arenaTickTask = new ArenaTickTask(this);
         this.arenaTickTask.start();

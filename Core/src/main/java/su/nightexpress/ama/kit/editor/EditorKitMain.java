@@ -232,7 +232,10 @@ public class EditorKitMain extends AbstractEditorMenu<AMA, Kit> {
                 items[slot] = item;
             }
 
-            if (this.isArmor) this.kit.setArmor(items);
+            if (this.isArmor) {
+                this.kit.setArmor(items);
+                this.kit.setExtras(new ItemStack[]{inventory.getItem(4)});
+            }
             else this.kit.setItems(items);
 
             this.kit.save();

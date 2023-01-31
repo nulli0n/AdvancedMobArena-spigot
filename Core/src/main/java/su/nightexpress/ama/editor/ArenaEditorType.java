@@ -586,7 +586,7 @@ public enum ArenaEditorType implements EditorButtonType {
     KIT_CHANGE_ARMOR(Material.ARMOR_STAND, "Kit Armor Content",
         EditorButtonType.info("A set of armors that will be equipped to a player."),
         EditorButtonType.note("Simply put items there and use ESC to save & return."),
-        EditorButtonType.warn("Please, follow the order:\nBoots → Legs → Chest → Head"),
+        EditorButtonType.warn("Please, follow the order:\nBoots → Legs → Chest → Head → OffHand"),
         EditorButtonType.click("Left-Click to &fNavigate")),
     KIT_CHANGE_INVENTORY(Material.CHEST, "Kit Inventory",
         EditorButtonType.info("A list of items that will be added to a player's inventory."),

@@ -32,9 +32,9 @@ public class StatsMenu extends AbstractMenu<AMA> {
         int slot = 0;
         for (StatType statType : StatType.values()) {
             String path2 = "Stat_Icons." + statType.name() + ".";
-            cfg.addMissing(path2 + "Display.default.Item.Material", Material.MAP.name());
-            cfg.addMissing(path2 + "Display.default.Item.Name", plugin.getLangManager().getEnum(statType));
-            cfg.addMissing(path2 + "Display.default.Item.Lore", Arrays.asList(Placeholders.ARENA_NAME + ": %score%", "%total%"));
+            cfg.addMissing(path2 + "Item.Material", Material.MAP.name());
+            cfg.addMissing(path2 + "Item.Name", plugin.getLangManager().getEnum(statType));
+            cfg.addMissing(path2 + "Item.Lore", Arrays.asList(Placeholders.ARENA_NAME + ": %score%", "%total%"));
             cfg.addMissing(path2 + "Slots", slot++);
             cfg.addMissing(path2 + "Type", statType.name());
         }

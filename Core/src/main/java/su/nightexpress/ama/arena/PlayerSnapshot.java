@@ -81,7 +81,7 @@ public class PlayerSnapshot {
 
         player.setFoodLevel(snapshot.getFoodLevel());
         player.setSaturation(snapshot.getSaturation());
-        player.setHealth(snapshot.getHealth());
+        player.setHealth(Math.min(EntityUtil.getAttribute(player, Attribute.GENERIC_MAX_HEALTH), snapshot.getHealth()));
         player.setGameMode(snapshot.getGameMode());
 
         if (player.getGameMode() == GameMode.CREATIVE) {

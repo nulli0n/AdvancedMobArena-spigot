@@ -39,6 +39,7 @@ public class Perms {
     public static final JPermission COMMAND_LEAVE           = new JPermission(PREFIX + "command.leave", "Allows to use '/ama leave' commmand.");
     public static final JPermission COMMAND_LIST            = new JPermission(PREFIX + "command.list", "Allows to use '/ama list' command.");
     public static final JPermission COMMAND_REGION          = new JPermission(PREFIX + "command.region", "Allows to use '/ama region' command.");
+    public static final JPermission COMMAND_SET_ACTIVE      = new JPermission(PREFIX + "command.setactive", "Allows to use '/ama setactive' command.");
     public static final JPermission COMMAND_SCORE           = new JPermission(PREFIX + "command.score", "Allows to use '/ama score' command.");
     public static final JPermission COMMAND_SHOP            = new JPermission(PREFIX + "command.shop", "Allows to use '/ama shop' command.");
     public static final JPermission COMMAND_SKIPWAVE        = new JPermission(PREFIX + "command.skipwave", "Allows to use '/ama skipwave' command.");
@@ -51,7 +52,8 @@ public class Perms {
         PLUGIN_BYPASS.addChildren(BYPASS_ARENA, BYPASS_KIT);
         PLUGIN_COMMAND.addChildren(COMMAND_EDITOR, COMMAND_RELOAD, COMMAND_BALANCE, COMMAND_BALANCE_OTHERS,
             COMMAND_CURRENCY, COMMAND_HOLOGRAM, COMMAND_FORCEEND, COMMAND_FORCESTART,
-            COMMAND_JOIN, COMMAND_LEAVE, COMMAND_LIST, COMMAND_REGION, COMMAND_SCORE, COMMAND_SHOP, COMMAND_SKIPWAVE,
+            COMMAND_JOIN, COMMAND_LEAVE, COMMAND_LIST, COMMAND_REGION, COMMAND_SET_ACTIVE,
+            COMMAND_SCORE, COMMAND_SHOP, COMMAND_SKIPWAVE,
             COMMAND_SPECTATE, COMMAND_SPOT, COMMAND_STATS);
 
         BYPASS_ARENA.addChildren(BYPASS_ARENA_JOIN_INGAME, BYPASS_ARENA_GAME_COMMANDS);

@@ -423,6 +423,9 @@ public class ArenaConfig extends AbstractLoadableItem<AMA> implements HologramHo
         if (!this.getJoinPaymentRequirements().entrySet().stream().allMatch(entry -> {
             return entry.getKey().getBalance(player) >= entry.getValue();
         })) return false;
+        if (!this.getJoinLevelRequirements().entrySet().stream().allMatch(entry -> {
+            return entry.getKey().getLevel(player) >= entry.getValue();
+        })) return false;
 
         return true;
     }

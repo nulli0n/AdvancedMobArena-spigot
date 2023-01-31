@@ -84,6 +84,11 @@ public class Arena extends AbstractArena {
             return false;
         }
 
+        if (!this.getConfig().getJoinLevelRequirements().entrySet().stream().allMatch(entry -> entry.getKey().getLevel(player) >= entry.getValue())) {
+            if (isMessage) plugin.getMessage(Lang.ARENA_JOIN_ERROR_LEVEL).replace(this.replacePlaceholders()).send(player);
+            return false;
+        }
+
         return true;
     }
 
@@ -641,7 +646,7 @@ public class Arena extends AbstractArena {
     public void newWave() {
         this.getUpcomingWaves().clear();
         this.gradualMobsTimer = 0;
-        this.killMobs();
+        this.killMobs(false);
 
         if (this.isLatestWave()) {
             this.stop(ArenaEndType.FINISH);
