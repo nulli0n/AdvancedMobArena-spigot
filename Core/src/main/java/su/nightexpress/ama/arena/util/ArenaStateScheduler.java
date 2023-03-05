@@ -2,7 +2,7 @@ package su.nightexpress.ama.arena.util;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import su.nightexpress.ama.arena.config.ArenaConfig;
+import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.config.Lang;
 
 import java.time.DayOfWeek;

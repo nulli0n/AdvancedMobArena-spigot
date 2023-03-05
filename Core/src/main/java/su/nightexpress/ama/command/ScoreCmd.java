@@ -7,7 +7,7 @@ import su.nexmedia.engine.api.command.AbstractCommand;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
-import su.nightexpress.ama.arena.ArenaPlayer;
+import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.config.Lang;
 
 import java.util.ArrayList;

@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.command.AbstractCommand;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
-import su.nightexpress.ama.arena.AbstractArena;
+import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.config.Lang;
 
 import java.util.List;
@@ -39,7 +39,7 @@ public class JoinCommand extends AbstractCommand<AMA> {
     @NotNull
     public List<String> getTab(@NotNull Player player, int arg, @NotNull String[] args) {
         if (arg == 1) {
-            return plugin.getArenaManager().getArenas(player).stream().map(AbstractArena::getId).toList();
+            return plugin.getArenaManager().getArenas(player).stream().map(Arena::getId).toList();
         }
         return super.getTab(player, arg, args);
     }
@@ -47,7 +47,7 @@ public class JoinCommand extends AbstractCommand<AMA> {
     @Override
     public void onExecute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args, @NotNull Map<String, String> flags) {
         Player player = (Player) sender;
-        AbstractArena arena;
+        Arena arena;
 
         if (args.length == 2) {
             arena = plugin.getArenaManager().getArenaById(args[1]);

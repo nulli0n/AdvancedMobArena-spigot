@@ -5,7 +5,7 @@ import net.citizensnpcs.api.trait.Trait;
 import net.citizensnpcs.api.trait.TraitName;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import su.nightexpress.ama.arena.ArenaPlayer;
+import su.nightexpress.ama.arena.impl.ArenaPlayer;
 
 @TraitName("ama-shop")
 public class ShopTrait extends Trait {

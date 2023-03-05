@@ -13,7 +13,7 @@ import su.nexmedia.engine.api.menu.MenuItem;
 import su.nexmedia.engine.api.menu.MenuItemType;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.arena.AbstractArena;
+import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.data.ArenaUser;
 import su.nightexpress.ama.stats.object.StatType;
 
@@ -74,7 +74,7 @@ public class StatsMenu extends AbstractMenu<AMA> {
         List<String> lore2 = new ArrayList<>();
         for (String line : lore) {
             if (line.contains(Placeholders.ARENA_NAME)) {
-                for (AbstractArena arena : plugin.getArenaManager().getArenas()) {
+                for (Arena arena : plugin.getArenaManager().getArenas()) {
                     String score = String.valueOf(user.getStats(statType, arena.getId()));
                     lore2.add(arena.getConfig().replacePlaceholders().apply(line).replace(PLACEHOLDER_SCORE, score));
                 }

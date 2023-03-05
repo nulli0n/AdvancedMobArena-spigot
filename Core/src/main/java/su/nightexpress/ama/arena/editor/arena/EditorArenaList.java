@@ -12,9 +12,8 @@ import su.nexmedia.engine.editor.AbstractEditorMenuAuto;
 import su.nexmedia.engine.editor.EditorManager;
 import su.nexmedia.engine.utils.ItemUtil;
 import su.nightexpress.ama.AMA;
-import su.nightexpress.ama.arena.AbstractArena;
 import su.nightexpress.ama.arena.ArenaManager;
-import su.nightexpress.ama.arena.config.ArenaConfig;
+import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.editor.ArenaEditorType;
 import su.nightexpress.ama.editor.ArenaEditorUtils;
@@ -24,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-public class EditorArenaList extends AbstractEditorMenuAuto<AMA, AMA, AbstractArena> {
+public class EditorArenaList extends AbstractEditorMenuAuto<AMA, AMA, Arena> {
 
     public EditorArenaList(@NotNull AMA plugin) {
         super(plugin, plugin, ArenaEditorUtils.TITLE_ARENA_EDITOR, 45);
@@ -32,15 +31,10 @@ public class EditorArenaList extends AbstractEditorMenuAuto<AMA, AMA, AbstractAr
         EditorInput<ArenaManager, ArenaEditorType> input = (player, arenaManager, type, e) -> {
             String msg = e.getMessage();
             if (type == ArenaEditorType.ARENA_CREATE) {
-                String id = EditorManager.fineId(msg);
-                if (arenaManager.getArenaById(id) != null) {
+                if (!arenaManager.create(EditorManager.fineId(msg))) {
                     EditorManager.error(player, plugin.getMessage(Lang.Editor_Arena_Error_Exist).getLocalized());
                     return false;
                 }
-
-                ArenaConfig arenaConfig = new ArenaConfig(plugin, plugin.getDataFolder() + "/arenas/" + id + "/" + id + ".yml");
-                arenaConfig.save();
-                arenaManager.getArenasMap().put(arenaConfig.getId(), arenaConfig.getArena());
             }
             return true;
         };
@@ -79,13 +73,13 @@ public class EditorArenaList extends AbstractEditorMenuAuto<AMA, AMA, AbstractAr
 
     @Override
     @NotNull
-    protected List<AbstractArena> getObjects(@NotNull Player player) {
+    protected List<Arena> getObjects(@NotNull Player player) {
         return new ArrayList<>(this.plugin.getArenaManager().getArenas());
     }
 
     @Override
     @NotNull
-    protected ItemStack getObjectStack(@NotNull Player player, @NotNull AbstractArena arena) {
+    protected ItemStack getObjectStack(@NotNull Player player, @NotNull Arena arena) {
         ItemStack item = ArenaEditorType.ARENA_OBJECT.getItem();
         ItemUtil.replace(item, arena.getConfig().replacePlaceholders());
         return item;
@@ -93,7 +87,7 @@ public class EditorArenaList extends AbstractEditorMenuAuto<AMA, AMA, AbstractAr
 
     @Override
     @NotNull
-    protected MenuClick getObjectClick(@NotNull Player player, @NotNull AbstractArena arena) {
+    protected MenuClick getObjectClick(@NotNull Player player, @NotNull Arena arena) {
         return (player2, type, e) -> {
             if (e.isShiftClick() && e.isRightClick()) {
                 this.plugin.getArenaManager().delete(arena);

@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.command.AbstractCommand;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
-import su.nightexpress.ama.arena.AbstractArena;
+import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.config.Lang;
 
 import java.util.List;
@@ -51,7 +51,7 @@ public class SpectateCmd extends AbstractCommand<AMA> {
             return;
         }
 
-        AbstractArena arena = plugin.getArenaManager().getArenaById(args[1]);
+        Arena arena = plugin.getArenaManager().getArenaById(args[1]);
         if (arena == null) {
             plugin.getMessage(Lang.ARENA_ERROR_INVALID).replace("%id%", args[1]).send(sender);
             return;

@@ -1,8 +1,6 @@
-package su.nightexpress.ama.arena;
+package su.nightexpress.ama.arena.impl;
 
 import org.bukkit.Location;
-import org.bukkit.boss.BossBar;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -12,13 +10,13 @@ import su.nexmedia.engine.lang.LangManager;
 import su.nexmedia.engine.utils.TimeUtil;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.type.ArenaLockState;
-import su.nightexpress.ama.api.arena.type.ArenaState;
 import su.nightexpress.ama.api.arena.type.LeaveReason;
 import su.nightexpress.ama.api.event.ArenaPlayerReadyEvent;
 import su.nightexpress.ama.arena.board.ArenaBoard;
 import su.nightexpress.ama.arena.board.ArenaBoardConfig;
 import su.nightexpress.ama.arena.region.ArenaRegion;
 import su.nightexpress.ama.arena.reward.ArenaReward;
+import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.config.Config;
 import su.nightexpress.ama.data.ArenaUser;
 import su.nightexpress.ama.hook.HookId;
@@ -35,20 +33,18 @@ public final class ArenaPlayer implements IPlaceholder {
     private static final Map<UUID, ArenaPlayer> PLAYER_MAP    = new HashMap<>();
     private static final DateTimeFormatter      FORMAT_STREAK = DateTimeFormatter.ofPattern("ss");
 
-    private final Player            player;
-    private final AbstractArena     arena;
-    private       Kit               kit;
-    private       List<ArenaReward> rewards;
-    private       int               lives;
-    private       int               score;
-    private       int               killStreak;
-    private       long              killStreakDecay;
-    private       boolean           isLateJoined;
-    private       boolean           isReady;
-    private       ArenaBoard        board;
-
+    private final Player player;
+    private final Arena  arena;
     private final Map<StatType, Integer> stats;
-    private final Map<UUID, BossBar>     mobHealthBar;
+
+    private GameState         state;
+    private ArenaBoard        board;
+    private Kit               kit;
+    private List<ArenaReward> rewards;
+    private int               lives;
+    private int               score;
+    private int               killStreak;
+    private long              killStreakDecay;
 
     @Nullable
     public static ArenaPlayer getPlayer(@NotNull Player player) {
@@ -72,7 +68,7 @@ public final class ArenaPlayer implements IPlaceholder {
     }
 
     @NotNull
-    public static ArenaPlayer create(@NotNull Player player, @NotNull AbstractArena arena) {
+    public static ArenaPlayer create(@NotNull Player player, @NotNull Arena arena) {
         if (ArenaPlayer.isPlaying(player)) throw new IllegalStateException("This player is already playing other arena!");
 
         ArenaPlayer arenaPlayer = new ArenaPlayer(player, arena);
@@ -84,18 +80,16 @@ public final class ArenaPlayer implements IPlaceholder {
         PLAYER_MAP.remove(player.getUniqueId());
     }
 
-    private ArenaPlayer(@NotNull Player player, @NotNull AbstractArena arena) {
+    private ArenaPlayer(@NotNull Player player, @NotNull Arena arena) {
         this.stats = new HashMap<>();
-        this.mobHealthBar = new HashMap<>();
         this.player = player;
         this.arena = arena;
+        this.setState(GameState.WAITING);
         this.setKit(null);
         this.setRewards(new ArrayList<>());
         this.setLives(arena.getConfig().getGameplayManager().getPlayerLivesAmount());
         this.setScore(0);
         this.setKillStreak(0);
-        this.setLateJoined(arena.getState() == ArenaState.INGAME);
-        this.isReady = false;
     }
 
     @Override
@@ -118,8 +112,22 @@ public final class ArenaPlayer implements IPlaceholder {
     }
 
     @NotNull
-    public AbstractArena getArena() {
+    public Arena getArena() {
         return this.arena;
+    }
+
+    @NotNull
+    public GameState getState() {
+        return state;
+    }
+
+    public void setState(@NotNull GameState state) {
+        this.state = state;
+
+        if (this.getState() == GameState.READY) {
+            ArenaPlayerReadyEvent readyEvent = new ArenaPlayerReadyEvent(this.getArena(), this);
+            this.getArena().plugin().getPluginManager().callEvent(readyEvent);
+        }
     }
 
     @Nullable
@@ -157,53 +165,12 @@ public final class ArenaPlayer implements IPlaceholder {
         this.setLives(this.getLives() - 1);
     }
 
-    public boolean isLateJoined() {
-        return isLateJoined;
-    }
-
-    public void setLateJoined(boolean isLateJoined) {
-        this.isLateJoined = isLateJoined;
-    }
-
     public boolean isReady() {
-        return isReady;
+        return this.getState() == GameState.READY;
     }
 
-    public void setReady(boolean ready) {
-        isReady = ready;
-
-        ArenaPlayerReadyEvent readyEvent = new ArenaPlayerReadyEvent(this.getArena(), this);
-        this.getArena().plugin().getPluginManager().callEvent(readyEvent);
-    }
-
-    @Nullable
-    public BossBar getMobHealthBar(@NotNull LivingEntity mob) {
-        return this.getMobHealthBar(mob.getUniqueId());
-    }
-
-    @Nullable
-    public BossBar getMobHealthBar(@NotNull UUID id) {
-        return mobHealthBar.get(id);
-    }
-
-    public void addMobHealthBar(@NotNull LivingEntity boss, @NotNull BossBar bar) {
-        if (this.getMobHealthBar(boss) != null) return;
-
-        bar.addPlayer(this.getPlayer());
-        this.mobHealthBar.put(boss.getUniqueId(), bar);
-    }
-
-    public void removeMobHealthBar(@NotNull LivingEntity boss) {
-        BossBar bar = this.getMobHealthBar(boss);
-        if (bar == null) return;
-
-        bar.removePlayer(this.getPlayer());
-        this.mobHealthBar.remove(boss.getUniqueId());
-    }
-
-    public void removeMobHealthBars() {
-        this.mobHealthBar.values().forEach(bar -> bar.removePlayer(this.getPlayer()));
-        this.mobHealthBar.clear();
+    public boolean isInGame() {
+        return this.getState() == GameState.INGAME;
     }
 
     public void addBoard() {

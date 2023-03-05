@@ -17,12 +17,12 @@ import su.nexmedia.engine.utils.ItemUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.api.currency.ICurrency;
-import su.nightexpress.ama.arena.config.ArenaConfig;
+import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.arena.util.ArenaStateScheduler;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.editor.ArenaEditorType;
 import su.nightexpress.ama.editor.ArenaEditorUtils;
-import su.nightexpress.ama.hook.level.LevelProvider;
+import su.nightexpress.ama.hook.level.PlayerLevelProvider;
 import su.nightexpress.ama.hook.level.PluginLevelProvider;
 
 import java.time.DayOfWeek;
@@ -88,7 +88,7 @@ public class EditorArenaMain extends AbstractEditorMenu<AMA, ArenaConfig> {
                     String[] split = StringUtil.colorOff(msg).split(" ");
                     if (split.length < 2) return false;
 
-                    LevelProvider provider = PluginLevelProvider.getProvider(split[0]);
+                    PlayerLevelProvider provider = PluginLevelProvider.getProvider(split[0]);
                     if (provider == null) {
                         EditorManager.error(player, plugin.getMessage(Lang.EDITOR_ARENA_ERROR_LEVEL_PROVIDER).getLocalized());
                         return false;

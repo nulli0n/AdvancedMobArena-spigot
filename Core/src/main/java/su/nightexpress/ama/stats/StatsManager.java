@@ -15,7 +15,7 @@ import su.nexmedia.engine.api.manager.ConfigHolder;
 import su.nexmedia.engine.api.task.AbstractTask;
 import su.nexmedia.engine.hooks.Hooks;
 import su.nightexpress.ama.AMA;
-import su.nightexpress.ama.arena.AbstractArena;
+import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.data.ArenaUser;
 import su.nightexpress.ama.sign.SignManager;
 import su.nightexpress.ama.sign.type.SignType;
@@ -120,7 +120,7 @@ public class StatsManager extends AbstractManager<AMA> implements ConfigHolder {
                 signManager.update(SignType.STATS);
             }
 
-            this.plugin.getArenaManager().getArenas().stream().map(AbstractArena::getConfig).forEach(arenaConfig -> {
+            this.plugin.getArenaManager().getArenas().stream().map(Arena::getConfig).forEach(arenaConfig -> {
                 for (StatType statType : StatType.values()) {
                     arenaConfig.getStatsHologram(statType).updateHolograms();
                 }

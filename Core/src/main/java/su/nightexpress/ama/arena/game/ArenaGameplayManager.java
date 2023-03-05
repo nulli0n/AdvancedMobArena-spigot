@@ -14,11 +14,11 @@ import su.nexmedia.engine.lang.LangManager;
 import su.nexmedia.engine.utils.CollectionsUtil;
 import su.nexmedia.engine.utils.NumberUtil;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.api.arena.IArenaObject;
+import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.IProblematic;
 import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
 import su.nightexpress.ama.api.arena.type.ArenaTargetType;
-import su.nightexpress.ama.arena.config.ArenaConfig;
+import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.arena.editor.game.EditorArenaGameplay;
 import su.nightexpress.ama.hook.HookId;
 import su.nightexpress.ama.kit.Kit;
@@ -26,7 +26,7 @@ import su.nightexpress.ama.kit.Kit;
 import java.util.*;
 import java.util.function.UnaryOperator;
 
-public class ArenaGameplayManager implements IArenaObject, ConfigHolder, ILoadable, IProblematic, IEditable {
+public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable, IProblematic, IEditable {
 
     private final ArenaConfig arenaConfig;
     private final JYML        config;
@@ -76,6 +76,13 @@ public class ArenaGameplayManager implements IArenaObject, ConfigHolder, ILoadab
     public ArenaGameplayManager(@NotNull ArenaConfig arenaConfig) {
         this.arenaConfig = arenaConfig;
         this.config = new JYML(arenaConfig.getFile().getParentFile().getAbsolutePath(), CONFIG_NAME);
+        this.autoCommands = new HashSet<>();
+        this.bannedItems = new HashSet<>();
+        this.allowedSpawnReasons = new HashSet<>();
+        this.playerCommandsAllowed = new HashSet<>();
+        this.kitsAllowed = new HashSet<>();
+        this.kitsLimits = new HashMap<>();
+        this.setMobHighlightColor(ChatColor.RED);
     }
 
     @Override

@@ -44,6 +44,7 @@ public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
 
     public static final String ARENA_WAVE_ID   = "%arena_wave_id%";
     public static final String ARENA_WAVE_MOBS = "%arena_wave_mobs%";
+    public static final String ARENA_WAVE_AMPLIFIERS = "%arena_wave_amplifiers%";
 
     public static final String ARENA_WAVES_DELAY_FIRST               = "%arena_waves_delay_first%";
     public static final String ARENA_WAVES_DELAY_DEFAULT             = "%arena_waves_delay_default%";
@@ -55,6 +56,7 @@ public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
     public static final String ARENA_WAVES_GRADUAL_NEXT_KILL_PERCENT = "%arena_waves_gradual_next_kill_percent%";
 
     public static final String ARENA_WAVE_MOB_ID     = "%arena_wave_mob_id%";
+    public static final String ARENA_WAVE_MOB_PROVIDER = "%arena_wave_mob_provider%";
     public static final String ARENA_WAVE_MOB_AMOUNT = "%arena_wave_mob_amount%";
     public static final String ARENA_WAVE_MOB_LEVEL  = "%arena_wave_mob_level%";
     public static final String ARENA_WAVE_MOB_CHANCE = "%arena_wave_mob_chance%";
@@ -159,10 +161,10 @@ public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
     public static final String SPOT_STATE_ID       = "%spot_state_id%";
     public static final String SPOT_STATE_TRIGGERS = "%spot_state_triggers%";
 
-    public static final String WAVE_AMPLIFICATOR_ID           = "%wave_amplificator_id%";
-    public static final String WAVE_AMPLIFICATOR_VALUE_AMOUNT = "%wave_amplificator_value_amount%";
-    public static final String WAVE_AMPLIFICATOR_VALUE_LEVEL  = "%wave_amplificator_value_level%";
-    public static final String WAVE_AMPLIFICATOR_TRIGGERS     = "%wave_amplificator_triggers%";
+    public static final String WAVE_AMPLIFIER_ID           = "%wave_amplifier_id%";
+    public static final String WAVE_AMPLIFIER_VALUE_AMOUNT = "%wave_amplifier_value_amount%";
+    public static final String WAVE_AMPLIFIER_VALUE_LEVEL = "%wave_amplifier_value_level%";
+    public static final String WAVE_AMPLIFIER_TRIGGERS    = "%wave_amplifier_triggers%";
 
     public static final String MOB_ID               = "%mob_id%";
     public static final String MOB_NAME             = "%mob_name%";

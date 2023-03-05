@@ -3,7 +3,7 @@ package su.nightexpress.ama.arena.task;
 import su.nexmedia.engine.api.task.AbstractTask;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.ArenaManager;
-import su.nightexpress.ama.arena.AbstractArena;
+import su.nightexpress.ama.arena.impl.Arena;
 
 public class ArenaTickTask extends AbstractTask<AMA> {
 
@@ -17,6 +17,6 @@ public class ArenaTickTask extends AbstractTask<AMA> {
     @Override
     public void action() {
         this.arenaManager.getArenas().stream().filter(arena -> arena.getConfig().isActive() && !arena.getConfig().hasProblems())
-            .forEach(AbstractArena::tick);
+            .forEach(Arena::tick);
     }
 }

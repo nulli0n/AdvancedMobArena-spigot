@@ -10,21 +10,26 @@ import su.nexmedia.engine.lang.LangManager;
 import su.nexmedia.engine.utils.NumberUtil;
 import su.nexmedia.engine.utils.TimeUtil;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.api.arena.IArenaObject;
+import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.IProblematic;
 import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
-import su.nightexpress.ama.arena.config.ArenaConfig;
-import su.nightexpress.ama.arena.editor.wave.EditorWaveManager;
+import su.nightexpress.ama.arena.editor.wave.WaveManagerEditor;
+import su.nightexpress.ama.arena.impl.ArenaConfig;
+import su.nightexpress.ama.hook.mob.MobProvider;
+import su.nightexpress.ama.hook.mob.PluginMobProvider;
+import su.nightexpress.ama.hook.mob.impl.InternalMobProvider;
 
 import java.util.*;
 import java.util.function.UnaryOperator;
 
-public class ArenaWaveManager implements IArenaObject, ConfigHolder, ILoadable, IProblematic, IEditable {
+public class ArenaWaveManager implements ArenaChild, ConfigHolder, ILoadable, IProblematic, IEditable {
 
     public static final String CONFIG_NAME = "waves.yml";
 
-    private final ArenaConfig arenaConfig;
-    private final JYML        config;
+    private final ArenaConfig                     arenaConfig;
+    private final JYML                            config;
+    private final Map<String, ArenaWave>          waves;
+    private final Map<String, ArenaWaveAmplifier> amplifiers;
 
     private int finalWave;
     private int delayFirst;
@@ -36,19 +41,17 @@ public class ArenaWaveManager implements IArenaObject, ConfigHolder, ILoadable, 
     private double  gradualSpawnNextPercent;
     private double  gradualSpawnNextKillPercent;
 
-    private Map<String, ArenaWave> waves;
-
-    private EditorWaveManager editor;
+    private WaveManagerEditor editor;
 
     public ArenaWaveManager(@NotNull ArenaConfig arenaConfig) {
         this.arenaConfig = arenaConfig;
         this.config = new JYML(arenaConfig.getFile().getParentFile().getAbsolutePath(), CONFIG_NAME);
+        this.waves = new HashMap<>();
+        this.amplifiers = new HashMap<>();
     }
 
     @Override
     public void setup() {
-        this.waves = new HashMap<>();
-
         this.setFinalWave(config.getInt("Final_Wave", 100));
         this.setDelayFirst(config.getInt("Delay.First", 5));
         this.setDelayDefault(config.getInt("Delay.Default", 10));
@@ -60,13 +63,23 @@ public class ArenaWaveManager implements IArenaObject, ConfigHolder, ILoadable, 
         this.setGradualSpawnNextPercent(config.getInt(path + "Next.Amount_Percent", 20));
         this.setGradualSpawnNextKillPercent(config.getInt(path + "Next.For_Killed_Percent", 10));
 
+        for (String ampId : config.getSection("Amplifiers")) {
+            String path2 = "Amplifiers." + ampId + ".";
+
+            Set<ArenaGameEventTrigger<?>> triggers = ArenaGameEventTrigger.parse(config, path2 + "Triggers");
+            int valueAmount = config.getInt(path2 + "Values.Amount");
+            int valueLevel = config.getInt(path2 + "Values.Level");
+
+            ArenaWaveAmplifier amplificator = new ArenaWaveAmplifier(this.getArenaConfig(), ampId, triggers, valueAmount, valueLevel);
+            this.getAmplifiers().put(amplificator.getId(), amplificator);
+        }
+
         for (String waveId : config.getSection("Waves")) {
             String path2 = "Waves." + waveId + ".";
 
-            Map<String, ArenaWaveAmplificator> amplificators = new HashMap<>();
-            Map<String, ArenaWaveMob> waveMobs = new HashMap<>();
-            ArenaWave wave = new ArenaWave(this.arenaConfig, waveId, waveMobs, amplificators);
+            ArenaWave wave = new ArenaWave(this.arenaConfig, waveId, new HashSet<>(), new HashSet<>());
 
+            // ------- OLD DATA START
             for (String ampId : config.getSection(path2 + "Amplificators")) {
                 String path3 = path2 + "Amplificators." + ampId + ".";
 
@@ -74,20 +87,39 @@ public class ArenaWaveManager implements IArenaObject, ConfigHolder, ILoadable, 
                 int valueAmount = config.getInt(path3 + "Values.Amount");
                 int valueLevel = config.getInt(path3 + "Values.Level");
 
-                ArenaWaveAmplificator amplificator = new ArenaWaveAmplificator(wave, ampId, triggers, valueAmount, valueLevel);
-                amplificators.put(amplificator.getId(), amplificator);
+                String ampId2 = waveId + "_" + ampId;
+                ArenaWaveAmplifier amplificator = new ArenaWaveAmplifier(this.getArenaConfig(), ampId2, triggers, valueAmount, valueLevel);
+                amplifiers.put(amplificator.getId(), amplificator);
+
+                wave.getAmplifiers().add(amplificator.getId());
             }
+            // ------- OLD DATA END
 
+            wave.getAmplifiers().addAll(config.getStringSet(path2 + "Amplifiers"));
+            wave.getAmplifiers().removeIf(ampId -> this.getAmplifier(ampId) == null);
 
-            for (String mobId : config.getSection(path2 + "Mobs")) {
-                String path3 = path2 + "Mobs." + mobId + ".";
+            for (String sId : config.getSection(path2 + "Mobs")) {
+                String path3 = path2 + "Mobs." + sId + ".";
 
+                MobProvider provider = PluginMobProvider.getProviders().stream().filter(pv -> pv.getMobNames().contains(sId))
+                    .findFirst().orElse(null);
+
+                if (provider == null) {
+                    String providerId = config.getString(path3 + "Provider", InternalMobProvider.NAME);
+                    provider = PluginMobProvider.getProvider(providerId);
+                    if (provider == null) {
+                        this.plugin().error("Invalid mob provider: '" + providerId + "' in '" + getArenaConfig().getId() + " arena.");
+                        continue;
+                    }
+                }
+
+                String mobId = config.getString(path3 + "Mob", sId);
                 int amount = config.getInt(path3 + "Amount");
                 int level = config.getInt(path3 + "Level");
                 double chance = config.getDouble(path3 + "Chance");
 
-                ArenaWaveMob mob = new ArenaWaveMob(wave, mobId, amount, level, chance);
-                waveMobs.put(mob.getMobId(), mob);
+                ArenaWaveMob mob = new ArenaWaveMob(wave, provider, mobId, amount, level, chance);
+                wave.getMobs().add(mob);
             }
 
             this.waves.put(wave.getId(), wave);
@@ -100,10 +132,9 @@ public class ArenaWaveManager implements IArenaObject, ConfigHolder, ILoadable, 
             this.editor.clear();
             this.editor = null;
         }
-        if (this.waves != null) {
-            this.waves.values().forEach(ArenaWave::clear);
-            this.waves.clear();
-        }
+        this.waves.values().forEach(ArenaWave::clear);
+        this.waves.clear();
+        this.amplifiers.clear();
     }
 
     @Override
@@ -119,24 +150,27 @@ public class ArenaWaveManager implements IArenaObject, ConfigHolder, ILoadable, 
         config.set("Gradual_Spawn.Next.For_Killed_Percent", this.getGradualSpawnNextKillPercent());
         config.set("Gradual_Spawn.Next.Time_Interval", this.getGradualSpawnNextInterval());
 
-        config.set("Waves", null);
+        config.remove("Waves");
         this.getWaves().forEach((id, wave) -> {
             String path2 = "Waves." + id + ".";
-            wave.getMobs().forEach((mobId, mob) -> {
-                String path3 = path2 + "Mobs." + mobId + ".";
+            wave.getMobs().forEach(mob -> {
+                String path3 = path2 + "Mobs." + UUID.randomUUID() + ".";
+                config.set(path3 + "Provider", mob.getProvider().getName());
+                config.set(path3 + "Mob", mob.getMobId());
                 config.set(path3 + "Amount", mob.getAmount());
                 config.set(path3 + "Level", mob.getLevel());
                 config.set(path3 + "Chance", mob.getChance());
             });
+        });
 
-            wave.getAmplificators().forEach((ampId, amp) -> {
-                String path3 = path2 + "Amplificators." + ampId + ".";
-                amp.getTriggers().forEach(trigger -> {
-                    config.set(path3 + "Triggers." + trigger.getType().name(), trigger.getValuesRaw());
-                });
-                config.set(path3 + "Values.Amount", amp.getValueAmount());
-                config.set(path3 + "Values.Level", amp.getValueLevel());
+        config.remove("Amplifiers");
+        this.getAmplifiers().forEach((ampId, amp) -> {
+            String path2 = "Amplifiers." + ampId + ".";
+            amp.getTriggers().forEach(trigger -> {
+                config.set(path2 + "Triggers." + trigger.getType().name(), trigger.getValuesRaw());
             });
+            config.set(path2 + "Values.Amount", amp.getValueAmount());
+            config.set(path2 + "Values.Level", amp.getValueLevel());
         });
     }
 
@@ -158,9 +192,9 @@ public class ArenaWaveManager implements IArenaObject, ConfigHolder, ILoadable, 
 
     @Override
     @NotNull
-    public EditorWaveManager getEditor() {
+    public WaveManagerEditor getEditor() {
         if (this.editor == null) {
-            this.editor = new EditorWaveManager(this);
+            this.editor = new WaveManagerEditor(this);
         }
         return this.editor;
     }
@@ -196,6 +230,16 @@ public class ArenaWaveManager implements IArenaObject, ConfigHolder, ILoadable, 
     @Nullable
     public ArenaWave getWave(@NotNull String id) {
         return this.getWaves().get(id.toLowerCase());
+    }
+
+    @NotNull
+    public Map<String, ArenaWaveAmplifier> getAmplifiers() {
+        return amplifiers;
+    }
+
+    @Nullable
+    public ArenaWaveAmplifier getAmplifier(@NotNull String id) {
+        return this.getAmplifiers().get(id.toLowerCase());
     }
 
     public int getFinalWave() {

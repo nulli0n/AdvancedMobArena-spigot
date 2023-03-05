@@ -5,7 +5,7 @@ import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
 import su.nightexpress.ama.api.arena.game.ArenaGameTriggerValue;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
 import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
-import su.nightexpress.ama.arena.AbstractArena;
+import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.game.trigger.value.TriggerValueBoolean;
 
 public class GameTriggerBoolean extends ArenaGameEventTrigger<Boolean> {
@@ -23,7 +23,7 @@ public class GameTriggerBoolean extends ArenaGameEventTrigger<Boolean> {
     @Override
     @NotNull
     public Boolean getEventRawValue(@NotNull ArenaGameGenericEvent event) {
-        AbstractArena arena = event.getArena();
+        Arena arena = event.getArena();
         return switch (this.getType()) {
             case GAME_START, GAME_END_LOSE, GAME_END_TIME, GAME_END_WIN -> true;
             default -> false;

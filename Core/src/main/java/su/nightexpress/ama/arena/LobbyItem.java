@@ -14,7 +14,10 @@ import su.nexmedia.engine.utils.PDCUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.Keys;
 import su.nightexpress.ama.api.ArenaAPI;
+import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.api.arena.type.LeaveReason;
+import su.nightexpress.ama.arena.impl.Arena;
+import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.config.Config;
 
 import java.util.ArrayList;
@@ -107,11 +110,11 @@ public class LobbyItem implements JOption.Writer {
         KIT_SHOP((arena, arenaPlayer) -> ArenaAPI.getKitManager().getShopMenu().open(arenaPlayer.getPlayer(), 1)),
         EXIT((arena, arenaPlayer) -> arenaPlayer.leaveArena(LeaveReason.SELF)),
         STATS((arena, arenaPlayer) -> ArenaAPI.getStatsManager().getStatsMenu().open(arenaPlayer.getPlayer(), 1)),
-        READY((arena, arenaPlayer) -> arenaPlayer.setReady(!arenaPlayer.isReady()));
+        READY((arena, arenaPlayer) -> arenaPlayer.setState(arenaPlayer.isReady() ? GameState.WAITING : GameState.READY));
 
-        private final BiConsumer<AbstractArena, ArenaPlayer> usage;
+        private final BiConsumer<Arena, ArenaPlayer> usage;
 
-        Type(@NotNull BiConsumer<AbstractArena, ArenaPlayer> usage) {
+        Type(@NotNull BiConsumer<Arena, ArenaPlayer> usage) {
             this.usage = usage;
         }
 

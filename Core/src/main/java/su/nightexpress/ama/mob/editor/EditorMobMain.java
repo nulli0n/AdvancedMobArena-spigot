@@ -27,7 +27,6 @@ import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.editor.ArenaEditorType;
 import su.nightexpress.ama.editor.ArenaEditorUtils;
 import su.nightexpress.ama.mob.config.MobConfig;
-import su.nightexpress.ama.mob.config.MobHealthBar;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,7 +42,7 @@ public class EditorMobMain extends AbstractEditorMenu<AMA, MobConfig> {
         EditorInput<MobConfig, ArenaEditorType> input = (player, mob2, type, e) -> {
             String msg = StringUtil.color(e.getMessage());
             switch (type) {
-                case MOB_CHANGE_BOSSBAR_TITLE -> mob2.getHealthBar().setTitle(msg);
+                case MOB_CHANGE_BOSSBAR_TITLE -> mob2.setBarTitle(msg);
                 case MOB_CHANGE_ATTRIBUTES_BASE, MOB_CHANGE_ATTRIBUTES_LEVEL -> {
                     String[] split = msg.split(" ");
                     if (split.length != 2) {
@@ -113,18 +112,17 @@ public class EditorMobMain extends AbstractEditorMenu<AMA, MobConfig> {
                         return;
                     }
                     case MOB_CHANGE_BOSSBAR -> {
-                        MobHealthBar healthBar = mob.getHealthBar();
                         if (e.isShiftClick()) {
                             if (e.isLeftClick()) {
-                                healthBar.setColor(CollectionsUtil.switchEnum(healthBar.getColor()));
+                                mob.setBarColor(CollectionsUtil.next(mob.getBarColor()));
                             }
                             else if (e.isRightClick()) {
-                                healthBar.setStyle(CollectionsUtil.switchEnum(healthBar.getStyle()));
+                                mob.setBarStyle(CollectionsUtil.next(mob.getBarStyle()));
                             }
                         }
                         else {
                             if (e.isLeftClick()) {
-                                healthBar.setEnabled(!healthBar.isEnabled());
+                                mob.setBarEnabled(!mob.isBarEnabled());
                             }
                             else if (e.isRightClick()) {
                                 EditorManager.startEdit(player, mob, ArenaEditorType.MOB_CHANGE_BOSSBAR_TITLE, input);

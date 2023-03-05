@@ -26,14 +26,13 @@ import su.nexmedia.engine.hooks.external.MythicMobsHook;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.api.arena.type.ArenaState;
-import su.nightexpress.ama.arena.AbstractArena;
+import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.arena.ArenaManager;
-import su.nightexpress.ama.arena.ArenaPlayer;
+import su.nightexpress.ama.arena.impl.Arena;
+import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.config.Config;
 import su.nightexpress.ama.kit.Kit;
 import su.nightexpress.ama.mob.config.MobConfig;
-import su.nightexpress.ama.mob.config.MobHealthBar;
 
 public class ArenaGenericListener extends AbstractListener<AMA> {
 
@@ -53,7 +52,7 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
         }
 
         Block block = e.getBlock();
-        AbstractArena arena = this.manager.getArenaAtLocation(block.getLocation());
+        Arena arena = this.manager.getArenaAtLocation(block.getLocation());
         if (arena != null && !player.hasPermission(Perms.CREATOR)) {
             e.setCancelled(true);
         }
@@ -64,16 +63,8 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
         Entity entity = e.getEntity();
 
         MobConfig mob = this.plugin.getMobManager().getEntityMobConfig(entity);
-        if (mob != null) {
-            MobHealthBar healthBar = mob.getHealthBar();
-            if (!healthBar.isEnabled()) return;
-
-            AbstractArena arena = this.plugin.getMobManager().getEntityArena(entity);
-            if (arena == null) return;
-
-            plugin.getServer().getScheduler().runTask(plugin, () -> {
-                healthBar.update(arena.getPlayersIngame(), (LivingEntity) entity);
-            });
+        if (mob != null && mob.isBarEnabled()) {
+            this.plugin.runTask(task -> mob.createOrUpdateBar((LivingEntity) entity));
             return;
         }
 
@@ -83,7 +74,7 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
         if (arenaPlayer == null) return;
 
         // Avoid damage in lobby
-        if (arenaPlayer.getArena().getState() != ArenaState.INGAME || arenaPlayer.isLateJoined()) {
+        if (arenaPlayer.getState() != GameState.INGAME) {
             e.setCancelled(true);
         }
     }
@@ -136,9 +127,9 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
         if (arenaPlayer == null) return;
 
-        AbstractArena arena = arenaPlayer.getArena();
+        Arena arena = arenaPlayer.getArena();
         if (!arena.getConfig().getGameplayManager().isKitsEnabled()) return;
-        if (arena.getState() == ArenaState.INGAME) return;
+        if (arena.getState() == GameState.INGAME) return;
 
         e.setCancelled(true);
     }
@@ -146,7 +137,7 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onArenaItemSpawn(ItemSpawnEvent e) {
         Item item = e.getEntity();
-        AbstractArena arena = this.manager.getArenaAtLocation(item.getLocation());
+        Arena arena = this.manager.getArenaAtLocation(item.getLocation());
         if (arena == null) return;
 
         arena.addGroundItem(item);
@@ -158,10 +149,10 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
         if (entity instanceof Player || Hooks.isCitizensNPC(entity)) return;
 
         Location location = entity.getLocation();
-        AbstractArena arena = plugin.getArenaManager().getArenaAtLocation(location);
+        Arena arena = plugin.getArenaManager().getArenaAtLocation(location);
         if (arena == null/* || !arena.getConfig().isActive()*/) return;
 
-        if (arena.getState() == ArenaState.INGAME) {
+        if (arena.getState() == GameState.INGAME && !arena.isAboutToFinish()) {
             CreatureSpawnEvent.SpawnReason reason = e.getSpawnReason();
             if (reason == CreatureSpawnEvent.SpawnReason.CUSTOM || arena.getConfig().getGameplayManager().isAllowedSpawnReason(reason)) {
                 if (!arena.isAboutToSpawnMobs()) {
@@ -202,8 +193,8 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
         Location to = e.getTo();
         if (to == null) return;
 
-        AbstractArena arenaTo = this.manager.getArenaAtLocation(to);
-        AbstractArena arenaFrom = this.manager.getArenaAtLocation(e.getFrom());
+        Arena arenaTo = this.manager.getArenaAtLocation(to);
+        Arena arenaFrom = this.manager.getArenaAtLocation(e.getFrom());
 
         if (arenaTo != arenaFrom) {
             e.setCancelled(true);
@@ -211,14 +202,15 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
     }
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
-    public void onArenaMobTeleport(PlayerTeleportEvent e) {
+    public void onArenaPlayerTeleport(PlayerTeleportEvent e) {
         Location to = e.getTo();
         if (to == null) return;
 
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(e.getPlayer());
-        AbstractArena arenaTo = this.manager.getArenaAtLocation(to);
-        AbstractArena arenaFrom = arenaPlayer == null ? null : arenaPlayer.getArena();
+        Arena arenaFrom = arenaPlayer == null ? null : arenaPlayer.getArena();
+        if (arenaFrom != null && arenaFrom.isAboutToFinish()) return;
 
+        Arena arenaTo = this.manager.getArenaAtLocation(to);
         if (arenaFrom != null && arenaTo != arenaFrom && arenaFrom.getPlayers().contains(arenaPlayer)) {
             e.setCancelled(true);
         }
@@ -257,7 +249,7 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
         if (e.getCause() == BlockIgniteEvent.IgniteCause.FLINT_AND_STEEL) return;
 
         Block block = e.getBlock();
-        AbstractArena arena = this.manager.getArenaAtLocation(block.getLocation());
+        Arena arena = this.manager.getArenaAtLocation(block.getLocation());
         if (arena != null) {
             e.setCancelled(true);
         }
@@ -265,7 +257,7 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onArenaBlockChange(EntityChangeBlockEvent e) {
-        AbstractArena arena = plugin.getArenaManager().getArenaAtLocation(e.getBlock().getLocation());
+        Arena arena = plugin.getArenaManager().getArenaAtLocation(e.getBlock().getLocation());
         if (arena != null) {
             e.setCancelled(true);
         }
@@ -273,7 +265,7 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onArenaBlockForm(EntityBlockFormEvent e) {
-        AbstractArena arena = plugin.getArenaManager().getArenaAtLocation(e.getBlock().getLocation());
+        Arena arena = plugin.getArenaManager().getArenaAtLocation(e.getBlock().getLocation());
         if (arena != null) {
             e.setCancelled(true);
         }
@@ -304,7 +296,7 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
             return true;
         }
 
-        AbstractArena arena = plugin.getArenaManager().getArenaAtLocation(entity.getLocation());
+        Arena arena = plugin.getArenaManager().getArenaAtLocation(entity.getLocation());
         return arena == null;
     }
 
@@ -379,7 +371,7 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
         if (arenaPlayer == null) return;
 
-        AbstractArena arena = arenaPlayer.getArena();
+        Arena arena = arenaPlayer.getArena();
         Kit kit = arenaPlayer.getKit();
 
         e.getRecipients().retainAll(arena.getPlayers().stream().map(ArenaPlayer::getPlayer).toList());

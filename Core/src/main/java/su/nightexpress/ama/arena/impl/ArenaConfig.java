@@ -1,16 +1,14 @@
-package su.nightexpress.ama.arena.config;
+package su.nightexpress.ama.arena.impl;
 
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
-import su.nexmedia.engine.api.manager.AbstractLoadableItem;
+import su.nexmedia.engine.api.manager.AbstractConfigHolder;
+import su.nexmedia.engine.api.manager.ICleanable;
 import su.nexmedia.engine.api.manager.IEditable;
-import su.nexmedia.engine.api.manager.ILoadable;
-import su.nexmedia.engine.api.server.JPermission;
 import su.nexmedia.engine.lang.LangManager;
-import su.nexmedia.engine.utils.CollectionsUtil;
+import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.LocationUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
@@ -18,12 +16,9 @@ import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.IProblematic;
 import su.nightexpress.ama.api.arena.type.ArenaLocationType;
-import su.nightexpress.ama.api.arena.type.ArenaState;
 import su.nightexpress.ama.api.currency.ICurrency;
 import su.nightexpress.ama.api.hologram.HologramHolder;
 import su.nightexpress.ama.api.hologram.HologramType;
-import su.nightexpress.ama.arena.AbstractArena;
-import su.nightexpress.ama.arena.Arena;
 import su.nightexpress.ama.arena.ArenaStatsHologram;
 import su.nightexpress.ama.arena.editor.arena.EditorArenaMain;
 import su.nightexpress.ama.arena.game.ArenaGameplayManager;
@@ -31,105 +26,112 @@ import su.nightexpress.ama.arena.region.ArenaRegionManager;
 import su.nightexpress.ama.arena.reward.ArenaRewardManager;
 import su.nightexpress.ama.arena.shop.ArenaShopManager;
 import su.nightexpress.ama.arena.spot.ArenaSpotManager;
+import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.arena.util.ArenaStateScheduler;
 import su.nightexpress.ama.arena.wave.ArenaWaveManager;
 import su.nightexpress.ama.hologram.HologramManager;
-import su.nightexpress.ama.hook.level.LevelProvider;
+import su.nightexpress.ama.hook.level.PlayerLevelProvider;
 import su.nightexpress.ama.hook.level.PluginLevelProvider;
 import su.nightexpress.ama.stats.object.StatType;
 
-import java.io.File;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
-public class ArenaConfig extends AbstractLoadableItem<AMA> implements HologramHolder, ILoadable, IEditable, IProblematic {
+public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHolder, IEditable, ICleanable, IProblematic {
 
-    private Arena   arena;
-    private boolean isActive;
-    private       String                         name;
-    private final Map<DayOfWeek, Set<LocalTime>> autoOpenTimes;
-    private final Map<DayOfWeek, Set<LocalTime>> autoCloseTimes;
-
-    private boolean                isPermissionRequired;
-    private JPermission            permission;
-    private Map<ICurrency, Double>      joinPaymentRequirements;
-    private Map<LevelProvider, Integer> joinLevelRequirements;
-
+    private final Map<DayOfWeek, Set<LocalTime>>    autoOpenTimes;
+    private final Map<DayOfWeek, Set<LocalTime>>    autoCloseTimes;
     private final Map<ArenaLocationType, Location>  locations;
     private final Map<StatType, ArenaStatsHologram> statsHolograms;
     private final Set<UUID>                         hologramIds;
     private final Set<Location>                     hologramLocations;
+    private final Map<ICurrency, Double>            joinPaymentRequirements;
+    private final Map<PlayerLevelProvider, Integer> joinLevelRequirements;
 
-    private ArenaWaveManager     waveManager;
-    private ArenaRegionManager   regionManager;
-    private ArenaGameplayManager gameplayManager;
-    private ArenaSpotManager     spotManager;
-    private ArenaRewardManager   rewardManager;
-    private ArenaShopManager     shopManager;
+    private final Arena arena;
+    private final ArenaWaveManager     waveManager;
+    private final ArenaRegionManager   regionManager;
+    private final ArenaGameplayManager gameplayManager;
+    private final ArenaSpotManager     spotManager;
+    private final ArenaRewardManager   rewardManager;
+    private final ArenaShopManager     shopManager;
+
+    private boolean isActive;
+    private String  name;
+    private boolean isPermissionRequired;
 
     private EditorArenaMain editorMain;
 
     private ArenaStateScheduler openScheduler;
     private ArenaStateScheduler closeScheduler;
 
-    public ArenaConfig(@NotNull AMA plugin, @NotNull String path) {
-        this(plugin, new JYML(new File(path)));
-        this.setActive(false);
+    public ArenaConfig(@NotNull AMA plugin, @NotNull JYML cfg, @NotNull String id) {
+        super(plugin, cfg, id);
+        this.autoOpenTimes = new HashMap<>();
+        this.autoCloseTimes = new HashMap<>();
+        this.locations = new HashMap<>();
+        this.statsHolograms = new HashMap<>();
+        this.hologramIds = new HashSet<>();
+        this.hologramLocations = new HashSet<>();
+        this.joinPaymentRequirements = new HashMap<>();
+        this.joinLevelRequirements = new HashMap<>();
+
+        this.waveManager = new ArenaWaveManager(this);
+        this.regionManager = new ArenaRegionManager(this);
+        this.gameplayManager = new ArenaGameplayManager(this);
+        this.spotManager = new ArenaSpotManager(this);
+        this.rewardManager = new ArenaRewardManager(this);
+        this.shopManager = new ArenaShopManager(this);
+
+        this.arena = new Arena(this);
     }
 
-    public ArenaConfig(@NotNull AMA plugin, @NotNull JYML cfg) {
-        super(plugin, cfg);
+    @Override
+    public boolean load() {
         this.setActive(cfg.getBoolean("Active"));
         this.setName(cfg.getString("Name", this.getId() + " Arena"));
 
-        this.autoOpenTimes = new HashMap<>();
-        this.autoCloseTimes = new HashMap<>();
         for (String type : cfg.getSection("Auto_State_Schedulers")) {
             for (String dayName : cfg.getSection("Auto_State_Schedulers." + type)) {
-                DayOfWeek day = CollectionsUtil.getEnum(dayName, DayOfWeek.class);
+                DayOfWeek day = StringUtil.getEnum(dayName, DayOfWeek.class).orElse(null);
                 if (day == null) continue;
 
                 (type.equalsIgnoreCase("open") ? this.autoOpenTimes : this.autoCloseTimes)
                     .put(day, cfg.getStringList("Auto_State_Schedulers." + type + "." + dayName)
-                    .stream().map(timeRaw -> LocalTime.parse(timeRaw, ArenaStateScheduler.TIME_FORMATTER)).collect(Collectors.toSet()));
+                        .stream().map(timeRaw -> LocalTime.parse(timeRaw, ArenaStateScheduler.TIME_FORMATTER)).collect(Collectors.toSet()));
             }
         }
 
-        String path = "Join_Requirements.";
-        this.setPermissionRequired(cfg.getBoolean(path + "Permission"));
-        this.setPermission();
+        this.setPermissionRequired(cfg.getBoolean("Join_Requirements.Permission"));
 
-        this.setJoinPaymentRequirements(new HashMap<>());
-        for (String sId : cfg.getSection(path + "Payment")) {
+        for (String sId : cfg.getSection("Join_Requirements.Payment")) {
             ICurrency currency = this.plugin().getCurrencyManager().getCurrency(sId);
             if (currency == null) continue;
 
-            double amount = cfg.getDouble(path + "Payment." + sId, 0D);
+            double amount = cfg.getDouble("Join_Requirements.Payment." + sId, 0D);
             if (amount <= 0D) continue;
 
             this.getJoinPaymentRequirements().put(currency, amount);
         }
 
-        this.setJoinLevelRequirements(new HashMap<>());
-        for (String sId : cfg.getSection(path + "Level")) {
-            LevelProvider provider = PluginLevelProvider.getProvider(sId);
+        for (String sId : cfg.getSection("Join_Requirements.Level")) {
+            PlayerLevelProvider provider = PluginLevelProvider.getProvider(sId);
             if (provider == null) continue;
 
-            int level = cfg.getInt(path + "Level." + sId, 0);
+            int level = cfg.getInt("Join_Requirements.Level." + sId, 0);
             if (level <= 0) continue;
 
             this.getJoinLevelRequirements().put(provider, level);
         }
 
-        this.locations = new HashMap<>();
+
         for (ArenaLocationType locationType : ArenaLocationType.values()) {
             this.locations.put(locationType, cfg.getLocation("Locations." + locationType.name()));
         }
 
-        this.statsHolograms = new HashMap<>();
         for (StatType statType : StatType.values()) {
             Set<Location> locations = cfg.getStringList("Hologram." + statType.name() + ".Locations")
                 .stream().map(LocationUtil::deserialize).filter(Objects::nonNull).collect(Collectors.toSet());
@@ -137,11 +139,21 @@ public class ArenaConfig extends AbstractLoadableItem<AMA> implements HologramHo
             this.statsHolograms.put(statType, statsHologram);
         }
 
-        this.hologramIds = new HashSet<>();
-        this.hologramLocations = cfg.getStringList("Hologram.Default.Locations")
-            .stream().map(LocationUtil::deserialize).filter(Objects::nonNull).collect(Collectors.toSet());
+        this.hologramLocations.addAll(cfg.getStringList("Hologram.Default.Locations")
+            .stream().map(LocationUtil::deserialize).filter(Objects::nonNull).collect(Collectors.toSet()));
 
-        this.setup();
+        this.waveManager.setup();
+        this.regionManager.setup();
+        this.gameplayManager.setup();
+        this.spotManager.setup();
+        this.rewardManager.setup();
+        this.shopManager.setup();
+        this.getConfig().saveChanges();
+
+        this.updateSchedulers();
+        this.getArena().reset();
+        this.createHolograms();
+        return true;
     }
 
     @Override
@@ -168,7 +180,7 @@ public class ArenaConfig extends AbstractLoadableItem<AMA> implements HologramHo
             .replace(Placeholders.ARENA_ID, this.getId())
             .replace(Placeholders.ARENA_ACTIVE, LangManager.getBoolean(this.isActive()))
             .replace(Placeholders.ARENA_NAME, this.getName())
-            .replace(Placeholders.ARENA_PERMISSION, this.getPermission().getName())
+            .replace(Placeholders.ARENA_PERMISSION, this.getPermission())
             .replace(Placeholders.ARENA_AUTO_STATE_OPEN_TIMES, openTimes)
             .replace(Placeholders.ARENA_AUTO_STATE_CLOSE_TIMES, closeTimes)
             .replace(Placeholders.ARENA_REQUIREMENT_PERMISSION, LangManager.getBoolean(this.isPermissionRequired()))
@@ -176,35 +188,8 @@ public class ArenaConfig extends AbstractLoadableItem<AMA> implements HologramHo
             .replace(Placeholders.ARENA_REQUIREMENT_LEVEL, reqLevel)
             ;
     }
-
     @Override
-    public void setup() {
-        this.waveManager = new ArenaWaveManager(this);
-        this.waveManager.setup();
-
-        this.regionManager = new ArenaRegionManager(this);
-        this.regionManager.setup();
-
-        this.gameplayManager = new ArenaGameplayManager(this);
-        this.gameplayManager.setup();
-
-        this.spotManager = new ArenaSpotManager(this);
-        this.spotManager.setup();
-
-        this.rewardManager = new ArenaRewardManager(this);
-        this.rewardManager.setup();
-
-        this.shopManager = new ArenaShopManager(this);
-        this.shopManager.setup();
-
-        this.getConfig().saveChanges();
-
-        this.updateSchedulers();
-        this.createHolograms();
-    }
-
-    @Override
-    public void shutdown() {
+    public void clear() {
         this.removeHolograms();
         if (this.openScheduler != null) {
             this.openScheduler.stopScheduler();
@@ -214,40 +199,18 @@ public class ArenaConfig extends AbstractLoadableItem<AMA> implements HologramHo
             this.closeScheduler.stopScheduler();
             this.closeScheduler = null;
         }
-
-        if (this.statsHolograms != null) {
-            this.statsHolograms.values().forEach(HologramHolder::removeHolograms);
-            this.statsHolograms.clear();
-        }
+        this.statsHolograms.values().forEach(HologramHolder::removeHolograms);
+        this.statsHolograms.clear();
         if (this.editorMain != null) {
             this.editorMain.clear();
             this.editorMain = null;
         }
-        if (this.spotManager != null) {
-            this.spotManager.shutdown();
-            this.spotManager = null;
-        }
-        if (this.regionManager != null) {
-            this.regionManager.shutdown();
-            this.regionManager = null;
-        }
-        if (this.gameplayManager != null) {
-            this.gameplayManager.shutdown();
-            this.gameplayManager = null;
-        }
-        if (this.waveManager != null) {
-            this.waveManager.shutdown();
-            this.waveManager = null;
-        }
-        if (this.rewardManager != null) {
-            this.rewardManager.shutdown();
-            this.rewardManager = null;
-        }
-        if (this.shopManager != null) {
-            this.shopManager.shutdown();
-            this.shopManager = null;
-        }
-        this.removePermission();
+        this.spotManager.shutdown();
+        this.regionManager.shutdown();
+        this.gameplayManager.shutdown();
+        this.waveManager.shutdown();
+        this.rewardManager.shutdown();
+        this.shopManager.shutdown();
     }
 
     @Override
@@ -342,10 +305,7 @@ public class ArenaConfig extends AbstractLoadableItem<AMA> implements HologramHo
 
     @NotNull
     public Arena getArena() {
-        if (this.arena == null) {
-            this.arena = new Arena(this);
-        }
-        return arena;
+        return this.arena;
     }
 
     public boolean isActive() {
@@ -362,7 +322,7 @@ public class ArenaConfig extends AbstractLoadableItem<AMA> implements HologramHo
     }
 
     public void setName(@NotNull String name) {
-        this.name = StringUtil.color(name);
+        this.name = Colorizer.apply(name);
     }
 
     public boolean isPermissionRequired() {
@@ -373,21 +333,9 @@ public class ArenaConfig extends AbstractLoadableItem<AMA> implements HologramHo
         isPermissionRequired = permissionRequired;
     }
 
-    private void setPermission() {
-        this.permission = new JPermission(Perms.PREFIX_ARENA + this.getId(), "Access to the " + getId() + " arena.");
-        Perms.ARENA_ALL.addChildren(this.getPermission());
-        if (this.plugin.getPluginManager().getPermission(this.getPermission().getName()) == null) {
-            this.plugin.getPluginManager().addPermission(this.getPermission());
-        }
-    }
-
-    private void removePermission() {
-        this.plugin.getPluginManager().removePermission(this.getPermission());
-    }
-
     @NotNull
-    public JPermission getPermission() {
-        return permission;
+    public String getPermission() {
+        return Perms.PREFIX_ARENA + this.getId();
     }
 
     @NotNull
@@ -405,33 +353,9 @@ public class ArenaConfig extends AbstractLoadableItem<AMA> implements HologramHo
         return joinPaymentRequirements;
     }
 
-    public void setJoinPaymentRequirements(@NotNull Map<ICurrency, Double> joinPaymentRequirements) {
-        this.joinPaymentRequirements = joinPaymentRequirements;
-    }
-
     @NotNull
-    public Map<LevelProvider, Integer> getJoinLevelRequirements() {
+    public Map<PlayerLevelProvider, Integer> getJoinLevelRequirements() {
         return joinLevelRequirements;
-    }
-
-    public void setJoinLevelRequirements(@NotNull Map<LevelProvider, Integer> joinLevelRequirements) {
-        this.joinLevelRequirements = joinLevelRequirements;
-    }
-
-    public boolean checkJoinRequirements(@NotNull AbstractArena arena, @NotNull Player player) {
-        if (this.isPermissionRequired() && !this.getArena().hasPermission(player)) return false;
-        if (!this.getJoinPaymentRequirements().entrySet().stream().allMatch(entry -> {
-            return entry.getKey().getBalance(player) >= entry.getValue();
-        })) return false;
-        if (!this.getJoinLevelRequirements().entrySet().stream().allMatch(entry -> {
-            return entry.getKey().getLevel(player) >= entry.getValue();
-        })) return false;
-
-        return true;
-    }
-
-    public void payJoinRequirements(@NotNull AbstractArena arena, @NotNull Player player) {
-        this.getJoinPaymentRequirements().forEach((currency, amount) -> currency.take(player, amount));
     }
 
     public Location getLocation(@NotNull ArenaLocationType locationType) {
@@ -459,7 +383,7 @@ public class ArenaConfig extends AbstractLoadableItem<AMA> implements HologramHo
         HologramHolder.super.updateHolograms();
         this.setHologramClick((player -> {
             Arena arena = this.getArena();
-            if (arena.getState() == ArenaState.INGAME && !player.hasPermission(Perms.BYPASS_ARENA_JOIN_INGAME)) {
+            if (arena.getState() == GameState.INGAME && !player.hasPermission(Perms.BYPASS_ARENA_JOIN_INGAME)) {
                 arena.joinSpectate(player);
             }
             else {

@@ -21,12 +21,13 @@ import su.nightexpress.ama.editor.ArenaEditorUtils;
 
 import java.util.Map;
 
-public class EditorWaveManager extends AbstractEditorMenu<AMA, ArenaWaveManager> {
+public class WaveManagerEditor extends AbstractEditorMenu<AMA, ArenaWaveManager> {
 
-    private EditorWaveList    editorWaveList;
-    private EditorWaveGradual editorGradual;
+    private WavesListEditor            wavesListEditor;
+    private WavesGradualSettingsEditor editorGradual;
+    private WavesAmplifiersEditor      editorAmplificators;
 
-    public EditorWaveManager(@NotNull ArenaWaveManager waveManager) {
+    public WaveManagerEditor(@NotNull ArenaWaveManager waveManager) {
         super(waveManager.plugin(), waveManager, ArenaEditorUtils.TITLE_WAVE_EDITOR, 54);
 
         EditorInput<ArenaWaveManager, ArenaEditorType> input = (player, waves, type, e) -> {
@@ -83,6 +84,7 @@ public class EditorWaveManager extends AbstractEditorMenu<AMA, ArenaWaveManager>
                     }
                     case WAVES_CHANGE_GRADUAL -> this.getEditorGradual().open(player, 1);
                     case WAVES_CHANGE_WAVES -> this.getEditorWaveList().open(player, 1);
+                    case WAVES_CHANGE_AMPLIFIERS -> this.getEditorAmplificators().open(player, 1);
                     default -> {}
                 }
             }
@@ -93,13 +95,17 @@ public class EditorWaveManager extends AbstractEditorMenu<AMA, ArenaWaveManager>
 
     @Override
     public void clear() {
-        if (this.editorWaveList != null) {
-            this.editorWaveList.clear();
-            this.editorWaveList = null;
+        if (this.wavesListEditor != null) {
+            this.wavesListEditor.clear();
+            this.wavesListEditor = null;
         }
         if (this.editorGradual != null) {
             this.editorGradual.clear();
             this.editorGradual = null;
+        }
+        if (this.editorAmplificators != null) {
+            this.editorAmplificators.clear();
+            this.editorAmplificators = null;
         }
         super.clear();
     }
@@ -109,24 +115,33 @@ public class EditorWaveManager extends AbstractEditorMenu<AMA, ArenaWaveManager>
         map.put(ArenaEditorType.WAVES_CHANGE_DELAY, 29);
         map.put(ArenaEditorType.WAVES_CHANGE_FINAL_WAVE, 33);
         map.put(ArenaEditorType.WAVES_CHANGE_WAVES, 31);
+        map.put(ArenaEditorType.WAVES_CHANGE_AMPLIFIERS, 15);
         map.put(ArenaEditorType.WAVES_CHANGE_GRADUAL, 13);
         map.put(MenuItemType.RETURN, 49);
     }
 
     @NotNull
-    public EditorWaveList getEditorWaveList() {
-        if (this.editorWaveList == null) {
-            this.editorWaveList = new EditorWaveList(this.object);
+    public WavesListEditor getEditorWaveList() {
+        if (this.wavesListEditor == null) {
+            this.wavesListEditor = new WavesListEditor(this.object);
         }
-        return this.editorWaveList;
+        return this.wavesListEditor;
     }
 
     @NotNull
-    public EditorWaveGradual getEditorGradual() {
+    public WavesGradualSettingsEditor getEditorGradual() {
         if (this.editorGradual == null) {
-            this.editorGradual = new EditorWaveGradual(this.object);
+            this.editorGradual = new WavesGradualSettingsEditor(this.object);
         }
         return this.editorGradual;
+    }
+
+    @NotNull
+    public WavesAmplifiersEditor getEditorAmplificators() {
+        if (this.editorAmplificators == null) {
+            this.editorAmplificators = new WavesAmplifiersEditor(this.object);
+        }
+        return this.editorAmplificators;
     }
 
     @Override

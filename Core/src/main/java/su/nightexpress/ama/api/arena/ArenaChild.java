@@ -2,13 +2,12 @@ package su.nightexpress.ama.api.arena;
 
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.ama.AMA;
-import su.nightexpress.ama.arena.AbstractArena;
-import su.nightexpress.ama.arena.config.ArenaConfig;
+import su.nightexpress.ama.arena.impl.Arena;
+import su.nightexpress.ama.arena.impl.ArenaConfig;
 
-public interface IArenaObject {
+public interface ArenaChild {
 
-    @NotNull
-    ArenaConfig getArenaConfig();
+    @NotNull ArenaConfig getArenaConfig();
 
     @NotNull
     default AMA plugin() {
@@ -16,7 +15,7 @@ public interface IArenaObject {
     }
 
     @NotNull
-    default AbstractArena getArena() {
+    default Arena getArena() {
         return this.getArenaConfig().getArena();
     }
 }

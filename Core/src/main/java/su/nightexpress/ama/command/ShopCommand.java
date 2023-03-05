@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.command.AbstractCommand;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
-import su.nightexpress.ama.arena.ArenaPlayer;
+import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.config.Lang;
 
 import java.util.Map;

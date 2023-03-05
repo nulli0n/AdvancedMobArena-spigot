@@ -15,9 +15,10 @@ import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Keys;
 import su.nightexpress.ama.Placeholders;
+import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.api.arena.type.LeaveReason;
-import su.nightexpress.ama.arena.AbstractArena;
-import su.nightexpress.ama.arena.ArenaPlayer;
+import su.nightexpress.ama.arena.impl.Arena;
+import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.config.Config;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.kit.Kit;
@@ -87,7 +88,7 @@ public class SignManager extends AbstractManager<AMA> {
         List<String> text = new ArrayList<>(text2);
         switch (signType) {
             case ARENA_JOIN, ARENA_LEAVE, ARENA_READY, ARENA_SHOP -> {
-                AbstractArena arena = this.getSignArena(sign);
+                Arena arena = this.getSignArena(sign);
                 if (arena != null) text.replaceAll(arena.replacePlaceholders());
             }
             case KIT -> {
@@ -103,7 +104,7 @@ public class SignManager extends AbstractManager<AMA> {
                 if (pos < 1) return;
 
                 String arenaId = PDCUtil.getStringData(sign, Keys.SIGN_ARENA_ID);
-                AbstractArena arena = arenaId != null ? plugin.getArenaManager().getArenaById(arenaId) : null;
+                Arena arena = arenaId != null ? plugin.getArenaManager().getArenaById(arenaId) : null;
                 StatsScore score = this.plugin.getStatsManager().getScore(statType, pos, arenaId);
 
                 text.replaceAll(line -> score.replacePlaceholders(pos).apply(line)
@@ -149,7 +150,7 @@ public class SignManager extends AbstractManager<AMA> {
     }
 
     @Nullable
-    public AbstractArena getSignArena(@NotNull Sign sign) {
+    public Arena getSignArena(@NotNull Sign sign) {
         String arenaId = PDCUtil.getStringData(sign, Keys.SIGN_ARENA_ID);
         return arenaId == null ? null : this.plugin.getArenaManager().getArenaById(arenaId);
     }
@@ -193,7 +194,7 @@ public class SignManager extends AbstractManager<AMA> {
             int pos = StringUtil.getInteger(line3[0], -1);
             if (pos <= 0) return false;
 
-            AbstractArena arena = line3.length >= 2 ? this.plugin.getArenaManager().getArenaById(line3[1]) : null;
+            Arena arena = line3.length >= 2 ? this.plugin.getArenaManager().getArenaById(line3[1]) : null;
 
             PDCUtil.setData(sign, Keys.SIGN_STAT_TYPE, type.name());
             PDCUtil.setData(sign, Keys.SIGN_STAT_POSITION, pos);
@@ -214,7 +215,7 @@ public class SignManager extends AbstractManager<AMA> {
 
         switch (signType) {
             case ARENA_JOIN -> {
-                AbstractArena arena = this.getSignArena(sign);
+                Arena arena = this.getSignArena(sign);
                 if (arena == null) return false;
 
                 arena.joinLobby(player);
@@ -233,9 +234,9 @@ public class SignManager extends AbstractManager<AMA> {
             }
             case ARENA_READY -> {
                 ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
-                if (arenaPlayer == null) return false;
+                if (arenaPlayer == null || arenaPlayer.isInGame()) return false;
 
-                arenaPlayer.setReady(!arenaPlayer.isReady());
+                arenaPlayer.setState(arenaPlayer.isReady() ? GameState.WAITING : GameState.READY);
             }
             case KIT -> {
                 ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);

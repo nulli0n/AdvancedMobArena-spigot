@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.hologram.HologramHolder;
 import su.nightexpress.ama.api.hologram.HologramType;
-import su.nightexpress.ama.arena.config.ArenaConfig;
+import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.hologram.HologramManager;
 import su.nightexpress.ama.stats.object.StatType;
 import su.nightexpress.ama.stats.object.StatsScore;

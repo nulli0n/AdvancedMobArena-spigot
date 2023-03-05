@@ -8,39 +8,40 @@ import su.nexmedia.engine.api.manager.IEditable;
 import su.nexmedia.engine.api.manager.ILoadable;
 import su.nexmedia.engine.lang.LangManager;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.api.arena.IArenaObject;
+import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.IProblematic;
 import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
 import su.nightexpress.ama.api.arena.type.ArenaTargetType;
-import su.nightexpress.ama.arena.config.ArenaConfig;
 import su.nightexpress.ama.arena.editor.reward.EditorRewardList;
+import su.nightexpress.ama.arena.impl.ArenaConfig;
 
 import java.util.*;
 import java.util.function.UnaryOperator;
 
-public class ArenaRewardManager implements IArenaObject, ConfigHolder, ILoadable, IEditable, IProblematic {
+public class ArenaRewardManager implements ArenaChild, ConfigHolder, ILoadable, IEditable, IProblematic {
 
     private final ArenaConfig      arenaConfig;
     private final JYML             config;
-    private       EditorRewardList editor;
+    private final Set<ArenaReward> rewards;
 
-    private boolean          isRetainOnLeave;
-    private boolean          isRetainOnDeath;
-    private Set<ArenaReward> rewards;
+    private boolean isRetainOnLeave;
+    private boolean isRetainOnDeath;
+
+    private EditorRewardList editor;
 
     private static final String CONFIG_NAME = "rewards.yml";
 
     public ArenaRewardManager(@NotNull ArenaConfig arenaConfig) {
         this.arenaConfig = arenaConfig;
         this.config = new JYML(this.arenaConfig.getFile().getParentFile().getAbsolutePath(), CONFIG_NAME);
+        this.rewards = new HashSet<>();
     }
 
     @Override
-    @Deprecated
     public void setup() {
         this.isRetainOnLeave = config.getBoolean("Retain_On_Leave");
         this.isRetainOnDeath = config.getBoolean("Retain_On_Death");
-        this.rewards = new HashSet<>();
+
         for (String sId : config.getSection("List")) {
             String path2 = "List." + sId + ".";
 
@@ -63,10 +64,8 @@ public class ArenaRewardManager implements IArenaObject, ConfigHolder, ILoadable
             this.editor.clear();
             this.editor = null;
         }
-        if (this.rewards != null) {
-            this.rewards.clear();
-            this.rewards = null;
-        }
+        this.getRewards().forEach(ArenaReward::clear);
+        this.getRewards().clear();
     }
 
     @Override
@@ -144,9 +143,5 @@ public class ArenaRewardManager implements IArenaObject, ConfigHolder, ILoadable
     @NotNull
     public Set<ArenaReward> getRewards() {
         return rewards;
-    }
-
-    public void setRewards(@NotNull Set<ArenaReward> rewards) {
-        this.rewards = rewards;
     }
 }

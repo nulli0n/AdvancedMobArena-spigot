@@ -8,7 +8,7 @@ import su.nexmedia.engine.lang.LangManager;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.arena.AbstractArena;
+import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.config.Lang;
 
 import java.util.Arrays;
@@ -57,7 +57,7 @@ public class SetActiveCommand extends AbstractCommand<AMA> {
             return;
         }
 
-        AbstractArena arena = plugin.getArenaManager().getArenaById(args[1]);
+        Arena arena = plugin.getArenaManager().getArenaById(args[1]);
         if (arena == null) {
             plugin.getMessage(Lang.ARENA_ERROR_INVALID).send(sender);
             return;

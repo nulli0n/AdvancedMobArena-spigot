@@ -11,13 +11,13 @@ import su.nexmedia.engine.utils.PlayerUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nexmedia.engine.utils.random.Rnd;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.api.arena.IArenaObject;
+import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
 import su.nightexpress.ama.api.arena.game.IArenaGameEventListener;
 import su.nightexpress.ama.api.arena.type.ArenaTargetType;
 import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
-import su.nightexpress.ama.arena.AbstractArena;
-import su.nightexpress.ama.arena.config.ArenaConfig;
+import su.nightexpress.ama.arena.impl.Arena;
+import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.arena.editor.reward.EditorRewardSettings;
 import su.nightexpress.ama.config.Lang;
 
@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 
-public class ArenaReward implements IArenaGameEventListener, IArenaObject, IEditable, ICleanable {
+public class ArenaReward implements IArenaGameEventListener, ArenaChild, IEditable, ICleanable {
 
     private final ArenaConfig arenaConfig;
 
@@ -99,7 +99,7 @@ public class ArenaReward implements IArenaGameEventListener, IArenaObject, IEdit
         return true;
     }
 
-    public void give(@NotNull AbstractArena arena) {
+    public void give(@NotNull Arena arena) {
         if (Rnd.get(true) >= this.getChance()) return;
 
         arena.getPlayers(this.getTargetType()).forEach(arenaPlayer -> {

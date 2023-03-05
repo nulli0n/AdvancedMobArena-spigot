@@ -1,9 +1,10 @@
-package su.nightexpress.ama.arena.wave;
+package su.nightexpress.ama.arena.impl;
 
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.arena.region.ArenaRegionWave;
+import su.nightexpress.ama.arena.wave.ArenaWaveMob;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,13 +12,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class ArenaWaveUpcoming {
+public class ArenaUpcomingWave {
 
     private final ArenaRegionWave    regionWave;
     private final List<ArenaWaveMob> mobs;
     private final List<Location>     spawners;
 
-    public ArenaWaveUpcoming(@NotNull ArenaRegionWave regionWave, @NotNull List<ArenaWaveMob> mobs) {
+    public ArenaUpcomingWave(@NotNull ArenaRegionWave regionWave, @NotNull List<ArenaWaveMob> mobs) {
         this.regionWave = regionWave;
         this.mobs = mobs;
 

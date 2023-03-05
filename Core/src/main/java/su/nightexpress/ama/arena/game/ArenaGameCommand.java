@@ -6,20 +6,20 @@ import su.nexmedia.engine.api.manager.IEditable;
 import su.nexmedia.engine.api.manager.IPlaceholder;
 import su.nexmedia.engine.utils.PlayerUtil;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.api.arena.IArenaObject;
+import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
 import su.nightexpress.ama.api.arena.game.IArenaGameEventListener;
 import su.nightexpress.ama.api.arena.type.ArenaTargetType;
 import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
-import su.nightexpress.ama.arena.AbstractArena;
-import su.nightexpress.ama.arena.config.ArenaConfig;
+import su.nightexpress.ama.arena.impl.Arena;
+import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.arena.editor.game.EditorGameCommandSettings;
 
 import java.util.List;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 
-public class ArenaGameCommand implements IArenaGameEventListener, IArenaObject, IEditable, ICleanable, IPlaceholder {
+public class ArenaGameCommand implements IArenaGameEventListener, ArenaChild, IEditable, ICleanable, IPlaceholder {
 
     private final ArenaConfig arenaConfig;
 
@@ -53,7 +53,7 @@ public class ArenaGameCommand implements IArenaGameEventListener, IArenaObject, 
     public boolean onGameEvent(@NotNull ArenaGameGenericEvent gameEvent) {
         if (!this.isReady(gameEvent)) return false;
 
-        AbstractArena arena = gameEvent.getArena();
+        Arena arena = gameEvent.getArena();
         if (this.getTargetType() == ArenaTargetType.GLOBAL) {
             this.getCommands().forEach(cmd -> arena.plugin().getServer().dispatchCommand(plugin().getServer().getConsoleSender(), cmd));
             return true;

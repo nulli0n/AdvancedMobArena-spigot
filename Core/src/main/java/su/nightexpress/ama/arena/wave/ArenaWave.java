@@ -6,33 +6,34 @@ import su.nexmedia.engine.api.manager.IEditable;
 import su.nexmedia.engine.api.manager.IPlaceholder;
 import su.nexmedia.engine.utils.random.Rnd;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.api.arena.IArenaObject;
-import su.nightexpress.ama.arena.config.ArenaConfig;
-import su.nightexpress.ama.arena.editor.wave.EditorWaveSettings;
+import su.nightexpress.ama.api.arena.ArenaChild;
+import su.nightexpress.ama.arena.editor.wave.WaveSettingsEditor;
+import su.nightexpress.ama.arena.impl.ArenaConfig;
 
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.function.UnaryOperator;
 
-public class ArenaWave implements IArenaObject, IEditable, ICleanable, IPlaceholder {
+public class ArenaWave implements ArenaChild, IEditable, ICleanable, IPlaceholder {
 
-    private final ArenaConfig                        arenaConfig;
-    private final String                             id;
-    private       Map<String, ArenaWaveMob>          mobs;
-    private       Map<String, ArenaWaveAmplificator> amplificators;
+    private final ArenaConfig arenaConfig;
+    private final String      id;
+    private final Set<ArenaWaveMob> mobs;
+    private final Set<String>       amplifiers;
 
-    private EditorWaveSettings editor;
+    private WaveSettingsEditor editor;
 
     public ArenaWave(
         @NotNull ArenaConfig arenaConfig,
         @NotNull String id,
-        @NotNull Map<String, ArenaWaveMob> mobs,
-        @NotNull Map<String, ArenaWaveAmplificator> amplificators
+        @NotNull Set<ArenaWaveMob> mobs,
+        @NotNull Set<String> amplifiers
     ) {
         this.arenaConfig = arenaConfig;
         this.id = id.toLowerCase();
-        this.setMobs(mobs);
-        this.setAmplificators(amplificators);
+        this.mobs = new HashSet<>(mobs);
+        this.amplifiers = new HashSet<>(amplifiers);
     }
 
     @Override
@@ -45,9 +46,9 @@ public class ArenaWave implements IArenaObject, IEditable, ICleanable, IPlacehol
 
     @Override
     @NotNull
-    public EditorWaveSettings getEditor() {
+    public WaveSettingsEditor getEditor() {
         if (this.editor == null) {
-            this.editor = new EditorWaveSettings(this);
+            this.editor = new WaveSettingsEditor(this);
         }
         return this.editor;
     }
@@ -57,8 +58,8 @@ public class ArenaWave implements IArenaObject, IEditable, ICleanable, IPlacehol
     public UnaryOperator<String> replacePlaceholders() {
         return str -> str
             .replace(Placeholders.ARENA_WAVE_ID, this.getId())
-            .replace(Placeholders.ARENA_WAVE_MOBS, String.join(DELIMITER_DEFAULT, this.getMobs().values().stream()
-                .map(ArenaWaveMob::getMobId).toList()))
+            .replace(Placeholders.ARENA_WAVE_MOBS, String.join(DELIMITER_DEFAULT, this.getMobs().stream().map(ArenaWaveMob::getMobId).toList()))
+            .replace(Placeholders.ARENA_WAVE_AMPLIFIERS, String.join(", ", this.getAmplifiers()))
             ;
     }
 
@@ -74,26 +75,17 @@ public class ArenaWave implements IArenaObject, IEditable, ICleanable, IPlacehol
     }
 
     @NotNull
-    public Map<String, ArenaWaveMob> getMobs() {
+    public Set<ArenaWaveMob> getMobs() {
         return this.mobs;
     }
 
     @NotNull
     public List<ArenaWaveMob> getMobsByChance() {
-        return this.getMobs().values().stream()
-            .filter(mob -> mob.getAmount() > 0 && Rnd.chance(mob.getChance())).toList();
-    }
-
-    public void setMobs(@NotNull Map<String, ArenaWaveMob> mobs) {
-        this.mobs = mobs;
+        return this.getMobs().stream().filter(mob -> mob.getAmount() > 0 && Rnd.chance(mob.getChance())).toList();
     }
 
     @NotNull
-    public Map<String, ArenaWaveAmplificator> getAmplificators() {
-        return amplificators;
-    }
-
-    public void setAmplificators(@NotNull Map<String, ArenaWaveAmplificator> amplificators) {
-        this.amplificators = amplificators;
+    public Set<String> getAmplifiers() {
+        return amplifiers;
     }
 }

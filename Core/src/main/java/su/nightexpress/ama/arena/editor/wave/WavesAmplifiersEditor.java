@@ -11,54 +11,54 @@ import su.nexmedia.engine.api.menu.MenuItemType;
 import su.nexmedia.engine.editor.AbstractEditorMenuAuto;
 import su.nexmedia.engine.editor.EditorManager;
 import su.nexmedia.engine.utils.ItemUtil;
-import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
-import su.nightexpress.ama.arena.wave.ArenaWave;
+import su.nightexpress.ama.arena.impl.ArenaConfig;
+import su.nightexpress.ama.arena.wave.ArenaWaveAmplifier;
 import su.nightexpress.ama.arena.wave.ArenaWaveManager;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.editor.ArenaEditorType;
 import su.nightexpress.ama.editor.ArenaEditorUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-public class EditorWaveList extends AbstractEditorMenuAuto<AMA, ArenaWaveManager, ArenaWave> {
+public class WavesAmplifiersEditor extends AbstractEditorMenuAuto<AMA, ArenaWaveManager, ArenaWaveAmplifier> {
 
-    public EditorWaveList(@NotNull ArenaWaveManager waveManager) {
+    WavesAmplifiersEditor(@NotNull ArenaWaveManager waveManager) {
         super(waveManager.plugin(), waveManager, ArenaEditorUtils.TITLE_WAVE_EDITOR, 45);
 
-        EditorInput<ArenaWaveManager, ArenaEditorType> input = (player, waves, type, e) -> {
-            String msg = StringUtil.colorOff(e.getMessage());
-            if (type == ArenaEditorType.WAVES_WAVE_CREATE) {
+        EditorInput<ArenaWaveManager, ArenaEditorType> input = (player, waveManager1, type, e) -> {
+            String msg = e.getMessage();
+            if (type == ArenaEditorType.WAVES_WAVE_AMPLIFIER_CREATE) {
                 String id = EditorManager.fineId(msg);
-                if (waves.getWave(id) != null) {
-                    EditorManager.error(player, plugin.getMessage(Lang.Editor_Arena_Waves_Error_Wave_Exist).getLocalized());
+                if (waveManager1.getAmplifier(id) != null) {
+                    EditorManager.error(player, plugin.getMessage(Lang.Editor_Arena_Waves_Error_Amplificator_Exist).getLocalized());
                     return false;
                 }
 
-                // TODO Remove cast
-                ArenaWave wave = new ArenaWave(waves.getArenaConfig(), id, new HashMap<>(), new HashMap<>());
-                waves.getWaves().put(id, wave);
+                ArenaWaveAmplifier amplificator = new ArenaWaveAmplifier(waveManager1.getArenaConfig(), id, new HashSet<>(), 0, 0);
+                waveManager1.getAmplifiers().put(amplificator.getId(), amplificator);
             }
 
-            waves.save();
+            waveManager1.getArenaConfig().getWaveManager().save();
             return true;
         };
 
         MenuClick click = (player, type, e) -> {
+            ArenaConfig config = waveManager.getArenaConfig();
             if (type instanceof MenuItemType type2) {
                 if (type2 == MenuItemType.RETURN) {
-                    waveManager.getEditor().open(player, 1);
+                    this.parent.getEditor().open(player, 1);
                 }
                 else super.onItemClickDefault(player, type2);
             }
             else if (type instanceof ArenaEditorType type2) {
-                if (type2 == ArenaEditorType.WAVES_WAVE_CREATE) {
+                if (type2 == ArenaEditorType.WAVES_WAVE_AMPLIFIER_CREATE) {
                     EditorManager.startEdit(player, waveManager, type2, input);
-                    EditorManager.tip(player, plugin.getMessage(Lang.Editor_Arena_Waves_Enter_Wave_Create).getLocalized());
+                    EditorManager.tip(player, plugin.getMessage(Lang.Editor_Arena_Waves_Enter_Amplificator_Create).getLocalized());
                     player.closeInventory();
                 }
             }
@@ -69,7 +69,7 @@ public class EditorWaveList extends AbstractEditorMenuAuto<AMA, ArenaWaveManager
 
     @Override
     public void setTypes(@NotNull Map<EditorButtonType, Integer> map) {
-        map.put(ArenaEditorType.WAVES_WAVE_CREATE, 41);
+        map.put(ArenaEditorType.WAVES_WAVE_AMPLIFIER_CREATE, 41);
         map.put(MenuItemType.RETURN, 39);
         map.put(MenuItemType.PAGE_NEXT, 44);
         map.put(MenuItemType.PAGE_PREVIOUS, 36);
@@ -82,30 +82,30 @@ public class EditorWaveList extends AbstractEditorMenuAuto<AMA, ArenaWaveManager
 
     @Override
     @NotNull
-    protected List<ArenaWave> getObjects(@NotNull Player player) {
-        return new ArrayList<>(this.parent.getWaves().values());
+    protected List<ArenaWaveAmplifier> getObjects(@NotNull Player player) {
+        return new ArrayList<>(this.parent.getAmplifiers().values());
     }
 
     @Override
     @NotNull
-    protected ItemStack getObjectStack(@NotNull Player player, @NotNull ArenaWave wave) {
-        ItemStack item = ArenaEditorType.WAVES_WAVE_OBJECT.getItem();
-        ItemUtil.replace(item, wave.replacePlaceholders());
+    protected ItemStack getObjectStack(@NotNull Player player, @NotNull ArenaWaveAmplifier amplificator) {
+        ItemStack item = ArenaEditorType.WAVES_WAVE_AMPLIFIER_OBJECT.getItem();
+        ItemUtil.replace(item, amplificator.replacePlaceholders());
         return item;
     }
 
     @Override
     @NotNull
-    protected MenuClick getObjectClick(@NotNull Player player, @NotNull ArenaWave wave) {
+    protected MenuClick getObjectClick(@NotNull Player player, @NotNull ArenaWaveAmplifier amplificator) {
         return (p2, type, e) -> {
             if (e.isShiftClick() && e.isRightClick()) {
-                wave.clear();
-                this.parent.getWaves().remove(wave.getId());
-                this.parent.save();
+                amplificator.clear();
+                this.parent.getAmplifiers().remove(amplificator.getId());
+                this.parent.getArenaConfig().getWaveManager().save();
                 this.open(p2, 1);
                 return;
             }
-            wave.getEditor().open(p2, 1);
+            amplificator.getEditor().open(p2, 1);
         };
     }
 

@@ -6,7 +6,7 @@ import su.nightexpress.ama.api.arena.game.ArenaGameTriggerValue;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
 import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
 import su.nightexpress.ama.api.event.ArenaScoreChangeEvent;
-import su.nightexpress.ama.arena.AbstractArena;
+import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.game.trigger.value.TriggerValueNumber;
 
 public class GameTriggerNumber extends ArenaGameEventTrigger<Double> {
@@ -49,7 +49,7 @@ public class GameTriggerNumber extends ArenaGameEventTrigger<Double> {
     @Override
     @NotNull
     public Double getEventRawValue(@NotNull ArenaGameGenericEvent event) {
-        AbstractArena arena = event.getArena();
+        Arena arena = event.getArena();
         return switch (this.getType()) {
             case WAVE_START, WAVE_END -> (double) arena.getWaveNumber();
             case SCORE_INCREASED, SCORE_DECREASED -> {

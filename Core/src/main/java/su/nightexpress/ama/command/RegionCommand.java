@@ -7,8 +7,8 @@ import su.nexmedia.engine.api.command.AbstractCommand;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.api.arena.type.ArenaLockState;
-import su.nightexpress.ama.arena.AbstractArena;
-import su.nightexpress.ama.arena.ArenaPlayer;
+import su.nightexpress.ama.arena.impl.Arena;
+import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.arena.region.ArenaRegion;
 import su.nightexpress.ama.config.Lang;
 
@@ -69,7 +69,7 @@ public class RegionCommand extends AbstractCommand<AMA> {
             return;
         }
 
-        AbstractArena arena = arenaPlayer.getArena();
+        Arena arena = arenaPlayer.getArena();
         boolean lock = args[1].equalsIgnoreCase("lock");
         boolean unlock = args[1].equalsIgnoreCase("unlock");
         if (!lock && !unlock) {

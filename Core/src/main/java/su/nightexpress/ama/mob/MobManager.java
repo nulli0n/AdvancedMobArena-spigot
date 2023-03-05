@@ -1,7 +1,6 @@
 package su.nightexpress.ama.mob;
 
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -15,11 +14,11 @@ import su.nexmedia.engine.utils.PDCUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Keys;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.arena.AbstractArena;
-import su.nightexpress.ama.arena.wave.ArenaWaveMob;
+import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.hologram.HologramManager;
+import su.nightexpress.ama.hook.mob.PluginMobProvider;
+import su.nightexpress.ama.hook.mob.impl.InternalMobProvider;
 import su.nightexpress.ama.mob.config.MobConfig;
-import su.nightexpress.ama.mob.config.MobHealthBar;
 import su.nightexpress.ama.mob.config.MobsConfig;
 import su.nightexpress.ama.mob.kill.MobKillReward;
 import su.nightexpress.ama.mob.kill.MobKillStreak;
@@ -58,6 +57,9 @@ public class MobManager extends AbstractManager<AMA> {
         }
         plugin.info("Mobs Loaded: " + mobs.size());
         plugin.getConfig().initializeOptions(MobsConfig.class);
+
+        // TODO Config option to not use internal mobs provider
+        PluginMobProvider.registerProvider(new InternalMobProvider(this.plugin));
     }
 
     @Override
@@ -87,6 +89,7 @@ public class MobManager extends AbstractManager<AMA> {
     }
 
     @NotNull
+    @Deprecated
     public List<String> getSupportedMobIds() {
         List<String> list = new ArrayList<>(this.getMobIds());
         if (Hooks.hasMythicMobs()) {
@@ -96,7 +99,26 @@ public class MobManager extends AbstractManager<AMA> {
     }
 
     @Nullable
-    public LivingEntity spawnMob(@NotNull AbstractArena arena, @NotNull ArenaWaveMob waveMob, @NotNull Location loc2) {
+    public LivingEntity spawnMob(@NotNull String mobId, @NotNull Location location, int level) {
+        MobConfig customMob = this.getMobById(mobId);
+        if (customMob == null) return null;
+
+        EntityType type = customMob.getEntityType();
+        LivingEntity entity = plugin.getArenaNMS().spawnMob(type, location);
+        if (entity == null) return null;
+
+        customMob.applySettings(entity, level);
+        customMob.applyAttributes(entity, level);
+        if (customMob.isBarEnabled()) {
+            // TODO ArenaUtils.addMobBossBar(arena, entity, customMob.createOrUpdateBar(entity));
+        }
+        this.setMobConfig(entity, customMob);
+        return entity;
+    }
+
+    /*@Nullable
+    @Deprecated
+    public LivingEntity spawnMob(@NotNull Arena arena, @NotNull ArenaWaveMob waveMob, @NotNull Location loc2) {
         String mobId = waveMob.getMobId();
         Location loc = loc2.clone().add(0, 1, 0); // Fix block position
         MobConfig customMob = this.getMobById(mobId);
@@ -126,10 +148,8 @@ public class MobManager extends AbstractManager<AMA> {
             }
             customMob.applySettings(entity, level);
             customMob.applyAttributes(entity, level);
-
-            MobHealthBar healthBar = customMob.getHealthBar();
-            if (healthBar.isEnabled()) {
-                healthBar.create(arena.getPlayersIngame(), entity);
+            if (customMob.isBarEnabled()) {
+                ArenaUtils.addMobBossBar(arena, entity, customMob.createOrUpdateBar(entity));
             }
             this.setMobConfig(entity, customMob);
         }
@@ -143,10 +163,10 @@ public class MobManager extends AbstractManager<AMA> {
 
         entity.setRemoveWhenFarAway(false);
         return entity;
-    }
+    }*/
 
-    public void setArena(@NotNull LivingEntity entity, @NotNull AbstractArena arena) {
-        PDCUtil.setData(entity, Keys.ENTITY_ARENA_ID, arena.getId());
+    public static void setArena(@NotNull LivingEntity entity, @NotNull Arena arena) {
+        PDCUtil.set(entity, Keys.ENTITY_ARENA_ID, arena.getId());
     }
 
 	/*public static void setOutsider(@NotNull LivingEntity entity) {
@@ -154,14 +174,15 @@ public class MobManager extends AbstractManager<AMA> {
 	}*/
 
     private void setMobConfig(@NotNull LivingEntity entity, @NotNull MobConfig customMob) {
-        PDCUtil.setData(entity, Keys.ENTITY_MOB_ID, customMob.getId());
+        PDCUtil.set(entity, Keys.ENTITY_MOB_ID, customMob.getId());
     }
 
-    private void setLevel(@NotNull LivingEntity entity, int level) {
-        PDCUtil.setData(entity, Keys.ENTITY_MOB_LEVEL, level);
+    public static void setLevel(@NotNull LivingEntity entity, int level) {
+        PDCUtil.set(entity, Keys.ENTITY_MOB_LEVEL, level);
     }
 
     @NotNull
+    @Deprecated // TODO Use provider name & PDC
     public String getMobId(@NotNull LivingEntity entity) {
         if (Hooks.hasMythicMobs() && MythicMobsHook.isMythicMob(entity)) {
             return MythicMobsHook.getMobInternalName(entity).toLowerCase();
@@ -218,21 +239,22 @@ public class MobManager extends AbstractManager<AMA> {
     }
 
     @Nullable
-    public AbstractArena getEntityArena(@NotNull Entity entity) {
-        String id = PDCUtil.getStringData(entity, Keys.ENTITY_ARENA_ID);
+    public Arena getEntityArena(@NotNull Entity entity) {
+        String id = PDCUtil.getString(entity, Keys.ENTITY_ARENA_ID).orElse(null);
         return id == null ? null : plugin.getArenaManager().getArenaById(id);
     }
 
     @Nullable
     public MobConfig getEntityMobConfig(@NotNull Entity entity) {
-        String id = PDCUtil.getStringData(entity, Keys.ENTITY_MOB_ID);
+        String id = PDCUtil.getString(entity, Keys.ENTITY_MOB_ID).orElse(null);
         return id == null ? null : this.getMobById(id);
     }
 
+    @Deprecated // TODO Only PDC
     public int getEntityLevel(@NotNull Entity entity) {
         if (Hooks.hasMythicMobs() && MythicMobsHook.isMythicMob(entity)) {
             return (int) MythicMobsHook.getMobLevel(entity);
         }
-        return PDCUtil.getIntData(entity, Keys.ENTITY_MOB_LEVEL);
+        return PDCUtil.getInt(entity, Keys.ENTITY_MOB_LEVEL).orElse(0);
     }
 }

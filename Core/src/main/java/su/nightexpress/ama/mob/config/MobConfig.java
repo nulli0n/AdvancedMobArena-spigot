@@ -4,7 +4,9 @@ import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarFlag;
 import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
@@ -17,12 +19,12 @@ import su.nexmedia.engine.api.manager.ICleanable;
 import su.nexmedia.engine.api.manager.IEditable;
 import su.nexmedia.engine.api.manager.IPlaceholder;
 import su.nexmedia.engine.lang.LangManager;
-import su.nexmedia.engine.utils.CollectionsUtil;
-import su.nexmedia.engine.utils.StringUtil;
+import su.nexmedia.engine.utils.*;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.mob.style.MobStyleType;
+import su.nightexpress.ama.arena.util.ArenaUtils;
 import su.nightexpress.ama.mob.editor.EditorMobMain;
+import su.nightexpress.ama.mob.style.MobStyleType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,7 +43,11 @@ public class MobConfig extends AbstractLoadableItem<AMA> implements IPlaceholder
 
     private Map<MobStyleType, String> styles;
 
-    private final MobHealthBar                  bossBar;
+    private boolean  barEnabled;
+    private String   barTitle;
+    private BarStyle barStyle;
+    private BarColor barColor;
+
     private final Map<EquipmentSlot, ItemStack> equipment;
     private final Map<Attribute, double[]>      attributes; // [0] Base, [1] Per Level
 
@@ -57,10 +63,10 @@ public class MobConfig extends AbstractLoadableItem<AMA> implements IPlaceholder
             .replace(Placeholders.MOB_ENTITY_TYPE, plugin.getLangManager().getEnum(this.getEntityType()))
             .replace(Placeholders.MOB_LEVEL_MIN, String.valueOf(this.getLevelMin()))
             .replace(Placeholders.MOB_LEVEL_MAX, String.valueOf(this.getLevelMax()))
-            .replace(Placeholders.MOB_BOSSBAR_ENABLED, LangManager.getBoolean(this.getHealthBar().isEnabled()))
-            .replace(Placeholders.MOB_BOSSBAR_TITLE, this.getHealthBar().getTitle())
-            .replace(Placeholders.MOB_BOSSBAR_COLOR, this.getHealthBar().getColor().name())
-            .replace(Placeholders.MOB_BOSSBAR_STYLE, this.getHealthBar().getStyle().name())
+            .replace(Placeholders.MOB_BOSSBAR_ENABLED, LangManager.getBoolean(this.isBarEnabled()))
+            .replace(Placeholders.MOB_BOSSBAR_TITLE, this.getBarTitle())
+            .replace(Placeholders.MOB_BOSSBAR_COLOR, this.getBarColor().name())
+            .replace(Placeholders.MOB_BOSSBAR_STYLE, this.getBarStyle().name())
             .replace(Placeholders.MOB_ATTRIBUTES_BASE, this.getAttributes().entrySet().stream()
                 .map(enrty -> enrty.getKey() + ": " + enrty.getValue()[0]).collect(Collectors.joining("\n")))
             .replace(Placeholders.MOB_ATTRIBUTES_LEVEL, this.getAttributes().entrySet().stream()
@@ -81,8 +87,10 @@ public class MobConfig extends AbstractLoadableItem<AMA> implements IPlaceholder
 
         this.setStyles(new HashMap<>());
 
-        String barTitle = "&c&l" + Placeholders.MOB_NAME + " &7&l- &f&l" + Placeholders.MOB_HEALTH + "&7/&f&l" + Placeholders.MOB_HEALTH_MAX;
-        this.bossBar = new MobHealthBar(false, barTitle, BarStyle.SOLID, BarColor.RED);
+        this.setBarEnabled(false);
+        this.setBarTitle("&c&l" + Placeholders.MOB_NAME + " &7&l- &f&l" + Placeholders.MOB_HEALTH + "&7/&f&l" + Placeholders.MOB_HEALTH_MAX);
+        this.setBarStyle(BarStyle.SEGMENTED_12);
+        this.setBarColor(BarColor.RED);
 
         this.equipment = new HashMap<>();
 
@@ -115,11 +123,10 @@ public class MobConfig extends AbstractLoadableItem<AMA> implements IPlaceholder
 
         // Boss Bar
         String path = "Boss_Bar.";
-        boolean barEnabled = cfg.getBoolean(path + "Enabled");
-        String barTitle = cfg.getString(path + "Title", Placeholders.MOB_NAME);
-        BarColor barColor = cfg.getEnum(path + "Color", BarColor.class, BarColor.RED);
-        BarStyle barStyle = cfg.getEnum(path + "Style", BarStyle.class, BarStyle.SOLID);
-        this.bossBar = new MobHealthBar(barEnabled, barTitle, barStyle, barColor);
+        this.setBarEnabled(cfg.getBoolean(path + "Enabled"));
+        this.setBarTitle(cfg.getString(path + "Title", Placeholders.MOB_NAME));
+        this.setBarColor(cfg.getEnum(path + "Color", BarColor.class, BarColor.RED));
+        this.setBarStyle(cfg.getEnum(path + "Style", BarStyle.class, BarStyle.SOLID));
 
         this.equipment = new HashMap<>();
         Stream.of(EquipmentSlot.values()).forEach(slot -> {
@@ -158,11 +165,10 @@ public class MobConfig extends AbstractLoadableItem<AMA> implements IPlaceholder
         });
 
         String path = "Boss_Bar.";
-        MobHealthBar bar = this.getHealthBar();
-        cfg.set(path + "Enabled", bar.isEnabled());
-        cfg.set(path + "Title", bar.getTitle());
-        cfg.set(path + "Style", bar.getStyle().name());
-        cfg.set(path + "Color", bar.getColor().name());
+        cfg.set(path + "Enabled", this.isBarEnabled());
+        cfg.set(path + "Title", this.getBarTitle());
+        cfg.set(path + "Style", this.getBarStyle().name());
+        cfg.set(path + "Color", this.getBarColor().name());
 
         cfg.set("Attributes", null);
         this.getAttributes().forEach((att, values) -> {
@@ -188,6 +194,21 @@ public class MobConfig extends AbstractLoadableItem<AMA> implements IPlaceholder
             this.editor = null;
         }
     }
+    @NotNull
+    public BossBar createOrUpdateBar(@NotNull LivingEntity entity) {
+        String title = this.getBarTitle(entity);
+
+        BossBar bossBar = ArenaUtils.getMobBossBar(entity);
+        if (bossBar == null) bossBar = this.plugin.getServer().createBossBar(title, this.getBarColor(), this.getBarStyle(), BarFlag.DARKEN_SKY);
+
+        double maxHealth = EntityUtil.getAttribute(entity, Attribute.GENERIC_MAX_HEALTH);
+        double percent = Math.max(0D, Math.min(1D, entity.getHealth() / maxHealth));
+
+        bossBar.setTitle(title);
+        bossBar.setProgress(percent);
+        bossBar.setVisible(true);
+        return bossBar;
+    }
 
     @NotNull
     public String getName() {
@@ -195,7 +216,7 @@ public class MobConfig extends AbstractLoadableItem<AMA> implements IPlaceholder
     }
 
     public void setName(@NotNull String name) {
-        this.name = StringUtil.color(name);
+        this.name = Colorizer.apply(name);
     }
 
     public boolean isNameVisible() {
@@ -229,6 +250,51 @@ public class MobConfig extends AbstractLoadableItem<AMA> implements IPlaceholder
 
     public void setLevelMax(int levelMax) {
         this.levelMax = levelMax;
+    }
+
+    public boolean isBarEnabled() {
+        return barEnabled;
+    }
+
+    public void setBarEnabled(boolean barEnabled) {
+        this.barEnabled = barEnabled;
+    }
+
+    public void setBarTitle(@NotNull String barTitle) {
+        this.barTitle = StringUtil.color(barTitle);
+    }
+
+    @NotNull
+    public String getBarTitle() {
+        return this.barTitle;
+    }
+
+    @NotNull
+    private String getBarTitle(@NotNull LivingEntity entity) {
+        double maxHealth = EntityUtil.getAttribute(entity, Attribute.GENERIC_MAX_HEALTH);
+        return this.getBarTitle()
+            .replace(Placeholders.MOB_HEALTH, NumberUtil.format(entity.getHealth()))
+            .replace(Placeholders.MOB_HEALTH_MAX, NumberUtil.format(maxHealth))
+            .replace(Placeholders.MOB_NAME, entity.getCustomName() != null ? entity.getCustomName() : entity.getName())
+            ;
+    }
+
+    @NotNull
+    public BarStyle getBarStyle() {
+        return this.barStyle;
+    }
+
+    public void setBarStyle(@NotNull BarStyle barStyle) {
+        this.barStyle = barStyle;
+    }
+
+    @NotNull
+    public BarColor getBarColor() {
+        return this.barColor;
+    }
+
+    public void setBarColor(@NotNull BarColor barColor) {
+        this.barColor = barColor;
     }
 
     @NotNull
@@ -278,11 +344,6 @@ public class MobConfig extends AbstractLoadableItem<AMA> implements IPlaceholder
         return this.attributes;
     }
 
-    @NotNull
-    public MobHealthBar getHealthBar() {
-        return this.bossBar;
-    }
-
     public void applySettings(@NotNull LivingEntity entity, int level) {
         entity.setCustomName(this.getName().replace(Placeholders.MOB_LEVEL, String.valueOf(level)));
         entity.setCustomNameVisible(this.isNameVisible());
@@ -292,10 +353,9 @@ public class MobConfig extends AbstractLoadableItem<AMA> implements IPlaceholder
             this.getEquipment().forEach(armor::setItem);
         }
 
-        this.getStyles().forEach(((styleType, value) -> {
-            styleType.getWrapper().apply(entity, value);
-        }));
-
+        if (entity instanceof Ageable ageable) {
+            ageable.setAdult();
+        }
         if (entity instanceof PiglinAbstract piglin) {
             piglin.setImmuneToZombification(true);
         }
@@ -316,6 +376,10 @@ public class MobConfig extends AbstractLoadableItem<AMA> implements IPlaceholder
                 zombie.setConversionTime(-1);
             }
         }
+
+        this.getStyles().forEach(((styleType, value) -> {
+            styleType.getWrapper().apply(entity, value);
+        }));
     }
 
     public void applyAttributes(@NotNull LivingEntity entity, int level) {

@@ -10,7 +10,7 @@ import su.nexmedia.engine.utils.PlayerUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.ArenaAPI;
-import su.nightexpress.ama.api.arena.IArenaObject;
+import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
 import su.nightexpress.ama.api.arena.game.IArenaGameEventListenerState;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
@@ -18,8 +18,8 @@ import su.nightexpress.ama.api.arena.type.ArenaLockState;
 import su.nightexpress.ama.api.currency.ICurrency;
 import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
 import su.nightexpress.ama.api.event.ArenaShopProductEvent;
-import su.nightexpress.ama.arena.ArenaPlayer;
-import su.nightexpress.ama.arena.config.ArenaConfig;
+import su.nightexpress.ama.arena.impl.ArenaPlayer;
+import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.arena.editor.shop.EditorShopProductSettings;
 import su.nightexpress.ama.kit.Kit;
 
@@ -27,7 +27,7 @@ import java.util.*;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
-public class ArenaShopProduct implements IArenaGameEventListenerState, IArenaObject, ICleanable, IEditable {
+public class ArenaShopProduct implements IArenaGameEventListenerState, ArenaChild, ICleanable, IEditable {
 
     private final ArenaShopCategory                                  shopCategory;
     private final String                                             id;

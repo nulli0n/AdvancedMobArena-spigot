@@ -89,17 +89,7 @@ public class Config {
     );
 
     public static final JOption<Map<String, ArenaBoardConfig>> SCOREBOARDS = new JOption<Map<String, ArenaBoardConfig>>("Scoreboard",
-        (cfg, path, def) -> {
-            Map<String, ArenaBoardConfig> map = new HashMap<>();
-            for (String sId : cfg.getSection(path)) {
-                String path2 = path + "." + sId + ".";
-                String title = cfg.getString(path2 + "Title", "");
-                List<String> lines = cfg.getStringList(path2 + "List");
-                ArenaBoardConfig boardConfig = new ArenaBoardConfig(sId, title, lines);
-                map.put(boardConfig.getId(), boardConfig);
-            }
-            return map;
-        },
+        (cfg, path, def) -> cfg.getSection(path).stream().collect(Collectors.toMap(id -> id, v -> ArenaBoardConfig.read(cfg, path + "." + v, v))),
         () -> {
             Map<String, ArenaBoardConfig> map = new HashMap<>();
             ArenaBoardConfig boardConfig = new ArenaBoardConfig(Placeholders.DEFAULT, "&c&lMOB ARENA", Arrays.asList(
@@ -121,12 +111,11 @@ public class Config {
         "To set the scoreboard format per arena, use in-game editor.",
         "You can use 'Arena', 'Arena Player' placeholders: https://github.com/nulli0n/AdvancedMobArena-spigot/wiki/Internal-Placeholders",
         "PlaceholderAPI is also supported here."
-    );
+    ).setWriter((cfg, path, map) -> map.forEach((id, board) -> ArenaBoardConfig.write(board, cfg, path + "." + id)));
 
     static {
         LOBBY_ITEMS.setWriter((cfg, path) -> LOBBY_ITEMS.get().forEach((type, lobbyItem) -> lobbyItem.write(cfg, path + "." + type.name())));
         SIGNS_FORMAT.setWriter((cfg, path) -> SIGNS_FORMAT.get().forEach((type, list) -> cfg.set(path + "." + type.name(), list)));
         HOLOGRAMS_FORMAT.setWriter((cfg, path) -> HOLOGRAMS_FORMAT.get().forEach((type, list) -> cfg.set(path + "." + type.name(), list)));
-        SCOREBOARDS.setWriter((cfg, path) -> SCOREBOARDS.get().forEach((id, board) -> cfg.set(path + "." + id, board)));
     }
 }

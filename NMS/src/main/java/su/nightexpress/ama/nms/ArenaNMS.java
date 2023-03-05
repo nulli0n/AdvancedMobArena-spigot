@@ -11,11 +11,9 @@ public interface ArenaNMS {
 
     LivingEntity spawnMob(@NotNull EntityType type, @NotNull Location loc);
 
-    void setTarget(@NotNull LivingEntity mob, @Nullable LivingEntity target);
+    @Deprecated void setTarget(@NotNull LivingEntity mob, @Nullable LivingEntity target);
 
     LivingEntity getTarget(@NotNull LivingEntity entity);
-
-    //
 
     int visualEntityAdd(@NotNull Player player, @NotNull String name, @NotNull Location loc);
 

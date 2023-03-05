@@ -8,8 +8,9 @@ import su.nexmedia.engine.utils.NumberUtil;
 import su.nexmedia.engine.utils.TimeUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.api.ArenaAPI;
-import su.nightexpress.ama.arena.AbstractArena;
-import su.nightexpress.ama.arena.ArenaPlayer;
+import su.nightexpress.ama.arena.type.GameState;
+import su.nightexpress.ama.arena.impl.Arena;
+import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.data.ArenaUser;
 import su.nightexpress.ama.stats.object.StatType;
 
@@ -85,7 +86,7 @@ public class PlaceholderHook {
                 // arena_streak_decay
                 String cutOne = tmp.substring("arena_".length());
                 String var = cutOne;
-                AbstractArena arena = null;
+                Arena arena = null;
                 ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
 
                 int index = cutOne.indexOf("_");
@@ -118,7 +119,7 @@ public class PlaceholderHook {
                     return String.valueOf(arena.getWaveNumber());
                 }
                 if (var.equalsIgnoreCase("players")) {
-                    return String.valueOf(arena.getPlayersIngame().size());
+                    return String.valueOf(arena.getPlayers(GameState.INGAME).size());
                 }
                 if (var.equalsIgnoreCase("next_wave")) {
                     return String.valueOf(arena.getWaveNextTimeleft());

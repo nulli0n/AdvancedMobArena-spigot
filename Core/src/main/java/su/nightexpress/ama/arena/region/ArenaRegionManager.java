@@ -7,39 +7,34 @@ import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.IEditable;
 import su.nexmedia.engine.api.manager.ILoadable;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.api.arena.IArenaObject;
+import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.IProblematic;
 import su.nightexpress.ama.api.arena.type.ArenaLockState;
-import su.nightexpress.ama.arena.config.ArenaConfig;
+import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.arena.editor.region.EditorRegionList;
 
 import java.util.*;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
-public class ArenaRegionManager implements IArenaObject, ILoadable, IEditable, IProblematic {
-
-    private final ArenaConfig arenaConfig;
-    private final String      regionsPath;
-
-    private final Map<String, ArenaRegion>           regions;
-    private final Map<ArenaRegion, Set<ArenaRegion>> regionsLinked;
-
-    private EditorRegionList editor;
+public class ArenaRegionManager implements ArenaChild, ILoadable, IEditable, IProblematic {
 
     public static final String DIR_REGIONS = "/regions/";
 
+    private final ArenaConfig arenaConfig;
+    private final Map<String, ArenaRegion> regions;
+
+    private EditorRegionList editor;
+
     public ArenaRegionManager(@NotNull ArenaConfig arenaConfig) {
         this.arenaConfig = arenaConfig;
-        this.regionsPath = this.arenaConfig.getFile().getParentFile().getAbsolutePath() + DIR_REGIONS;
-
         this.regions = new HashMap<>();
-        this.regionsLinked = new HashMap<>();
     }
 
     @Override
     public void setup() {
-        for (JYML rCfg : JYML.loadAll(this.getRegionsPath(), false)) {
+        String path = this.arenaConfig.getFile().getParentFile().getAbsolutePath() + DIR_REGIONS;
+        for (JYML rCfg : JYML.loadAll(path, false)) {
             try {
                 ArenaRegion region = new ArenaRegion(this.arenaConfig, rCfg);
                 this.addRegion(region);
@@ -49,11 +44,6 @@ public class ArenaRegionManager implements IArenaObject, ILoadable, IEditable, I
                 e.printStackTrace();
             }
         }
-
-        this.getRegions().forEach(region -> {
-            Set<ArenaRegion> linked = region.getLinkedRegions().stream().map(this::getRegion).filter(Objects::nonNull).collect(Collectors.toSet());
-            this.getLinkedRegionsMap().put(region, linked);
-        });
 
         this.getProblems().forEach(problem -> {
             this.plugin().warn("Problem in '" + arenaConfig.getId() + "' arena Region Manager: " + problem);
@@ -118,18 +108,8 @@ public class ArenaRegionManager implements IArenaObject, ILoadable, IEditable, I
     }
 
     @NotNull
-    public String getRegionsPath() {
-        return this.regionsPath;
-    }
-
-    @NotNull
     public Map<String, ArenaRegion> getRegionsMap() {
         return this.regions;
-    }
-
-    @NotNull
-    public Map<ArenaRegion, Set<ArenaRegion>> getLinkedRegionsMap() {
-        return this.regionsLinked;
     }
 
     @NotNull
@@ -157,8 +137,9 @@ public class ArenaRegionManager implements IArenaObject, ILoadable, IEditable, I
         return this.getRegions().stream().filter(reg -> reg.getCuboid().contains(location)).findFirst().orElse(null);
     }
 
+    @NotNull
     public Set<ArenaRegion> getLinkedRegions(@NotNull ArenaRegion region) {
-        return this.getLinkedRegionsMap().computeIfAbsent(region, k -> new HashSet<>());
+        return region.getLinkedRegions().stream().map(this::getRegion).filter(Objects::nonNull).collect(Collectors.toSet());
     }
 
     public void addRegion(@NotNull ArenaRegion region) {
@@ -169,8 +150,6 @@ public class ArenaRegionManager implements IArenaObject, ILoadable, IEditable, I
         if (region.getFile().delete()) {
             region.clear();
             this.getRegionsMap().remove(region.getId());
-            this.getLinkedRegionsMap().remove(region);
-            this.getLinkedRegionsMap().values().forEach(linked -> linked.remove(region));
             return true;
         }
         return false;

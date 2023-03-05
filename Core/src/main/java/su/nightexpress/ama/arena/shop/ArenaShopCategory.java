@@ -10,17 +10,17 @@ import su.nexmedia.engine.utils.ItemUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.ArenaAPI;
-import su.nightexpress.ama.api.arena.IArenaObject;
+import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
 import su.nightexpress.ama.api.arena.game.IArenaGameEventListenerState;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
 import su.nightexpress.ama.api.arena.type.ArenaLockState;
-import su.nightexpress.ama.api.arena.type.ArenaState;
+import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
 import su.nightexpress.ama.api.event.ArenaShopCategoryEvent;
-import su.nightexpress.ama.arena.AbstractArena;
-import su.nightexpress.ama.arena.ArenaPlayer;
-import su.nightexpress.ama.arena.config.ArenaConfig;
+import su.nightexpress.ama.arena.impl.Arena;
+import su.nightexpress.ama.arena.impl.ArenaPlayer;
+import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.arena.editor.shop.EditorShopCategorySettings;
 import su.nightexpress.ama.arena.shop.menu.ArenaShopCategoryMenu;
 import su.nightexpress.ama.config.Lang;
@@ -30,7 +30,7 @@ import java.util.*;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
-public class ArenaShopCategory implements IArenaGameEventListenerState, IArenaObject, ICleanable, IEditable {
+public class ArenaShopCategory implements IArenaGameEventListenerState, ArenaChild, ICleanable, IEditable {
 
     private final ArenaConfig                                        arenaConfig;
     private final String                                             id;
@@ -155,8 +155,8 @@ public class ArenaShopCategory implements IArenaGameEventListenerState, IArenaOb
     }
 
     public boolean open(@NotNull ArenaPlayer arenaPlayer) {
-        AbstractArena arena = arenaPlayer.getArena();
-        if (arena.getState() != ArenaState.INGAME || !arena.getConfig().getShopManager().isActive()) {
+        Arena arena = arenaPlayer.getArena();
+        if (arena.getState() != GameState.INGAME || !arena.getConfig().getShopManager().isActive()) {
             plugin().getMessage(Lang.SHOP_OPEN_ERROR_DISABLED).send(arenaPlayer.getPlayer());
             return false;
         }

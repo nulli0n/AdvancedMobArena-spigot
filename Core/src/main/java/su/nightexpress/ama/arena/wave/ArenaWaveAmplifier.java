@@ -4,34 +4,35 @@ import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.manager.ICleanable;
 import su.nexmedia.engine.api.manager.IEditable;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.api.arena.IArenaObject;
+import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
 import su.nightexpress.ama.api.arena.game.IArenaGameEventListener;
 import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
-import su.nightexpress.ama.arena.AbstractArena;
-import su.nightexpress.ama.arena.config.ArenaConfig;
-import su.nightexpress.ama.arena.editor.wave.EditorWaveAmplificatorMain;
+import su.nightexpress.ama.arena.impl.ArenaConfig;
+import su.nightexpress.ama.arena.editor.wave.WaveAmplifierSettingsEditor;
+import su.nightexpress.ama.arena.impl.Arena;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 
-public class ArenaWaveAmplificator implements IArenaGameEventListener, IArenaObject, IEditable, ICleanable {
+public class ArenaWaveAmplifier implements IArenaGameEventListener, ArenaChild, IEditable, ICleanable {
 
-    private final ArenaWave                     arenaWave;
+    private final ArenaConfig arenaConfig;
     private final String                        id;
     private final Set<ArenaGameEventTrigger<?>> triggers;
-    private       int                           valueAmount;
-    private       int                           valueLevel;
 
-    private EditorWaveAmplificatorMain editor;
+    private int valueAmount;
+    private int valueLevel;
 
-    public ArenaWaveAmplificator(
-        @NotNull ArenaWave arenaWave,
+    private WaveAmplifierSettingsEditor editor;
+
+    public ArenaWaveAmplifier(
+        @NotNull ArenaConfig arenaConfig,
         @NotNull String id,
         @NotNull Set<ArenaGameEventTrigger<?>> triggers,
         int valueAmount, int valueLevel) {
-        this.arenaWave = arenaWave;
+        this.arenaConfig = arenaConfig;
         this.id = id.toLowerCase();
         this.triggers = new HashSet<>(triggers);
         this.setValueAmount(valueAmount);
@@ -48,9 +49,9 @@ public class ArenaWaveAmplificator implements IArenaGameEventListener, IArenaObj
 
     @Override
     @NotNull
-    public EditorWaveAmplificatorMain getEditor() {
+    public WaveAmplifierSettingsEditor getEditor() {
         if (this.editor == null) {
-            this.editor = new EditorWaveAmplificatorMain(this.getArenaWave().plugin(), this);
+            this.editor = new WaveAmplifierSettingsEditor(this.plugin(), this);
         }
         return this.editor;
     }
@@ -59,10 +60,10 @@ public class ArenaWaveAmplificator implements IArenaGameEventListener, IArenaObj
     @NotNull
     public UnaryOperator<String> replacePlaceholders() {
         return str -> str
-            .replace(Placeholders.WAVE_AMPLIFICATOR_TRIGGERS, Placeholders.format(this.getTriggers()))
-            .replace(Placeholders.WAVE_AMPLIFICATOR_ID, this.getId())
-            .replace(Placeholders.WAVE_AMPLIFICATOR_VALUE_AMOUNT, String.valueOf(this.getValueAmount()))
-            .replace(Placeholders.WAVE_AMPLIFICATOR_VALUE_LEVEL, String.valueOf(this.getValueLevel()))
+            .replace(Placeholders.WAVE_AMPLIFIER_TRIGGERS, Placeholders.format(this.getTriggers()))
+            .replace(Placeholders.WAVE_AMPLIFIER_ID, this.getId())
+            .replace(Placeholders.WAVE_AMPLIFIER_VALUE_AMOUNT, String.valueOf(this.getValueAmount()))
+            .replace(Placeholders.WAVE_AMPLIFIER_VALUE_LEVEL, String.valueOf(this.getValueLevel()))
             ;
     }
 
@@ -70,26 +71,21 @@ public class ArenaWaveAmplificator implements IArenaGameEventListener, IArenaObj
     public boolean onGameEvent(@NotNull ArenaGameGenericEvent gameEvent) {
         if (!this.isReady(gameEvent)) return false;
 
-        AbstractArena arena = gameEvent.getArena();
-        arena.addWaveAmplificatorAmount(this.getArenaWave().getId(), this.getValueAmount());
-        arena.addWaveAmplificatorLevel(this.getArenaWave().getId(), this.getValueLevel());
+        Arena arena = gameEvent.getArena();
+        arena.addWaveAmplificatorAmount(this.getId(), this.getValueAmount());
+        arena.addWaveAmplificatorLevel(this.getId(), this.getValueLevel());
         return true;
     }
 
     @NotNull
     @Override
     public ArenaConfig getArenaConfig() {
-        return this.getArenaWave().getArenaConfig();
+        return this.arenaConfig;
     }
 
     @NotNull
     public String getId() {
         return this.id;
-    }
-
-    @NotNull
-    public ArenaWave getArenaWave() {
-        return arenaWave;
     }
 
     @NotNull

@@ -220,6 +220,7 @@ public class EditorArenaGameplay extends AbstractEditorMenu<AMA, ArenaGameplayMa
                             EditorManager.startEdit(player, gameplayManager, ArenaEditorType.GAMEPLAY_CHANGE_PLAYERS_DEATH_LIVES, input);
                             EditorManager.tip(player, plugin.getMessage(Lang.Editor_Arena_Gameplay_Enter_Players_Lives).getLocalized());
                             player.closeInventory();
+                            return;
                         }
                     }
                     case GAMEPLAY_CHANGE_SPECTATE -> {

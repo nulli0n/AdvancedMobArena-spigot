@@ -15,8 +15,8 @@ import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.type.ArenaLockState;
-import su.nightexpress.ama.api.arena.type.ArenaState;
-import su.nightexpress.ama.arena.ArenaPlayer;
+import su.nightexpress.ama.arena.type.GameState;
+import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.arena.shop.ArenaShopCategory;
 import su.nightexpress.ama.arena.shop.ArenaShopProduct;
 import su.nightexpress.ama.config.Lang;
@@ -68,7 +68,7 @@ public class ArenaShopCategoryMenu extends AbstractMenuAuto<AMA, ArenaShopProduc
     @NotNull
     protected List<ArenaShopProduct> getObjects(@NotNull Player player) {
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
-        if (arenaPlayer == null || arenaPlayer.getArena().getState() != ArenaState.INGAME) return Collections.emptyList();
+        if (arenaPlayer == null || arenaPlayer.getArena().getState() != GameState.INGAME) return Collections.emptyList();
 
         List<ArenaShopProduct> items = new ArrayList<>(this.shopCategory.getProducts());
         if (shopCategory.getShopManager().isHideOtherKitProducts()) {
@@ -95,7 +95,7 @@ public class ArenaShopCategoryMenu extends AbstractMenuAuto<AMA, ArenaShopProduc
     @NotNull
     protected MenuClick getObjectClick(@NotNull Player player, @NotNull ArenaShopProduct shopProduct) {
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
-        if (arenaPlayer == null || arenaPlayer.getArena().getState() != ArenaState.INGAME) return (p, type, e) -> {
+        if (arenaPlayer == null || arenaPlayer.getArena().getState() != GameState.INGAME) return (p, type, e) -> {
         };
 
         return (player2, type, e) -> {

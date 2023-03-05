@@ -12,17 +12,17 @@ import su.nexmedia.engine.config.EngineConfig;
 import su.nexmedia.engine.utils.NumberUtil;
 import su.nexmedia.engine.utils.random.Rnd;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.api.arena.IArenaObject;
+import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
 import su.nightexpress.ama.api.arena.game.IArenaGameEventListener;
 import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
-import su.nightexpress.ama.arena.config.ArenaConfig;
+import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.arena.editor.region.EditorRegionContainerSettings;
 
 import java.util.*;
 import java.util.function.UnaryOperator;
 
-public class ArenaRegionContainer implements IArenaGameEventListener, IArenaObject, IEditable, ICleanable {
+public class ArenaRegionContainer implements IArenaGameEventListener, ArenaChild, IEditable, ICleanable {
 
     private final ArenaRegion                   region;
     private final Location location;

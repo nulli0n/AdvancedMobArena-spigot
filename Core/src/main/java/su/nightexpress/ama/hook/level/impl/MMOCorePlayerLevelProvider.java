@@ -4,9 +4,9 @@ import net.Indyuce.mmocore.api.player.PlayerData;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.ama.hook.HookId;
-import su.nightexpress.ama.hook.level.LevelProvider;
+import su.nightexpress.ama.hook.level.PlayerLevelProvider;
 
-public class MMOCoreLevelProvider implements LevelProvider {
+public class MMOCorePlayerLevelProvider implements PlayerLevelProvider {
 
     @NotNull
     @Override

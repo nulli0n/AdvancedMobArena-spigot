@@ -12,44 +12,47 @@ import su.nexmedia.engine.lang.LangManager;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.ArenaAPI;
-import su.nightexpress.ama.api.arena.IArenaObject;
+import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.IProblematic;
 import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
 import su.nightexpress.ama.api.arena.game.IArenaGameEventListenerState;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
 import su.nightexpress.ama.api.arena.type.ArenaLockState;
-import su.nightexpress.ama.api.arena.type.ArenaState;
 import su.nightexpress.ama.api.currency.ICurrency;
 import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
 import su.nightexpress.ama.api.event.ArenaShopEvent;
-import su.nightexpress.ama.arena.AbstractArena;
-import su.nightexpress.ama.arena.ArenaPlayer;
-import su.nightexpress.ama.arena.config.ArenaConfig;
 import su.nightexpress.ama.arena.editor.shop.EditorShopManager;
+import su.nightexpress.ama.arena.impl.Arena;
+import su.nightexpress.ama.arena.impl.ArenaConfig;
+import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.arena.shop.menu.ArenaShopMainMenu;
+import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.config.Lang;
 
 import java.util.*;
 import java.util.function.UnaryOperator;
 
-public class ArenaShopManager implements IArenaGameEventListenerState, ConfigHolder, IArenaObject, ILoadable, IEditable, IProblematic {
+public class ArenaShopManager implements IArenaGameEventListenerState, ConfigHolder, ArenaChild, ILoadable, IEditable, IProblematic {
 
     private static final String CONFIG_NAME = "shop.yml";
 
     private final ArenaConfig arenaConfig;
     private final JYML        config;
+    private final Map<ArenaLockState, Set<ArenaGameEventTrigger<?>>> stateTriggers;
+    private final Map<String, ArenaShopCategory>                     categories;
 
-    private boolean                                            isActive;
-    private boolean                                            isHideOtherKitProducts;
-    private ArenaLockState                                     state;
-    private Map<ArenaLockState, Set<ArenaGameEventTrigger<?>>> stateTriggers;
-    private Map<String, ArenaShopCategory>                     categories;
-    private ArenaShopMainMenu                                  menu;
-    private EditorShopManager                                  editor;
+    private boolean        isActive;
+    private boolean        isHideOtherKitProducts;
+    private ArenaLockState state;
+
+    private ArenaShopMainMenu menu;
+    private EditorShopManager editor;
 
     public ArenaShopManager(@NotNull ArenaConfig arenaConfig) {
         this.arenaConfig = arenaConfig;
         this.config = new JYML(arenaConfig.getFile().getParentFile().getAbsolutePath(), CONFIG_NAME);
+        this.stateTriggers = new HashMap<>();
+        this.categories = new LinkedHashMap<>();
     }
 
     @Override
@@ -58,12 +61,10 @@ public class ArenaShopManager implements IArenaGameEventListenerState, ConfigHol
         this.setHideOtherKitProducts(config.getBoolean("Settings.Hide_Other_Kit_Products"));
         this.setState(ArenaLockState.UNLOCKED);
 
-        this.stateTriggers = new HashMap<>();
         for (ArenaLockState lockState : ArenaLockState.values()) {
             this.stateTriggers.put(lockState, ArenaGameEventTrigger.parse(config, "Settings.State." + lockState.name() + ".Triggers"));
         }
 
-        this.categories = new LinkedHashMap<>();
         for (String catId : config.getSection("Categories")) {
             String path = "Categories." + catId + ".";
 
@@ -288,8 +289,8 @@ public class ArenaShopManager implements IArenaGameEventListenerState, ConfigHol
             return false;
         }
 
-        AbstractArena arena = arenaPlayer.getArena();
-        if (arena.getState() != ArenaState.INGAME || !this.isActive()) {
+        Arena arena = arenaPlayer.getArena();
+        if (arena.getState() != GameState.INGAME || !this.isActive()) {
             plugin().getMessage(Lang.SHOP_OPEN_ERROR_DISABLED).send(player);
             return false;
         }

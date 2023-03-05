@@ -9,18 +9,18 @@ import su.nexmedia.engine.lang.LangManager;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.api.arena.IArenaObject;
+import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.IProblematic;
 import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
 import su.nightexpress.ama.arena.util.ArenaCuboid;
-import su.nightexpress.ama.arena.AbstractArena;
-import su.nightexpress.ama.arena.config.ArenaConfig;
+import su.nightexpress.ama.arena.impl.Arena;
+import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.arena.editor.spot.EditorSpotMain;
 
 import java.util.*;
 import java.util.function.UnaryOperator;
 
-public class ArenaSpot extends AbstractLoadableItem<AMA> implements IArenaObject, IEditable, ICleanable, IProblematic {
+public class ArenaSpot extends AbstractLoadableItem<AMA> implements ArenaChild, IEditable, ICleanable, IProblematic {
 
     private final ArenaConfig arenaConfig;
 
@@ -176,7 +176,7 @@ public class ArenaSpot extends AbstractLoadableItem<AMA> implements IArenaObject
         return this.getStates().get(id.toLowerCase());
     }
 
-    public void setState(@NotNull AbstractArena arena, @NotNull String id) {
+    public void setState(@NotNull Arena arena, @NotNull String id) {
         ArenaSpotState state = this.getState(id);
         if (state == null) return;
         state.build(arena);

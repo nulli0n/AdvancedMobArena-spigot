@@ -15,8 +15,8 @@ import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.type.ArenaLockState;
-import su.nightexpress.ama.api.arena.type.ArenaState;
-import su.nightexpress.ama.arena.ArenaPlayer;
+import su.nightexpress.ama.arena.type.GameState;
+import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.arena.shop.ArenaShopCategory;
 import su.nightexpress.ama.arena.shop.ArenaShopManager;
 import su.nightexpress.ama.config.Lang;
@@ -87,7 +87,7 @@ public class ArenaShopMainMenu extends AbstractMenuAuto<AMA, ArenaShopCategory> 
     @NotNull
     protected MenuClick getObjectClick(@NotNull Player player, @NotNull ArenaShopCategory shopCategory) {
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
-        if (arenaPlayer == null || arenaPlayer.getArena().getState() != ArenaState.INGAME) return (p, type, e) -> {
+        if (arenaPlayer == null || arenaPlayer.getArena().getState() != GameState.INGAME) return (p, type, e) -> {
         };
 
         return (player2, type, e) -> {

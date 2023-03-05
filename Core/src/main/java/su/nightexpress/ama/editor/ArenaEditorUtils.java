@@ -5,15 +5,15 @@ import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.editor.EditorInput;
 import su.nexmedia.engine.editor.EditorManager;
 import su.nexmedia.engine.utils.CollectionsUtil;
-import su.nexmedia.engine.utils.StringUtil;
+import su.nexmedia.engine.utils.Colorizer;
 import su.nightexpress.ama.api.ArenaAPI;
-import su.nightexpress.ama.api.arena.IArenaObject;
+import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
 import su.nightexpress.ama.api.arena.game.IArenaGameEventListener;
 import su.nightexpress.ama.api.arena.game.IArenaGameEventListenerState;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
 import su.nightexpress.ama.api.arena.type.ArenaLockState;
-import su.nightexpress.ama.arena.config.ArenaConfig;
+import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.config.Lang;
 
 import java.util.Set;
@@ -49,7 +49,7 @@ public class ArenaEditorUtils {
         }
 
         EditorInput<IArenaGameEventListener, ArenaEditorType> input = (player2, listener2, type, e) -> {
-            String msg = StringUtil.colorOff(e.getMessage());
+            String msg = Colorizer.strip(e.getMessage());
             return ArenaEditorUtils.handleTriggersInput(player2, listener2, type, msg);
         };
 
@@ -66,14 +66,14 @@ public class ArenaEditorUtils {
         @NotNull ArenaEditorType editorType,
         @NotNull String msg) {
 
-        if (!(listener instanceof IArenaObject arenaObject)) {
+        if (!(listener instanceof ArenaChild arenaObject)) {
             EditorManager.error(player, "The object is not related to the arena config!");
             return false;
         }
 
         ArenaConfig arenaConfig = arenaObject.getArenaConfig();
 
-        String[] split = StringUtil.colorOff(msg).split(" ");
+        String[] split = Colorizer.strip(msg).split(" ");
         if (split.length < 2) {
             EditorManager.error(player, ArenaAPI.PLUGIN.getMessage(Lang.Editor_Error_Triggers).getLocalized());
             return false;

@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import su.nexmedia.engine.utils.NumberUtil;
 import su.nightexpress.ama.api.ArenaAPI;
-import su.nightexpress.ama.arena.ArenaPlayer;
+import su.nightexpress.ama.arena.impl.ArenaPlayer;
 
 @Deprecated
 public class MagicHK {

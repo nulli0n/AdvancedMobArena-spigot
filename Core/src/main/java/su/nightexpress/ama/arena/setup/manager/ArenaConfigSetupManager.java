@@ -9,7 +9,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.api.arena.type.ArenaLocationType;
-import su.nightexpress.ama.arena.config.ArenaConfig;
+import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.arena.setup.ArenaSetupUtils;
 import su.nightexpress.ama.arena.setup.SetupItemType;
 import su.nightexpress.ama.config.Lang;

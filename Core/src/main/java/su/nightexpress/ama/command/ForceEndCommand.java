@@ -8,8 +8,8 @@ import su.nexmedia.engine.utils.CollectionsUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.api.arena.type.ArenaEndType;
-import su.nightexpress.ama.api.arena.type.ArenaState;
-import su.nightexpress.ama.arena.AbstractArena;
+import su.nightexpress.ama.arena.type.GameState;
+import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.config.Lang;
 
 import java.util.Arrays;
@@ -43,8 +43,8 @@ public class ForceEndCommand extends AbstractCommand<AMA> {
     @NotNull
     public List<String> getTab(@NotNull Player player, int arg, @NotNull String[] args) {
         if (arg == 1) {
-            return plugin.getArenaManager().getArenas().stream().filter(arena -> arena.getState() == ArenaState.INGAME)
-                .map(AbstractArena::getId).toList();
+            return plugin.getArenaManager().getArenas().stream().filter(arena -> arena.getState() == GameState.INGAME)
+                .map(Arena::getId).toList();
         }
         if (arg == 2) {
             return Arrays.stream(ArenaEndType.values()).map(ArenaEndType::name).toList();
@@ -59,13 +59,13 @@ public class ForceEndCommand extends AbstractCommand<AMA> {
             return;
         }
 
-        AbstractArena arena = plugin.getArenaManager().getArenaById(args[1]);
+        Arena arena = plugin.getArenaManager().getArenaById(args[1]);
         if (arena == null) {
             plugin.getMessage(Lang.ARENA_ERROR_INVALID).send(sender);
             return;
         }
 
-        if (arena.getState() != ArenaState.INGAME) {
+        if (arena.getState() != GameState.INGAME) {
             plugin.getMessage(Lang.COMMAND_FORCE_END_ERROR_NOT_IN_GAME).replace(arena.replacePlaceholders()).send(sender);
             return;
         }

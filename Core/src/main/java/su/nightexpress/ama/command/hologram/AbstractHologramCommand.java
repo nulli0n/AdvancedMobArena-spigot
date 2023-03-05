@@ -10,7 +10,7 @@ import su.nexmedia.engine.utils.CollectionsUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.api.hologram.HologramHolder;
 import su.nightexpress.ama.api.hologram.HologramType;
-import su.nightexpress.ama.arena.AbstractArena;
+import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.ArenaStatsHologram;
 import su.nightexpress.ama.arena.region.ArenaRegion;
 import su.nightexpress.ama.config.Lang;
@@ -50,7 +50,7 @@ public abstract class AbstractHologramCommand extends AbstractCommand<AMA> {
             if (arg == 4) {
                 switch (hologramType) {
                     case REGION_UNLOCKED, REGION_LOCKED -> {
-                        AbstractArena arena = plugin.getArenaManager().getArenaById(args[3]);
+                        Arena arena = plugin.getArenaManager().getArenaById(args[3]);
                         if (arena == null) return super.getTab(player, arg, args);
 
                         return arena.getConfig().getRegionManager().getRegions().stream().map(ArenaRegion::getId).toList();
@@ -81,7 +81,7 @@ public abstract class AbstractHologramCommand extends AbstractCommand<AMA> {
 
         HologramHolder holder = switch (type) {
             case ARENA -> {
-                AbstractArena arena = plugin.getArenaManager().getArenaById(args[3]);
+                Arena arena = plugin.getArenaManager().getArenaById(args[3]);
                 if (arena == null) yield null;
 
                 yield arena.getConfig();
@@ -90,7 +90,7 @@ public abstract class AbstractHologramCommand extends AbstractCommand<AMA> {
             case REGION_LOCKED, REGION_UNLOCKED -> {
                 if (args.length < 5) yield null;
 
-                AbstractArena arena = plugin.getArenaManager().getArenaById(args[3]);
+                Arena arena = plugin.getArenaManager().getArenaById(args[3]);
                 if (arena == null) yield null;
 
                 yield arena.getConfig().getRegionManager().getRegion(args[4]);
@@ -99,7 +99,7 @@ public abstract class AbstractHologramCommand extends AbstractCommand<AMA> {
             case ARENA_STATS -> {
                 if (args.length < 5) yield null;
 
-                AbstractArena arena = plugin.getArenaManager().getArenaById(args[3]);
+                Arena arena = plugin.getArenaManager().getArenaById(args[3]);
                 if (arena == null) yield null;
 
                 StatType statType = CollectionsUtil.getEnum(args[4], StatType.class);

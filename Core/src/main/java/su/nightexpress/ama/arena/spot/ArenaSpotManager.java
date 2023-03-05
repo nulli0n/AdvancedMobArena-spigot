@@ -7,31 +7,30 @@ import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.IEditable;
 import su.nexmedia.engine.api.manager.ILoadable;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.api.arena.IArenaObject;
+import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.IProblematic;
-import su.nightexpress.ama.arena.config.ArenaConfig;
+import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.arena.editor.spot.EditorSpotList;
 
 import java.util.*;
 import java.util.function.UnaryOperator;
 
-public class ArenaSpotManager implements IArenaObject, ILoadable, IEditable, IProblematic {
-
-    private final ArenaConfig arenaConfig;
-
-    private Map<String, ArenaSpot> spots;
-    private EditorSpotList         editor;
+public class ArenaSpotManager implements ArenaChild, ILoadable, IEditable, IProblematic {
 
     public static final String DIR_SPOTS = "/spots/";
 
+    private final ArenaConfig arenaConfig;
+    private final Map<String, ArenaSpot> spots;
+
+    private EditorSpotList editor;
+
     public ArenaSpotManager(@NotNull ArenaConfig arenaConfig) {
         this.arenaConfig = arenaConfig;
+        this.spots = new HashMap<>();
     }
 
     @Override
     public void setup() {
-        this.spots = new HashMap<>();
-
         for (JYML cfg : JYML.loadAll(arenaConfig.getFile().getParentFile().getAbsolutePath() + DIR_SPOTS, false)) {
             try {
                 ArenaSpot spot = new ArenaSpot(this.arenaConfig, cfg);

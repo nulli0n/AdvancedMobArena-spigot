@@ -22,9 +22,9 @@ import su.nightexpress.ama.editor.ArenaEditorUtils;
 
 import java.util.Map;
 
-public class EditorWaveGradual extends AbstractEditorMenu<AMA, ArenaWaveManager> {
+public class WavesGradualSettingsEditor extends AbstractEditorMenu<AMA, ArenaWaveManager> {
 
-    public EditorWaveGradual(@NotNull ArenaWaveManager waveManager) {
+    public WavesGradualSettingsEditor(@NotNull ArenaWaveManager waveManager) {
         super(waveManager.getArena().plugin(), waveManager, ArenaEditorUtils.TITLE_WAVE_EDITOR, 45);
 
         EditorInput<ArenaWaveManager, ArenaEditorType> input = (player, waves, type, e) -> {

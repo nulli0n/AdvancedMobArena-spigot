@@ -8,8 +8,8 @@ import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.manager.AbstractListener;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.api.ArenaAPI;
-import su.nightexpress.ama.arena.AbstractArena;
-import su.nightexpress.ama.arena.ArenaPlayer;
+import su.nightexpress.ama.arena.impl.Arena;
+import su.nightexpress.ama.arena.impl.ArenaPlayer;
 
 public final class McMMOHook extends AbstractListener<AMA> {
 
@@ -39,7 +39,7 @@ public final class McMMOHook extends AbstractListener<AMA> {
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(p);
         if (arenaPlayer == null) return;
 
-        AbstractArena arena = arenaPlayer.getArena();
+        Arena arena = arenaPlayer.getArena();
         if (!arena.getConfig().getGameplayManager().isExternalMcmmoEnabled()) {
             e.setCancelled(true);
         }
@@ -51,7 +51,7 @@ public final class McMMOHook extends AbstractListener<AMA> {
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(p);
         if (arenaPlayer == null) return;
 
-        AbstractArena arena = arenaPlayer.getArena();
+        Arena arena = arenaPlayer.getArena();
         if (!arena.getConfig().getGameplayManager().isExternalMcmmoEnabled()) {
             e.setCancelled(true);
         }

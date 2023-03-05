@@ -10,6 +10,8 @@ import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.hooks.Hooks;
 import su.nexmedia.engine.utils.EntityUtil;
 import su.nightexpress.ama.api.arena.type.ArenaLocationType;
+import su.nightexpress.ama.arena.impl.Arena;
+import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.hook.HookId;
 import su.nightexpress.ama.hook.external.EssentialsHook;
 import su.nightexpress.ama.hook.external.SunLightHook;
@@ -74,7 +76,7 @@ public class PlayerSnapshot {
         PlayerSnapshot snapshot = SNAPSHOTS.remove(player.getUniqueId());
         if (snapshot == null) return;
 
-        AbstractArena arena = arenaPlayer.getArena();
+        Arena arena = arenaPlayer.getArena();
 
         Location exit = arena.getConfig().getLocation(ArenaLocationType.LEAVE);
         player.teleport(exit != null ? exit : snapshot.getLocation());

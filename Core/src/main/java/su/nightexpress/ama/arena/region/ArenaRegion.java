@@ -15,19 +15,20 @@ import su.nexmedia.engine.utils.LocationUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.api.arena.IArenaObject;
+import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.IProblematic;
 import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
 import su.nightexpress.ama.api.arena.game.IArenaGameEventListenerState;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
 import su.nightexpress.ama.api.arena.type.ArenaLockState;
+import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
 import su.nightexpress.ama.api.event.ArenaRegionEvent;
 import su.nightexpress.ama.api.hologram.HologramHolder;
 import su.nightexpress.ama.api.hologram.HologramType;
 import su.nightexpress.ama.arena.util.ArenaCuboid;
-import su.nightexpress.ama.arena.ArenaPlayer;
-import su.nightexpress.ama.arena.config.ArenaConfig;
+import su.nightexpress.ama.arena.impl.ArenaPlayer;
+import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.arena.editor.region.EditorRegionMain;
 import su.nightexpress.ama.arena.wave.ArenaWave;
 import su.nightexpress.ama.hologram.HologramManager;
@@ -36,7 +37,7 @@ import java.util.*;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
-public class ArenaRegion extends AbstractLoadableItem<AMA> implements IArenaGameEventListenerState, IArenaObject, HologramHolder, IProblematic, IEditable, ICleanable {
+public class ArenaRegion extends AbstractLoadableItem<AMA> implements IArenaGameEventListenerState, ArenaChild, HologramHolder, IProblematic, IEditable, ICleanable {
 
     private final ArenaConfig arenaConfig;
     private       boolean     isActive;
@@ -303,7 +304,7 @@ public class ArenaRegion extends AbstractLoadableItem<AMA> implements IArenaGame
 
     @NotNull
     public Set<ArenaPlayer> getPlayers() {
-        return this.getArena().getPlayersIngame().stream().filter(arenaPlayer -> {
+        return this.getArena().getPlayers(GameState.INGAME).stream().filter(arenaPlayer -> {
             return this.equals(arenaPlayer.getRegion(false));
         }).collect(Collectors.toSet());
     }

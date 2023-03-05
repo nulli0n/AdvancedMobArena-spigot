@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.manager.IPlaceholder;
 import su.nexmedia.engine.utils.NumberUtil;
 import su.nightexpress.ama.Placeholders;
+import su.nightexpress.ama.hook.mob.MobProvider;
 
 import java.util.function.UnaryOperator;
 
@@ -11,13 +12,17 @@ public class ArenaWaveMob implements IPlaceholder {
 
     private final ArenaWave arenaWave;
 
-    private String mobId;
-    private int    amount;
-    private int    level;
-    private double chance;
+    private MobProvider provider;
+    private String      mobId;
+    private int         amount;
+    private int         level;
+    private double      chance;
 
-    public ArenaWaveMob(@NotNull ArenaWave arenaWave, @NotNull String mobId, int amount, int level, double chance) {
+    public ArenaWaveMob(@NotNull ArenaWave arenaWave,
+                        @NotNull MobProvider provider,
+                        @NotNull String mobId, int amount, int level, double chance) {
         this.arenaWave = arenaWave;
+        this.setProvider(provider);
         this.setMobId(mobId);
         this.setAmount(amount);
         this.setLevel(level);
@@ -25,7 +30,7 @@ public class ArenaWaveMob implements IPlaceholder {
     }
 
     public ArenaWaveMob(@NotNull ArenaWaveMob waveMob) {
-        this(waveMob.getArenaWave(), waveMob.getMobId(), waveMob.getAmount(), waveMob.getLevel(), waveMob.getChance());
+        this(waveMob.getArenaWave(), waveMob.getProvider(), waveMob.getMobId(), waveMob.getAmount(), waveMob.getLevel(), waveMob.getChance());
     }
 
     @Override
@@ -33,6 +38,7 @@ public class ArenaWaveMob implements IPlaceholder {
     public UnaryOperator<String> replacePlaceholders() {
         return str -> str
             .replace(Placeholders.ARENA_WAVE_MOB_ID, this.getMobId())
+            .replace(Placeholders.ARENA_WAVE_MOB_PROVIDER, this.getProvider().getName())
             .replace(Placeholders.ARENA_WAVE_MOB_AMOUNT, String.valueOf(this.getAmount()))
             .replace(Placeholders.ARENA_WAVE_MOB_LEVEL, String.valueOf(this.getLevel()))
             .replace(Placeholders.ARENA_WAVE_MOB_CHANCE, NumberUtil.format(this.getChance()))
@@ -42,6 +48,15 @@ public class ArenaWaveMob implements IPlaceholder {
     @NotNull
     public ArenaWave getArenaWave() {
         return arenaWave;
+    }
+
+    @NotNull
+    public MobProvider getProvider() {
+        return provider;
+    }
+
+    public void setProvider(@NotNull MobProvider provider) {
+        this.provider = provider;
     }
 
     @NotNull

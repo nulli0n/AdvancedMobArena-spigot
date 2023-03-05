@@ -8,9 +8,9 @@ import su.nexmedia.engine.api.command.AbstractCommand;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
-import su.nightexpress.ama.api.arena.type.ArenaState;
-import su.nightexpress.ama.arena.AbstractArena;
-import su.nightexpress.ama.arena.ArenaPlayer;
+import su.nightexpress.ama.arena.type.GameState;
+import su.nightexpress.ama.arena.impl.Arena;
+import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.config.Lang;
 
 import java.util.Map;
@@ -49,14 +49,14 @@ public class SkipwaveCmd extends AbstractCommand<AMA> {
         }
 
         int amount = args.length >= 2 ? StringUtil.getInteger(args[1], 1) : 1;
-        AbstractArena arena = arenaPlayer.getArena();
+        Arena arena = arenaPlayer.getArena();
 
         new BukkitRunnable() {
             int count = 0;
 
             @Override
             public void run() {
-                if (this.count++ >= amount || arena.getState() != ArenaState.INGAME) {
+                if (this.count++ >= amount || arena.getState() != GameState.INGAME) {
                     this.cancel();
                     return;
                 }

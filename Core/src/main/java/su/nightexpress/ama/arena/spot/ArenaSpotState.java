@@ -7,13 +7,13 @@ import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.utils.LocationUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.api.arena.IArenaObject;
+import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
 import su.nightexpress.ama.api.arena.game.IArenaGameEventListener;
 import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
 import su.nightexpress.ama.api.event.ArenaSpotStateChangeEvent;
-import su.nightexpress.ama.arena.AbstractArena;
-import su.nightexpress.ama.arena.config.ArenaConfig;
+import su.nightexpress.ama.arena.impl.Arena;
+import su.nightexpress.ama.arena.impl.ArenaConfig;
 
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 
-public class ArenaSpotState implements IArenaGameEventListener, IArenaObject {
+public class ArenaSpotState implements IArenaGameEventListener, ArenaChild {
 
     private final ArenaSpot spot;
 
@@ -127,7 +127,7 @@ public class ArenaSpotState implements IArenaGameEventListener, IArenaObject {
         });
     }
 
-    public void build(@NotNull AbstractArena arena) {
+    public void build(@NotNull Arena arena) {
         this.build();
 
         ArenaSpotStateChangeEvent event = new ArenaSpotStateChangeEvent(arena, this.getSpot(), this);

@@ -11,7 +11,7 @@ import su.nexmedia.engine.api.menu.MenuItem;
 import su.nexmedia.engine.api.menu.MenuItemType;
 import su.nexmedia.engine.utils.ItemUtil;
 import su.nightexpress.ama.AMA;
-import su.nightexpress.ama.arena.AbstractArena;
+import su.nightexpress.ama.arena.impl.Arena;
 
 public class ArenaListMenu extends AbstractMenu<AMA> {
 
@@ -36,7 +36,7 @@ public class ArenaListMenu extends AbstractMenu<AMA> {
         for (String sId : cfg.getSection("Arenas")) {
             MenuItem menuItem = cfg.getMenuItem("Arenas." + sId);
 
-            AbstractArena arena = plugin.getArenaManager().getArenaById(menuItem.getId());
+            Arena arena = plugin.getArenaManager().getArenaById(menuItem.getId());
             if (arena == null) {
                 plugin.error("Invalid arena '" + sId + "' in Arenas Menu!");
                 continue;
@@ -53,7 +53,7 @@ public class ArenaListMenu extends AbstractMenu<AMA> {
     public void onItemPrepare(@NotNull Player player, @NotNull MenuItem menuItem, @NotNull ItemStack item) {
         super.onItemPrepare(player, menuItem, item);
 
-        AbstractArena arena = plugin.getArenaManager().getArenaById(menuItem.getId());
+        Arena arena = plugin.getArenaManager().getArenaById(menuItem.getId());
         if (arena == null) return;
 
         ItemUtil.replace(item, arena.replacePlaceholders());

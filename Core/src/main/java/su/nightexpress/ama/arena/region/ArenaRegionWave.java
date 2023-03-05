@@ -6,18 +6,17 @@ import su.nexmedia.engine.api.manager.ICleanable;
 import su.nexmedia.engine.api.manager.IEditable;
 import su.nexmedia.engine.utils.random.Rnd;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.api.arena.IArenaObject;
+import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
 import su.nightexpress.ama.api.arena.game.IArenaGameEventListener;
-import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
 import su.nightexpress.ama.api.arena.type.ArenaLockState;
 import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
-import su.nightexpress.ama.arena.AbstractArena;
-import su.nightexpress.ama.arena.config.ArenaConfig;
+import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.arena.editor.region.EditorRegionWaveSettings;
+import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.wave.ArenaWave;
 import su.nightexpress.ama.arena.wave.ArenaWaveMob;
-import su.nightexpress.ama.arena.wave.ArenaWaveUpcoming;
+import su.nightexpress.ama.arena.impl.ArenaUpcomingWave;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -25,7 +24,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 
-public class ArenaRegionWave implements IArenaGameEventListener, IArenaObject, IEditable, ICleanable {
+public class ArenaRegionWave implements IArenaGameEventListener, ArenaChild, IEditable, ICleanable {
 
     private final ArenaRegion                   region;
     private final Set<ArenaGameEventTrigger<?>> triggers;
@@ -70,7 +69,6 @@ public class ArenaRegionWave implements IArenaGameEventListener, IArenaObject, I
 
     @Override
     public boolean onGameEvent(@NotNull ArenaGameGenericEvent gameEvent) {
-        if (gameEvent.getEventType() != ArenaGameEventType.WAVE_START) return false; // TODO Make support all events
         if (!this.isReady(gameEvent)) return false;
 
         ArenaRegion region = this.getRegion();
@@ -79,25 +77,28 @@ public class ArenaRegionWave implements IArenaGameEventListener, IArenaObject, I
         ArenaWave wave = this.getArenaWave();
         if (wave == null) return false;
 
-        // TODO If gradual spawn disabled, instant spawn this wave on arena? in case when using more than wave_start triggers
-
         // Check if this or linked regions contains players to spawn waves there.
         Set<ArenaRegion> linked = new HashSet<>(this.getArenaConfig().getRegionManager().getLinkedRegions(region));
         boolean hasNear = !this.getRegion().getPlayers().isEmpty() || linked.stream().anyMatch(reg -> !reg.getPlayers().isEmpty());
         if (!hasNear) return false;
 
-        AbstractArena arena = gameEvent.getArena();
+        Arena arena = gameEvent.getArena();
 
         // Generate upcoming arena waves depends on region waves and arena wave mob chances.
         // Also set mob amount and levels depends on the Amplificators.
         // Creates new instances for IArenaWaveMob to not affect default ones.
         List<ArenaWaveMob> mobs = new ArrayList<>(wave.getMobsByChance().stream().map(ArenaWaveMob::new).toList());
-        mobs.forEach(mob -> mob.setAmount((int) (mob.getAmount() + arena.getWaveAmplificatorAmount(wave.getId()))));
-        mobs.forEach(mob -> mob.setLevel((int) (mob.getLevel() + arena.getWaveAmplificatorLevel(wave.getId()))));
+        wave.getAmplifiers().forEach(ampId -> {
+            mobs.forEach(mob -> mob.setAmount((int) (mob.getAmount() + arena.getWaveAmplificatorAmount(ampId))));
+            mobs.forEach(mob -> mob.setLevel((int) (mob.getLevel() + arena.getWaveAmplificatorLevel(ampId))));
+        });
         mobs.removeIf(mob -> mob.getAmount() <= 0);
         if (mobs.isEmpty()) return false;
 
-        arena.getUpcomingWaves().add(new ArenaWaveUpcoming(this, mobs));
+        arena.getUpcomingWaves().add(new ArenaUpcomingWave(this, mobs));
+        if (!arena.getConfig().getWaveManager().isGradualSpawnEnabled()) {
+            arena.spawnMobs(100D);
+        }
         return true;
     }
 

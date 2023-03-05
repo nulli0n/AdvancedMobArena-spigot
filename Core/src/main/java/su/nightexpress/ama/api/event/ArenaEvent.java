@@ -3,20 +3,20 @@ package su.nightexpress.ama.api.event;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
-import su.nightexpress.ama.arena.AbstractArena;
+import su.nightexpress.ama.arena.impl.Arena;
 
 public abstract class ArenaEvent extends Event {
 
-    private final AbstractArena arena;
+    private final Arena arena;
 
     private static final HandlerList handlerList = new HandlerList();
 
-    public ArenaEvent(@NotNull AbstractArena arena) {
+    public ArenaEvent(@NotNull Arena arena) {
         this.arena = arena;
     }
 
     @NotNull
-    public AbstractArena getArena() {
+    public Arena getArena() {
         return this.arena;
     }
 

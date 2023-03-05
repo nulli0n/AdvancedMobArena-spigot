@@ -13,7 +13,7 @@ import su.nexmedia.engine.hooks.Hooks;
 import su.nexmedia.engine.hooks.external.citizens.CitizensHook;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
 import su.nightexpress.ama.api.arena.type.ArenaLockState;
-import su.nightexpress.ama.api.arena.type.ArenaState;
+import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.api.arena.type.ArenaTargetType;
 import su.nightexpress.ama.api.hologram.HologramType;
 import su.nightexpress.ama.api.hologram.IHologramHandler;
@@ -37,7 +37,10 @@ import su.nightexpress.ama.hook.HookId;
 import su.nightexpress.ama.hook.external.*;
 import su.nightexpress.ama.hook.external.traits.*;
 import su.nightexpress.ama.hook.level.PluginLevelProvider;
-import su.nightexpress.ama.hook.level.impl.MMOCoreLevelProvider;
+import su.nightexpress.ama.hook.level.impl.MMOCorePlayerLevelProvider;
+import su.nightexpress.ama.hook.mob.PluginMobProvider;
+import su.nightexpress.ama.hook.mob.impl.EliteMobsProvider;
+import su.nightexpress.ama.hook.mob.impl.MythicMobProvider;
 import su.nightexpress.ama.kit.KitManager;
 import su.nightexpress.ama.mob.MobManager;
 import su.nightexpress.ama.mob.style.MobStyleType;
@@ -175,6 +178,8 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
             this.signManager.shutdown();
             this.signManager = null;
         }
+        PluginLevelProvider.getProvidersMap().clear();
+        PluginMobProvider.getProvidersMap().clear();
     }
 
     @Override
@@ -185,7 +190,7 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
     @Override
     public void loadLang() {
         this.getLangManager().loadMissing(Lang.class);
-        this.getLangManager().setupEnum(ArenaState.class);
+        this.getLangManager().setupEnum(GameState.class);
         this.getLangManager().setupEnum(ArenaLockState.class);
         this.getLangManager().setupEnum(ArenaGameEventType.class);
         this.getLangManager().setupEnum(ArenaTargetType.class);
@@ -206,7 +211,13 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
             PlaceholderHook.setup();
         }
         if (Hooks.hasPlugin(HookId.MMOCORE)) {
-            PluginLevelProvider.registerProvider(new MMOCoreLevelProvider());
+            PluginLevelProvider.registerProvider(new MMOCorePlayerLevelProvider());
+        }
+        if (Hooks.hasPlugin(Hooks.MYTHIC_MOBS)) {
+            PluginMobProvider.registerProvider(new MythicMobProvider());
+        }
+        if (Hooks.hasPlugin(HookId.ELITE_MOBS)) {
+            PluginMobProvider.registerProvider(new EliteMobsProvider());
         }
 
         if (Hooks.hasCitizens()) {

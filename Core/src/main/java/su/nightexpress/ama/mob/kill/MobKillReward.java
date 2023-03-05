@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.config.JOption;
 import su.nexmedia.engine.api.config.JYML;
 import su.nightexpress.ama.api.currency.ICurrency;
-import su.nightexpress.ama.arena.ArenaPlayer;
+import su.nightexpress.ama.arena.impl.ArenaPlayer;
 
 import java.util.HashMap;
 import java.util.Map;

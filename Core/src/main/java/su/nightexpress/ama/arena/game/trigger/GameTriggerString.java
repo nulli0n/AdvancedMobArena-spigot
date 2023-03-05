@@ -5,7 +5,7 @@ import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
 import su.nightexpress.ama.api.arena.game.ArenaGameTriggerValue;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
 import su.nightexpress.ama.api.event.*;
-import su.nightexpress.ama.arena.AbstractArena;
+import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.game.trigger.value.TriggerValueString;
 
 public class GameTriggerString extends ArenaGameEventTrigger<String> {
@@ -62,7 +62,7 @@ public class GameTriggerString extends ArenaGameEventTrigger<String> {
     @Override
     @NotNull
     public String getEventRawValue(@NotNull ArenaGameGenericEvent event) {
-        AbstractArena arena = event.getArena();
+        Arena arena = event.getArena();
         return switch (this.getType()) {
             case MOB_KILLED -> {
                 ArenaMobDeathEvent deathEvent = (ArenaMobDeathEvent) event;

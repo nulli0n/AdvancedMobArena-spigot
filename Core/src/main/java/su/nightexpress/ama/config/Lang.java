@@ -262,7 +262,7 @@ public class Lang extends EngineLang {
     public static final LangKey Editor_Arena_Waves_Enter_Gradual_Next_KillPercent = new LangKey("Editor.Arena.Waves.Enter.Gradual.Next.KillPercent", "&7Enter next spawn kill &apercent&7...");
 
     public static final LangKey Editor_Arena_Waves_Enter_Wave_Create         = new LangKey("Editor.Arena.Waves.Enter.Wave.Create", "&7Enter &aunique &7wave &aidentifier&7...");
-    public static final LangKey Editor_Arena_Waves_Enter_Mob_Create          = new LangKey("Editor.Arena.Waves.Enter.Mob.Create", "&7Enter mob &aidentifier&7...");
+    @Deprecated public static final LangKey Editor_Arena_Waves_Enter_Mob_Create          = new LangKey("Editor.Arena.Waves.Enter.Mob.Create", "&7Enter mob &aidentifier&7...");
     public static final LangKey Editor_Arena_Waves_Enter_Mob_Amount          = new LangKey("Editor.Arena.Waves.Enter.Mob.Amount", "&7Enter mob &astart amount&7...");
     public static final LangKey Editor_Arena_Waves_Enter_Mob_Level           = new LangKey("Editor.Arena.Waves.Enter.Mob.Level", "&7Enter mob &astart level&7...");
     public static final LangKey Editor_Arena_Waves_Enter_Mob_Chance          = new LangKey("Editor.Arena.Waves.Enter.Mob.Chance", "&7Enter mob &aspawn chance&7...");
@@ -270,9 +270,10 @@ public class Lang extends EngineLang {
     public static final LangKey Editor_Arena_Waves_Enter_Amplificator_Value  = new LangKey("Editor.Arena.Waves.Enter.Amplificator.Value", "&7Enter amplificator &avalue&7...");
 
     public static final LangKey Editor_Arena_Waves_Error_Wave_Exist         = new LangKey("Editor.Arena.Waves.Error.Wave.Exist", "&7Wave already exist!");
-    public static final LangKey Editor_Arena_Waves_Error_Mob_Exist          = new LangKey("Editor.Arena.Waves.Error.Mob.Exist", "&7Mob already exist!");
+    @Deprecated public static final LangKey Editor_Arena_Waves_Error_Mob_Exist          = new LangKey("Editor.Arena.Waves.Error.Mob.Exist", "&7Mob already exist!");
     public static final LangKey Editor_Arena_Waves_Error_Mob_Invalid        = new LangKey("Editor.Arena.Waves.Error.Mob.Invalid", "&7No such Arena Mob or Mythic Mob!");
     public static final LangKey Editor_Arena_Waves_Error_Amplificator_Exist = new LangKey("Editor.Arena.Waves.Error.Amplificator.Exist", "&7Amplificator already exist!");
+    public static final LangKey Editor_Arena_Waves_Error_Amplificator_Invalid = new LangKey("Editor.Arena.Waves.Error.Amplificator.Invalid", "&7Amplifier does not exist!");
 
     public static final LangKey Editor_Arena_Shop_Enter_Product_Create      = new LangKey("Editor.Arena.Shop.Enter.Product.Create", "&7Enter &aunique &7product &aidentifier&7...");
     public static final LangKey Editor_Arena_Shop_Enter_Product_Price       = new LangKey("Editor.Arena.Shop.Enter.Product.Price", "&7Enter product &aprice&7...");

@@ -19,8 +19,8 @@ import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.currency.ICurrency;
 import su.nightexpress.ama.api.hologram.HologramHolder;
 import su.nightexpress.ama.api.hologram.HologramType;
-import su.nightexpress.ama.arena.AbstractArena;
-import su.nightexpress.ama.arena.ArenaPlayer;
+import su.nightexpress.ama.arena.impl.Arena;
+import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.data.ArenaUser;
 import su.nightexpress.ama.hologram.HologramManager;
@@ -434,7 +434,7 @@ public class Kit extends AbstractLoadableItem<AMA> implements ConfigHolder, Holo
     }
 
     public boolean isAvailable(@NotNull ArenaPlayer arenaPlayer, boolean isMsg) {
-        AbstractArena arena = arenaPlayer.getArena();
+        Arena arena = arenaPlayer.getArena();
         Player player = arenaPlayer.getPlayer();
 
         // Check if kits are disabled on the arena

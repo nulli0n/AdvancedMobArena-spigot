@@ -10,8 +10,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.hooks.Hooks;
-import su.nightexpress.ama.arena.ArenaPlayer;
-import su.nightexpress.ama.arena.AbstractArena;
+import su.nightexpress.ama.arena.impl.ArenaPlayer;
+import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.hook.external.ProtocolLibHook;
 
 import java.util.*;
@@ -98,7 +98,7 @@ public class ArenaBoard {
     public void update() {
         String title = this.title;
         List<String> lines = new ArrayList<>(this.lines);
-        AbstractArena arena = this.arenaPlayer.getArena();
+        Arena arena = this.arenaPlayer.getArena();
 
         lines.replaceAll(line -> {
             if (Hooks.hasPlaceholderAPI()) {

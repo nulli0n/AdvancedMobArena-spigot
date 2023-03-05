@@ -6,8 +6,8 @@ import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.command.AbstractCommand;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
-import su.nightexpress.ama.api.arena.type.ArenaState;
-import su.nightexpress.ama.arena.AbstractArena;
+import su.nightexpress.ama.arena.type.GameState;
+import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.config.Lang;
 
 import java.util.List;
@@ -40,8 +40,8 @@ public class ForceStartCommand extends AbstractCommand<AMA> {
     @NotNull
     public List<String> getTab(@NotNull Player player, int arg, @NotNull String[] args) {
         if (arg == 1) {
-            return plugin.getArenaManager().getArenas().stream().filter(arena -> arena.getState() == ArenaState.READY)
-                .map(AbstractArena::getId).toList();
+            return plugin.getArenaManager().getArenas().stream().filter(arena -> arena.getState() == GameState.READY)
+                .map(Arena::getId).toList();
         }
         return super.getTab(player, arg, args);
     }
@@ -53,18 +53,18 @@ public class ForceStartCommand extends AbstractCommand<AMA> {
             return;
         }
 
-        AbstractArena arena = plugin.getArenaManager().getArenaById(args[1]);
+        Arena arena = plugin.getArenaManager().getArenaById(args[1]);
         if (arena == null) {
             plugin.getMessage(Lang.ARENA_ERROR_INVALID).send(sender);
             return;
         }
 
-        if (arena.getState() != ArenaState.READY) {
+        if (arena.getState() != GameState.READY) {
             plugin.getMessage(Lang.COMMAND_FORCE_START_ERROR_NOT_READY).replace(arena.replacePlaceholders()).send(sender);
             return;
         }
 
         plugin.getMessage(Lang.COMMAND_FORCE_START_DONE).replace(arena.replacePlaceholders()).send(sender);
-        arena.setLobbyTimeleft(0);
+        arena.setLobbyCountdown(0);
     }
 }

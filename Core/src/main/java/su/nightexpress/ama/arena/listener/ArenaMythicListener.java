@@ -8,8 +8,8 @@ import org.bukkit.event.EventPriority;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.manager.AbstractListener;
 import su.nightexpress.ama.AMA;
-import su.nightexpress.ama.api.arena.type.ArenaState;
-import su.nightexpress.ama.arena.AbstractArena;
+import su.nightexpress.ama.arena.impl.Arena;
+import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.mob.config.MobsConfig;
 
 public class ArenaMythicListener extends AbstractListener<AMA> {
@@ -23,10 +23,10 @@ public class ArenaMythicListener extends AbstractListener<AMA> {
         if (!(e.getEntity() instanceof LivingEntity entity)) return;
 
         Location location = entity.getLocation();
-        AbstractArena arena = plugin.getArenaManager().getArenaAtLocation(location);
+        Arena arena = plugin.getArenaManager().getArenaAtLocation(location);
         if (arena == null || !arena.getConfig().isActive()) return;
 
-        if (arena.getState() == ArenaState.INGAME) {
+        if (arena.getState() == GameState.INGAME && !arena.isAboutToFinish()) {
             if (MobsConfig.ALLY_MYTHIC_MOBS.get().contains(e.getMobType().getInternalName())) {
                 if (arena.getMobs().remove(entity)) {
                     arena.setWaveMobsTotalAmount(arena.getWaveMobsTotalAmount() - 1);
@@ -34,5 +34,18 @@ public class ArenaMythicListener extends AbstractListener<AMA> {
                 arena.getAllyMobs().add(entity);
             }
         }
+        else {
+            e.setCancelled();
+            entity.remove();
+        }
     }
+
+    /*@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onMythicSkill(PlayerCastSkillEvent e) {
+        Player player = e.getPlayer();
+        ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
+        if (arenaPlayer != null && arenaPlayer.getArena().isAboutToFinish()) {
+            e.setCancelled(true);
+        }
+    }*/
 }

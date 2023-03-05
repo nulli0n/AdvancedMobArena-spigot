@@ -1,14 +1,13 @@
 package su.nightexpress.ama.arena.board;
 
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.api.config.JOption;
 import su.nexmedia.engine.api.config.JYML;
-import su.nexmedia.engine.utils.StringUtil;
+import su.nexmedia.engine.utils.Colorizer;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArenaBoardConfig implements JOption.Writer {
+public class ArenaBoardConfig {
 
     private final String       id;
     private final String       title;
@@ -16,8 +15,20 @@ public class ArenaBoardConfig implements JOption.Writer {
 
     public ArenaBoardConfig(@NotNull String id, @NotNull String title, @NotNull List<String> lines) {
         this.id = id.toLowerCase();
-        this.title = StringUtil.color(title);
-        this.lines = StringUtil.color(lines);
+        this.title = Colorizer.apply(title);
+        this.lines = Colorizer.apply(lines);
+    }
+
+    @NotNull
+    public static ArenaBoardConfig read(@NotNull JYML cfg, @NotNull String path, @NotNull String id) {
+        String title = cfg.getString(path +  ".Title", "");
+        List<String> lines = cfg.getStringList(path + ".List");
+        return new ArenaBoardConfig(id, title, lines);
+    }
+
+    public static void write(@NotNull ArenaBoardConfig config, @NotNull JYML cfg, @NotNull String path) {
+        cfg.set(path + ".Title", config.getTitle());
+        cfg.set(path + ".List", config.getLines());
     }
 
     @NotNull
@@ -33,11 +44,5 @@ public class ArenaBoardConfig implements JOption.Writer {
     @NotNull
     public List<String> getLines() {
         return new ArrayList<>(lines);
-    }
-
-    @Override
-    public void write(@NotNull JYML cfg, @NotNull String path) {
-        cfg.set(path + ".Title", this.getTitle());
-        cfg.set(path + ".List", this.getLines());
     }
 }
