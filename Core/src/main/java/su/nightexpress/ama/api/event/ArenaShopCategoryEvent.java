@@ -3,7 +3,7 @@ package su.nightexpress.ama.api.event;
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
 import su.nightexpress.ama.arena.impl.Arena;
-import su.nightexpress.ama.arena.shop.ArenaShopCategory;
+import su.nightexpress.ama.arena.shop.impl.ArenaShopCategory;
 
 public class ArenaShopCategoryEvent extends ArenaGameGenericEvent {
 

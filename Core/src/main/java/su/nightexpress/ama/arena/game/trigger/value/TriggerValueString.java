@@ -3,6 +3,7 @@ package su.nightexpress.ama.arena.game.trigger.value;
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.ama.api.arena.game.ArenaGameTriggerValue;
 
+@Deprecated
 public class TriggerValueString extends ArenaGameTriggerValue<String> {
 
     private static final ValueParser<String> PARSER = (raw) -> raw;

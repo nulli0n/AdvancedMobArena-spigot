@@ -42,7 +42,7 @@ public class HologramManager extends AbstractManager<AMA> {
             this.lifeTask.stop();
             this.lifeTask = null;
         }
-        this.plugin.getCommandManager().getMainCommand().removeChildren("hologram");
+        this.plugin.getCommandManager().getMainCommand().removeChildren(HologramMainCommand.NAME);
         this.hologramIds.values().forEach(holos -> holos.values().forEach(IHologramWrapper::delete));
         this.hologramIds.clear();
     }

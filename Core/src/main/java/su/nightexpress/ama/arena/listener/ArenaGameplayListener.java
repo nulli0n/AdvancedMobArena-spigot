@@ -24,7 +24,7 @@ import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.api.arena.type.ArenaLocationType;
-import su.nightexpress.ama.api.arena.type.ArenaLockState;
+import su.nightexpress.ama.arena.lock.LockState;
 import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.api.arena.type.LeaveReason;
 import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
@@ -32,7 +32,7 @@ import su.nightexpress.ama.api.event.ArenaMobDeathEvent;
 import su.nightexpress.ama.api.event.ArenaPlayerDeathEvent;
 import su.nightexpress.ama.api.event.ArenaPlayerReadyEvent;
 import su.nightexpress.ama.arena.ArenaManager;
-import su.nightexpress.ama.arena.LobbyItem;
+import su.nightexpress.ama.arena.util.LobbyItem;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.arena.region.ArenaRegion;
@@ -179,7 +179,7 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
         ArenaRegion region = arena.getConfig().getRegionManager().getRegion(to);
         if (region == null) return;
 
-        if (region.getState() == ArenaLockState.LOCKED && region.getCuboid().contains(to) && !region.getCuboid().contains(from)) {
+        if (region.getState() == LockState.LOCKED && region.getCuboid().contains(to) && !region.getCuboid().contains(from)) {
             e.setCancelled(true);
         }
     }
@@ -292,7 +292,7 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
         });
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onGamePlayerDeathReal(PlayerDeathEvent e) {
         Player player = e.getEntity();
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
@@ -304,8 +304,10 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
 
         if (!arena.getConfig().getGameplayManager().isPlayerDropItemsOnDeathEnabled()) {
             e.setKeepInventory(true);
+            e.getDrops().clear();
         }
 
+        e.setDroppedExp(0);
         e.setKeepLevel(true);
         arenaPlayer.addStats(StatType.DEATHS, 1);
         this.plugin.runTaskLater(task -> player.spigot().respawn(), 10L);

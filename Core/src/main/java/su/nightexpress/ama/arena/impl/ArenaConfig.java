@@ -24,6 +24,7 @@ import su.nightexpress.ama.arena.editor.arena.EditorArenaMain;
 import su.nightexpress.ama.arena.game.ArenaGameplayManager;
 import su.nightexpress.ama.arena.region.ArenaRegionManager;
 import su.nightexpress.ama.arena.reward.ArenaRewardManager;
+import su.nightexpress.ama.arena.script.ArenaScriptManager;
 import su.nightexpress.ama.arena.shop.ArenaShopManager;
 import su.nightexpress.ama.arena.spot.ArenaSpotManager;
 import su.nightexpress.ama.arena.type.GameState;
@@ -58,6 +59,7 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
     private final ArenaSpotManager     spotManager;
     private final ArenaRewardManager   rewardManager;
     private final ArenaShopManager     shopManager;
+    private final ArenaScriptManager scriptManager;
 
     private boolean isActive;
     private String  name;
@@ -85,6 +87,7 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
         this.spotManager = new ArenaSpotManager(this);
         this.rewardManager = new ArenaRewardManager(this);
         this.shopManager = new ArenaShopManager(this);
+        this.scriptManager = new ArenaScriptManager(this);
 
         this.arena = new Arena(this);
     }
@@ -148,6 +151,7 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
         this.spotManager.setup();
         this.rewardManager.setup();
         this.shopManager.setup();
+        this.scriptManager.setup();
         this.getConfig().saveChanges();
 
         this.updateSchedulers();
@@ -211,6 +215,7 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
         this.waveManager.shutdown();
         this.rewardManager.shutdown();
         this.shopManager.shutdown();
+        this.scriptManager.shutdown();
     }
 
     @Override
@@ -246,6 +251,7 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
         this.gameplayManager.save();
         this.rewardManager.save();
         this.shopManager.save();
+        this.scriptManager.save();
     }
 
     @Override
@@ -446,5 +452,10 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
     @NotNull
     public ArenaShopManager getShopManager() {
         return shopManager;
+    }
+
+    @NotNull
+    public ArenaScriptManager getScriptManager() {
+        return scriptManager;
     }
 }

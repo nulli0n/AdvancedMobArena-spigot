@@ -13,7 +13,7 @@ import su.nexmedia.engine.editor.EditorManager;
 import su.nexmedia.engine.utils.ItemUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
-import su.nightexpress.ama.arena.shop.ArenaShopCategory;
+import su.nightexpress.ama.arena.shop.impl.ArenaShopCategory;
 import su.nightexpress.ama.arena.shop.ArenaShopManager;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.editor.ArenaEditorType;

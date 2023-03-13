@@ -9,6 +9,7 @@ import su.nightexpress.ama.api.event.ArenaScoreChangeEvent;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.game.trigger.value.TriggerValueNumber;
 
+@Deprecated
 public class GameTriggerNumber extends ArenaGameEventTrigger<Double> {
 
     public GameTriggerNumber(@NotNull ArenaGameEventType eventType, @NotNull String input) {

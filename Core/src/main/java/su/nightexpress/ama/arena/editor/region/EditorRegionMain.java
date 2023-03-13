@@ -24,7 +24,7 @@ import java.util.Map;
 
 public class EditorRegionMain extends AbstractEditorMenu<AMA, ArenaRegion> {
 
-    private EditorRegionWaveList      waveList;
+    //private EditorRegionWaveList      waveList;
     private EditorRegionContainerList containerList;
 
     public EditorRegionMain(@NotNull ArenaRegion region) {
@@ -84,13 +84,13 @@ public class EditorRegionMain extends AbstractEditorMenu<AMA, ArenaRegion> {
                         EditorManager.tip(player, plugin.getMessage(Lang.Editor_Region_Enter_Id).getLocalized());
                         player.closeInventory();
                     }
-                    case REGION_CHANGE_TRIGGERS_LOCKED, REGION_CHANGE_TRIGGERS_UNLOCKED -> {
+                    /*case REGION_CHANGE_TRIGGERS_LOCKED, REGION_CHANGE_TRIGGERS_UNLOCKED -> {
                         ArenaEditorUtils.handleTriggersClick(player, region, type2, e.isRightClick());
                         if (e.isRightClick()) {
                             region.save();
                             this.open(player, 1);
                         }
-                    }
+                    }*/
                     case REGION_SETUP_KIT -> {
                         if (region.isActive()) {
                             plugin.getMessage(Lang.Setup_Region_Error_Enabled).send(player);
@@ -99,7 +99,7 @@ public class EditorRegionMain extends AbstractEditorMenu<AMA, ArenaRegion> {
                         player.closeInventory();
                         plugin.getArenaSetupManager().getRegionSetupManager().startSetup(player, region);
                     }
-                    case REGION_OPEN_WAVES -> this.getWaveList().open(player, 1);
+                    //case REGION_OPEN_WAVES -> this.getWaveList().open(player, 1);
                     case REGION_OPEN_CONTAINERS -> this.getContainerList().open(player, 1);
                     default -> {}
                 }
@@ -111,10 +111,10 @@ public class EditorRegionMain extends AbstractEditorMenu<AMA, ArenaRegion> {
 
     @Override
     public void clear() {
-        if (this.waveList != null) {
+        /*if (this.waveList != null) {
             this.waveList.clear();
             this.waveList = null;
-        }
+        }*/
         if (this.containerList != null) {
             this.containerList.clear();
             this.containerList = null;
@@ -122,13 +122,13 @@ public class EditorRegionMain extends AbstractEditorMenu<AMA, ArenaRegion> {
         super.clear();
     }
 
-    @NotNull
+    /*@NotNull
     public EditorRegionWaveList getWaveList() {
         if (this.waveList == null) {
             this.waveList = new EditorRegionWaveList(this.object);
         }
         return this.waveList;
-    }
+    }*/
 
     @NotNull
     public EditorRegionContainerList getContainerList() {
@@ -142,13 +142,13 @@ public class EditorRegionMain extends AbstractEditorMenu<AMA, ArenaRegion> {
     public void setTypes(@NotNull Map<EditorButtonType, Integer> map) {
         map.put(ArenaEditorType.REGION_CHANGE_ACTIVE, 4);
         map.put(ArenaEditorType.REGION_SETUP_KIT, 13);
-        map.put(ArenaEditorType.REGION_OPEN_WAVES, 23);
+        //map.put(ArenaEditorType.REGION_OPEN_WAVES, 23);
         map.put(ArenaEditorType.REGION_OPEN_CONTAINERS, 25);
         map.put(ArenaEditorType.REGION_CHANGE_DEFAULT, 21);
         map.put(ArenaEditorType.REGION_CHANGE_LINKED, 22);
         map.put(ArenaEditorType.REGION_CHANGE_NAME, 19);
-        map.put(ArenaEditorType.REGION_CHANGE_TRIGGERS_LOCKED, 2);
-        map.put(ArenaEditorType.REGION_CHANGE_TRIGGERS_UNLOCKED, 6);
+        //map.put(ArenaEditorType.REGION_CHANGE_TRIGGERS_LOCKED, 2);
+        //map.put(ArenaEditorType.REGION_CHANGE_TRIGGERS_UNLOCKED, 6);
         map.put(MenuItemType.RETURN, 40);
     }
 

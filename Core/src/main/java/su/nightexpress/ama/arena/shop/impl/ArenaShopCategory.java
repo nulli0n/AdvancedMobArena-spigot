@@ -1,4 +1,4 @@
-package su.nightexpress.ama.arena.shop;
+package su.nightexpress.ama.arena.shop.impl;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -14,7 +14,8 @@ import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
 import su.nightexpress.ama.api.arena.game.IArenaGameEventListenerState;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
-import su.nightexpress.ama.api.arena.type.ArenaLockState;
+import su.nightexpress.ama.arena.lock.LockState;
+import su.nightexpress.ama.arena.shop.ArenaShopManager;
 import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
 import su.nightexpress.ama.api.event.ArenaShopCategoryEvent;
@@ -33,15 +34,15 @@ import java.util.stream.Collectors;
 public class ArenaShopCategory implements IArenaGameEventListenerState, ArenaChild, ICleanable, IEditable {
 
     private final ArenaConfig                                        arenaConfig;
-    private final String                                             id;
-    private final Map<ArenaLockState, Set<ArenaGameEventTrigger<?>>> stateTriggers;
-    private final Map<String, ArenaShopProduct>                      products;
+    private final String                                        id;
+    private final Map<LockState, Set<ArenaGameEventTrigger<?>>> stateTriggers;
+    private final Map<String, ArenaShopProduct>                 products;
 
     private String         name;
     private List<String>   description;
-    private ItemStack      icon;
-    private ArenaLockState state;
-    private Set<String>    allowedKits;
+    private ItemStack   icon;
+    private LockState   state;
+    private Set<String> allowedKits;
 
     private ArenaShopCategoryMenu      menu;
     private EditorShopCategorySettings editor;
@@ -62,7 +63,7 @@ public class ArenaShopCategory implements IArenaGameEventListenerState, ArenaChi
         @NotNull String name,
         @NotNull List<String> description,
         @NotNull ItemStack icon,
-        @NotNull Map<ArenaLockState, Set<ArenaGameEventTrigger<?>>> stateTriggers,
+        @NotNull Map<LockState, Set<ArenaGameEventTrigger<?>>> stateTriggers,
         @NotNull Set<String> allowedKits,
         @NotNull Map<String, ArenaShopProduct> products
     ) {
@@ -72,7 +73,7 @@ public class ArenaShopCategory implements IArenaGameEventListenerState, ArenaChi
         this.setName(name);
         this.setDescription(description);
         this.setIcon(icon);
-        this.setState(ArenaLockState.UNLOCKED);
+        this.setState(LockState.UNLOCKED);
         this.stateTriggers = stateTriggers;
         this.setAllowedKits(allowedKits);
         this.products = products;
@@ -93,8 +94,8 @@ public class ArenaShopCategory implements IArenaGameEventListenerState, ArenaChi
             .replace(Placeholders.SHOP_CATEGORY_ALLOWED_KITS, this.getAllowedKits().stream()
                 .map(kidId -> ArenaAPI.getKitManager().getKitById(kidId)).filter(Objects::nonNull)
                 .map(Kit::getName).map(StringUtil::colorOff).collect(Collectors.joining(", ")))
-            .replace(Placeholders.SHOP_CATEGORY_TRIGGERS_LOCKED, Placeholders.format(this.getStateTriggers(ArenaLockState.LOCKED)))
-            .replace(Placeholders.SHOP_CATEGORY_TRIGGERS_UNLOCKED, Placeholders.format(this.getStateTriggers(ArenaLockState.UNLOCKED)))
+            .replace(Placeholders.SHOP_CATEGORY_TRIGGERS_LOCKED, Placeholders.format(this.getStateTriggers(LockState.LOCKED)))
+            .replace(Placeholders.SHOP_CATEGORY_TRIGGERS_UNLOCKED, Placeholders.format(this.getStateTriggers(LockState.UNLOCKED)))
             ;
     }
 
@@ -102,10 +103,10 @@ public class ArenaShopCategory implements IArenaGameEventListenerState, ArenaChi
     public boolean onGameEvent(@NotNull ArenaGameGenericEvent gameEvent) {
         if (!this.isReady(gameEvent)) return false;
 
-        ArenaLockState state = this.getState().getOpposite();
+        LockState state = this.getState().getOpposite();
         this.setState(state);
 
-        ArenaGameEventType eventType = state == ArenaLockState.LOCKED ? ArenaGameEventType.SHOP_CATEGORY_LOCKED : ArenaGameEventType.SHOP_CATEGORY_UNLOCKED;
+        ArenaGameEventType eventType = state == LockState.LOCKED ? ArenaGameEventType.SHOP_CATEGORY_LOCKED : ArenaGameEventType.SHOP_CATEGORY_UNLOCKED;
         ArenaShopCategoryEvent event = new ArenaShopCategoryEvent(gameEvent.getArena(), this, eventType);
         ArenaAPI.PLUGIN.getPluginManager().callEvent(event);
 
@@ -161,7 +162,7 @@ public class ArenaShopCategory implements IArenaGameEventListenerState, ArenaChi
             return false;
         }
 
-        if (this.getState() == ArenaLockState.LOCKED) {
+        if (this.getState() == LockState.LOCKED) {
             plugin().getMessage(Lang.SHOP_CATEGORY_OPEN_ERROR_LOCKED)
                 .replace(this.replacePlaceholders())
                 .send(arenaPlayer.getPlayer());
@@ -190,18 +191,18 @@ public class ArenaShopCategory implements IArenaGameEventListenerState, ArenaChi
 
     @NotNull
     @Override
-    public ArenaLockState getState() {
+    public LockState getState() {
         return state;
     }
 
     @Override
-    public void setState(@NotNull ArenaLockState state) {
+    public void setState(@NotNull LockState state) {
         this.state = state;
     }
 
     @NotNull
     @Override
-    public Map<ArenaLockState, Set<ArenaGameEventTrigger<?>>> getStateTriggers() {
+    public Map<LockState, Set<ArenaGameEventTrigger<?>>> getStateTriggers() {
         return stateTriggers;
     }
 

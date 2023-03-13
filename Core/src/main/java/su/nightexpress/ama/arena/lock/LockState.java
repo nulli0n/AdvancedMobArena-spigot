@@ -1,18 +1,18 @@
-package su.nightexpress.ama.api.arena.type;
+package su.nightexpress.ama.arena.lock;
 
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.ama.editor.ArenaEditorType;
 
-public enum ArenaLockState {
+public enum LockState {
 
     UNLOCKED, LOCKED;
 
     @NotNull
-    public ArenaLockState getOpposite() {
+    public LockState getOpposite() {
         return this == LOCKED ? UNLOCKED : LOCKED;
     }
 
-    public static ArenaLockState fromEditor(@NotNull ArenaEditorType editorType) {
+    public static LockState fromEditor(@NotNull ArenaEditorType editorType) {
         return switch (editorType) {
             case REGION_CHANGE_TRIGGERS_LOCKED,
                 SHOP_CATEGORY_CHANGE_TRIGGERS_LOCKED,

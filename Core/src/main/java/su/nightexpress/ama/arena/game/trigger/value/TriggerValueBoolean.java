@@ -3,6 +3,7 @@ package su.nightexpress.ama.arena.game.trigger.value;
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.ama.api.arena.game.ArenaGameTriggerValue;
 
+@Deprecated
 public class TriggerValueBoolean extends ArenaGameTriggerValue<Boolean> {
 
     private static final ValueParser<Boolean> PARSER = (Boolean::valueOf);

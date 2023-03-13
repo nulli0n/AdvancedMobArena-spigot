@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.api.arena.game.ArenaGameTriggerValue;
 
+@Deprecated
 public class TriggerValueNumber extends ArenaGameTriggerValue<Double> {
 
     private static final ValueParser<Double> PARSER = (raw) -> StringUtil.getDouble(raw, 0D, true);

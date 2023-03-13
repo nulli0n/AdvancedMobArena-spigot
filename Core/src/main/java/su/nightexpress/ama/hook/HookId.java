@@ -8,6 +8,7 @@ public class HookId {
     public static final String COMBAT_PETS          = "CombatPets";
     public static final String MYTHIC_MOBS          = "MythicMobs";
     public static final String ELITE_MOBS = "EliteMobs";
+    public static final String BOSS_MANIA = "BossMania";
     public static final String ESSENTIALS           = "Essentials";
     public static final String SUNLIGHT             = "SunLight";
     public static final String PROTOCOL_LIB         = "ProtocolLib";

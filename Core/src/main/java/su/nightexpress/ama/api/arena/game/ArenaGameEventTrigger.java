@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Deprecated
 public abstract class ArenaGameEventTrigger<T> {
 
     protected ArenaGameEventType             eventType;

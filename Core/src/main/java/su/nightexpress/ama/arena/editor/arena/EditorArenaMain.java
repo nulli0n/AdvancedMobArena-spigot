@@ -191,6 +191,7 @@ public class EditorArenaMain extends AbstractEditorMenu<AMA, ArenaConfig> {
                     case ARENA_OPEN_WAVE_MANAGER -> config.getWaveManager().getEditor().open(player, 1);
                     case ARENA_OPEN_SHOP_MANAGER -> config.getShopManager().getEditor().open(player, 1);
                     case ARENA_OPEN_REWARD_MANAGER -> config.getRewardManager().getEditor().open(player, 1);
+                    case ARENA_OPEN_SCRIPT_MANAGER -> config.getScriptManager().getEditor().open(player, 1);
                     default -> {}
                 }
             }
@@ -214,6 +215,7 @@ public class EditorArenaMain extends AbstractEditorMenu<AMA, ArenaConfig> {
         map.put(ArenaEditorType.ARENA_OPEN_REWARD_MANAGER, 30);
         map.put(ArenaEditorType.ARENA_OPEN_SHOP_MANAGER, 31);
         map.put(ArenaEditorType.ARENA_OPEN_SPOT_MANAGER, 32);
+        map.put(ArenaEditorType.ARENA_OPEN_SCRIPT_MANAGER, 28);
         map.put(MenuItemType.RETURN, 40);
     }
 

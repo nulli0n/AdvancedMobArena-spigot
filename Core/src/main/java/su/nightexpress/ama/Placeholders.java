@@ -61,9 +61,9 @@ public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
     public static final String ARENA_WAVE_MOB_LEVEL  = "%arena_wave_mob_level%";
     public static final String ARENA_WAVE_MOB_CHANCE = "%arena_wave_mob_chance%";
 
-    public static final String GAME_COMMAND_TARGET   = "%game_command_target%";
-    public static final String GAME_COMMAND_COMMANDS = "%game_command_commands%";
-    public static final String GAME_COMMAND_TRIGGERS = "%game_command_triggers%";
+    @Deprecated public static final String GAME_COMMAND_TARGET   = "%game_command_target%";
+    @Deprecated public static final String GAME_COMMAND_COMMANDS = "%game_command_commands%";
+    @Deprecated public static final String GAME_COMMAND_TRIGGERS = "%game_command_triggers%";
 
     public static final String GAMEPLAY_TIMELEFT                  = "%gameplay_timeleft%";
     public static final String GAMEPLAY_LOBBY_TIME                = "%gameplay_lobby_time%";
@@ -102,13 +102,13 @@ public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
     public static final String REGION_ACTIVE            = "%region_active%";
     public static final String REGION_DEFAULT           = "%region_default%";
     public static final String REGION_STATE             = "%region_state%";
-    public static final String REGION_TRIGGERS_LOCKED   = "%region_triggers_locked%";
-    public static final String REGION_TRIGGERS_UNLOCKED = "%region_triggers_unlocked%";
-    public static final String REGION_WAVE_ID           = "%region_wave_id%";
-    public static final String REGION_WAVE_WAVE_IDS     = "%region_wave_wave_ids%";
-    public static final String REGION_WAVE_SPAWNERS     = "%region_wave_spawners%";
+    @Deprecated public static final String REGION_TRIGGERS_LOCKED   = "%region_triggers_locked%";
+    @Deprecated public static final String REGION_TRIGGERS_UNLOCKED = "%region_triggers_unlocked%";
+    @Deprecated public static final String REGION_WAVE_ID           = "%region_wave_id%";
+    @Deprecated public static final String REGION_WAVE_WAVE_IDS     = "%region_wave_wave_ids%";
+    @Deprecated public static final String REGION_WAVE_SPAWNERS     = "%region_wave_spawners%";
     public static final String REGION_LINKED_REGIONS    = "%region_linked_regions%";
-    public static final String REGION_WAVE_TRIGGERS     = "%region_wave_triggers%";
+    @Deprecated public static final String REGION_WAVE_TRIGGERS     = "%region_wave_triggers%";
 
     public static final String CONTAINER_LOCATION_X       = "%container_location_x%";
     public static final String CONTAINER_LOCATION_Y       = "%container_location_y%";
@@ -116,20 +116,20 @@ public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
     public static final String CONTAINER_LOCATION_WORLD   = "%container_location_world%";
     public static final String CONTAINER_REFILL_ITEMS_MIN = "%container_refill_items_min%";
     public static final String CONTAINER_REFILL_ITEMS_MAX = "%container_refill_items_max%";
-    public static final String CONTAINER_TRIGGERS         = "%container_triggers%";
+    @Deprecated public static final String CONTAINER_TRIGGERS         = "%container_triggers%";
 
     public static final String REWARD_MANAGER_RETAIN_ON_DEATH = "%reward_manager_retain_on_death%";
     public static final String REWARD_MANAGER_RETAIN_ON_LEAVE = "%reward_manager_retain_on_leave%";
 
     public static final String REWARD_NAME        = "%reward_name%";
     public static final String REWARD_IS_LATE     = "%reward_is_late%";
-    public static final String REWARD_CHANCE      = "%reward_chance%";
+    @Deprecated public static final String REWARD_CHANCE      = "%reward_chance%";
     public static final String REWARD_COMMANDS    = "%reward_commands%";
-    public static final String REWARD_TARGET_TYPE = "%reward_target_type%";
-    public static final String REWARD_TRIGGERS    = "%reward_triggers%";
+    @Deprecated public static final String REWARD_TARGET_TYPE = "%reward_target_type%";
+    @Deprecated public static final String REWARD_TRIGGERS    = "%reward_triggers%";
 
-    public static final String SHOP_TRIGGERS_LOCKED              = "%shop_triggers_locked%";
-    public static final String SHOP_TRIGGERS_UNLOCKED            = "%shop_triggers_unlocked%";
+    @Deprecated public static final String SHOP_TRIGGERS_LOCKED              = "%shop_triggers_locked%";
+    @Deprecated public static final String SHOP_TRIGGERS_UNLOCKED            = "%shop_triggers_unlocked%";
     public static final String SHOP_MANAGER_IS_ACTIVE            = "%shop_manager_is_active%";
     public static final String SHOP_MANAGER_HIDE_OTHER_KIT_ITEMS = "%shop_manager_hide_other_kit_items%";
 
@@ -139,9 +139,19 @@ public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
     public static final String SHOP_CATEGORY_ICON_TYPE         = "%shop_category_icon_type%";
     //public static final String SHOP_CATEGORY_ICON_NAME         = "%shop_category_icon_name%";
     //public static final String SHOP_CATEGORY_ICON_LORE         = "%shop_category_icon_lore%";
-    public static final String SHOP_CATEGORY_TRIGGERS_LOCKED   = "%shop_category_triggers_locked%";
-    public static final String SHOP_CATEGORY_TRIGGERS_UNLOCKED = "%shop_category_triggers_unlocked%";
+    @Deprecated public static final String SHOP_CATEGORY_TRIGGERS_LOCKED   = "%shop_category_triggers_locked%";
+    @Deprecated public static final String SHOP_CATEGORY_TRIGGERS_UNLOCKED = "%shop_category_triggers_unlocked%";
     public static final String SHOP_CATEGORY_ALLOWED_KITS      = "%shop_category_allowed_kits%";
+
+    public static final String SCRIPT_CATEGORY_ID                = "%script_category_id%";
+    public static final String SCRIPT_ID                = "%script_id%";
+    public static final String SCRIPT_EVENT_TYPE                = "%script_event_type%";
+    //public static final String SCRIPT_CONDITIONS_AMOUNT                = "%script_conditions_amount%";
+    //public static final String SCRIPT_ACTIONS_AMOUNT                = "%script_actions_amount%";
+    public static final String SCRIPT_ACTION_NAME                = "%script_action_name%";
+    public static final String SCRIPT_ACTION_PARAMS                = "%script_action_parameters%";
+    public static final String SCRIPT_CONDITION_SECTION_ID         = "%script_condition_section_id%";
+    public static final String SCRIPT_CONDITION_SECTION_CONDITIONS = "%script_condition_section_conditions%";
 
     public static final String SHOP_PRODUCT_ID                = "%shop_product_id%";
     public static final String SHOP_PRODUCT_NAME              = "%shop_product_name%";
@@ -151,20 +161,20 @@ public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
     public static final String SHOP_PRODUCT_PRICE             = "%shop_product_price%";
     //public static final String SHOP_PRODUCT_ITEM_LORE         = "%shop_product_item_lore%";
     public static final String SHOP_PRODUCT_ICON_TYPE         = "%shop_product_icon_type%";
-    public static final String SHOP_PRODUCT_TRIGGERS_LOCKED   = "%shop_product_triggers_locked%";
-    public static final String SHOP_PRODUCT_TRIGGERS_UNLOCKED = "%shop_product_triggers_unlocked%";
+    @Deprecated public static final String SHOP_PRODUCT_TRIGGERS_LOCKED   = "%shop_product_triggers_locked%";
+    @Deprecated public static final String SHOP_PRODUCT_TRIGGERS_UNLOCKED = "%shop_product_triggers_unlocked%";
     public static final String SHOP_PRODUCT_CURRENCY          = "%shop_product_currency%";
 
     public static final String SPOT_ID             = "%spot_id%";
     public static final String SPOT_NAME           = "%spot_name%";
     public static final String SPOT_ACTIVE         = "%spot_active%";
     public static final String SPOT_STATE_ID       = "%spot_state_id%";
-    public static final String SPOT_STATE_TRIGGERS = "%spot_state_triggers%";
+    @Deprecated public static final String SPOT_STATE_TRIGGERS = "%spot_state_triggers%";
 
-    public static final String WAVE_AMPLIFIER_ID           = "%wave_amplifier_id%";
-    public static final String WAVE_AMPLIFIER_VALUE_AMOUNT = "%wave_amplifier_value_amount%";
-    public static final String WAVE_AMPLIFIER_VALUE_LEVEL = "%wave_amplifier_value_level%";
-    public static final String WAVE_AMPLIFIER_TRIGGERS    = "%wave_amplifier_triggers%";
+    @Deprecated public static final String WAVE_AMPLIFIER_ID           = "%wave_amplifier_id%";
+    @Deprecated public static final String WAVE_AMPLIFIER_VALUE_AMOUNT = "%wave_amplifier_value_amount%";
+    @Deprecated public static final String WAVE_AMPLIFIER_VALUE_LEVEL = "%wave_amplifier_value_level%";
+    @Deprecated public static final String WAVE_AMPLIFIER_TRIGGERS    = "%wave_amplifier_triggers%";
 
     public static final String MOB_ID               = "%mob_id%";
     public static final String MOB_NAME             = "%mob_name%";

@@ -12,7 +12,7 @@ import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
 import su.nightexpress.ama.api.arena.game.IArenaGameEventListener;
 import su.nightexpress.ama.api.arena.game.IArenaGameEventListenerState;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
-import su.nightexpress.ama.api.arena.type.ArenaLockState;
+import su.nightexpress.ama.arena.lock.LockState;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.config.Lang;
 
@@ -30,7 +30,9 @@ public class ArenaEditorUtils {
     public static final String TITLE_WAVE_EDITOR     = "Arena Wave Editor";
     public static final String TITLE_KIT_EDITOR      = "Arena Kit Editor";
     public static final String TITLE_MOB_EDITOR      = "Arena Mob Editor";
+    public static final String TITLE_SCRIPT_EDITOR = "Arena Script Editor";
 
+    @Deprecated
     public static void handleTriggersClick(
         @NotNull Player player,
         @NotNull IArenaGameEventListener listener,
@@ -39,7 +41,7 @@ public class ArenaEditorUtils {
 
         if (doClean) {
             if (listener instanceof IArenaGameEventListenerState listenerState) {
-                ArenaLockState state = ArenaLockState.fromEditor(editorType);
+                LockState state = LockState.fromEditor(editorType);
                 listenerState.getStateTriggers(state).clear();
             }
             else {
@@ -60,6 +62,7 @@ public class ArenaEditorUtils {
         player.closeInventory();
     }
 
+    @Deprecated
     public static boolean handleTriggersInput(
         @NotNull Player player,
         @NotNull IArenaGameEventListener listener,
@@ -87,7 +90,7 @@ public class ArenaEditorUtils {
 
         Set<ArenaGameEventTrigger<?>> triggers;
         if (listener instanceof IArenaGameEventListenerState listenerState) {
-            ArenaLockState state = ArenaLockState.fromEditor(editorType);
+            LockState state = LockState.fromEditor(editorType);
             //listenerState.getStateTriggers(state).add(trigger);
             triggers = listenerState.getStateTriggers(state);
         }

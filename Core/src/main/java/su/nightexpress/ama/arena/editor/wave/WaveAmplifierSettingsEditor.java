@@ -22,6 +22,7 @@ import su.nightexpress.ama.editor.ArenaEditorUtils;
 
 import java.util.Map;
 
+@Deprecated
 public class WaveAmplifierSettingsEditor extends AbstractEditorMenu<AMA, ArenaWaveAmplifier> {
 
     public WaveAmplifierSettingsEditor(@NotNull AMA plugin, @NotNull ArenaWaveAmplifier amplificator) {

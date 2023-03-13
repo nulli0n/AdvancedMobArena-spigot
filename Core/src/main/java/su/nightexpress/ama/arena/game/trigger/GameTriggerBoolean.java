@@ -8,6 +8,7 @@ import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.game.trigger.value.TriggerValueBoolean;
 
+@Deprecated
 public class GameTriggerBoolean extends ArenaGameEventTrigger<Boolean> {
 
     public GameTriggerBoolean(@NotNull ArenaGameEventType eventType, @NotNull String inputs) {

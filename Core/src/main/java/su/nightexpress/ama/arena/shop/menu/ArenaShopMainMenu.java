@@ -14,10 +14,10 @@ import su.nexmedia.engine.utils.ItemUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.api.arena.type.ArenaLockState;
+import su.nightexpress.ama.arena.lock.LockState;
 import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
-import su.nightexpress.ama.arena.shop.ArenaShopCategory;
+import su.nightexpress.ama.arena.shop.impl.ArenaShopCategory;
 import su.nightexpress.ama.arena.shop.ArenaShopManager;
 import su.nightexpress.ama.config.Lang;
 
@@ -27,9 +27,9 @@ public class ArenaShopMainMenu extends AbstractMenuAuto<AMA, ArenaShopCategory> 
 
     protected ArenaShopManager shopManager;
 
-    private final String                            objectName;
-    private final Map<ArenaLockState, List<String>> objectLore;
-    private final int[]                             objectSlots;
+    private final String                       objectName;
+    private final Map<LockState, List<String>> objectLore;
+    private final int[]                        objectSlots;
 
     public ArenaShopMainMenu(@NotNull ArenaShopManager shopManager) {
         super(shopManager.plugin(), JYML.loadOrExtract(shopManager.plugin(), "/menu/arena.shop.main.yml"), "");
@@ -38,7 +38,7 @@ public class ArenaShopMainMenu extends AbstractMenuAuto<AMA, ArenaShopCategory> 
         this.objectName = StringUtil.color(cfg.getString("Category.Name", Placeholders.SHOP_CATEGORY_NAME));
         this.objectSlots = cfg.getIntArray("Category.Slots");
         this.objectLore = new HashMap<>();
-        for (ArenaLockState lockState : ArenaLockState.values()) {
+        for (LockState lockState : LockState.values()) {
             this.objectLore.put(lockState, StringUtil.color(cfg.getStringList("Category.Lore." + lockState.name())));
         }
 
@@ -91,7 +91,7 @@ public class ArenaShopMainMenu extends AbstractMenuAuto<AMA, ArenaShopCategory> 
         };
 
         return (player2, type, e) -> {
-            if (shopCategory.getState() == ArenaLockState.LOCKED) {
+            if (shopCategory.getState() == LockState.LOCKED) {
                 plugin.getMessage(Lang.Shop_Buy_Error_Locked).send(player2);
                 return;
             }

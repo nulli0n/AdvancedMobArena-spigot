@@ -8,6 +8,7 @@ import su.nightexpress.ama.api.event.*;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.game.trigger.value.TriggerValueString;
 
+@Deprecated
 public class GameTriggerString extends ArenaGameEventTrigger<String> {
 
     public GameTriggerString(@NotNull ArenaGameEventType eventType, @NotNull String inputs) {

@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 
+@Deprecated // TODO Replace with scripts system using Target param
 public class ArenaGameCommand implements IArenaGameEventListener, ArenaChild, IEditable, ICleanable, IPlaceholder {
 
     private final ArenaConfig arenaConfig;

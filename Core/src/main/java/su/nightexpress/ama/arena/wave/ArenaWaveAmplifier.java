@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 
+@Deprecated
 public class ArenaWaveAmplifier implements IArenaGameEventListener, ArenaChild, IEditable, ICleanable {
 
     private final ArenaConfig arenaConfig;

@@ -5,7 +5,7 @@ import su.nexmedia.engine.api.config.JOption;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.hologram.HologramType;
-import su.nightexpress.ama.arena.LobbyItem;
+import su.nightexpress.ama.arena.util.LobbyItem;
 import su.nightexpress.ama.arena.board.ArenaBoardConfig;
 import su.nightexpress.ama.hook.HookId;
 import su.nightexpress.ama.sign.type.SignType;

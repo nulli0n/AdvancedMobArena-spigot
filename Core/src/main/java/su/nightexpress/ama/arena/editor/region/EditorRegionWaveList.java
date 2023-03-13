@@ -22,6 +22,7 @@ import su.nightexpress.ama.editor.ArenaEditorUtils;
 import java.util.*;
 import java.util.stream.IntStream;
 
+@Deprecated
 public class EditorRegionWaveList extends AbstractEditorMenuAuto<AMA, ArenaRegion, ArenaRegionWave> {
 
     public EditorRegionWaveList(@NotNull ArenaRegion region) {

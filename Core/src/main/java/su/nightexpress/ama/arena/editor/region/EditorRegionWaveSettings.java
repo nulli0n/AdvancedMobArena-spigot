@@ -22,6 +22,7 @@ import su.nightexpress.ama.editor.ArenaEditorUtils;
 
 import java.util.Map;
 
+@Deprecated
 public class EditorRegionWaveSettings extends AbstractEditorMenu<AMA, ArenaRegionWave> {
 
     public EditorRegionWaveSettings(@NotNull ArenaRegionWave regionWave) {

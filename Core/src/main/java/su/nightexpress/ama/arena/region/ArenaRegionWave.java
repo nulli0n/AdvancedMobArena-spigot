@@ -9,7 +9,7 @@ import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
 import su.nightexpress.ama.api.arena.game.IArenaGameEventListener;
-import su.nightexpress.ama.api.arena.type.ArenaLockState;
+import su.nightexpress.ama.arena.lock.LockState;
 import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.arena.editor.region.EditorRegionWaveSettings;
@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 
+@Deprecated
 public class ArenaRegionWave implements IArenaGameEventListener, ArenaChild, IEditable, ICleanable {
 
     private final ArenaRegion                   region;
@@ -72,7 +73,7 @@ public class ArenaRegionWave implements IArenaGameEventListener, ArenaChild, IEd
         if (!this.isReady(gameEvent)) return false;
 
         ArenaRegion region = this.getRegion();
-        if (this.getRegion().getState() == ArenaLockState.LOCKED) return false;
+        if (this.getRegion().getState() == LockState.LOCKED) return false;
 
         ArenaWave wave = this.getArenaWave();
         if (wave == null) return false;

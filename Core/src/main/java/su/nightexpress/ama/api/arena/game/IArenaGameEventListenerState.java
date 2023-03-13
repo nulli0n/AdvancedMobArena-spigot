@@ -1,12 +1,13 @@
 package su.nightexpress.ama.api.arena.game;
 
 import org.jetbrains.annotations.NotNull;
-import su.nightexpress.ama.api.arena.type.ArenaLockState;
+import su.nightexpress.ama.arena.lock.LockState;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+@Deprecated
 public interface IArenaGameEventListenerState extends IArenaGameEventListener {
 
     /**
@@ -22,23 +23,23 @@ public interface IArenaGameEventListenerState extends IArenaGameEventListener {
     }
 
     @NotNull
-    ArenaLockState getState();
+    LockState getState();
 
-    void setState(@NotNull ArenaLockState state);
+    void setState(@NotNull LockState state);
 
     default boolean isLocked() {
-        return this.getState() == ArenaLockState.LOCKED;
+        return this.getState() == LockState.LOCKED;
     }
 
     default boolean isUnlocked() {
-        return this.getState() == ArenaLockState.UNLOCKED;
+        return this.getState() == LockState.UNLOCKED;
     }
 
     @NotNull
-    Map<ArenaLockState, Set<ArenaGameEventTrigger<?>>> getStateTriggers();
+    Map<LockState, Set<ArenaGameEventTrigger<?>>> getStateTriggers();
 
     @NotNull
-    default Set<ArenaGameEventTrigger<?>> getStateTriggers(@NotNull ArenaLockState state) {
+    default Set<ArenaGameEventTrigger<?>> getStateTriggers(@NotNull LockState state) {
         return this.getStateTriggers().computeIfAbsent(state, k -> new HashSet<>());
     }
 }

@@ -8,13 +8,21 @@ import su.nexmedia.engine.api.manager.IEditable;
 import su.nexmedia.engine.api.manager.ILoadable;
 import su.nexmedia.engine.lang.LangManager;
 import su.nexmedia.engine.utils.NumberUtil;
+import su.nexmedia.engine.utils.StringUtil;
 import su.nexmedia.engine.utils.TimeUtil;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.IProblematic;
 import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
+import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
 import su.nightexpress.ama.arena.editor.wave.WaveManagerEditor;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
+import su.nightexpress.ama.arena.script.action.ParameterResult;
+import su.nightexpress.ama.arena.script.action.Parameters;
+import su.nightexpress.ama.arena.script.action.ScriptActions;
+import su.nightexpress.ama.arena.script.action.ScriptPreparedAction;
+import su.nightexpress.ama.arena.script.condition.ScriptPreparedCondition;
+import su.nightexpress.ama.arena.script.impl.ArenaScript;
 import su.nightexpress.ama.hook.mob.MobProvider;
 import su.nightexpress.ama.hook.mob.PluginMobProvider;
 import su.nightexpress.ama.hook.mob.impl.InternalMobProvider;
@@ -69,6 +77,32 @@ public class ArenaWaveManager implements ArenaChild, ConfigHolder, ILoadable, IP
             Set<ArenaGameEventTrigger<?>> triggers = ArenaGameEventTrigger.parse(config, path2 + "Triggers");
             int valueAmount = config.getInt(path2 + "Values.Amount");
             int valueLevel = config.getInt(path2 + "Values.Level");
+
+            // ----------- CONVERT SCRIPTS START -----------
+            for (String eventRaw : config.getSection(path2 + "Triggers")) {
+                ArenaGameEventType eventType = StringUtil.getEnum(eventRaw, ArenaGameEventType.class).orElse(null);
+                if (eventType == null) continue;
+
+                String sName = "amplifier_" + ampId;
+                ArenaScript script = new ArenaScript(this.arenaConfig, sName, eventType);
+
+                String values = config.getString(path2 + "Triggers." + eventRaw, "");
+                Map<String, List<ScriptPreparedCondition>> conditions = ArenaScript.ofGameTrigger(eventType, values);
+                script.getConditions().putAll(conditions);
+
+                ScriptPreparedAction action = new ScriptPreparedAction(ScriptActions.ADJUST_MOB_AMOUNT, new ParameterResult());
+                action.getParameters().add(Parameters.WAVE, "null");
+                action.getParameters().add(Parameters.AMOUNT, valueAmount);
+                script.getActions().add(action);
+
+                ScriptPreparedAction action2 = new ScriptPreparedAction(ScriptActions.ADJUST_MOB_LEVEL, new ParameterResult());
+                action2.getParameters().add(Parameters.WAVE, "null");
+                action2.getParameters().add(Parameters.AMOUNT, valueLevel);
+                script.getActions().add(action2);
+
+                this.getArenaConfig().getScriptManager().addConverted(script);
+            }
+            // ----------- CONVERT SCRIPTS END -----------
 
             ArenaWaveAmplifier amplificator = new ArenaWaveAmplifier(this.getArenaConfig(), ampId, triggers, valueAmount, valueLevel);
             this.getAmplifiers().put(amplificator.getId(), amplificator);
@@ -161,6 +195,7 @@ public class ArenaWaveManager implements ArenaChild, ConfigHolder, ILoadable, IP
                 config.set(path3 + "Level", mob.getLevel());
                 config.set(path3 + "Chance", mob.getChance());
             });
+            config.set(path2 + "Amplifiers", wave.getAmplifiers());
         });
 
         config.remove("Amplifiers");

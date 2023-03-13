@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+@Deprecated
 public abstract class ArenaGameTriggerValue<T> {
 
     protected final String                     valueRaw;

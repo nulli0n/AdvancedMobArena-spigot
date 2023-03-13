@@ -22,6 +22,7 @@ import su.nightexpress.ama.editor.ArenaEditorUtils;
 
 import java.util.Map;
 
+@Deprecated
 public class EditorGameCommandSettings extends AbstractEditorMenu<AMA, ArenaGameCommand> {
 
     public EditorGameCommandSettings(@NotNull ArenaGameCommand gameCommand) {
@@ -41,7 +42,7 @@ public class EditorGameCommandSettings extends AbstractEditorMenu<AMA, ArenaGame
         MenuClick click = (player, type, e) -> {
             if (type instanceof MenuItemType type2) {
                 if (type2 == MenuItemType.RETURN) {
-                    gameCommand.getArenaConfig().getGameplayManager().getEditor().getCommandList().open(player, 1);
+                    //gameCommand.getArenaConfig().getGameplayManager().getEditor().getCommandList().open(player, 1);
                 }
             }
             else if (type instanceof ArenaEditorType type2) {

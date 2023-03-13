@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
+@Deprecated
 public class WavesAmplifiersEditor extends AbstractEditorMenuAuto<AMA, ArenaWaveManager, ArenaWaveAmplifier> {
 
     WavesAmplifiersEditor(@NotNull ArenaWaveManager waveManager) {

@@ -1,4 +1,4 @@
-package su.nightexpress.ama.arena;
+package su.nightexpress.ama.arena.util;
 
 import org.bukkit.GameMode;
 import org.bukkit.Location;

@@ -4,7 +4,9 @@ import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
-import su.nexmedia.engine.api.manager.*;
+import su.nexmedia.engine.api.manager.AbstractLoadableItem;
+import su.nexmedia.engine.api.manager.ICleanable;
+import su.nexmedia.engine.api.manager.IEditable;
 import su.nexmedia.engine.lang.LangManager;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
@@ -12,10 +14,17 @@ import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.IProblematic;
 import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
-import su.nightexpress.ama.arena.util.ArenaCuboid;
+import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
+import su.nightexpress.ama.arena.editor.spot.EditorSpotMain;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
-import su.nightexpress.ama.arena.editor.spot.EditorSpotMain;
+import su.nightexpress.ama.arena.script.action.ParameterResult;
+import su.nightexpress.ama.arena.script.action.Parameters;
+import su.nightexpress.ama.arena.script.action.ScriptActions;
+import su.nightexpress.ama.arena.script.action.ScriptPreparedAction;
+import su.nightexpress.ama.arena.script.condition.ScriptPreparedCondition;
+import su.nightexpress.ama.arena.script.impl.ArenaScript;
+import su.nightexpress.ama.arena.util.ArenaCuboid;
 
 import java.util.*;
 import java.util.function.UnaryOperator;
@@ -63,6 +72,28 @@ public class ArenaSpot extends AbstractLoadableItem<AMA> implements ArenaChild, 
             String path2 = "States." + stateId + ".";
 
             Set<ArenaGameEventTrigger<?>> triggers = ArenaGameEventTrigger.parse(cfg, path2 + "Triggers");
+
+            // ----------- CONVERT SCRIPTS START -----------
+            for (String eventRaw : cfg.getSection(path2 + "Triggers")) {
+                ArenaGameEventType eventType = StringUtil.getEnum(eventRaw, ArenaGameEventType.class).orElse(null);
+                if (eventType == null) continue;
+
+                String sName = "spot_change_" + this.getId() + "_to_" + stateId;
+                ArenaScript script = new ArenaScript(this.arenaConfig, sName, eventType);
+
+                String values = cfg.getString(path2 + "Triggers." + eventRaw, "");
+                Map<String, List<ScriptPreparedCondition>> conditions = ArenaScript.ofGameTrigger(eventType, values);
+                script.getConditions().putAll(conditions);
+
+                ScriptPreparedAction action = new ScriptPreparedAction(ScriptActions.CHANGE_SPOT, new ParameterResult());
+                action.getParameters().add(Parameters.SPOT, this.getId());
+                action.getParameters().add(Parameters.STATE,stateId);
+                script.getActions().add(action);
+
+                this.getArenaConfig().getScriptManager().addConverted(script);
+            }
+            // ----------- CONVERT SCRIPTS END -----------
+
             List<String> blockSchemeRaw = new ArrayList<>(cfg.getStringList(path2 + "Scheme"));
 
             ArenaSpotState state = new ArenaSpotState(this, stateId, triggers, blockSchemeRaw);

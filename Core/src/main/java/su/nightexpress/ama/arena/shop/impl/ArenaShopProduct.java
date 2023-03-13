@@ -1,4 +1,4 @@
-package su.nightexpress.ama.arena.shop;
+package su.nightexpress.ama.arena.shop.impl;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -14,7 +14,7 @@ import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
 import su.nightexpress.ama.api.arena.game.IArenaGameEventListenerState;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
-import su.nightexpress.ama.api.arena.type.ArenaLockState;
+import su.nightexpress.ama.arena.lock.LockState;
 import su.nightexpress.ama.api.currency.ICurrency;
 import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
 import su.nightexpress.ama.api.event.ArenaShopProductEvent;
@@ -30,13 +30,13 @@ import java.util.stream.Collectors;
 public class ArenaShopProduct implements IArenaGameEventListenerState, ArenaChild, ICleanable, IEditable {
 
     private final ArenaShopCategory                                  shopCategory;
-    private final String                                             id;
-    private final Map<ArenaLockState, Set<ArenaGameEventTrigger<?>>> stateTriggers;
+    private final String                                        id;
+    private final Map<LockState, Set<ArenaGameEventTrigger<?>>> stateTriggers;
 
     private String          name;
-    private List<String>    description;
-    private ArenaLockState  state;
-    private ICurrency       currency;
+    private List<String> description;
+    private LockState    state;
+    private ICurrency    currency;
     private double          price;
     private Set<String>     applicableKits;
     private ItemStack       icon;
@@ -65,7 +65,7 @@ public class ArenaShopProduct implements IArenaGameEventListenerState, ArenaChil
         @NotNull List<String> description,
         @NotNull ICurrency currency,
         double price,
-        @NotNull Map<ArenaLockState, Set<ArenaGameEventTrigger<?>>> stateTriggers,
+        @NotNull Map<LockState, Set<ArenaGameEventTrigger<?>>> stateTriggers,
         @NotNull Set<String> applicableKits,
         @NotNull ItemStack icon,
         @NotNull List<String> commands,
@@ -75,7 +75,7 @@ public class ArenaShopProduct implements IArenaGameEventListenerState, ArenaChil
         this.id = id.toLowerCase();
         this.setName(name);
         this.setDescription(description);
-        this.setState(ArenaLockState.UNLOCKED);
+        this.setState(LockState.UNLOCKED);
 
         this.stateTriggers = stateTriggers;
         this.setCurrency(currency);
@@ -90,8 +90,8 @@ public class ArenaShopProduct implements IArenaGameEventListenerState, ArenaChil
     @NotNull
     public UnaryOperator<String> replacePlaceholders() {
         return str -> str
-            .replace(Placeholders.SHOP_PRODUCT_TRIGGERS_LOCKED, Placeholders.format(this.getStateTriggers(ArenaLockState.LOCKED)))
-            .replace(Placeholders.SHOP_PRODUCT_TRIGGERS_UNLOCKED, Placeholders.format(this.getStateTriggers(ArenaLockState.UNLOCKED)))
+            .replace(Placeholders.SHOP_PRODUCT_TRIGGERS_LOCKED, Placeholders.format(this.getStateTriggers(LockState.LOCKED)))
+            .replace(Placeholders.SHOP_PRODUCT_TRIGGERS_UNLOCKED, Placeholders.format(this.getStateTriggers(LockState.UNLOCKED)))
             .replace(Placeholders.SHOP_PRODUCT_ID, this.getId())
             .replace(Placeholders.SHOP_PRODUCT_CURRENCY, this.getCurrency().getConfig().getName())
             .replace(Placeholders.SHOP_PRODUCT_NAME, this.getName())
@@ -110,10 +110,10 @@ public class ArenaShopProduct implements IArenaGameEventListenerState, ArenaChil
     public boolean onGameEvent(@NotNull ArenaGameGenericEvent gameEvent) {
         if (!this.isReady(gameEvent)) return false;
 
-        ArenaLockState state = this.getState().getOpposite();
+        LockState state = this.getState().getOpposite();
         this.setState(state);
 
-        ArenaGameEventType eventType = state == ArenaLockState.LOCKED ? ArenaGameEventType.SHOP_ITEM_LOCKED : ArenaGameEventType.SHOP_ITEM_UNLOCKED;
+        ArenaGameEventType eventType = state == LockState.LOCKED ? ArenaGameEventType.SHOP_ITEM_LOCKED : ArenaGameEventType.SHOP_ITEM_UNLOCKED;
         ArenaShopProductEvent regionEvent = new ArenaShopProductEvent(gameEvent.getArena(), eventType, this);
         ArenaAPI.PLUGIN.getPluginManager().callEvent(regionEvent);
 
@@ -191,18 +191,18 @@ public class ArenaShopProduct implements IArenaGameEventListenerState, ArenaChil
 
     @Override
     @NotNull
-    public ArenaLockState getState() {
+    public LockState getState() {
         return state;
     }
 
     @Override
-    public void setState(@NotNull ArenaLockState state) {
+    public void setState(@NotNull LockState state) {
         this.state = state;
     }
 
     @Override
     @NotNull
-    public Map<ArenaLockState, Set<ArenaGameEventTrigger<?>>> getStateTriggers() {
+    public Map<LockState, Set<ArenaGameEventTrigger<?>>> getStateTriggers() {
         return this.stateTriggers;
     }
 

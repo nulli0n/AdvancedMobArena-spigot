@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
+@Deprecated
 public class EditorGameCommandList extends AbstractEditorMenuAuto<AMA, ArenaGameplayManager, ArenaGameCommand> {
 
     public EditorGameCommandList(@NotNull ArenaGameplayManager gameplayManager) {

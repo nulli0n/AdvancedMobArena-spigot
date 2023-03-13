@@ -32,8 +32,8 @@ public class ArenaReward implements IArenaGameEventListener, ArenaChild, IEditab
     private       String                        name;
     private       boolean                       isLate;
     private final Set<ArenaGameEventTrigger<?>> triggers;
-    private       ArenaTargetType               targetType;
-    private       double                        chance;
+    @Deprecated private       ArenaTargetType               targetType;
+    @Deprecated private       double                        chance;
     private       List<String>                  commands;
     private       List<ItemStack>               items;
 
@@ -99,6 +99,7 @@ public class ArenaReward implements IArenaGameEventListener, ArenaChild, IEditab
         return true;
     }
 
+    @Deprecated
     public void give(@NotNull Arena arena) {
         if (Rnd.get(true) >= this.getChance()) return;
 
@@ -110,10 +111,20 @@ public class ArenaReward implements IArenaGameEventListener, ArenaChild, IEditab
         });
     }
 
+    public void give(@NotNull Arena arena, ArenaTargetType targetType) {
+        arena.getPlayers(targetType).forEach(arenaPlayer -> {
+            if (this.isLate()) {
+                arenaPlayer.getRewards().add(this);
+            }
+            else this.give(arenaPlayer.getPlayer());
+        });
+    }
+
     public void give(@NotNull Player player) {
         this.getItems().forEach(item -> PlayerUtil.addItem(player, item));
         this.getCommands().forEach(command -> PlayerUtil.dispatchCommand(player, command));
 
+        // TODO Not here
         plugin().getMessage(Lang.Arena_Game_Notify_Reward).replace(this.replacePlaceholders()).send(player);
     }
 
@@ -147,18 +158,22 @@ public class ArenaReward implements IArenaGameEventListener, ArenaChild, IEditab
     }
 
     @NotNull
+    @Deprecated
     public ArenaTargetType getTargetType() {
         return targetType;
     }
 
+    @Deprecated
     public void setTargetType(@NotNull ArenaTargetType targetType) {
         this.targetType = targetType;
     }
 
+    @Deprecated
     public double getChance() {
         return this.chance;
     }
 
+    @Deprecated
     public void setChance(double chance) {
         this.chance = chance;
     }

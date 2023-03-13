@@ -29,7 +29,7 @@ import java.util.Map;
 
 public class EditorArenaGameplay extends AbstractEditorMenu<AMA, ArenaGameplayManager> {
 
-    private EditorGameCommandList commandList;
+    //private EditorGameCommandList commandList;
 
     public EditorArenaGameplay(@NotNull ArenaGameplayManager gameplayManager) {
         super(gameplayManager.plugin(), gameplayManager, ArenaEditorUtils.TITLE_GAMEPLAY_EDITOR, 54);
@@ -305,10 +305,10 @@ public class EditorArenaGameplay extends AbstractEditorMenu<AMA, ArenaGameplayMa
                     }
                     case GAMEPLAY_CHANGE_PETS_ALLOWED -> gameplayManager.setExternalPetsEnabled(!gameplayManager.isExternalPetsEnabled());
                     case GAMEPLAY_CHANGE_MCMMO_ALLOWED -> gameplayManager.setExternalMcmmoEnabled(!gameplayManager.isExternalMcmmoEnabled());
-                    case GAMEPLAY_CHANGE_AUTO_COMMANDS -> {
+                    /*case GAMEPLAY_CHANGE_AUTO_COMMANDS -> {
                         this.getCommandList().open(player, 1);
                         return;
-                    }
+                    }*/
                     default -> {
                         return;
                     }
@@ -321,7 +321,7 @@ public class EditorArenaGameplay extends AbstractEditorMenu<AMA, ArenaGameplayMa
         this.loadItems(click);
     }
 
-    @Override
+    /*@Override
     public void clear() {
         if (this.commandList != null) {
             this.commandList.clear();
@@ -336,11 +336,11 @@ public class EditorArenaGameplay extends AbstractEditorMenu<AMA, ArenaGameplayMa
             this.commandList = new EditorGameCommandList(this.object);
         }
         return commandList;
-    }
+    }*/
 
     @Override
     public void setTypes(@NotNull Map<EditorButtonType, Integer> map) {
-        map.put(ArenaEditorType.GAMEPLAY_CHANGE_AUTO_COMMANDS, 4);
+        //map.put(ArenaEditorType.GAMEPLAY_CHANGE_AUTO_COMMANDS, 4);
         map.put(ArenaEditorType.GAMEPLAY_CHANGE_TIMELEFT, 9);
         map.put(ArenaEditorType.GAMEPLAY_CHANGE_LOBBY_TIME, 10);
         map.put(ArenaEditorType.GAMEPLAY_CHANGE_ANNOUNCES, 11);

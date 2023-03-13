@@ -1,4 +1,4 @@
-package su.nightexpress.ama.arena;
+package su.nightexpress.ama.arena.util;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -37,7 +37,7 @@ public class LobbyItem implements JOption.Writer {
         this.item = new ItemStack(item);
         this.slot = slot;
 
-        PDCUtil.setData(this.item, Keys.ITEM_LOBBY_TYPE, this.getType().name());
+        PDCUtil.set(this.item, Keys.ITEM_LOBBY_TYPE, this.getType().name());
     }
 
     @NotNull

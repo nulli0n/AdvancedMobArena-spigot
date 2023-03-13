@@ -2,10 +2,11 @@ package su.nightexpress.ama.arena.game.condition;
 
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
-import su.nightexpress.ama.api.arena.type.ArenaLockState;
+import su.nightexpress.ama.arena.lock.LockState;
 
 import java.util.*;
 
+@Deprecated
 public interface BiGameEventListener extends GameEventListener {
 
     /**
@@ -27,29 +28,29 @@ public interface BiGameEventListener extends GameEventListener {
     }
 
     @NotNull
-    ArenaLockState getState();
+    LockState getState();
 
-    void setState(@NotNull ArenaLockState state);
+    void setState(@NotNull LockState state);
 
     default boolean isLocked() {
-        return this.getState() == ArenaLockState.LOCKED;
+        return this.getState() == LockState.LOCKED;
     }
 
     default boolean isUnlocked() {
-        return this.getState() == ArenaLockState.UNLOCKED;
+        return this.getState() == LockState.UNLOCKED;
     }
 
-    @NotNull Map<ArenaLockState, Set<ArenaGameEventType>> getStateTriggers();
+    @NotNull Map<LockState, Set<ArenaGameEventType>> getStateTriggers();
 
-    @NotNull Map<ArenaLockState, List<GameConditionList>> getStateConditions();
+    @NotNull Map<LockState, List<GameConditionList>> getStateConditions();
 
     @NotNull
-    default Set<ArenaGameEventType> getStateTriggers(@NotNull ArenaLockState state) {
+    default Set<ArenaGameEventType> getStateTriggers(@NotNull LockState state) {
         return this.getStateTriggers().computeIfAbsent(state, k -> new HashSet<>());
     }
 
     @NotNull
-    default List<GameConditionList> getStateConditions(@NotNull ArenaLockState state) {
+    default List<GameConditionList> getStateConditions(@NotNull LockState state) {
         return this.getStateConditions().computeIfAbsent(state, k -> new ArrayList<>());
     }
 }

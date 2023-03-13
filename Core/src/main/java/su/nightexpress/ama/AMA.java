@@ -12,7 +12,7 @@ import su.nexmedia.engine.command.list.ReloadSubCommand;
 import su.nexmedia.engine.hooks.Hooks;
 import su.nexmedia.engine.hooks.external.citizens.CitizensHook;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
-import su.nightexpress.ama.api.arena.type.ArenaLockState;
+import su.nightexpress.ama.arena.lock.LockState;
 import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.api.arena.type.ArenaTargetType;
 import su.nightexpress.ama.api.hologram.HologramType;
@@ -39,6 +39,7 @@ import su.nightexpress.ama.hook.external.traits.*;
 import su.nightexpress.ama.hook.level.PluginLevelProvider;
 import su.nightexpress.ama.hook.level.impl.MMOCorePlayerLevelProvider;
 import su.nightexpress.ama.hook.mob.PluginMobProvider;
+import su.nightexpress.ama.hook.mob.impl.BossManiaProvider;
 import su.nightexpress.ama.hook.mob.impl.EliteMobsProvider;
 import su.nightexpress.ama.hook.mob.impl.MythicMobProvider;
 import su.nightexpress.ama.kit.KitManager;
@@ -191,7 +192,7 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
     public void loadLang() {
         this.getLangManager().loadMissing(Lang.class);
         this.getLangManager().setupEnum(GameState.class);
-        this.getLangManager().setupEnum(ArenaLockState.class);
+        this.getLangManager().setupEnum(LockState.class);
         this.getLangManager().setupEnum(ArenaGameEventType.class);
         this.getLangManager().setupEnum(ArenaTargetType.class);
         this.getLangManager().setupEnum(StatType.class);
@@ -218,6 +219,9 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
         }
         if (Hooks.hasPlugin(HookId.ELITE_MOBS)) {
             PluginMobProvider.registerProvider(new EliteMobsProvider());
+        }
+        if (Hooks.hasPlugin(HookId.BOSS_MANIA)) {
+            PluginMobProvider.registerProvider(new BossManiaProvider());
         }
 
         if (Hooks.hasCitizens()) {

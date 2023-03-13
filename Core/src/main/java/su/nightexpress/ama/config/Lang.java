@@ -195,6 +195,7 @@ public class Lang extends EngineLang {
     public static final LangKey SHOP_OPEN_ERROR_DISABLED        = LangKey.of("Shop.Open.Error.Disabled", "&cShop is disabled on this arena.");
     public static final LangKey SHOP_CATEGORY_OPEN_ERROR_LOCKED = new LangKey("Shop.Category.Open.Error.Locked", "&cShop Category &e%category_name%&c is not available yet!");
 
+    @Deprecated
     public static final LangKey Editor_Tip_Triggers = new LangKey("Editor.Tip.Triggers", """
         {message: ~prefix: false;}
         &7
@@ -280,6 +281,17 @@ public class Lang extends EngineLang {
     public static final LangKey Editor_Arena_Shop_Enter_Product_Command     = new LangKey("Editor.Arena.Shop.Enter.Product.Command", "&7Enter a command...");
     public static final LangKey Editor_Arena_Shop_Enter_Product_RequiredKit = new LangKey("Editor.Arena.Shop.Enter.Product.RequiredKit", "&7Enter &akit identifier&7...");
     public static final LangKey Editor_Arena_Shop_Error_Product_Exist       = new LangKey("Editor.Arena.Shop.Error.Product.Exist", "&cProduct already exist!");
+
+    public static final LangKey EDITOR_ARENA_SCRIPT_ENTER_CATEGORY = LangKey.of("Editor.Arena.Script.Enter.Category", "&7Enter &a[Category Name]");
+    public static final LangKey EDITOR_ARENA_SCRIPT_ENTER_SCRIPT        = LangKey.of("Editor.Arena.Script.Enter.Script", "&7Enter &a[Script Name]");
+    public static final LangKey EDITOR_ARENA_SCRIPT_ENTER_ACTION_NAME      = LangKey.of("Editor.Arena.Script.Enter.Action.Name", "&7Enter &a[Action Name]");
+    public static final LangKey EDITOR_ARENA_SCRIPT_ENTER_ACTION_PARAMETER = LangKey.of("Editor.Arena.Script.Enter.Action.Parameter", "&7Enter &a[Parameter] [Value]");
+    public static final LangKey EDITOR_ARENA_SCRIPT_ENTER_CONDITION_SECTION      = LangKey.of("Editor.Arena.Script.Enter.Condition.Section", "&7Enter &a[Section Name]");
+    public static final LangKey EDITOR_ARENA_SCRIPT_ENTER_CONDITION_VALUE      = LangKey.of("Editor.Arena.Script.Enter.Condition.Value", "&7Enter &a[Condition] [Operator] [Value]");
+    public static final LangKey EDITOR_ARENA_SCRIPT_ERROR_INVALID_ACTION = LangKey.of("Editor.Arena.Script.Error.InvalidAction", "&cInvalid action!");
+    public static final LangKey EDITOR_ARENA_SCRIPT_ERROR_INVALID_PARAMETER = LangKey.of("Editor.Arena.Script.Error.InvalidParameter", "&cInvalid parameter!");
+    public static final LangKey EDITOR_ARENA_SCRIPT_ERROR_INVALID_CONDITION = LangKey.of("Editor.Arena.Script.Error.InvalidCondition", "&cInvalid condition!");
+    public static final LangKey EDITOR_ARENA_SCRIPT_ERROR_INVALID_INPUT = LangKey.of("Editor.Arena.Script.Error.InvalidInput", "&cInvalid input!");
 
     public static final LangKey Editor_Region_Enter_Create           = new LangKey("Editor.Region.Enter.Create", "&7Enter &aunique &7region identifier...");
     public static final LangKey Editor_Region_Enter_Id               = new LangKey("Editor.Region.Enter.Id", "&7Enter region &aidentifier&7...");

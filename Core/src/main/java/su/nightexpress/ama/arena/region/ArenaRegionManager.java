@@ -9,7 +9,7 @@ import su.nexmedia.engine.api.manager.ILoadable;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.IProblematic;
-import su.nightexpress.ama.api.arena.type.ArenaLockState;
+import su.nightexpress.ama.arena.lock.LockState;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.arena.editor.region.EditorRegionList;
 
@@ -124,7 +124,7 @@ public class ArenaRegionManager implements ArenaChild, ILoadable, IEditable, IPr
 
     @Nullable
     public ArenaRegion getRegionAnyAvailable() {
-        return this.getRegions().stream().filter(reg -> reg.getState() == ArenaLockState.UNLOCKED).findFirst().orElse(null);
+        return this.getRegions().stream().filter(reg -> reg.getState() == LockState.UNLOCKED).findFirst().orElse(null);
     }
 
     @Nullable

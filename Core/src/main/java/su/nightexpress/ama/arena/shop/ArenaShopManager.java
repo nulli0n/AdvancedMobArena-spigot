@@ -17,7 +17,6 @@ import su.nightexpress.ama.api.arena.IProblematic;
 import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
 import su.nightexpress.ama.api.arena.game.IArenaGameEventListenerState;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
-import su.nightexpress.ama.api.arena.type.ArenaLockState;
 import su.nightexpress.ama.api.currency.ICurrency;
 import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
 import su.nightexpress.ama.api.event.ArenaShopEvent;
@@ -25,6 +24,15 @@ import su.nightexpress.ama.arena.editor.shop.EditorShopManager;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
+import su.nightexpress.ama.arena.lock.LockState;
+import su.nightexpress.ama.arena.script.action.ParameterResult;
+import su.nightexpress.ama.arena.script.action.Parameters;
+import su.nightexpress.ama.arena.script.action.ScriptActions;
+import su.nightexpress.ama.arena.script.action.ScriptPreparedAction;
+import su.nightexpress.ama.arena.script.condition.ScriptPreparedCondition;
+import su.nightexpress.ama.arena.script.impl.ArenaScript;
+import su.nightexpress.ama.arena.shop.impl.ArenaShopCategory;
+import su.nightexpress.ama.arena.shop.impl.ArenaShopProduct;
 import su.nightexpress.ama.arena.shop.menu.ArenaShopMainMenu;
 import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.config.Lang;
@@ -37,13 +45,13 @@ public class ArenaShopManager implements IArenaGameEventListenerState, ConfigHol
     private static final String CONFIG_NAME = "shop.yml";
 
     private final ArenaConfig arenaConfig;
-    private final JYML        config;
-    private final Map<ArenaLockState, Set<ArenaGameEventTrigger<?>>> stateTriggers;
-    private final Map<String, ArenaShopCategory>                     categories;
+    private final JYML                                          config;
+    private final Map<LockState, Set<ArenaGameEventTrigger<?>>> stateTriggers;
+    private final Map<String, ArenaShopCategory>                categories;
 
     private boolean        isActive;
-    private boolean        isHideOtherKitProducts;
-    private ArenaLockState state;
+    private boolean   isHideOtherKitProducts;
+    private LockState state;
 
     private ArenaShopMainMenu menu;
     private EditorShopManager editor;
@@ -59,10 +67,29 @@ public class ArenaShopManager implements IArenaGameEventListenerState, ConfigHol
     public void setup() {
         this.setActive(config.getBoolean("Settings.Active"));
         this.setHideOtherKitProducts(config.getBoolean("Settings.Hide_Other_Kit_Products"));
-        this.setState(ArenaLockState.UNLOCKED);
+        this.setState(LockState.UNLOCKED);
 
-        for (ArenaLockState lockState : ArenaLockState.values()) {
+        for (LockState lockState : LockState.values()) {
             this.stateTriggers.put(lockState, ArenaGameEventTrigger.parse(config, "Settings.State." + lockState.name() + ".Triggers"));
+            // ----------- CONVERT SCRIPTS START -----------
+            for (String eventRaw : config.getSection("Settings.State." + lockState.name() + ".Triggers")) {
+                ArenaGameEventType eventType = StringUtil.getEnum(eventRaw, ArenaGameEventType.class).orElse(null);
+                if (eventType == null) continue;
+
+                String name = "shop_" + lockState.name().toLowerCase();
+                ArenaScript script = new ArenaScript(this.arenaConfig, name, eventType);
+
+                String values = config.getString("Settings.State." + lockState.name() + ".Triggers." + eventRaw, "");
+                Map<String, List<ScriptPreparedCondition>> conditions = ArenaScript.ofGameTrigger(eventType, values);
+                script.getConditions().putAll(conditions);
+
+                ScriptPreparedAction action = new ScriptPreparedAction(lockState == LockState.LOCKED ? ScriptActions.LOCK_SHOP : ScriptActions.UNLOCK_SHOP, new ParameterResult());
+                //action.getParameters().add(Parameters.REGION, this.getId());
+                script.getActions().add(action);
+
+                this.getArenaConfig().getScriptManager().addConverted(script);
+            }
+            // ----------- CONVERT SCRIPTS END -----------
         }
 
         for (String catId : config.getSection("Categories")) {
@@ -71,9 +98,29 @@ public class ArenaShopManager implements IArenaGameEventListenerState, ConfigHol
             String catName = StringUtil.color(config.getString(path + "Name", catId));
             List<String> catDesc = config.getStringList(path + "Description");
             ItemStack catIcon = config.getItem(path + "Icon");
-            Map<ArenaLockState, Set<ArenaGameEventTrigger<?>>> catStateTriggers = new HashMap<>();
-            for (ArenaLockState lockState : ArenaLockState.values()) {
+            Map<LockState, Set<ArenaGameEventTrigger<?>>> catStateTriggers = new HashMap<>();
+            for (LockState lockState : LockState.values()) {
                 catStateTriggers.put(lockState, ArenaGameEventTrigger.parse(config, path + "State." + lockState.name() + ".Triggers"));
+
+                // ----------- CONVERT SCRIPTS START -----------
+                for (String eventRaw : config.getSection(path + "State." + lockState.name() + ".Triggers")) {
+                    ArenaGameEventType eventType = StringUtil.getEnum(eventRaw, ArenaGameEventType.class).orElse(null);
+                    if (eventType == null) continue;
+
+                    String name = "shop_category_" + catId + "_" + lockState.name().toLowerCase();
+                    ArenaScript script = new ArenaScript(this.arenaConfig, name, eventType);
+
+                    String values = config.getString(path + "State." + lockState.name() + ".Triggers." + eventRaw, "");
+                    Map<String, List<ScriptPreparedCondition>> conditions = ArenaScript.ofGameTrigger(eventType, values);
+                    script.getConditions().putAll(conditions);
+
+                    ScriptPreparedAction action = new ScriptPreparedAction(lockState == LockState.LOCKED ? ScriptActions.LOCK_SHOP_CATEGORY : ScriptActions.UNLOCK_SHOP_CATEGORY, new ParameterResult());
+                    action.getParameters().add(Parameters.SHOP_CATEGORY, catId);
+                    script.getActions().add(action);
+
+                    this.getArenaConfig().getScriptManager().addConverted(script);
+                }
+                // ----------- CONVERT SCRIPTS END -----------
             }
             Set<String> catAllowedKits = config.getStringSet(path + "Allowed_Kits");
             Map<String, ArenaShopProduct> catProducts = new LinkedHashMap<>();
@@ -90,9 +137,30 @@ public class ArenaShopManager implements IArenaGameEventListenerState, ConfigHol
                 if (prCurrency == null) prCurrency = plugin().getCurrencyManager().getCurrencyFirst();
 
                 double prPrice = config.getDouble(path2 + "Price");
-                Map<ArenaLockState, Set<ArenaGameEventTrigger<?>>> prStateTriggers = new HashMap<>();
-                for (ArenaLockState lockState : ArenaLockState.values()) {
+                Map<LockState, Set<ArenaGameEventTrigger<?>>> prStateTriggers = new HashMap<>();
+                for (LockState lockState : LockState.values()) {
                     prStateTriggers.put(lockState, ArenaGameEventTrigger.parse(config, path2 + "State." + lockState.name() + ".Triggers"));
+
+                    // ----------- CONVERT SCRIPTS START -----------
+                    for (String eventRaw : config.getSection(path2 + "State." + lockState.name() + ".Triggers")) {
+                        ArenaGameEventType eventType = StringUtil.getEnum(eventRaw, ArenaGameEventType.class).orElse(null);
+                        if (eventType == null) continue;
+
+                        String name = "shop_product_" + catId + "_" + prId + "_" + lockState.name().toLowerCase();
+                        ArenaScript script = new ArenaScript(this.arenaConfig, name, eventType);
+
+                        String values = config.getString(path2 + "State." + lockState.name() + ".Triggers." + eventRaw, "");
+                        Map<String, List<ScriptPreparedCondition>> conditions = ArenaScript.ofGameTrigger(eventType, values);
+                        script.getConditions().putAll(conditions);
+
+                        ScriptPreparedAction action = new ScriptPreparedAction(lockState == LockState.LOCKED ? ScriptActions.LOCK_SHOP_PRODUCT : ScriptActions.UNLOCK_SHOP_PRODUCT, new ParameterResult());
+                        action.getParameters().add(Parameters.SHOP_CATEGORY, catId);
+                        action.getParameters().add(Parameters.SHOP_PRODUCT, prId);
+                        script.getActions().add(action);
+
+                        this.getArenaConfig().getScriptManager().addConverted(script);
+                    }
+                    // ----------- CONVERT SCRIPTS END -----------
                 }
 
                 Set<String> prAllowedKits = config.getStringSet(path2 + "Allowed_Kits");
@@ -181,8 +249,8 @@ public class ArenaShopManager implements IArenaGameEventListenerState, ConfigHol
             .replace(Placeholders.GENERIC_PROBLEMS, Placeholders.formatProblems(this.getProblems()))
             .replace(Placeholders.SHOP_MANAGER_IS_ACTIVE, LangManager.getBoolean(this.isActive()))
             .replace(Placeholders.SHOP_MANAGER_HIDE_OTHER_KIT_ITEMS, LangManager.getBoolean(this.isHideOtherKitProducts()))
-            .replace(Placeholders.SHOP_TRIGGERS_LOCKED, Placeholders.format(this.getStateTriggers(ArenaLockState.LOCKED)))
-            .replace(Placeholders.SHOP_TRIGGERS_UNLOCKED, Placeholders.format(this.getStateTriggers(ArenaLockState.UNLOCKED)))
+            .replace(Placeholders.SHOP_TRIGGERS_LOCKED, Placeholders.format(this.getStateTriggers(LockState.LOCKED)))
+            .replace(Placeholders.SHOP_TRIGGERS_UNLOCKED, Placeholders.format(this.getStateTriggers(LockState.UNLOCKED)))
             ;
     }
 
@@ -190,10 +258,10 @@ public class ArenaShopManager implements IArenaGameEventListenerState, ConfigHol
     public boolean onGameEvent(@NotNull ArenaGameGenericEvent gameEvent) {
         if (!this.isReady(gameEvent)) return false;
 
-        ArenaLockState state = this.getState().getOpposite();
+        LockState state = this.getState().getOpposite();
         this.setState(state);
 
-        ArenaGameEventType eventType = state == ArenaLockState.LOCKED ? ArenaGameEventType.SHOP_LOCKED : ArenaGameEventType.SHOP_UNLOCKED;
+        ArenaGameEventType eventType = state == LockState.LOCKED ? ArenaGameEventType.SHOP_LOCKED : ArenaGameEventType.SHOP_UNLOCKED;
         ArenaShopEvent event = new ArenaShopEvent(gameEvent.getArena(), eventType);
         ArenaAPI.PLUGIN.getPluginManager().callEvent(event);
 
@@ -245,18 +313,18 @@ public class ArenaShopManager implements IArenaGameEventListenerState, ConfigHol
 
     @NotNull
     @Override
-    public Map<ArenaLockState, Set<ArenaGameEventTrigger<?>>> getStateTriggers() {
+    public Map<LockState, Set<ArenaGameEventTrigger<?>>> getStateTriggers() {
         return stateTriggers;
     }
 
     @NotNull
     @Override
-    public ArenaLockState getState() {
+    public LockState getState() {
         return state;
     }
 
     @Override
-    public void setState(@NotNull ArenaLockState state) {
+    public void setState(@NotNull LockState state) {
         this.state = state;
     }
 
@@ -295,7 +363,7 @@ public class ArenaShopManager implements IArenaGameEventListenerState, ConfigHol
             return false;
         }
 
-        if (this.getState() == ArenaLockState.LOCKED) {
+        if (this.getState() == LockState.LOCKED) {
             plugin().getMessage(Lang.SHOP_OPEN_ERROR_LOCKED).send(player);
             return false;
         }

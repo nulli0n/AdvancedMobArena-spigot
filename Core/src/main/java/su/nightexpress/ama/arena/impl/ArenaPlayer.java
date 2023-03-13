@@ -9,7 +9,7 @@ import su.nexmedia.engine.hooks.Hooks;
 import su.nexmedia.engine.lang.LangManager;
 import su.nexmedia.engine.utils.TimeUtil;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.api.arena.type.ArenaLockState;
+import su.nightexpress.ama.arena.lock.LockState;
 import su.nightexpress.ama.api.arena.type.LeaveReason;
 import su.nightexpress.ama.api.event.ArenaPlayerReadyEvent;
 import su.nightexpress.ama.arena.board.ArenaBoard;
@@ -234,7 +234,7 @@ public final class ArenaPlayer implements IPlaceholder {
 
         // Get nearest region to player if he is outside of any
         return this.getArena().getConfig().getRegionManager().getRegions().stream()
-            .filter(reg -> reg.getState() == ArenaLockState.UNLOCKED)
+            .filter(reg -> reg.getState() == LockState.UNLOCKED)
             .min((r1, r2) -> (int) (loc.distance(r1.getSpawnLocation()) - loc.distance(r2.getSpawnLocation())))
             .orElse(null);
     }

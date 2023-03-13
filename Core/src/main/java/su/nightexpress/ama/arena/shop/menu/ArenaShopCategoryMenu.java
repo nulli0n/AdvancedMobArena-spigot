@@ -14,11 +14,11 @@ import su.nexmedia.engine.utils.ItemUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.api.arena.type.ArenaLockState;
+import su.nightexpress.ama.arena.lock.LockState;
 import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
-import su.nightexpress.ama.arena.shop.ArenaShopCategory;
-import su.nightexpress.ama.arena.shop.ArenaShopProduct;
+import su.nightexpress.ama.arena.shop.impl.ArenaShopCategory;
+import su.nightexpress.ama.arena.shop.impl.ArenaShopProduct;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.stats.object.StatType;
 
@@ -28,9 +28,9 @@ public class ArenaShopCategoryMenu extends AbstractMenuAuto<AMA, ArenaShopProduc
 
     protected ArenaShopCategory shopCategory;
 
-    private final String                            objectName;
-    private final Map<ArenaLockState, List<String>> objectLore;
-    private final int[]                             objectSlots;
+    private final String                       objectName;
+    private final Map<LockState, List<String>> objectLore;
+    private final int[]                        objectSlots;
 
     public ArenaShopCategoryMenu(@NotNull ArenaShopCategory shopCategory) {
         super(shopCategory.plugin(), JYML.loadOrExtract(shopCategory.plugin(), "/menu/arena.shop.category.yml"), "");
@@ -39,7 +39,7 @@ public class ArenaShopCategoryMenu extends AbstractMenuAuto<AMA, ArenaShopProduc
         this.objectName = StringUtil.color(cfg.getString("Product.Name", Placeholders.SHOP_PRODUCT_NAME));
         this.objectSlots = cfg.getIntArray("Product.Slots");
         this.objectLore = new HashMap<>();
-        for (ArenaLockState lockState : ArenaLockState.values()) {
+        for (LockState lockState : LockState.values()) {
             this.objectLore.put(lockState, StringUtil.color(cfg.getStringList("Product.Lore." + lockState.name())));
         }
 
@@ -99,7 +99,7 @@ public class ArenaShopCategoryMenu extends AbstractMenuAuto<AMA, ArenaShopProduc
         };
 
         return (player2, type, e) -> {
-            if (shopProduct.getState() == ArenaLockState.LOCKED) {
+            if (shopProduct.getState() == LockState.LOCKED) {
                 plugin.getMessage(Lang.Shop_Buy_Error_Locked).send(player2);
                 return;
             }

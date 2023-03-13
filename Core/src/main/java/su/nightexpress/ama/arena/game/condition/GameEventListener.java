@@ -7,6 +7,7 @@ import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
 import java.util.List;
 import java.util.Set;
 
+@Deprecated
 public interface GameEventListener {
 
     @NotNull Set<ArenaGameEventType> getTriggers();

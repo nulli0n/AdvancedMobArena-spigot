@@ -18,14 +18,14 @@ import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.game.IArenaGameEventListener;
 import su.nightexpress.ama.api.arena.type.*;
 import su.nightexpress.ama.api.event.*;
-import su.nightexpress.ama.arena.LobbyItem;
-import su.nightexpress.ama.arena.PlayerSnapshot;
+import su.nightexpress.ama.arena.lock.LockState;
 import su.nightexpress.ama.arena.region.ArenaRegion;
 import su.nightexpress.ama.arena.region.ArenaRegionManager;
-import su.nightexpress.ama.arena.region.ArenaRegionWave;
 import su.nightexpress.ama.arena.spot.ArenaSpot;
 import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.arena.util.ArenaUtils;
+import su.nightexpress.ama.arena.util.LobbyItem;
+import su.nightexpress.ama.arena.util.PlayerSnapshot;
 import su.nightexpress.ama.arena.wave.ArenaWaveManager;
 import su.nightexpress.ama.arena.wave.ArenaWaveMob;
 import su.nightexpress.ama.config.Config;
@@ -423,6 +423,9 @@ public class Arena implements IPlaceholder {
 
     public void onArenaGameEvent(@NotNull ArenaGameGenericEvent gameEvent) {
         this.getGameEventListeners().forEach(listener -> listener.onGameEvent(gameEvent));
+        this.getConfig().getScriptManager().getScripts().forEach(gameScript -> {
+            gameScript.onArenaEvent(gameEvent);
+        });
 
         ArenaGameEventType eventType = gameEvent.getEventType();
         if (eventType == ArenaGameEventType.GAME_END_LOSE || eventType == ArenaGameEventType.GAME_END_TIME
@@ -548,7 +551,7 @@ public class Arena implements IPlaceholder {
             List<LivingEntity> allMobs = new ArrayList<>(this.getMobs());
             allMobs.forEach(mob -> {
                 ArenaRegion region = this.getConfig().getRegionManager().getRegion(mob.getLocation());
-                if (region != null && region.getState() == ArenaLockState.LOCKED) {
+                if (region != null && region.getState() == LockState.LOCKED) {
                     mob.teleport(playRegion.getSpawnLocation());
                 }
             });
@@ -580,7 +583,7 @@ public class Arena implements IPlaceholder {
             // Notify if player region is inactive anymore.
             if (this.isNextWaveAllowed()) {
                 ArenaRegion region = arenaPlayer.getRegion(false);
-                if (region == null || region.getState() == ArenaLockState.LOCKED) {
+                if (region == null || region.getState() == LockState.LOCKED) {
                     plugin.getMessage(Lang.ARENA_REGION_LOCKED_NOTIFY).send(arenaPlayer.getPlayer());
                 }
             }
@@ -606,6 +609,14 @@ public class Arena implements IPlaceholder {
                 return true;
             }
             return false;
+        });
+        this.getMobs().forEach(mob -> {
+            if (plugin.getArenaNMS().getTarget(mob) == null) {
+                ArenaPlayer arenaPlayer = this.getPlayerRandom();
+                if (arenaPlayer != null) {
+                    plugin.getArenaNMS().setTarget(mob, arenaPlayer.getPlayer());
+                }
+            }
         });
         //this.getMobs().forEach(mob -> this.updateMobTarget(mob, false));
 
@@ -901,6 +912,23 @@ public class Arena implements IPlaceholder {
         });
     }
 
+    public void broadcast(@NotNull String message, @NotNull ArenaTargetType targetType) {
+        this.getPlayers(targetType).forEach(arenaPlayer -> {
+            arenaPlayer.getPlayer().sendMessage(message);
+        });
+    }
+
+    public void runCommand(@NotNull String command, @NotNull ArenaTargetType targetType) {
+        if (targetType == ArenaTargetType.GLOBAL) {
+            this.plugin.getServer().dispatchCommand(this.plugin.getServer().getConsoleSender(), command);
+            return;
+        }
+
+        this.getPlayers(targetType).forEach(arenaPlayer -> {
+            PlayerUtil.dispatchCommand(arenaPlayer.getPlayer(), command);
+        });
+    }
+
     public void addGroundItem(@NotNull Item item) {
         this.getGroundItems().removeIf(item2 -> !item2.isValid());
         this.getGroundItems().add(item);
@@ -926,6 +954,7 @@ public class Arena implements IPlaceholder {
         if (withAlly) mobs.addAll(this.getAllyMobs());
 
         mobs.forEach(mob -> {
+            mob.setRemoveWhenFarAway(true);
             mob.setLastDamageCause(null);
             mob.setHealth(0);
             mob.remove();
@@ -943,6 +972,15 @@ public class Arena implements IPlaceholder {
         this.plugin.getPluginManager().callEvent(event);
 
         this.setWaveNextTimeleft(1);
+    }
+
+    @Deprecated
+    public void injectWave(@NotNull ArenaUpcomingWave wave) {
+        // TODO
+        this.getUpcomingWaves().add(wave);
+        if (!this.getConfig().getWaveManager().isGradualSpawnEnabled()) {
+            this.spawnMobs(100D);
+        }
     }
 
     public void newWave() {
@@ -964,7 +1002,7 @@ public class Arena implements IPlaceholder {
             arenaPlayer.addStats(StatType.WAVES_PASSED, 1);
 
             ArenaRegion regionPlayer = arenaPlayer.getRegion(false);
-            if ((regionPlayer == null || regionPlayer.getState() == ArenaLockState.LOCKED) && regionActive != null) {
+            if ((regionPlayer == null || regionPlayer.getState() == LockState.LOCKED) && regionActive != null) {
                 arenaPlayer.getPlayer().teleport(regionActive.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
             }
         });
@@ -1104,13 +1142,13 @@ public class Arena implements IPlaceholder {
 
         for (int counterWave = 0; counterWave < mobsSpawnPerWave.length; counterWave++) {
             ArenaUpcomingWave waveUpcoming = upcomings.get(counterWave);
-            ArenaRegionWave regionWave = waveUpcoming.getRegionWave();
+            //ArenaRegionWave regionWave = waveUpcoming.getRegionWave();
             List<Location> spawners = waveUpcoming.getPreparedSpawners();
             int mobsWave = mobsSpawnPerWave[counterWave];
 
             int[] mobsPerSpawner = NumberUtil.splitIntoParts(mobsWave, spawners.size());
             if (Config.DEBUG_MOB_SPAWN.get())
-                System.out.println("[Spawn Processor] 7. Mobs Per Region Spawner for '" + regionWave.getArenaWaveIds() + "': " + Arrays.toString(mobsPerSpawner));
+                System.out.println("[Spawn Processor] 7. Mobs Per Region Spawner for '" + waveUpcoming.toString() + "': " + Arrays.toString(mobsPerSpawner));
 
             for (int counterSpawner = 0; counterSpawner < mobsPerSpawner.length; counterSpawner++) {
                 int mobsSpawner = mobsPerSpawner[counterSpawner];

@@ -22,6 +22,7 @@ import su.nightexpress.ama.arena.editor.region.EditorRegionContainerSettings;
 import java.util.*;
 import java.util.function.UnaryOperator;
 
+@Deprecated // TODO Move in global arena scope, add id/name args
 public class ArenaRegionContainer implements IArenaGameEventListener, ArenaChild, IEditable, ICleanable {
 
     private final ArenaRegion                   region;

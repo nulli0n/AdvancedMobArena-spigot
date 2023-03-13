@@ -13,13 +13,21 @@ import su.nexmedia.engine.hooks.Hooks;
 import su.nexmedia.engine.lang.LangManager;
 import su.nexmedia.engine.utils.CollectionsUtil;
 import su.nexmedia.engine.utils.NumberUtil;
+import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.IProblematic;
 import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
+import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
 import su.nightexpress.ama.api.arena.type.ArenaTargetType;
-import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.arena.editor.game.EditorArenaGameplay;
+import su.nightexpress.ama.arena.impl.ArenaConfig;
+import su.nightexpress.ama.arena.script.action.ParameterResult;
+import su.nightexpress.ama.arena.script.action.Parameters;
+import su.nightexpress.ama.arena.script.action.ScriptActions;
+import su.nightexpress.ama.arena.script.action.ScriptPreparedAction;
+import su.nightexpress.ama.arena.script.condition.ScriptPreparedCondition;
+import su.nightexpress.ama.arena.script.impl.ArenaScript;
 import su.nightexpress.ama.hook.HookId;
 import su.nightexpress.ama.kit.Kit;
 
@@ -116,6 +124,29 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable
             Set<ArenaGameEventTrigger<?>> triggers = ArenaGameEventTrigger.parse(config, path2 + "Triggers");
             ArenaTargetType targetType = config.getEnum(path2 + "Target", ArenaTargetType.class, ArenaTargetType.GLOBAL);
             List<String> commands = config.getStringList(path2 + "Commands");
+
+            // ----------- CONVERT SCRIPTS START -----------
+            for (String eventRaw : config.getSection(path2 + "Triggers")) {
+                ArenaGameEventType eventType = StringUtil.getEnum(eventRaw, ArenaGameEventType.class).orElse(null);
+                if (eventType == null) continue;
+
+                String name = "command_" + cmdId;
+                ArenaScript script = new ArenaScript(this.arenaConfig, name, eventType);
+
+                String values = config.getString(path2 + "Triggers." + eventRaw, "");
+                Map<String, List<ScriptPreparedCondition>> conditions = ArenaScript.ofGameTrigger(eventType, values);
+                script.getConditions().putAll(conditions);
+
+                for (String command : commands) {
+                    ScriptPreparedAction action = new ScriptPreparedAction(ScriptActions.RUN_COMMAND, new ParameterResult());
+                    action.getParameters().add(Parameters.NAME, command);
+                    action.getParameters().add(Parameters.TARGET, targetType.name());
+                    script.getActions().add(action);
+                }
+
+                this.getArenaConfig().getScriptManager().addConverted(script);
+            }
+            // ----------- CONVERT SCRIPTS END -----------
 
             ArenaGameCommand gameCommand = new ArenaGameCommand(arenaConfig, triggers, targetType, commands);
             this.getAutoCommands().add(gameCommand);

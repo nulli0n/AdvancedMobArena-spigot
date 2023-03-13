@@ -18,7 +18,7 @@ import su.nexmedia.engine.utils.ItemUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.api.currency.ICurrency;
-import su.nightexpress.ama.arena.shop.ArenaShopProduct;
+import su.nightexpress.ama.arena.shop.impl.ArenaShopProduct;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.editor.ArenaEditorType;
 import su.nightexpress.ama.editor.ArenaEditorUtils;

@@ -12,8 +12,10 @@ import java.util.Map;
 
 public class HologramMainCommand extends GeneralCommand<AMA> {
 
+    public static final String NAME = "hologram";
+
     public HologramMainCommand(@NotNull AMA plugin) {
-        super(plugin, new String[]{"hologram"}, Perms.COMMAND_HOLOGRAM);
+        super(plugin, new String[]{NAME}, Perms.COMMAND_HOLOGRAM);
         this.addDefaultCommand(new HelpSubCommand<>(this.plugin));
         this.addChildren(new HologramAddCommand(this.plugin));
         this.addChildren(new HologramRemoveCommand(this.plugin));

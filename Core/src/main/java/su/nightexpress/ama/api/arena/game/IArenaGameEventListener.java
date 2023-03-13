@@ -6,6 +6,7 @@ import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
 
 import java.util.Set;
 
+@Deprecated
 public interface IArenaGameEventListener extends IPlaceholder {
 
     @NotNull

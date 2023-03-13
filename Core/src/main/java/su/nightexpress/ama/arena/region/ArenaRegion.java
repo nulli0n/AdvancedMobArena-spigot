@@ -20,16 +20,22 @@ import su.nightexpress.ama.api.arena.IProblematic;
 import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
 import su.nightexpress.ama.api.arena.game.IArenaGameEventListenerState;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
-import su.nightexpress.ama.api.arena.type.ArenaLockState;
-import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
 import su.nightexpress.ama.api.event.ArenaRegionEvent;
 import su.nightexpress.ama.api.hologram.HologramHolder;
 import su.nightexpress.ama.api.hologram.HologramType;
-import su.nightexpress.ama.arena.util.ArenaCuboid;
-import su.nightexpress.ama.arena.impl.ArenaPlayer;
-import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.arena.editor.region.EditorRegionMain;
+import su.nightexpress.ama.arena.impl.ArenaConfig;
+import su.nightexpress.ama.arena.impl.ArenaPlayer;
+import su.nightexpress.ama.arena.lock.LockState;
+import su.nightexpress.ama.arena.script.action.ParameterResult;
+import su.nightexpress.ama.arena.script.action.Parameters;
+import su.nightexpress.ama.arena.script.action.ScriptActions;
+import su.nightexpress.ama.arena.script.action.ScriptPreparedAction;
+import su.nightexpress.ama.arena.script.condition.ScriptPreparedCondition;
+import su.nightexpress.ama.arena.script.impl.ArenaScript;
+import su.nightexpress.ama.arena.type.GameState;
+import su.nightexpress.ama.arena.util.ArenaCuboid;
 import su.nightexpress.ama.arena.wave.ArenaWave;
 import su.nightexpress.ama.hologram.HologramManager;
 
@@ -43,8 +49,8 @@ public class ArenaRegion extends AbstractLoadableItem<AMA> implements IArenaGame
     private       boolean     isActive;
     private       boolean     isDefault;
 
-    private       ArenaLockState                                     state;
-    private final Map<ArenaLockState, Set<ArenaGameEventTrigger<?>>> stateTriggers;
+    private       LockState                                     state;
+    private final Map<LockState, Set<ArenaGameEventTrigger<?>>> stateTriggers;
 
     private       String                    name;
     private       ArenaCuboid               cuboid;
@@ -64,7 +70,7 @@ public class ArenaRegion extends AbstractLoadableItem<AMA> implements IArenaGame
 
         this.setActive(false);
         this.setDefault(false);
-        this.setState(ArenaLockState.UNLOCKED);
+        this.setState(LockState.UNLOCKED);
         this.setName(StringUtil.capitalizeFully(this.getId()) + " Region");
         this.setCuboid(ArenaCuboid.empty());
         this.setSpawnLocation(this.getCuboid().isEmpty() ? null : this.getCuboid().getCenter());
@@ -83,7 +89,7 @@ public class ArenaRegion extends AbstractLoadableItem<AMA> implements IArenaGame
 
         this.setActive(cfg.getBoolean("Enabled"));
         this.setDefault(cfg.getBoolean("Is_Default"));
-        this.setState(this.isDefault() ? ArenaLockState.UNLOCKED : ArenaLockState.LOCKED);
+        this.setState(this.isDefault() ? LockState.UNLOCKED : LockState.LOCKED);
         this.setName(cfg.getString("Name", this.getId()));
 
         Location from = cfg.getLocation("Bounds.From");
@@ -105,8 +111,28 @@ public class ArenaRegion extends AbstractLoadableItem<AMA> implements IArenaGame
 
         String path = "Entrance.State.";
         this.stateTriggers = new HashMap<>();
-        for (ArenaLockState lockState : ArenaLockState.values()) {
+        for (LockState lockState : LockState.values()) {
             this.stateTriggers.put(lockState, ArenaGameEventTrigger.parse(cfg, path + lockState.name() + ".Triggers"));
+
+            // ----------- CONVERT SCRIPTS START -----------
+            for (String eventRaw : cfg.getSection(path + lockState.name() + ".Triggers")) {
+                ArenaGameEventType eventType = StringUtil.getEnum(eventRaw, ArenaGameEventType.class).orElse(null);
+                if (eventType == null) continue;
+
+                String name = "region_" + this.getId() + "_" + lockState.name().toLowerCase();
+                ArenaScript script = new ArenaScript(this.arenaConfig, name, eventType);
+
+                String values = cfg.getString(path + lockState.name() + ".Triggers." + eventRaw, "");
+                Map<String, List<ScriptPreparedCondition>> conditions = ArenaScript.ofGameTrigger(eventType, values);
+                script.getConditions().putAll(conditions);
+
+                ScriptPreparedAction action = new ScriptPreparedAction(lockState == LockState.LOCKED ? ScriptActions.LOCK_REGION : ScriptActions.UNLOCK_REGION, new ParameterResult());
+                action.getParameters().add(Parameters.REGION, this.getId());
+                script.getActions().add(action);
+
+                this.getArenaConfig().getScriptManager().addConverted(script);
+            }
+            // ----------- CONVERT SCRIPTS END -----------
         }
 
         path = "Hologram.";
@@ -124,6 +150,29 @@ public class ArenaRegion extends AbstractLoadableItem<AMA> implements IArenaGame
             String waveIdOld = cfg.getString(path2 + "Arena_Wave_Id", "");
             Set<String> waveIds = cfg.getStringSet(path2 + "Arena_Wave_Ids");
             if (!waveIdOld.isEmpty() && waveIds.isEmpty()) waveIds.add(waveIdOld);
+
+            // ----------- CONVERT SCRIPTS START -----------
+            for (String eventRaw : cfg.getSection(path2 + "Triggers")) {
+                ArenaGameEventType eventType = StringUtil.getEnum(eventRaw, ArenaGameEventType.class).orElse(null);
+                if (eventType == null) continue;
+
+                String name = "region_" + this.getId() + "_spawn_wave_" + sId;
+                ArenaScript script = new ArenaScript(this.arenaConfig, name, eventType);
+
+                String values = cfg.getString(path2 + "Triggers." + eventRaw, "");
+                Map<String, List<ScriptPreparedCondition>> conditions = ArenaScript.ofGameTrigger(eventType, values);
+                script.getConditions().putAll(conditions);
+
+                for (String waveId : waveIds) {
+                    ScriptPreparedAction action = new ScriptPreparedAction(ScriptActions.INJECT_WAVE, new ParameterResult());
+                    action.getParameters().add(Parameters.WAVE, waveId);
+                    action.getParameters().add(Parameters.REGION, this.getId());
+                    script.getActions().add(action);
+                }
+
+                this.getArenaConfig().getScriptManager().addConverted(script);
+            }
+            // ----------- CONVERT SCRIPTS END -----------
 
             waveIds.removeIf(waveId -> {
                 ArenaWave arenaWave = arenaConfig.getWaveManager().getWave(waveId);
@@ -248,8 +297,8 @@ public class ArenaRegion extends AbstractLoadableItem<AMA> implements IArenaGame
     public UnaryOperator<String> replacePlaceholders() {
         return str -> str
             .replace(Placeholders.GENERIC_PROBLEMS, Placeholders.formatProblems(this.getProblems()))
-            .replace(Placeholders.REGION_TRIGGERS_LOCKED, Placeholders.format(this.getStateTriggers(ArenaLockState.LOCKED)))
-            .replace(Placeholders.REGION_TRIGGERS_UNLOCKED, Placeholders.format(this.getStateTriggers(ArenaLockState.UNLOCKED)))
+            .replace(Placeholders.REGION_TRIGGERS_LOCKED, Placeholders.format(this.getStateTriggers(LockState.LOCKED)))
+            .replace(Placeholders.REGION_TRIGGERS_UNLOCKED, Placeholders.format(this.getStateTriggers(LockState.UNLOCKED)))
             .replace(Placeholders.REGION_LINKED_REGIONS, String.join(DELIMITER_DEFAULT, this.getLinkedRegions()))
             .replace(Placeholders.REGION_FILE, this.getFile().getName())
             .replace(Placeholders.REGION_ID, this.getId())
@@ -291,7 +340,7 @@ public class ArenaRegion extends AbstractLoadableItem<AMA> implements IArenaGame
 
         this.removeHolograms();
 
-        ArenaLockState state = this.getState().getOpposite();
+        LockState state = this.getState().getOpposite();
         this.setState(state);
 
         ArenaGameEventType eventType = this.isLocked() ? ArenaGameEventType.REGION_LOCKED : ArenaGameEventType.REGION_UNLOCKED;
@@ -326,12 +375,12 @@ public class ArenaRegion extends AbstractLoadableItem<AMA> implements IArenaGame
 
     @NotNull
     @Override
-    public ArenaLockState getState() {
+    public LockState getState() {
         return state;
     }
 
     @Override
-    public void setState(@NotNull ArenaLockState state) {
+    public void setState(@NotNull LockState state) {
         this.state = state;
     }
 
@@ -362,7 +411,7 @@ public class ArenaRegion extends AbstractLoadableItem<AMA> implements IArenaGame
 
     @NotNull
     @Override
-    public Map<ArenaLockState, Set<ArenaGameEventTrigger<?>>> getStateTriggers() {
+    public Map<LockState, Set<ArenaGameEventTrigger<?>>> getStateTriggers() {
         return stateTriggers;
     }
 
