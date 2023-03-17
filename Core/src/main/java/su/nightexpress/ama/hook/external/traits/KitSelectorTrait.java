@@ -9,6 +9,7 @@ import net.citizensnpcs.api.trait.TraitName;
 import su.nightexpress.ama.api.ArenaAPI;
 
 @TraitName("ama-kit-select")
+@Deprecated
 public class KitSelectorTrait extends Trait {
 
     public KitSelectorTrait() {

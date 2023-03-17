@@ -21,8 +21,8 @@ import su.nightexpress.ama.arena.script.condition.ScriptPreparedCondition;
 import su.nightexpress.ama.arena.script.impl.ArenaScript;
 import su.nightexpress.ama.arena.script.impl.ScriptCategory;
 import su.nightexpress.ama.config.Lang;
+import su.nightexpress.ama.editor.ArenaEditorHub;
 import su.nightexpress.ama.editor.ArenaEditorType;
-import su.nightexpress.ama.editor.ArenaEditorUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,7 +36,7 @@ public class ScriptConditionsEditor extends AbstractEditorMenuAuto<AMA, ArenaScr
     private final ScriptCategory category;
 
     public ScriptConditionsEditor(@NotNull ScriptCategory category, @NotNull ArenaScript script) {
-        super(script.plugin(), script, ArenaEditorUtils.TITLE_SCRIPT_EDITOR, 45);
+        super(script.plugin(), script, ArenaEditorHub.TITLE_SCRIPT_EDITOR, 45);
         this.category = category;
 
         EditorInput<ArenaScript, ArenaEditorType> input = (player, script1, type, e) -> {
@@ -134,8 +134,10 @@ public class ScriptConditionsEditor extends AbstractEditorMenuAuto<AMA, ArenaScr
                         return false;
                     }
 
+                    Object parsed = parameter.getParser().apply(condValue);
+
                     ScriptCondition.Operator operator = ScriptCondition.Operator.fromString(condOper).orElse(ScriptCondition.Operator.EQUAL);
-                    this.parent.getConditions().computeIfAbsent(section, k -> new ArrayList<>()).add(new ScriptPreparedCondition(parameter, condValue, operator));
+                    this.parent.getConditions().computeIfAbsent(section, k -> new ArrayList<>()).add(new ScriptPreparedCondition(parameter, parsed, operator));
                     this.category.save();
                     return true;
                 };
@@ -150,6 +152,7 @@ public class ScriptConditionsEditor extends AbstractEditorMenuAuto<AMA, ArenaScr
             if (e.isRightClick()) {
                 this.parent.getConditions().computeIfAbsent(section, k -> new ArrayList<>()).clear();
                 this.category.save();
+                this.open(player2, 1);
             }
         };
     }

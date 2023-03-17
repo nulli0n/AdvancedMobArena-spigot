@@ -24,8 +24,8 @@ import su.nexmedia.engine.utils.ItemUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.config.Lang;
+import su.nightexpress.ama.editor.ArenaEditorHub;
 import su.nightexpress.ama.editor.ArenaEditorType;
-import su.nightexpress.ama.editor.ArenaEditorUtils;
 import su.nightexpress.ama.mob.config.MobConfig;
 
 import java.util.HashMap;
@@ -37,7 +37,7 @@ public class EditorMobMain extends AbstractEditorMenu<AMA, MobConfig> {
     private EditorMobStyles editorMobStyles;
 
     public EditorMobMain(@NotNull MobConfig mob) {
-        super(mob.plugin(), mob, ArenaEditorUtils.TITLE_MOB_EDITOR, 45);
+        super(mob.plugin(), mob, ArenaEditorHub.TITLE_MOB_EDITOR, 45);
 
         EditorInput<MobConfig, ArenaEditorType> input = (player, mob2, type, e) -> {
             String msg = StringUtil.color(e.getMessage());
@@ -203,7 +203,7 @@ public class EditorMobMain extends AbstractEditorMenu<AMA, MobConfig> {
         private final Map<EquipmentSlot, Integer> equipmentSlots;
 
         public EquipmentEditor(@NotNull MobConfig mob) {
-            super(mob.plugin(), ArenaEditorUtils.TITLE_MOB_EDITOR, 9);
+            super(mob.plugin(), ArenaEditorHub.TITLE_MOB_EDITOR, 9);
             this.mob = mob;
             this.equipmentSlots = new HashMap<>();
             this.equipmentSlots.put(EquipmentSlot.FEET, 0);

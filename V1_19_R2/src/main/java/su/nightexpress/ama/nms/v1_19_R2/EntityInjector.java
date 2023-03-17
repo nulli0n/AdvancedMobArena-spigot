@@ -51,7 +51,6 @@ public class EntityInjector {
                 case MAGMA_CUBE -> net.minecraft.world.entity.EntityType.MAGMA_CUBE;
                 case ENDER_DRAGON -> net.minecraft.world.entity.EntityType.ENDER_DRAGON;
                 case WITHER -> net.minecraft.world.entity.EntityType.WITHER;
-                case BAT -> net.minecraft.world.entity.EntityType.BAT;
                 case WITCH -> net.minecraft.world.entity.EntityType.WITCH;
                 case ENDERMITE -> net.minecraft.world.entity.EntityType.ENDERMITE;
                 case GUARDIAN -> net.minecraft.world.entity.EntityType.GUARDIAN;
@@ -60,7 +59,6 @@ public class EntityInjector {
                 case SHEEP -> net.minecraft.world.entity.EntityType.SHEEP;
                 case COW -> net.minecraft.world.entity.EntityType.COW;
                 case CHICKEN -> net.minecraft.world.entity.EntityType.CHICKEN;
-                case SQUID -> net.minecraft.world.entity.EntityType.SQUID;
                 case WOLF -> net.minecraft.world.entity.EntityType.WOLF;
                 case MUSHROOM_COW -> net.minecraft.world.entity.EntityType.MOOSHROOM;
                 case SNOWMAN -> net.minecraft.world.entity.EntityType.SNOW_GOLEM;
@@ -89,11 +87,9 @@ public class EntityInjector {
                 case ZOGLIN -> net.minecraft.world.entity.EntityType.ZOGLIN;
                 case PIGLIN_BRUTE -> net.minecraft.world.entity.EntityType.PIGLIN_BRUTE;
                 case AXOLOTL -> net.minecraft.world.entity.EntityType.AXOLOTL;
-                case GLOW_SQUID -> net.minecraft.world.entity.EntityType.GLOW_SQUID;
                 case GOAT -> net.minecraft.world.entity.EntityType.GOAT;
                 case WARDEN -> net.minecraft.world.entity.EntityType.WARDEN;
                 case FROG -> net.minecraft.world.entity.EntityType.FROG;
-                case TADPOLE -> net.minecraft.world.entity.EntityType.TADPOLE;
                 case ALLAY -> net.minecraft.world.entity.EntityType.ALLAY;
                 default -> null;
             };

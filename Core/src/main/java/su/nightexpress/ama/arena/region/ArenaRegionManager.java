@@ -6,16 +6,16 @@ import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.IEditable;
 import su.nexmedia.engine.api.manager.ILoadable;
+import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.IProblematic;
-import su.nightexpress.ama.arena.lock.LockState;
+import su.nightexpress.ama.arena.editor.region.RegionListEditor;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
-import su.nightexpress.ama.arena.editor.region.EditorRegionList;
+import su.nightexpress.ama.arena.util.ArenaCuboid;
 
 import java.util.*;
 import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
 
 public class ArenaRegionManager implements ArenaChild, ILoadable, IEditable, IProblematic {
 
@@ -24,7 +24,7 @@ public class ArenaRegionManager implements ArenaChild, ILoadable, IEditable, IPr
     private final ArenaConfig arenaConfig;
     private final Map<String, ArenaRegion> regions;
 
-    private EditorRegionList editor;
+    private RegionListEditor editor;
 
     public ArenaRegionManager(@NotNull ArenaConfig arenaConfig) {
         this.arenaConfig = arenaConfig;
@@ -33,20 +33,16 @@ public class ArenaRegionManager implements ArenaChild, ILoadable, IEditable, IPr
 
     @Override
     public void setup() {
-        String path = this.arenaConfig.getFile().getParentFile().getAbsolutePath() + DIR_REGIONS;
-        for (JYML rCfg : JYML.loadAll(path, false)) {
-            try {
-                ArenaRegion region = new ArenaRegion(this.arenaConfig, rCfg);
+        for (JYML cfg : JYML.loadAll(this.getRegionsPath(), false)) {
+            ArenaRegion region = new ArenaRegion(this.getArenaConfig(), cfg);
+            if (region.load()) {
                 this.addRegion(region);
             }
-            catch (Exception e) {
-                arenaConfig.plugin().error("Could not load '" + rCfg.getFile().getName() + "' region in '" + arenaConfig.getFile().getName() + "' arena!");
-                e.printStackTrace();
-            }
+            else plugin().error("Region not loaded '" + cfg.getFile().getName() + "' in '" + getArenaConfig().getFile().getName() + "' arena!");
         }
 
         this.getProblems().forEach(problem -> {
-            this.plugin().warn("Problem in '" + arenaConfig.getId() + "' arena Region Manager: " + problem);
+            this.plugin().warn("Problem in '" + getArenaConfig().getId() + "' arena Region Manager: " + problem);
         });
     }
 
@@ -61,7 +57,7 @@ public class ArenaRegionManager implements ArenaChild, ILoadable, IEditable, IPr
     }
 
     public void save() {
-        this.regions.values().forEach(ArenaRegion::save);
+        this.getRegions().forEach(ArenaRegion::save);
     }
 
     @Override
@@ -74,13 +70,13 @@ public class ArenaRegionManager implements ArenaChild, ILoadable, IEditable, IPr
     @NotNull
     public List<String> getProblems() {
         List<String> list = new ArrayList<>();
-        if (this.regions.isEmpty()) {
+        if (this.getRegionsMap().isEmpty()) {
             list.add("No Regions Defined!");
         }
-        if (this.getRegionDefault() == null) {
+        if (this.getDefaultRegion() == null) {
             list.add("No Default Region!");
         }
-        else if (!this.getRegionDefault().isActive()) {
+        else if (!this.getDefaultRegion().isActive()) {
             list.add("Default Region is Inactive!");
         }
 
@@ -94,11 +90,16 @@ public class ArenaRegionManager implements ArenaChild, ILoadable, IEditable, IPr
 
     @NotNull
     @Override
-    public EditorRegionList getEditor() {
-        if (editor == null) {
-            editor = new EditorRegionList(this);
+    public RegionListEditor getEditor() {
+        if (this.editor == null) {
+            this.editor = new RegionListEditor(this);
         }
         return editor;
+    }
+
+    @NotNull
+    public String getRegionsPath() {
+        return this.arenaConfig.getFile().getParentFile().getAbsolutePath() + DIR_REGIONS;
     }
 
     @Override
@@ -118,13 +119,13 @@ public class ArenaRegionManager implements ArenaChild, ILoadable, IEditable, IPr
     }
 
     @Nullable
-    public ArenaRegion getRegionDefault() {
+    public ArenaRegion getDefaultRegion() {
         return this.getRegions().stream().filter(ArenaRegion::isDefault).findFirst().orElse(null);
     }
 
     @Nullable
-    public ArenaRegion getRegionAnyAvailable() {
-        return this.getRegions().stream().filter(reg -> reg.getState() == LockState.UNLOCKED).findFirst().orElse(null);
+    public ArenaRegion getFirstUnlockedRegion() {
+        return this.getRegions().stream().filter(ArenaRegion::isUnlocked).findFirst().orElse(null);
     }
 
     @Nullable
@@ -137,13 +138,25 @@ public class ArenaRegionManager implements ArenaChild, ILoadable, IEditable, IPr
         return this.getRegions().stream().filter(reg -> reg.getCuboid().contains(location)).findFirst().orElse(null);
     }
 
-    @NotNull
-    public Set<ArenaRegion> getLinkedRegions(@NotNull ArenaRegion region) {
-        return region.getLinkedRegions().stream().map(this::getRegion).filter(Objects::nonNull).collect(Collectors.toSet());
-    }
-
     public void addRegion(@NotNull ArenaRegion region) {
         this.getRegionsMap().put(region.getId(), region);
+    }
+
+    public boolean createRegion(@NotNull String id) {
+        if (this.getRegion(id) != null) return false;
+
+        JYML cfg = new JYML(this.getRegionsPath(), id + ".yml");
+        ArenaRegion region = new ArenaRegion(this.getArenaConfig(), cfg);
+        region.setActive(false);
+        region.setDefault(this.getRegions().isEmpty());
+        region.setName(StringUtil.capitalizeUnderscored(region.getId()) + " Region");
+        region.setCuboid(ArenaCuboid.empty());
+        region.setSpawnLocation(region.getCuboid().isEmpty() ? null : region.getCuboid().getCenter());
+        region.save();
+        region.load();
+        this.addRegion(region);
+
+        return true;
     }
 
     public boolean removeRegion(@NotNull ArenaRegion region) {

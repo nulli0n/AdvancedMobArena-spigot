@@ -1,16 +1,16 @@
 package su.nightexpress.ama.arena.wave;
 
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.api.manager.IPlaceholder;
+import su.nexmedia.engine.api.placeholder.Placeholder;
+import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.utils.NumberUtil;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.hook.mob.MobProvider;
 
-import java.util.function.UnaryOperator;
-
-public class ArenaWaveMob implements IPlaceholder {
+public class ArenaWaveMob implements Placeholder {
 
     private final ArenaWave arenaWave;
+    private final PlaceholderMap placeholderMap;
 
     private MobProvider provider;
     private String      mobId;
@@ -27,6 +27,14 @@ public class ArenaWaveMob implements IPlaceholder {
         this.setAmount(amount);
         this.setLevel(level);
         this.setChance(chance);
+
+        this.placeholderMap = new PlaceholderMap()
+            .add(Placeholders.ARENA_WAVE_MOB_ID, this::getMobId)
+            .add(Placeholders.ARENA_WAVE_MOB_PROVIDER, () -> this.getProvider().getName())
+            .add(Placeholders.ARENA_WAVE_MOB_AMOUNT, () -> String.valueOf(this.getAmount()))
+            .add(Placeholders.ARENA_WAVE_MOB_LEVEL, () -> String.valueOf(this.getLevel()))
+            .add(Placeholders.ARENA_WAVE_MOB_CHANCE, () -> NumberUtil.format(this.getChance()))
+        ;
     }
 
     public ArenaWaveMob(@NotNull ArenaWaveMob waveMob) {
@@ -35,14 +43,8 @@ public class ArenaWaveMob implements IPlaceholder {
 
     @Override
     @NotNull
-    public UnaryOperator<String> replacePlaceholders() {
-        return str -> str
-            .replace(Placeholders.ARENA_WAVE_MOB_ID, this.getMobId())
-            .replace(Placeholders.ARENA_WAVE_MOB_PROVIDER, this.getProvider().getName())
-            .replace(Placeholders.ARENA_WAVE_MOB_AMOUNT, String.valueOf(this.getAmount()))
-            .replace(Placeholders.ARENA_WAVE_MOB_LEVEL, String.valueOf(this.getLevel()))
-            .replace(Placeholders.ARENA_WAVE_MOB_CHANCE, NumberUtil.format(this.getChance()))
-            ;
+    public PlaceholderMap getPlaceholders() {
+        return this.placeholderMap;
     }
 
     @NotNull

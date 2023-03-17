@@ -99,26 +99,6 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
         }
     }
 
-	/*@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-	public void onArenaDamageFriendlyPotion(PotionSplashEvent e) {
-		ThrownPotion potion = e.getEntity();
-		LivingEntity damager = potion.getShooter() instanceof LivingEntity shooter ? shooter : null;
-		if (damager == null) return;
-
-		if (plugin.getMobManager().isArenaEntity(damager)) {
-			e.getAffectedEntities().stream().filter(victim -> plugin.getMobManager().isArenaEntity(victim)).forEach(victim -> {
-				e.setIntensity(victim, 0D);
-			});
-		}
-		else if (damager instanceof Player pDamager) {
-			e.getAffectedEntities().forEach(victim -> {
-				if (victim instanceof Player pVictim && (ArenaPlayer.isPlaying(pDamager) || ArenaPlayer.isPlaying(pVictim))) {
-					e.setIntensity(victim, 0D);
-				}
-			});
-		}
-	}*/
-
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onArenaItemMove(InventoryClickEvent e) {
         if (e.getInventory().getType() != InventoryType.CRAFTING) return;
@@ -134,7 +114,7 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
         e.setCancelled(true);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onArenaItemSpawn(ItemSpawnEvent e) {
         Item item = e.getEntity();
         Arena arena = this.manager.getArenaAtLocation(item.getLocation());
@@ -246,7 +226,8 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onArenaBlockFire(BlockIgniteEvent e) {
-        if (e.getCause() == BlockIgniteEvent.IgniteCause.FLINT_AND_STEEL) return;
+        BlockIgniteEvent.IgniteCause cause = e.getCause();
+        if (cause == BlockIgniteEvent.IgniteCause.FLINT_AND_STEEL) return;
 
         Block block = e.getBlock();
         Arena arena = this.manager.getArenaAtLocation(block.getLocation());

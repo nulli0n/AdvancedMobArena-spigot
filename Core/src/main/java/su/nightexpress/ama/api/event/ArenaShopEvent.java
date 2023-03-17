@@ -3,7 +3,7 @@ package su.nightexpress.ama.api.event;
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
 import su.nightexpress.ama.arena.impl.Arena;
-import su.nightexpress.ama.arena.shop.ArenaShopManager;
+import su.nightexpress.ama.arena.shop.ShopManager;
 
 public class ArenaShopEvent extends ArenaGameGenericEvent {
 
@@ -12,7 +12,7 @@ public class ArenaShopEvent extends ArenaGameGenericEvent {
     }
 
     @NotNull
-    public ArenaShopManager getShopManager() {
+    public ShopManager getShopManager() {
         return this.getArena().getConfig().getShopManager();
     }
 }

@@ -140,6 +140,11 @@
             <version>7.8.0</version>
         </dependency>
         <dependency>
+            <groupId>su.nightexpress.ama</groupId>
+            <artifactId>V1_19_R3</artifactId>
+            <version>7.8.0</version>
+        </dependency>
+        <dependency>
             <groupId>su.nightexpress.sunlight</groupId>
             <artifactId>Core</artifactId>
             <version>3.4.0</version>

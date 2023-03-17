@@ -5,7 +5,7 @@ import org.black_ixx.playerpoints.PlayerPointsAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import su.nightexpress.ama.api.currency.AbstractCurrency;
+import su.nightexpress.ama.currency.AbstractCurrency;
 import su.nightexpress.ama.api.currency.ICurrencyConfig;
 import su.nightexpress.ama.hook.HookId;
 

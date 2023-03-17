@@ -10,6 +10,7 @@ import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import java.util.HashMap;
 import java.util.Map;
 
+@Deprecated
 public record MobKillReward(String mobId,
                             Map<ICurrency, Double> payment, int score) implements JOption.Writer {
 

@@ -8,8 +8,9 @@ import su.nexmedia.engine.utils.random.Rnd;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.event.*;
 import su.nightexpress.ama.arena.lock.LockState;
+import su.nightexpress.ama.arena.region.ArenaRegion;
 import su.nightexpress.ama.arena.region.ArenaRegionManager;
-import su.nightexpress.ama.arena.shop.ArenaShopManager;
+import su.nightexpress.ama.arena.shop.ShopManager;
 import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.utils.TriFunction;
 
@@ -34,35 +35,49 @@ public class ScriptConditions {
         str -> str,
         event -> event.getArena().getConfig().getRegionManager(),
         ScriptConditionPrefabs.forRegion(LockState.UNLOCKED));
-    public static final ScriptCondition<String, ArenaRegionManager> REGION_LOCKED = register("region_locked",
+    public static final ScriptCondition<String, ArenaRegionManager> REGION_LOCKED          = register("region_locked",
         str -> str,
         event -> event.getArena().getConfig().getRegionManager(),
         ScriptConditionPrefabs.forRegion(LockState.LOCKED));
-    public static final ScriptCondition<String, ArenaShopManager>   SHOP_UNLOCKED = register("shop_unlocked",
+    public static final ScriptCondition<String, ShopManager>        SHOP_UNLOCKED          = register("shop_unlocked",
         str -> str,
         event -> event.getArena().getConfig().getShopManager(),
         (shopManager, str, operator) -> shopManager.isUnlocked());
-    public static final ScriptCondition<String, ArenaShopManager>   SHOP_LOCKED            = register("shop_locked",
+    public static final ScriptCondition<String, ShopManager>        SHOP_LOCKED            = register("shop_locked",
         str -> str,
         event -> event.getArena().getConfig().getShopManager(),
         (shopManager, str, operator) -> shopManager.isLocked());
-    public static final ScriptCondition<String, ArenaShopManager>   SHOP_CATEGORY_UNLOCKED = register("shop_category_unlocked",
+    public static final ScriptCondition<String, ShopManager>        SHOP_CATEGORY_UNLOCKED = register("shop_category_unlocked",
         str -> str,
         event -> event.getArena().getConfig().getShopManager(),
         ScriptConditionPrefabs.forShopCategory(LockState.UNLOCKED));
-    public static final ScriptCondition<String, ArenaShopManager>   SHOP_CATEGORY_LOCKED   = register("shop_category_locked",
+    public static final ScriptCondition<String, ShopManager>        SHOP_CATEGORY_LOCKED   = register("shop_category_locked",
         str -> str,
         event -> event.getArena().getConfig().getShopManager(),
         ScriptConditionPrefabs.forShopCategory(LockState.LOCKED));
-    public static final ScriptCondition<String, ArenaShopManager>   SHOP_PRODUCT_UNLOCKED  = register("shop_product_unlocked",
+    public static final ScriptCondition<String, ShopManager>        SHOP_PRODUCT_UNLOCKED  = register("shop_product_unlocked",
         str -> str,
         event -> event.getArena().getConfig().getShopManager(),
         ScriptConditionPrefabs.forShopProduct(LockState.UNLOCKED));
-    public static final ScriptCondition<String, ArenaShopManager>   SHOP_PRODUCT_LOCKED    = register("shop_product_locked",
+    public static final ScriptCondition<String, ShopManager>        SHOP_PRODUCT_LOCKED    = register("shop_product_locked",
         str -> str,
         event -> event.getArena().getConfig().getShopManager(),
         ScriptConditionPrefabs.forShopProduct(LockState.LOCKED));
 
+    public static final ScriptCondition<String, ArenaRegionManager> REGION_IS_EMPTY        = register("region_is_empty",
+        str -> str,
+        event -> event.getArena().getConfig().getRegionManager(),
+        (regionManager, str, operator) -> {
+            ArenaRegion region = regionManager.getRegion(str);
+            return region == null || region.getPlayers().isEmpty();
+        });
+    public static final ScriptCondition<String, ArenaRegionManager> REGION_NOT_EMPTY        = register("region_not_empty",
+        str -> str,
+        event -> event.getArena().getConfig().getRegionManager(),
+        (regionManager, str, operator) -> {
+            ArenaRegion region = regionManager.getRegion(str);
+            return region == null || !region.getPlayers().isEmpty();
+        });
     public static final ScriptCondition<String, String> REGION_ID        = string("region_id",
         event -> ((ArenaRegionEvent) event).getArenaRegion().getId());
     public static final ScriptCondition<String, String> SHOP_CATEGORY_ID = string("shop_category_id",

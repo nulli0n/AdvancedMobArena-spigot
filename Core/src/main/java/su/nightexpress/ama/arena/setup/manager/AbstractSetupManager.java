@@ -106,7 +106,7 @@ public abstract class AbstractSetupManager<T> extends AbstractManager<AMA> imple
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
-    public void onRegionUserQuit(PlayerQuitEvent e) {
+    public void onUserQuit(PlayerQuitEvent e) {
         this.endSetup(e.getPlayer());
     }
 }

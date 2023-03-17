@@ -20,13 +20,14 @@ import su.nightexpress.ama.api.currency.ICurrency;
 import su.nightexpress.ama.api.hologram.HologramHolder;
 import su.nightexpress.ama.api.hologram.HologramType;
 import su.nightexpress.ama.arena.ArenaStatsHologram;
-import su.nightexpress.ama.arena.editor.arena.EditorArenaMain;
+import su.nightexpress.ama.arena.editor.arena.ArenaMainEditor;
 import su.nightexpress.ama.arena.game.ArenaGameplayManager;
 import su.nightexpress.ama.arena.region.ArenaRegionManager;
 import su.nightexpress.ama.arena.reward.ArenaRewardManager;
 import su.nightexpress.ama.arena.script.ArenaScriptManager;
-import su.nightexpress.ama.arena.shop.ArenaShopManager;
+import su.nightexpress.ama.arena.shop.ShopManager;
 import su.nightexpress.ama.arena.spot.ArenaSpotManager;
+import su.nightexpress.ama.arena.supply.ArenaSupplyManager;
 import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.arena.util.ArenaStateScheduler;
 import su.nightexpress.ama.arena.wave.ArenaWaveManager;
@@ -56,16 +57,17 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
     private final ArenaWaveManager     waveManager;
     private final ArenaRegionManager   regionManager;
     private final ArenaGameplayManager gameplayManager;
+    private final ArenaSupplyManager supplyManager;
     private final ArenaSpotManager     spotManager;
-    private final ArenaRewardManager   rewardManager;
-    private final ArenaShopManager     shopManager;
+    private final ArenaRewardManager rewardManager;
+    private final ShopManager        shopManager;
     private final ArenaScriptManager scriptManager;
 
     private boolean isActive;
     private String  name;
     private boolean isPermissionRequired;
 
-    private EditorArenaMain editorMain;
+    private ArenaMainEditor editorMain;
 
     private ArenaStateScheduler openScheduler;
     private ArenaStateScheduler closeScheduler;
@@ -81,12 +83,15 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
         this.joinPaymentRequirements = new HashMap<>();
         this.joinLevelRequirements = new HashMap<>();
 
+        String path = this.getFile().getParentFile().getAbsolutePath();
+
         this.waveManager = new ArenaWaveManager(this);
         this.regionManager = new ArenaRegionManager(this);
         this.gameplayManager = new ArenaGameplayManager(this);
+        this.supplyManager = new ArenaSupplyManager(this, new JYML(path, ArenaSupplyManager.CONFIG_NAME));
         this.spotManager = new ArenaSpotManager(this);
         this.rewardManager = new ArenaRewardManager(this);
-        this.shopManager = new ArenaShopManager(this);
+        this.shopManager = new ShopManager(this);
         this.scriptManager = new ArenaScriptManager(this);
 
         this.arena = new Arena(this);
@@ -148,6 +153,7 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
         this.waveManager.setup();
         this.regionManager.setup();
         this.gameplayManager.setup();
+        this.supplyManager.load();
         this.spotManager.setup();
         this.rewardManager.setup();
         this.shopManager.setup();
@@ -212,6 +218,7 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
         this.spotManager.shutdown();
         this.regionManager.shutdown();
         this.gameplayManager.shutdown();
+        this.supplyManager.clear();
         this.waveManager.shutdown();
         this.rewardManager.shutdown();
         this.shopManager.shutdown();
@@ -249,6 +256,7 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
         this.waveManager.save();
         this.regionManager.save();
         this.gameplayManager.save();
+        this.supplyManager.save();
         this.rewardManager.save();
         this.shopManager.save();
         this.scriptManager.save();
@@ -302,9 +310,9 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
 
     @Override
     @NotNull
-    public EditorArenaMain getEditor() {
+    public ArenaMainEditor getEditor() {
         if (this.editorMain == null) {
-            this.editorMain = new EditorArenaMain(this.plugin, this);
+            this.editorMain = new ArenaMainEditor(this.plugin, this);
         }
         return this.editorMain;
     }
@@ -440,6 +448,11 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
     }
 
     @NotNull
+    public ArenaSupplyManager getSupplyManager() {
+        return this.supplyManager;
+    }
+
+    @NotNull
     public ArenaSpotManager getSpotManager() {
         return this.spotManager;
     }
@@ -450,7 +463,7 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
     }
 
     @NotNull
-    public ArenaShopManager getShopManager() {
+    public ShopManager getShopManager() {
         return shopManager;
     }
 

@@ -4,13 +4,11 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.jetbrains.annotations.NotNull;
+import su.nexmedia.engine.api.manager.IPlaceholder;
 import su.nexmedia.engine.utils.LocationUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
-import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
-import su.nightexpress.ama.api.arena.game.IArenaGameEventListener;
-import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
 import su.nightexpress.ama.api.event.ArenaSpotStateChangeEvent;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
@@ -18,28 +16,23 @@ import su.nightexpress.ama.arena.impl.ArenaConfig;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.UnaryOperator;
 
-public class ArenaSpotState implements IArenaGameEventListener, ArenaChild {
+public class ArenaSpotState implements ArenaChild, IPlaceholder {
 
     private final ArenaSpot spot;
 
     private final String                        id;
-    private final Set<ArenaGameEventTrigger<?>> triggers;
     private       List<String>                  schemeRaw;
     private final Map<Location, BlockData>      scheme;
 
     public ArenaSpotState(
         @NotNull ArenaSpot spot,
         @NotNull String id,
-        @NotNull Set<ArenaGameEventTrigger<?>> triggers,
         @NotNull List<String> schemeRaw
     ) {
         this.spot = spot;
         this.id = id.toLowerCase();
-
-        this.triggers = triggers;
         this.scheme = new HashMap<>();
         this.setSchemeRaw(schemeRaw);
     }
@@ -48,7 +41,6 @@ public class ArenaSpotState implements IArenaGameEventListener, ArenaChild {
     @NotNull
     public UnaryOperator<String> replacePlaceholders() {
         return str -> str
-            .replace(Placeholders.SPOT_STATE_TRIGGERS, Placeholders.format(this.getTriggers()))
             .replace(Placeholders.SPOT_STATE_ID, this.getId())
             ;
     }
@@ -61,20 +53,6 @@ public class ArenaSpotState implements IArenaGameEventListener, ArenaChild {
     @NotNull
     public ArenaSpot getSpot() {
         return this.spot;
-    }
-
-    @NotNull
-    @Override
-    public Set<ArenaGameEventTrigger<?>> getTriggers() {
-        return triggers;
-    }
-
-    @Override
-    public boolean onGameEvent(@NotNull ArenaGameGenericEvent gameEvent) {
-        if (!this.isReady(gameEvent)) return false;
-
-        this.build(gameEvent.getArena());
-        return true;
     }
 
     @NotNull

@@ -16,8 +16,8 @@ import su.nexmedia.engine.utils.ItemUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.config.Lang;
+import su.nightexpress.ama.editor.ArenaEditorHub;
 import su.nightexpress.ama.editor.ArenaEditorType;
-import su.nightexpress.ama.editor.ArenaEditorUtils;
 import su.nightexpress.ama.mob.MobManager;
 import su.nightexpress.ama.mob.config.MobConfig;
 
@@ -30,7 +30,7 @@ import java.util.stream.IntStream;
 public class EditorMobList extends AbstractEditorMenuAuto<AMA, MobManager, MobConfig> {
 
     public EditorMobList(@NotNull MobManager mobManager) {
-        super(mobManager.plugin(), mobManager, ArenaEditorUtils.TITLE_MOB_EDITOR, 45);
+        super(mobManager.plugin(), mobManager, ArenaEditorHub.TITLE_MOB_EDITOR, 45);
 
         EditorInput<MobManager, ArenaEditorType> input = (player, mobManager2, type, e) -> {
             String msg = StringUtil.colorOff(e.getMessage());

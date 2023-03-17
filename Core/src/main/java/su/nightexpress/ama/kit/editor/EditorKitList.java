@@ -14,8 +14,8 @@ import su.nexmedia.engine.utils.ItemUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.config.Lang;
+import su.nightexpress.ama.editor.ArenaEditorHub;
 import su.nightexpress.ama.editor.ArenaEditorType;
-import su.nightexpress.ama.editor.ArenaEditorUtils;
 import su.nightexpress.ama.kit.Kit;
 import su.nightexpress.ama.kit.KitManager;
 
@@ -27,7 +27,7 @@ import java.util.stream.IntStream;
 public class EditorKitList extends AbstractEditorMenuAuto<AMA, KitManager, Kit> {
 
     public EditorKitList(@NotNull KitManager kitManager) {
-        super(kitManager.plugin(), kitManager, ArenaEditorUtils.TITLE_KIT_EDITOR, 45);
+        super(kitManager.plugin(), kitManager, ArenaEditorHub.TITLE_KIT_EDITOR, 45);
 
         EditorInput<KitManager, ArenaEditorType> input = (player, kitManager2, type, e) -> {
             String msg = StringUtil.colorOff(e.getMessage());
@@ -56,7 +56,7 @@ public class EditorKitList extends AbstractEditorMenuAuto<AMA, KitManager, Kit> 
             else if (type instanceof ArenaEditorType type2) {
                 if (type2 == ArenaEditorType.KIT_CREATE) {
                     EditorManager.startEdit(player, kitManager, type2, input);
-                    EditorManager.tip(player, plugin.getMessage(Lang.Editor_Kit_Enter_Create).getLocalized());
+                    EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_KIT_ENTER_ID).getLocalized());
                     player.closeInventory();
                 }
             }

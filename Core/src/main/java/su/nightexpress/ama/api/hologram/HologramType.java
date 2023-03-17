@@ -2,7 +2,7 @@ package su.nightexpress.ama.api.hologram;
 
 import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.utils.StringUtil;
+import su.nexmedia.engine.utils.Colorizer;
 import su.nightexpress.ama.Placeholders;
 
 import java.util.Arrays;
@@ -21,7 +21,7 @@ public enum HologramType {
     private final List<String> defaultFormat;
 
     HologramType(@NotNull List<String> defaultFormat) {
-        this.defaultFormat = StringUtil.color(defaultFormat);
+        this.defaultFormat = Colorizer.apply(defaultFormat);
     }
 
     @NotNull

@@ -6,11 +6,13 @@ import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.IEditable;
 import su.nexmedia.engine.api.manager.ILoadable;
+import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.IProblematic;
+import su.nightexpress.ama.arena.editor.spot.SpotListEditor;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
-import su.nightexpress.ama.arena.editor.spot.EditorSpotList;
+import su.nightexpress.ama.arena.util.ArenaCuboid;
 
 import java.util.*;
 import java.util.function.UnaryOperator;
@@ -22,7 +24,7 @@ public class ArenaSpotManager implements ArenaChild, ILoadable, IEditable, IProb
     private final ArenaConfig arenaConfig;
     private final Map<String, ArenaSpot> spots;
 
-    private EditorSpotList editor;
+    private SpotListEditor editor;
 
     public ArenaSpotManager(@NotNull ArenaConfig arenaConfig) {
         this.arenaConfig = arenaConfig;
@@ -31,15 +33,12 @@ public class ArenaSpotManager implements ArenaChild, ILoadable, IEditable, IProb
 
     @Override
     public void setup() {
-        for (JYML cfg : JYML.loadAll(arenaConfig.getFile().getParentFile().getAbsolutePath() + DIR_SPOTS, false)) {
-            try {
-                ArenaSpot spot = new ArenaSpot(this.arenaConfig, cfg);
+        for (JYML cfg : JYML.loadAll(this.getSpotsPath(), false)) {
+            ArenaSpot spot = new ArenaSpot(this.arenaConfig, cfg);
+            if (spot.load()) {
                 this.spots.put(spot.getId(), spot);
             }
-            catch (Exception ex) {
-                arenaConfig.plugin().error("Could not load '" + cfg.getFile().getName() + "' spot for '" + arenaConfig.getId() + "' arena!");
-                ex.printStackTrace();
-            }
+            else arenaConfig.plugin().error("Spot not loaded: '" + cfg.getFile().getName() + "' spot for '" + arenaConfig.getId() + "' arena!");
         }
     }
 
@@ -50,7 +49,7 @@ public class ArenaSpotManager implements ArenaChild, ILoadable, IEditable, IProb
             this.editor = null;
         }
         this.getSpots().forEach(ArenaSpot::clear);
-        this.getSpots().clear();
+        this.getSpotsMap().clear();
     }
 
     @Override
@@ -59,13 +58,18 @@ public class ArenaSpotManager implements ArenaChild, ILoadable, IEditable, IProb
         return str -> str.replace(Placeholders.GENERIC_PROBLEMS, Placeholders.formatProblems(this.getProblems()));
     }
 
+    @NotNull
+    public String getSpotsPath() {
+        return this.getArenaConfig().getFile().getParentFile().getAbsolutePath() + DIR_SPOTS;
+    }
+
     @Override
     @NotNull
     public List<String> getProblems() {
         List<String> list = new ArrayList<>();
         this.getSpots().forEach(spot -> {
             if (spot.isActive() && spot.hasProblems()) {
-                list.add("Problems with " + spot.getId() + " spot!");
+                list.add("Problems with '" + spot.getId() + "' spot!");
             }
         });
 
@@ -74,9 +78,9 @@ public class ArenaSpotManager implements ArenaChild, ILoadable, IEditable, IProb
 
     @NotNull
     @Override
-    public EditorSpotList getEditor() {
+    public SpotListEditor getEditor() {
         if (this.editor == null) {
-            this.editor = new EditorSpotList(this);
+            this.editor = new SpotListEditor(this);
         }
         return editor;
     }
@@ -95,6 +99,20 @@ public class ArenaSpotManager implements ArenaChild, ILoadable, IEditable, IProb
     @NotNull
     public Collection<ArenaSpot> getSpots() {
         return this.getSpotsMap().values();
+    }
+
+    public boolean createSpot(@NotNull String id) {
+        if (this.getSpot(id) != null) return false;
+
+        String path = this.getSpotsPath() + id + ".yml";
+        ArenaSpot spot = new ArenaSpot(this.getArenaConfig(), new JYML(this.getSpotsPath(), id + ".yml"));
+        spot.setActive(false);
+        spot.setName(StringUtil.capitalizeUnderscored(spot.getId()) + " Spot");
+        spot.setCuboid(ArenaCuboid.empty());
+        spot.save();
+        spot.load();
+        this.addSpot(spot);
+        return true;
     }
 
     public void addSpot(@NotNull ArenaSpot spot) {

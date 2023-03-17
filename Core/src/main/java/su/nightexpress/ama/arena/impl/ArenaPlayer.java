@@ -4,12 +4,13 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import su.nexmedia.engine.api.lang.LangMessage;
 import su.nexmedia.engine.api.manager.IPlaceholder;
 import su.nexmedia.engine.hooks.Hooks;
 import su.nexmedia.engine.lang.LangManager;
 import su.nexmedia.engine.utils.TimeUtil;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.arena.lock.LockState;
+import su.nightexpress.ama.api.arena.type.ArenaTargetType;
 import su.nightexpress.ama.api.arena.type.LeaveReason;
 import su.nightexpress.ama.api.event.ArenaPlayerReadyEvent;
 import su.nightexpress.ama.arena.board.ArenaBoard;
@@ -18,6 +19,7 @@ import su.nightexpress.ama.arena.region.ArenaRegion;
 import su.nightexpress.ama.arena.reward.ArenaReward;
 import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.config.Config;
+import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.data.ArenaUser;
 import su.nightexpress.ama.hook.HookId;
 import su.nightexpress.ama.hook.external.SunLightHook;
@@ -124,9 +126,13 @@ public final class ArenaPlayer implements IPlaceholder {
     public void setState(@NotNull GameState state) {
         this.state = state;
 
-        if (this.getState() == GameState.READY) {
+        if (this.getState() == GameState.READY || this.getState() == GameState.WAITING) {
             ArenaPlayerReadyEvent readyEvent = new ArenaPlayerReadyEvent(this.getArena(), this);
             this.getArena().plugin().getPluginManager().callEvent(readyEvent);
+
+            Arena arena = this.getArena();
+            LangMessage msg = arena.plugin().getMessage(this.isReady() ? Lang.Arena_Game_Lobby_Ready_True : Lang.Arena_Game_Lobby_Ready_False);
+            arena.broadcast(msg.replace(this.replacePlaceholders()), ArenaTargetType.PLAYER_ALL);
         }
     }
 
@@ -224,19 +230,9 @@ public final class ArenaPlayer implements IPlaceholder {
      * @return Returns ArenaRegion where player is.
      */
     @Nullable
-    public ArenaRegion getRegion(boolean includeNearby) {
-        Location loc = this.getPlayer().getLocation();
-
-        ArenaRegion region = this.getArena().getConfig().getRegionManager().getRegion(loc);
-        if (region != null || !includeNearby) {
-            return region;
-        }
-
-        // Get nearest region to player if he is outside of any
-        return this.getArena().getConfig().getRegionManager().getRegions().stream()
-            .filter(reg -> reg.getState() == LockState.UNLOCKED)
-            .min((r1, r2) -> (int) (loc.distance(r1.getSpawnLocation()) - loc.distance(r2.getSpawnLocation())))
-            .orElse(null);
+    public ArenaRegion getRegion() {
+        Location location = this.getPlayer().getLocation();
+        return this.getArena().getConfig().getRegionManager().getRegion(location);
     }
 
     public int getScore() {

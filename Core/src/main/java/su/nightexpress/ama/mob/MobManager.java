@@ -15,6 +15,7 @@ import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Keys;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.arena.impl.Arena;
+import su.nightexpress.ama.arena.util.ArenaUtils;
 import su.nightexpress.ama.hologram.HologramManager;
 import su.nightexpress.ama.hook.mob.PluginMobProvider;
 import su.nightexpress.ama.hook.mob.impl.InternalMobProvider;
@@ -88,16 +89,6 @@ public class MobManager extends AbstractManager<AMA> {
         return this.mobs.get(id.toLowerCase());
     }
 
-    @NotNull
-    @Deprecated
-    public List<String> getSupportedMobIds() {
-        List<String> list = new ArrayList<>(this.getMobIds());
-        if (Hooks.hasMythicMobs()) {
-            list.addAll(MythicMobsHook.getMobConfigIds());
-        }
-        return list;
-    }
-
     @Nullable
     public LivingEntity spawnMob(@NotNull String mobId, @NotNull Location location, int level) {
         MobConfig customMob = this.getMobById(mobId);
@@ -110,7 +101,10 @@ public class MobManager extends AbstractManager<AMA> {
         customMob.applySettings(entity, level);
         customMob.applyAttributes(entity, level);
         if (customMob.isBarEnabled()) {
-            // TODO ArenaUtils.addMobBossBar(arena, entity, customMob.createOrUpdateBar(entity));
+            Arena arena = this.plugin.getArenaManager().getArenaAtLocation(location);
+            if (arena != null) {
+                ArenaUtils.addMobBossBar(arena, entity, customMob.createOrUpdateBar(entity));
+            }
         }
         this.setMobConfig(entity, customMob);
         return entity;

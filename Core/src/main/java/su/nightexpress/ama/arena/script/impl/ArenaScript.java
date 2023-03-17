@@ -149,7 +149,7 @@ public class ArenaScript implements ArenaChild, ICleanable {
 
     public boolean onArenaEvent(@NotNull ArenaGameGenericEvent gameEvent) {
         if (this.getEventType() != gameEvent.getEventType()) return false;
-        System.out.println("process script for " + gameEvent.getEventType().name());
+        //System.out.println("process script for " + gameEvent.getEventType().name());
 
         if (!this.conditions.isEmpty() && this.conditions.values().stream().noneMatch(list -> {
             return list.stream().allMatch(entry -> {
@@ -160,9 +160,9 @@ public class ArenaScript implements ArenaChild, ICleanable {
             });
         })) return false;
 
-        System.out.println("process script 4");
+        //System.out.println("process script 4");
         this.actions.forEach(entry -> {
-            System.out.println("process script action");
+            //System.out.println("process script action");
             ScriptAction action = entry.getAction();
             ParameterResult parameterResult = entry.getParameters();
             action.run(gameEvent, parameterResult);

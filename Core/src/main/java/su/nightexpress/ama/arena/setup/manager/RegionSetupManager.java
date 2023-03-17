@@ -2,26 +2,19 @@ package su.nightexpress.ama.arena.setup.manager;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.api.task.AbstractTask;
-import su.nexmedia.engine.lang.LangManager;
+import su.nexmedia.engine.api.server.AbstractTask;
 import su.nightexpress.ama.AMA;
-import su.nightexpress.ama.arena.util.ArenaCuboid;
 import su.nightexpress.ama.arena.region.ArenaRegion;
-import su.nightexpress.ama.arena.region.ArenaRegionContainer;
 import su.nightexpress.ama.arena.setup.ArenaSetupUtils;
 import su.nightexpress.ama.arena.setup.SetupItemType;
+import su.nightexpress.ama.arena.util.ArenaCuboid;
 import su.nightexpress.ama.config.Lang;
-
-import java.util.ArrayList;
-import java.util.HashSet;
 
 public class RegionSetupManager extends AbstractSetupManager<ArenaRegion> {
 
@@ -62,7 +55,6 @@ public class RegionSetupManager extends AbstractSetupManager<ArenaRegion> {
         inventory.setItem(0, SetupItemType.REGION_CUBOID.getItem());
         inventory.setItem(2, SetupItemType.REGION_SPAWN.getItem());
         inventory.setItem(4, SetupItemType.REGION_SPAWNER.getItem());
-        inventory.setItem(6, SetupItemType.REGION_CONTAINER.getItem());
         inventory.setItem(8, SetupItemType.REGION_SAVE.getItem());
     }
 
@@ -93,10 +85,6 @@ public class RegionSetupManager extends AbstractSetupManager<ArenaRegion> {
         region.getMobSpawners().values().forEach(spawner -> {
             ArenaSetupUtils.addVisualText(player, "&c« Mob Spawner »", spawner);
             ArenaSetupUtils.addVisualBlock(player, spawner);
-        });
-
-        region.getContainers().forEach(c -> {
-            ArenaSetupUtils.addVisualText(player, "&6« Container »", c.getLocation().clone().add(0, -1, 0));
         });
     }
 
@@ -140,16 +128,6 @@ public class RegionSetupManager extends AbstractSetupManager<ArenaRegion> {
                 if (this.cuboidCache[0] == null || this.cuboidCache[1] == null) return;
                 ArenaCuboid cuboidNew = new ArenaCuboid(this.cuboidCache[0], this.cuboidCache[1]);
                 region.setCuboid(cuboidNew);
-
-                boolean spawnLost = region.getSpawnLocation() != null && !cuboidNew.contains(region.getSpawnLocation());
-                int spawnersLost = (int) region.getMobSpawners().values().stream().filter(loc -> !cuboidNew.contains(loc)).count();
-                int contLost = (int) region.getContainers().stream().filter(con -> !cuboidNew.contains(con.getLocation())).count();
-
-                plugin.getMessage(Lang.Setup_Reigon_Cuboid_Preview)
-                    .replace("%spawn-lost%", LangManager.getBoolean(spawnLost))
-                    .replace("%spawners-lost%", String.valueOf(spawnersLost))
-                    .replace("%containers-lost%", String.valueOf(contLost))
-                    .send(player);
             }
             case REGION_SPAWN -> {
                 Location location = player.getLocation();
@@ -189,46 +167,13 @@ public class RegionSetupManager extends AbstractSetupManager<ArenaRegion> {
                 region.save();
                 this.endSetup(player);
             }
-            case REGION_CONTAINER -> {
-                Block block = e.getClickedBlock();
-                if (block == null) return;
-
-                Location location = block.getLocation();
-                if (!region.getCuboid().contains(location)) {
-                    plugin.getMessage(Lang.Setup_Region_Error_Outside).send(player);
-                    return;
-                }
-
-                Action action = e.getAction();
-                if (action == Action.RIGHT_CLICK_BLOCK) {
-                    if (region.getContainers().stream().noneMatch(container -> container.getLocation().equals(location))) {
-                        if (!(block.getState() instanceof Chest chest)) {
-                            e.setUseItemInHand(Event.Result.ALLOW);
-                            e.setUseInteractedBlock(Event.Result.ALLOW);
-                            return;
-                        }
-
-                        ArenaRegionContainer container = new ArenaRegionContainer(region, chest.getLocation(), new HashSet<>(), 1, 27, new ArrayList<>());
-                        region.getContainers().add(container);
-                        plugin.getMessage(Lang.Setup_Region_Container_Add).replace(region.replacePlaceholders()).send(player);
-                    }
-                }
-                else if (action == Action.LEFT_CLICK_BLOCK) {
-                    if (!region.getContainers().removeIf(container -> container.getLocation().equals(location))) {
-                        if (!(block.getState() instanceof Chest)) return;
-                        e.setUseInteractedBlock(Event.Result.ALLOW);
-                        return;
-                    }
-                    plugin.getMessage(Lang.Setup_Region_Container_Remove).replace(region.replacePlaceholders()).send(player);
-                }
-            }
         }
     }
 
     class VisualTask extends AbstractTask<AMA> {
 
         public VisualTask() {
-            super(plugin(), 10L, true);
+            super(plugin(), 15L, true);
         }
 
         @Override

@@ -55,8 +55,8 @@ public class MobStyleWrapper<E, T> {
     public static final MobStyleWrapper<Ageable, Boolean> BABY = new MobStyleWrapper<>(Ageable.class, new MobStyleWriter.WriterBoolean<>() {
         @Override
         public void apply(@NotNull Ageable entity, @NotNull Boolean value) {
-            if (value) entity.setAdult();
-            else entity.setBaby();
+            if (value) entity.setBaby();
+            else entity.setAdult();
         }
 
         @Override

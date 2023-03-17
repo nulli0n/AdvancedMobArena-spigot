@@ -6,7 +6,6 @@ import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.command.AbstractCommand;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
-import su.nightexpress.ama.arena.lock.LockState;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.arena.region.ArenaRegion;
@@ -84,8 +83,8 @@ public class RegionCommand extends AbstractCommand<AMA> {
             return;
         }
 
-        if (lock) region.setState(LockState.LOCKED);
-        else region.setState(LockState.UNLOCKED);
+        if (lock) region.lock();
+        else region.unlock();
 
         plugin.getMessage(Lang.Command_Region_State_Done).replace(region.replacePlaceholders()).send(sender);
     }

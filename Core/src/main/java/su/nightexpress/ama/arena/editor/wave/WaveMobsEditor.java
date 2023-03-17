@@ -1,7 +1,5 @@
 package su.nightexpress.ama.arena.editor.wave;
 
-import org.bukkit.Material;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -21,11 +19,10 @@ import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.wave.ArenaWave;
 import su.nightexpress.ama.arena.wave.ArenaWaveMob;
 import su.nightexpress.ama.config.Lang;
+import su.nightexpress.ama.editor.ArenaEditorHub;
 import su.nightexpress.ama.editor.ArenaEditorType;
-import su.nightexpress.ama.editor.ArenaEditorUtils;
 import su.nightexpress.ama.hook.mob.MobProvider;
 import su.nightexpress.ama.hook.mob.PluginMobProvider;
-import su.nightexpress.ama.mob.config.MobConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,13 +31,13 @@ import java.util.stream.IntStream;
 
 public class WaveMobsEditor extends AbstractEditorMenuAuto<AMA, ArenaWave, ArenaWaveMob> {
 
-    WaveMobsEditor(@NotNull ArenaWave arenaWave) {
-        super(arenaWave.getArena().plugin(), arenaWave, ArenaEditorUtils.TITLE_WAVE_EDITOR, 45);
+    public WaveMobsEditor(@NotNull ArenaWave arenaWave) {
+        super(arenaWave.getArena().plugin(), arenaWave, ArenaEditorHub.TITLE_WAVE_EDITOR, 45);
 
         MenuClick click = (player, type, e) -> {
             if (type instanceof MenuItemType type2) {
                 if (type2 == MenuItemType.RETURN) {
-                    this.parent.getEditor().open(player, 1);
+                    this.parent.getArenaConfig().getWaveManager().getEditor().getWavesListEditor().open(player, 1);
                 }
                 else super.onItemClickDefault(player, type2);
             }
@@ -85,16 +82,7 @@ public class WaveMobsEditor extends AbstractEditorMenuAuto<AMA, ArenaWave, Arena
     @Override
     @NotNull
     protected ItemStack getObjectStack(@NotNull Player player, @NotNull ArenaWaveMob waveMob) {
-        Material material = Material.BAT_SPAWN_EGG;
-        MobConfig customMob = plugin.getMobManager().getMobById(waveMob.getMobId());
-        if (customMob != null) {
-            material = Material.getMaterial(customMob.getEntityType().name() + "_SPAWN_EGG");
-            if (customMob.getEntityType() == EntityType.MUSHROOM_COW) material = Material.MOOSHROOM_SPAWN_EGG;
-            if (material == null) material = Material.BAT_SPAWN_EGG;
-        }
-
         ItemStack item = ArenaEditorType.WAVES_WAVE_MOB_OBJECT.getItem();
-        item.setType(material);
         ItemUtil.replace(item, waveMob.replacePlaceholders());
         return item;
     }
@@ -108,7 +96,7 @@ public class WaveMobsEditor extends AbstractEditorMenuAuto<AMA, ArenaWave, Arena
                 case WAVES_WAVE_MOB_CHANGE_TYPE -> {
                     String mobId = Colorizer.strip(msg);
                     if (!mob.getProvider().getMobNames().contains(mobId)) {
-                        EditorManager.error(player, plugin.getMessage(Lang.Editor_Arena_Waves_Error_Mob_Invalid).getLocalized());
+                        EditorManager.error(player, plugin.getMessage(Lang.EDITOR_ARENA_WAVES_ERROR_MOB_INVALID).getLocalized());
                         return false;
                     }
                     mob.setMobId(mobId);
@@ -116,7 +104,6 @@ public class WaveMobsEditor extends AbstractEditorMenuAuto<AMA, ArenaWave, Arena
                 case WAVES_WAVE_MOB_CHANGE_AMOUNT -> mob.setAmount(StringUtil.getInteger(msg, 1));
                 case WAVES_WAVE_MOB_CHANGE_LEVEL -> mob.setLevel(StringUtil.getInteger(msg, 1));
                 case WAVES_WAVE_MOB_CHANGE_CHANCE -> mob.setChance(StringUtil.getDouble(msg, 0D));
-                default -> {}
             }
 
             mob.getArenaWave().getArenaConfig().getWaveManager().save();
@@ -134,19 +121,19 @@ public class WaveMobsEditor extends AbstractEditorMenuAuto<AMA, ArenaWave, Arena
             if (e.isLeftClick()) {
                 EditorManager.startEdit(player2, waveMob, ArenaEditorType.WAVES_WAVE_MOB_CHANGE_TYPE, input);
                 EditorManager.suggestValues(player2, waveMob.getProvider().getMobNames(), true);
-                EditorManager.tip(player2, plugin.getMessage(Lang.Editor_Arena_Waves_Enter_Mob_Create).getLocalized());
+                EditorManager.tip(player2, plugin.getMessage(Lang.EDITOR_ARENA_WAVES_ENTER_MOB_ID).getLocalized());
             }
             else if (e.isRightClick()) {
                 EditorManager.startEdit(player2, waveMob, ArenaEditorType.WAVES_WAVE_MOB_CHANGE_AMOUNT, input);
-                EditorManager.tip(player2, plugin.getMessage(Lang.Editor_Arena_Waves_Enter_Mob_Amount).getLocalized());
+                EditorManager.tip(player2, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NUMBER).getLocalized());
             }
             else if (e.isShiftClick() && e.isLeftClick()) {
                 EditorManager.startEdit(player2, waveMob, ArenaEditorType.WAVES_WAVE_MOB_CHANGE_LEVEL, input);
-                EditorManager.tip(player2, plugin.getMessage(Lang.Editor_Arena_Waves_Enter_Mob_Level).getLocalized());
+                EditorManager.tip(player2, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NUMBER).getLocalized());
             }
             else if (e.getClick() == ClickType.DROP) {
                 EditorManager.startEdit(player2, waveMob, ArenaEditorType.WAVES_WAVE_MOB_CHANGE_CHANCE, input);
-                EditorManager.tip(player2, plugin.getMessage(Lang.Editor_Arena_Waves_Enter_Mob_Chance).getLocalized());
+                EditorManager.tip(player2, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_PERCENT).getLocalized());
             }
             else if (e.getClick() == ClickType.SWAP_OFFHAND) {
                 List<MobProvider> providers = new ArrayList<>(PluginMobProvider.getProviders());

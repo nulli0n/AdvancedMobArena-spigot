@@ -37,7 +37,7 @@ public class ArenaScriptManager implements ArenaChild, ILoadable, IEditable {
             else this.plugin().error("Script category not loaded: '" + cfg.getFile().getName() + "' in '" + this.getArenaConfig().getId() + "' arena!");
         }
 
-        this.plugin().info("Loaded " + this.getCategories().size() + " scripts for '" + this.getArenaConfig().getId() + "' arena!");
+        this.plugin().info("Loaded " + this.getScripts().size() + " scripts for '" + this.getArenaConfig().getId() + "' arena!");
     }
 
     @Override

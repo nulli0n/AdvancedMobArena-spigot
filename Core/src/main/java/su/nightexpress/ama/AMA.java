@@ -50,6 +50,7 @@ import su.nightexpress.ama.nms.v1_17_R1.V1_17_R1;
 import su.nightexpress.ama.nms.v1_18_R2.V1_18_R2;
 import su.nightexpress.ama.nms.v1_19_R1.V1_19_R1;
 import su.nightexpress.ama.nms.v1_19_R2.V1_19_R2;
+import su.nightexpress.ama.nms.v1_19_R3.V1_19_R3;
 import su.nightexpress.ama.sign.SignManager;
 import su.nightexpress.ama.stats.StatsManager;
 import su.nightexpress.ama.stats.object.StatType;
@@ -86,6 +87,7 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
             case V1_18_R2 -> this.arenaNMS = new V1_18_R2();
             case V1_19_R1 -> this.arenaNMS = new V1_19_R1();
             case V1_19_R2 -> this.arenaNMS = new V1_19_R2();
+            case V1_19_R3 -> this.arenaNMS = new V1_19_R3();
             default -> { }
         }
         if (this.arenaNMS == null) {

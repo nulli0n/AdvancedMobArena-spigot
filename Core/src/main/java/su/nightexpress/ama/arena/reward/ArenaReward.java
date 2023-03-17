@@ -5,73 +5,68 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.manager.ICleanable;
 import su.nexmedia.engine.api.manager.IEditable;
+import su.nexmedia.engine.api.placeholder.Placeholder;
+import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.lang.LangManager;
-import su.nexmedia.engine.utils.NumberUtil;
+import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.PlayerUtil;
 import su.nexmedia.engine.utils.StringUtil;
-import su.nexmedia.engine.utils.random.Rnd;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
-import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
-import su.nightexpress.ama.api.arena.game.IArenaGameEventListener;
 import su.nightexpress.ama.api.arena.type.ArenaTargetType;
-import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
+import su.nightexpress.ama.arena.editor.reward.RewardSettingsEditor;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
-import su.nightexpress.ama.arena.editor.reward.EditorRewardSettings;
 import su.nightexpress.ama.config.Lang;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.function.UnaryOperator;
 
-public class ArenaReward implements IArenaGameEventListener, ArenaChild, IEditable, ICleanable {
+public class ArenaReward implements ArenaChild, Placeholder, IEditable, ICleanable {
 
+    private final String      id;
     private final ArenaConfig arenaConfig;
+    private final PlaceholderMap placeholderMap;
 
-    private       String                        name;
-    private       boolean                       isLate;
-    private final Set<ArenaGameEventTrigger<?>> triggers;
-    @Deprecated private       ArenaTargetType               targetType;
-    @Deprecated private       double                        chance;
-    private       List<String>                  commands;
-    private       List<ItemStack>               items;
+    private String          name;
+    private boolean         isLate;
+    private List<String>    commands;
+    private List<ItemStack> items;
 
-    private EditorRewardSettings editor;
+    private RewardSettingsEditor editor;
+
+    public ArenaReward(@NotNull ArenaConfig arenaConfig, @NotNull String id) {
+        this(arenaConfig, id, StringUtil.capitalizeUnderscored(id), true, new ArrayList<>(), new ArrayList<>());
+    }
 
     public ArenaReward(
         @NotNull ArenaConfig arenaConfig,
-
+        @NotNull String id,
         @NotNull String name,
         boolean isLate,
-        @NotNull Set<ArenaGameEventTrigger<?>> triggers,
-        @NotNull ArenaTargetType targetType,
-        double chance,
         @NotNull List<String> commands,
         @NotNull List<ItemStack> items
     ) {
+        this.id = id.toLowerCase();
         this.arenaConfig = arenaConfig;
 
         this.setName(name);
         this.setLate(isLate);
-        this.triggers = triggers;
-        this.setTargetType(targetType);
-        this.setChance(chance);
         this.setCommands(commands);
         this.setItems(items);
+
+        this.placeholderMap = new PlaceholderMap()
+            .add(Placeholders.REWARD_ID, this::getId)
+            .add(Placeholders.REWARD_NAME, this::getName)
+            .add(Placeholders.REWARD_IS_LATE, () -> LangManager.getBoolean(this.isLate()))
+            .add(Placeholders.REWARD_COMMANDS, () -> String.join("\n", this.getCommands()))
+        ;
     }
 
     @Override
     @NotNull
-    public UnaryOperator<String> replacePlaceholders() {
-        return str -> str
-            .replace(Placeholders.REWARD_TRIGGERS, Placeholders.format(this.getTriggers()))
-            .replace(Placeholders.REWARD_NAME, this.getName())
-            .replace(Placeholders.REWARD_TARGET_TYPE, plugin().getLangManager().getEnum(this.getTargetType()))
-            .replace(Placeholders.REWARD_CHANCE, NumberUtil.format(this.getChance()))
-            .replace(Placeholders.REWARD_IS_LATE, LangManager.getBoolean(this.isLate()))
-            .replace(Placeholders.REWARD_COMMANDS, String.join("\n", this.getCommands()))
-            ;
+    public PlaceholderMap getPlaceholders() {
+        return this.placeholderMap;
     }
 
     @Override
@@ -84,31 +79,11 @@ public class ArenaReward implements IArenaGameEventListener, ArenaChild, IEditab
 
     @NotNull
     @Override
-    public EditorRewardSettings getEditor() {
+    public RewardSettingsEditor getEditor() {
         if (this.editor == null) {
-            this.editor = new EditorRewardSettings(this);
+            this.editor = new RewardSettingsEditor(this);
         }
         return editor;
-    }
-
-    @Override
-    public boolean onGameEvent(@NotNull ArenaGameGenericEvent gameEvent) {
-        if (!this.isReady(gameEvent)) return false;
-
-        this.give(gameEvent.getArena());
-        return true;
-    }
-
-    @Deprecated
-    public void give(@NotNull Arena arena) {
-        if (Rnd.get(true) >= this.getChance()) return;
-
-        arena.getPlayers(this.getTargetType()).forEach(arenaPlayer -> {
-            if (this.isLate()) {
-                arenaPlayer.getRewards().add(this);
-            }
-            else this.give(arenaPlayer.getPlayer());
-        });
     }
 
     public void give(@NotNull Arena arena, ArenaTargetType targetType) {
@@ -117,15 +92,14 @@ public class ArenaReward implements IArenaGameEventListener, ArenaChild, IEditab
                 arenaPlayer.getRewards().add(this);
             }
             else this.give(arenaPlayer.getPlayer());
+
+            plugin().getMessage(Lang.ARENA_GAME_NOTIFY_REWARD).replace(this.replacePlaceholders()).send(arenaPlayer.getPlayer());
         });
     }
 
     public void give(@NotNull Player player) {
         this.getItems().forEach(item -> PlayerUtil.addItem(player, item));
         this.getCommands().forEach(command -> PlayerUtil.dispatchCommand(player, command));
-
-        // TODO Not here
-        plugin().getMessage(Lang.Arena_Game_Notify_Reward).replace(this.replacePlaceholders()).send(player);
     }
 
     @NotNull
@@ -135,12 +109,17 @@ public class ArenaReward implements IArenaGameEventListener, ArenaChild, IEditab
     }
 
     @NotNull
+    public String getId() {
+        return id;
+    }
+
+    @NotNull
     public String getName() {
         return this.name;
     }
 
     public void setName(@NotNull String name) {
-        this.name = StringUtil.color(name);
+        this.name = Colorizer.apply(name);
     }
 
     public boolean isLate() {
@@ -152,39 +131,12 @@ public class ArenaReward implements IArenaGameEventListener, ArenaChild, IEditab
     }
 
     @NotNull
-    @Override
-    public Set<ArenaGameEventTrigger<?>> getTriggers() {
-        return triggers;
-    }
-
-    @NotNull
-    @Deprecated
-    public ArenaTargetType getTargetType() {
-        return targetType;
-    }
-
-    @Deprecated
-    public void setTargetType(@NotNull ArenaTargetType targetType) {
-        this.targetType = targetType;
-    }
-
-    @Deprecated
-    public double getChance() {
-        return this.chance;
-    }
-
-    @Deprecated
-    public void setChance(double chance) {
-        this.chance = chance;
-    }
-
-    @NotNull
     public List<String> getCommands() {
         return this.commands;
     }
 
     public void setCommands(@NotNull List<String> commands) {
-        this.commands = commands;
+        this.commands = new ArrayList<>(commands);
     }
 
     @NotNull
@@ -193,6 +145,7 @@ public class ArenaReward implements IArenaGameEventListener, ArenaChild, IEditab
     }
 
     public void setItems(@NotNull List<ItemStack> items) {
-        this.items = items;
+        this.items = new ArrayList<>(items);
+        this.getItems().removeIf(item -> item == null || item.getType().isAir());
     }
 }

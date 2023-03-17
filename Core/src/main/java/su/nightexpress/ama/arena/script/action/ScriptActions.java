@@ -8,11 +8,11 @@ import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.arena.impl.ArenaUpcomingWave;
-import su.nightexpress.ama.arena.lock.LockState;
 import su.nightexpress.ama.arena.region.ArenaRegion;
-import su.nightexpress.ama.arena.shop.impl.ArenaShopCategory;
-import su.nightexpress.ama.arena.shop.impl.ArenaShopProduct;
+import su.nightexpress.ama.arena.shop.impl.ShopCategory;
+import su.nightexpress.ama.arena.shop.impl.ShopProduct;
 import su.nightexpress.ama.arena.spot.ArenaSpot;
+import su.nightexpress.ama.arena.supply.ArenaSupplyChest;
 import su.nightexpress.ama.arena.wave.ArenaWave;
 import su.nightexpress.ama.arena.wave.ArenaWaveMob;
 
@@ -26,51 +26,51 @@ public class ScriptActions {
     public static final ScriptAction UNLOCK_REGION = register("unlock_region", (event, result) -> {
         String regId = result.get(Parameters.REGION, "");
         ArenaRegion region = event.getArena().getConfig().getRegionManager().getRegion(regId);
-        if (region != null) region.setState(LockState.UNLOCKED);
+        if (region != null) region.unlock();
     }, Parameters.REGION);
     public static final ScriptAction LOCK_REGION   = register("lock_region", (event, result) -> {
         String regId = result.get(Parameters.REGION, "");
         ArenaRegion region = event.getArena().getConfig().getRegionManager().getRegion(regId);
-        if (region != null) region.setState(LockState.LOCKED);
+        if (region != null) region.lock();
     }, Parameters.REGION);
 
     public static final ScriptAction UNLOCK_SHOP = register("unlock_shop", (event, result) -> {
-        event.getArena().getConfig().getShopManager().setState(LockState.UNLOCKED);
+        event.getArena().getConfig().getShopManager().unlock();
     });
     public static final ScriptAction LOCK_SHOP   = register("lock_shop", (event, result) -> {
-        event.getArena().getConfig().getShopManager().setState(LockState.LOCKED);
+        event.getArena().getConfig().getShopManager().lock();
     });
 
     public static final ScriptAction UNLOCK_SHOP_CATEGORY = register("unlock_shop_category", (event, result) -> {
         String catId = result.get(Parameters.SHOP_CATEGORY, "");
-        ArenaShopCategory category = event.getArena().getConfig().getShopManager().getCategory(catId);
-        if (category != null) category.setState(LockState.UNLOCKED);
+        ShopCategory category = event.getArena().getConfig().getShopManager().getCategory(catId);
+        if (category != null) category.unlock();
     }, Parameters.SHOP_CATEGORY);
     public static final ScriptAction LOCK_SHOP_CATEGORY   = register("lock_shop_category", (event, result) -> {
         String catId = result.get(Parameters.SHOP_CATEGORY, "");
-        ArenaShopCategory category = event.getArena().getConfig().getShopManager().getCategory(catId);
-        if (category != null) category.setState(LockState.LOCKED);
+        ShopCategory category = event.getArena().getConfig().getShopManager().getCategory(catId);
+        if (category != null) category.lock();
     }, Parameters.SHOP_CATEGORY);
 
     public static final ScriptAction UNLOCK_SHOP_PRODUCT = register("unlock_shop_product", (event, result) -> {
         String catId = result.get(Parameters.SHOP_CATEGORY, "");
         String prodId = result.get(Parameters.SHOP_PRODUCT, "");
 
-        ArenaShopCategory category = event.getArena().getConfig().getShopManager().getCategory(catId);
+        ShopCategory category = event.getArena().getConfig().getShopManager().getCategory(catId);
         if (category == null) return;
 
-        ArenaShopProduct product = category.getProduct(prodId);
-        if (product != null) product.setState(LockState.UNLOCKED);
+        ShopProduct product = category.getProduct(prodId);
+        if (product != null) product.unlock();
     }, Parameters.SHOP_CATEGORY, Parameters.SHOP_PRODUCT);
     public static final ScriptAction LOCK_SHOP_PRODUCT   = register("lock_shop_product", (event, result) -> {
         String catId = result.get(Parameters.SHOP_CATEGORY, "");
         String prodId = result.get(Parameters.SHOP_PRODUCT, "");
 
-        ArenaShopCategory category = event.getArena().getConfig().getShopManager().getCategory(catId);
+        ShopCategory category = event.getArena().getConfig().getShopManager().getCategory(catId);
         if (category == null) return;
 
-        ArenaShopProduct product = category.getProduct(prodId);
-        if (product != null) product.setState(LockState.LOCKED);
+        ShopProduct product = category.getProduct(prodId);
+        if (product != null) product.lock();
     }, Parameters.SHOP_CATEGORY, Parameters.SHOP_PRODUCT);
 
     public static final ScriptAction GIVE_REWARD = register("give_reward", (event, result) -> {
@@ -100,6 +100,12 @@ public class ScriptActions {
         if (spot != null) spot.setState(event.getArena(), stateId);
     }, Parameters.SPOT, Parameters.STATE);
 
+    public static final ScriptAction REFILL_SUPPLY_CHEST = register("refill_supply_chest", (event, result) -> {
+        String chestId = result.get(Parameters.NAME, "");
+        ArenaSupplyChest chest = event.getArena().getConfig().getSupplyManager().getChest(chestId);
+        if (chest != null) chest.refill();
+    }, Parameters.NAME);
+
     public static final ScriptAction ADJUST_MOB_AMOUNT = register("adjust_mob_amount", (event, result) -> {
         String waveId = result.get(Parameters.WAVE, "");
         int amount = result.get(Parameters.AMOUNT, 0);
@@ -127,10 +133,8 @@ public class ScriptActions {
         if (wave == null) return;
 
         List<ArenaWaveMob> mobs = new ArrayList<>(wave.getMobsByChance().stream().map(ArenaWaveMob::new).toList());
-        wave.getAmplifiers().forEach(ampId -> {
-            mobs.forEach(mob -> mob.setAmount((int) (mob.getAmount() + arena.getWaveAmplificatorAmount(ampId))));
-            mobs.forEach(mob -> mob.setLevel((int) (mob.getLevel() + arena.getWaveAmplificatorLevel(ampId))));
-        });
+        mobs.forEach(mob -> mob.setAmount((int) (mob.getAmount() + arena.getWaveAmplificatorAmount(wave.getId()))));
+        mobs.forEach(mob -> mob.setLevel((int) (mob.getLevel() + arena.getWaveAmplificatorLevel(wave.getId()))));
         mobs.removeIf(mob -> mob.getAmount() <= 0);
         if (mobs.isEmpty()) return;
 

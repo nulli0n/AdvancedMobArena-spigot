@@ -9,6 +9,7 @@ import net.citizensnpcs.api.trait.TraitName;
 import su.nightexpress.ama.api.ArenaAPI;
 
 @TraitName("ama-stats")
+@Deprecated
 public class StatsTrait extends Trait {
 
     public StatsTrait() {

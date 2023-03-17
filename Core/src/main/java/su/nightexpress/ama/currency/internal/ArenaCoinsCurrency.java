@@ -3,7 +3,7 @@ package su.nightexpress.ama.currency.internal;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.ama.api.ArenaAPI;
-import su.nightexpress.ama.api.currency.AbstractCurrency;
+import su.nightexpress.ama.currency.AbstractCurrency;
 import su.nightexpress.ama.api.currency.ICurrencyConfig;
 import su.nightexpress.ama.data.ArenaUser;
 

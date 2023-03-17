@@ -24,8 +24,8 @@ import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.api.currency.ICurrency;
 import su.nightexpress.ama.config.Lang;
+import su.nightexpress.ama.editor.ArenaEditorHub;
 import su.nightexpress.ama.editor.ArenaEditorType;
-import su.nightexpress.ama.editor.ArenaEditorUtils;
 import su.nightexpress.ama.kit.Kit;
 
 import java.util.Map;
@@ -34,7 +34,7 @@ import java.util.stream.Stream;
 public class EditorKitMain extends AbstractEditorMenu<AMA, Kit> {
 
     public EditorKitMain(@NotNull Kit kit) {
-        super(kit.plugin(), kit, ArenaEditorUtils.TITLE_KIT_EDITOR, 45);
+        super(kit.plugin(), kit, ArenaEditorHub.TITLE_KIT_EDITOR, 45);
 
         EditorInput<Kit, ArenaEditorType> input = (player, kit2, type, e) -> {
             String msg = StringUtil.color(e.getMessage());
@@ -209,7 +209,7 @@ public class EditorKitMain extends AbstractEditorMenu<AMA, Kit> {
         private final boolean isArmor;
 
         public ContentEditor(@NotNull Kit kit, int size) {
-            super(kit.plugin(), ArenaEditorUtils.TITLE_KIT_EDITOR, size);
+            super(kit.plugin(), ArenaEditorHub.TITLE_KIT_EDITOR, size);
             this.kit = kit;
             this.isArmor = size == 9;
         }

@@ -16,8 +16,8 @@ import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.arena.script.ArenaScriptManager;
 import su.nightexpress.ama.arena.script.impl.ScriptCategory;
 import su.nightexpress.ama.config.Lang;
+import su.nightexpress.ama.editor.ArenaEditorHub;
 import su.nightexpress.ama.editor.ArenaEditorType;
-import su.nightexpress.ama.editor.ArenaEditorUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,7 @@ import java.util.stream.IntStream;
 public class ScriptsEditor extends AbstractEditorMenuAuto<AMA, ArenaScriptManager, ScriptCategory> {
 
     public ScriptsEditor(@NotNull ArenaScriptManager scriptManager) {
-        super(scriptManager.plugin(), scriptManager, ArenaEditorUtils.TITLE_SCRIPT_EDITOR, 45);
+        super(scriptManager.plugin(), scriptManager, ArenaEditorHub.TITLE_SCRIPT_EDITOR, 45);
 
         EditorInput<ArenaScriptManager, ArenaEditorType> input = (player, scriptManager2, type, e) -> {
             String msg = e.getMessage();

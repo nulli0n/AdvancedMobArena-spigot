@@ -10,18 +10,16 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.lang.LangMessage;
 import su.nexmedia.engine.api.manager.IPlaceholder;
+import su.nexmedia.engine.api.particle.SimpleParticle;
 import su.nexmedia.engine.utils.*;
 import su.nexmedia.engine.utils.random.Rnd;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.api.arena.game.IArenaGameEventListener;
 import su.nightexpress.ama.api.arena.type.*;
 import su.nightexpress.ama.api.event.*;
-import su.nightexpress.ama.arena.lock.LockState;
 import su.nightexpress.ama.arena.region.ArenaRegion;
 import su.nightexpress.ama.arena.region.ArenaRegionManager;
-import su.nightexpress.ama.arena.spot.ArenaSpot;
 import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.arena.util.ArenaUtils;
 import su.nightexpress.ama.arena.util.LobbyItem;
@@ -50,7 +48,6 @@ public class Arena implements IPlaceholder {
 
     private final AMA         plugin;
     private final ArenaConfig config;
-    private final Set<IArenaGameEventListener> gameEventListeners;
     private final Set<ArenaPlayer>  players;
     private final Set<LivingEntity> mobs;
     private final Set<LivingEntity> allyMobs;
@@ -79,7 +76,6 @@ public class Arena implements IPlaceholder {
     public Arena(@NotNull ArenaConfig config) {
         this.plugin = config.plugin();
         this.config = config;
-        this.gameEventListeners = new LinkedHashSet<>();
         this.players = new HashSet<>();
         this.mobs = new HashSet<>();
         this.allyMobs = new HashSet<>();
@@ -101,11 +97,6 @@ public class Arena implements IPlaceholder {
     @NotNull
     public String getId() {
         return this.getConfig().getId();
-    }
-
-    @NotNull
-    public Set<IArenaGameEventListener> getGameEventListeners() {
-        return this.gameEventListeners;
     }
 
     @NotNull
@@ -222,9 +213,8 @@ public class Arena implements IPlaceholder {
     }
 
     void reset() {
-        this.updateGameEventListeners();
         this.killMobs(true);
-        this.killItems();
+        this.killGroundItems();
 
         int gameTimeleft = this.getConfig().getGameplayManager().getTimeleft();
 
@@ -249,7 +239,7 @@ public class Arena implements IPlaceholder {
 
         this.mobsAboutToSpawn = false;
 
-        this.emptyContainers();
+        this.emptySupplyChests();
 
         this.setState(GameState.WAITING);
         this.updateSigns();
@@ -266,28 +256,6 @@ public class Arena implements IPlaceholder {
         }
         this.getPlayers().forEach(arenaPlayer -> this.leaveArena(arenaPlayer, type.getReason()));
         this.reset();
-    }
-
-    public void updateGameEventListeners() {
-        ArenaConfig config = this.getConfig();
-
-        this.getGameEventListeners().clear();
-        this.getGameEventListeners().addAll(config.getRegionManager().getRegions().stream().filter(ArenaRegion::isActive).toList());
-        config.getSpotManager().getSpots().stream().filter(ArenaSpot::isActive).forEach(spot -> {
-            this.getGameEventListeners().addAll(spot.getStates().values());
-        });
-        this.getGameEventListeners().add(config.getShopManager());
-        this.getGameEventListeners().addAll(config.getShopManager().getCategories());
-        config.getShopManager().getCategories().forEach(category -> {
-            this.getGameEventListeners().addAll(category.getProducts());
-        });
-        this.getGameEventListeners().addAll(config.getWaveManager().getAmplifiers().values());
-        config.getRegionManager().getRegions().stream().filter(ArenaRegion::isActive).forEach(region -> {
-            this.getGameEventListeners().addAll(region.getWaves());
-            this.getGameEventListeners().addAll(region.getContainers());
-        });
-        this.getGameEventListeners().addAll(config.getRewardManager().getRewards());
-        this.getGameEventListeners().addAll(config.getGameplayManager().getAutoCommands());
     }
 
     public void updateSigns() {
@@ -325,8 +293,8 @@ public class Arena implements IPlaceholder {
         plugin.getArenaNMS().setTarget(entity, arenaPlayer == null ? null : arenaPlayer.getPlayer());
     }*/
 
-    public void emptyContainers() {
-        this.getConfig().getRegionManager().getRegions().forEach(ArenaRegion::emptyContainers);
+    public void emptySupplyChests() {
+        this.getConfig().getSupplyManager().emptyChests();
     }
 
     public boolean hasPermission(@NotNull Player player) {
@@ -422,10 +390,11 @@ public class Arena implements IPlaceholder {
     }
 
     public void onArenaGameEvent(@NotNull ArenaGameGenericEvent gameEvent) {
-        this.getGameEventListeners().forEach(listener -> listener.onGameEvent(gameEvent));
-        this.getConfig().getScriptManager().getScripts().forEach(gameScript -> {
-            gameScript.onArenaEvent(gameEvent);
-        });
+        if (this.getState() == GameState.INGAME) {
+            this.getConfig().getScriptManager().getScripts().forEach(gameScript -> {
+                gameScript.onArenaEvent(gameEvent);
+            });
+        }
 
         ArenaGameEventType eventType = gameEvent.getEventType();
         if (eventType == ArenaGameEventType.GAME_END_LOSE || eventType == ArenaGameEventType.GAME_END_TIME
@@ -463,7 +432,6 @@ public class Arena implements IPlaceholder {
         if (this.getState() == GameState.WAITING) {
             if (this.getPlayers().size() >= this.getConfig().getGameplayManager().getPlayerMinAmount()) {
                 this.setState(GameState.READY);
-                this.updateGameEventListeners();
 
                 if (this.getConfig().getGameplayManager().isAnnouncesEnabled()) {
                     plugin().getMessage(Lang.Arena_Game_Announce_Start)
@@ -531,6 +499,10 @@ public class Arena implements IPlaceholder {
         this.tickPlayers();
         this.tickMobs();
 
+        if (!this.getConfig().getGameplayManager().isItemPickupEnabled()) {
+            this.burnGroundItems();
+        }
+
         // No players left, stop the game.
         if (this.getPlayers(GameState.INGAME).isEmpty()) {
             this.stop(ArenaEndType.FORCE);
@@ -541,7 +513,7 @@ public class Arena implements IPlaceholder {
             this.newWave();
 
             // Stop game if no regions are available.
-            ArenaRegion playRegion = this.getConfig().getRegionManager().getRegionAnyAvailable();
+            ArenaRegion playRegion = this.getConfig().getRegionManager().getFirstUnlockedRegion();
             if (playRegion == null) {
                 this.stop(ArenaEndType.NO_REGION);
                 return;
@@ -551,7 +523,7 @@ public class Arena implements IPlaceholder {
             List<LivingEntity> allMobs = new ArrayList<>(this.getMobs());
             allMobs.forEach(mob -> {
                 ArenaRegion region = this.getConfig().getRegionManager().getRegion(mob.getLocation());
-                if (region != null && region.getState() == LockState.LOCKED) {
+                if (region != null && region.isLocked()) {
                     mob.teleport(playRegion.getSpawnLocation());
                 }
             });
@@ -582,8 +554,8 @@ public class Arena implements IPlaceholder {
 
             // Notify if player region is inactive anymore.
             if (this.isNextWaveAllowed()) {
-                ArenaRegion region = arenaPlayer.getRegion(false);
-                if (region == null || region.getState() == LockState.LOCKED) {
+                ArenaRegion region = arenaPlayer.getRegion();
+                if (region == null || region.isLocked()) {
                     plugin.getMessage(Lang.ARENA_REGION_LOCKED_NOTIFY).send(arenaPlayer.getPlayer());
                 }
             }
@@ -719,12 +691,11 @@ public class Arena implements IPlaceholder {
         // Create an ArenaPlayer instance.
         ArenaPlayer arenaPlayer = ArenaPlayer.create(player, this);
 
-        // Save the player inventory, effects, game modes, etc.
-        // before teleporting to the arena.
+        // Save the player inventory, effects, game modes, etc. before teleporting to the arena.
         PlayerSnapshot.doSnapshot(player);
 
         player.teleport(this.getConfig().getLocation(ArenaLocationType.LOBBY));
-        EffectUtil.playEffect(player.getLocation(), Particle.CLOUD, "", 0.1f, 0.25f, 0.1f, 0.15f, 30);
+        SimpleParticle.of(Particle.CLOUD).play(player.getLocation(), 0.25, 0.15, 30);
 
         // Now clear all player's active effects, god modes, etc.
         PlayerSnapshot.clear(player);
@@ -757,7 +728,12 @@ public class Arena implements IPlaceholder {
         if (this.getState() == GameState.INGAME) return true;
 
         int minPlayers = this.getConfig().getGameplayManager().getPlayerMinAmount();
-        if (this.getPlayers().size() < minPlayers) {
+        int players = this.getPlayers().size();
+
+        if (players == 1) {
+            this.setLobbyCountdown(this.getConfig().getGameplayManager().getLobbyTime());
+        }
+        if (players < minPlayers) {
             this.getPlayers().forEach(lobbyPlayer -> {
                 plugin().getMessage(Lang.Arena_Game_Lobby_MinPlayers).replace("%min%", minPlayers).send(lobbyPlayer.getPlayer());
             });
@@ -797,7 +773,7 @@ public class Arena implements IPlaceholder {
         }
 
         ArenaRegionManager reg = this.getConfig().getRegionManager();
-        ArenaRegion regionDefault = this.getWaveNumber() > 0 ? reg.getRegionAnyAvailable() : reg.getRegionDefault();
+        ArenaRegion regionDefault = this.getWaveNumber() > 0 ? reg.getFirstUnlockedRegion() : reg.getDefaultRegion();
 
         // Check for valid arena's region.
         if (regionDefault == null) {
@@ -932,9 +908,22 @@ public class Arena implements IPlaceholder {
     public void addGroundItem(@NotNull Item item) {
         this.getGroundItems().removeIf(item2 -> !item2.isValid());
         this.getGroundItems().add(item);
+        if (this.getState() == GameState.INGAME && !this.getConfig().getGameplayManager().isItemPickupEnabled()) {
+            item.setPickupDelay(Short.MAX_VALUE);
+        }
     }
 
-    public void killItems() {
+    public void burnGroundItems() {
+        SimpleParticle particle = SimpleParticle.of(Particle.SMOKE_NORMAL);
+        this.getGroundItems().forEach(item -> {
+            if (item.isValid() && item.isOnGround()) {
+                particle.play(item.getLocation(), 0.1, 0.05, 15);
+                item.remove();
+            }
+        });
+    }
+
+    public void killGroundItems() {
         this.getGroundItems().forEach(Entity::remove);
         this.getGroundItems().clear();
     }
@@ -976,11 +965,14 @@ public class Arena implements IPlaceholder {
 
     @Deprecated
     public void injectWave(@NotNull ArenaUpcomingWave wave) {
-        // TODO
+        // TODO prepared mob class
         this.getUpcomingWaves().add(wave);
-        if (!this.getConfig().getWaveManager().isGradualSpawnEnabled()) {
-            this.spawnMobs(100D);
-        }
+        this.setWaveMobsTotalAmount(this.getWaveMobsTotalAmount() + this.getMobsAwaitingSpawn());
+
+        ArenaWaveManager waveManager = this.getConfig().getWaveManager();
+        //if (!this.getConfig().getWaveManager().isGradualSpawnEnabled()) {
+        this.spawnMobs(waveManager.isGradualSpawnEnabled() ? waveManager.getGradualSpawnPercentFirst() : 100D);
+        //}
     }
 
     public void newWave() {
@@ -994,24 +986,25 @@ public class Arena implements IPlaceholder {
         }
 
         this.setWaveNumber(this.getWaveNumber() + 1);
+        this.setWaveMobsTotalAmount(0);
 
         // Move all players that are outside of the active region
         // to the first active one.
-        ArenaRegion regionActive = this.getConfig().getRegionManager().getRegionAnyAvailable();
+        ArenaRegion regionActive = this.getConfig().getRegionManager().getFirstUnlockedRegion();
         this.getPlayers(GameState.INGAME).forEach(arenaPlayer -> {
             arenaPlayer.addStats(StatType.WAVES_PASSED, 1);
 
-            ArenaRegion regionPlayer = arenaPlayer.getRegion(false);
-            if ((regionPlayer == null || regionPlayer.getState() == LockState.LOCKED) && regionActive != null) {
+            ArenaRegion regionPlayer = arenaPlayer.getRegion();
+            if ((regionPlayer == null || regionPlayer.isLocked()) && regionActive != null) {
                 arenaPlayer.getPlayer().teleport(regionActive.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
             }
         });
 
-        ArenaWaveStartEvent event = new ArenaWaveStartEvent(this);
-        this.plugin.getPluginManager().callEvent(event);
-
         // Join all late joined players at the start of the new round.
         this.getPlayers(GameState.READY).forEach(this::joinGame);
+
+        ArenaWaveStartEvent event = new ArenaWaveStartEvent(this);
+        this.plugin.getPluginManager().callEvent(event);
 
         // Set time until next wave
         this.setWaveNextTimeleft(this.getConfig().getWaveManager().getDelayDefault());
@@ -1021,11 +1014,11 @@ public class Arena implements IPlaceholder {
 
         // New wave is started, store the complete amount of mobs from all upcoming waves.
         // This value is TOTAL amount of mobs that arena is about to spawn this round.
-        this.setWaveMobsTotalAmount(this.getMobsAwaitingSpawn());
+        //this.setWaveMobsTotalAmount(this.getMobsAwaitingSpawn());
 
         // Spawn mobs for new wave
-        ArenaWaveManager waveManager = this.getConfig().getWaveManager();
-        this.spawnMobs(waveManager.isGradualSpawnEnabled() ? waveManager.getGradualSpawnPercentFirst() : 100D);
+        //ArenaWaveManager waveManager = this.getConfig().getWaveManager();
+        //this.spawnMobs(waveManager.isGradualSpawnEnabled() ? waveManager.getGradualSpawnPercentFirst() : 100D);
 
         // TODO
         // Quick fix for Piglings target, due to PiglinAi class with a lot of shit
@@ -1091,7 +1084,7 @@ public class Arena implements IPlaceholder {
             double mobsWaveTotal = wave.getPreparedMobs().stream().mapToInt(ArenaWaveMob::getAmount).sum();
             //double mobsWaveSpawned = wave.getMobsSpawnedAmount().values().stream().mapToInt(i -> i).sum();
             if (Config.DEBUG_MOB_SPAWN.get())
-                System.out.println("[Spawn Processor] 2. Total Mobs for Wave '" + wave.getRegionWave().getId() + "': " + mobsWaveTotal);
+                System.out.println("[Spawn Processor] 2. Total Mobs for Wave #" + getWaveNumber() + ": " + mobsWaveTotal);
             //System.out.println(wave.getRegionWave().getId() + " mobs have spawned: " + mobsWaveSpawned);
 
             //mobsWaveTotal -= mobsWaveSpawned;

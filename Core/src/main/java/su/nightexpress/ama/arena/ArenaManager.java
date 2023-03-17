@@ -8,6 +8,7 @@ import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.AbstractManager;
 import su.nexmedia.engine.hooks.Hooks;
 import su.nexmedia.engine.utils.FileUtil;
+import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.api.arena.type.ArenaEndType;
 import su.nightexpress.ama.arena.impl.Arena;
@@ -109,8 +110,9 @@ public class ArenaManager extends AbstractManager<AMA> {
 
         JYML cfg = new JYML(plugin.getDataFolder() + DIR_ARENAS + arenaId, "config.yml");
         ArenaConfig arenaConfig = new ArenaConfig(plugin, cfg, arenaId);
-        arenaConfig.save();
+        arenaConfig.setName(StringUtil.capitalizeUnderscored(arenaId));
         arenaConfig.load();
+        arenaConfig.save();
         this.getArenasMap().put(arenaConfig.getId(), arenaConfig.getArena());
         return true;
     }

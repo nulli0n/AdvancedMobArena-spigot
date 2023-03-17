@@ -8,7 +8,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.api.task.AbstractTask;
+import su.nexmedia.engine.api.server.AbstractTask;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.util.ArenaCuboid;
 import su.nightexpress.ama.arena.setup.ArenaSetupUtils;
@@ -67,13 +67,13 @@ public class SpotSetupManager extends AbstractSetupManager<ArenaSpot> {
 
                 ArenaSpot overlap = spot.getArenaConfig().getSpotManager().getSpot(location);
                 if (overlap != null && !spot.getId().equals(overlap.getId())) {
-                    plugin.getMessage(Lang.Setup_Spot_Cuboid_Error_Overlap).replace(overlap.replacePlaceholders()).send(player);
+                    plugin.getMessage(Lang.SETUP_SPOT_CUBOID_ERROR_OVERLAP).replace(overlap.replacePlaceholders()).send(player);
                     return;
                 }
 
                 int index = action == Action.LEFT_CLICK_BLOCK ? 0 : 1;
                 this.cuboidCache[index] = location;
-                plugin.getMessage(Lang.Setup_Spot_Cuboid_Set).replace(spot.replacePlaceholders()).replace("%corner%", index + 1).send(player);
+                plugin.getMessage(Lang.SETUP_SPOT_CUBOID_SET).replace(spot.replacePlaceholders()).replace("%corner%", index + 1).send(player);
             }
             case SPOT_SAVE -> {
                 if (this.cuboidCache[0] != null && this.cuboidCache[1] != null) {

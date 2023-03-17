@@ -21,8 +21,8 @@ import su.nightexpress.ama.arena.script.condition.ScriptPreparedCondition;
 import su.nightexpress.ama.arena.script.impl.ArenaScript;
 import su.nightexpress.ama.arena.script.impl.ScriptCategory;
 import su.nightexpress.ama.config.Lang;
+import su.nightexpress.ama.editor.ArenaEditorHub;
 import su.nightexpress.ama.editor.ArenaEditorType;
-import su.nightexpress.ama.editor.ArenaEditorUtils;
 
 import java.util.Comparator;
 import java.util.List;
@@ -33,7 +33,7 @@ import java.util.stream.IntStream;
 public class ScriptsCategoryEditor extends AbstractEditorMenuAuto<AMA, ScriptCategory, ArenaScript> {
 
     public ScriptsCategoryEditor(@NotNull ScriptCategory category) {
-        super(category.plugin(), category, ArenaEditorUtils.TITLE_SCRIPT_EDITOR, 45);
+        super(category.plugin(), category, ArenaEditorHub.TITLE_SCRIPT_EDITOR, 45);
 
         EditorInput<ScriptCategory, ArenaEditorType> input = (player, category1, type, e) -> {
             String msg = e.getMessage();

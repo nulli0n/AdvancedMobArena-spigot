@@ -11,11 +11,11 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.api.task.AbstractTask;
+import su.nexmedia.engine.api.server.AbstractTask;
 import su.nexmedia.engine.utils.LocationUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.util.ArenaCuboid;
-import su.nightexpress.ama.arena.editor.spot.EditorSpotMain;
+import su.nightexpress.ama.arena.editor.spot.SpotSettingsEditor;
 import su.nightexpress.ama.arena.setup.ArenaSetupUtils;
 import su.nightexpress.ama.arena.setup.SetupItemType;
 import su.nightexpress.ama.arena.spot.ArenaSpot;
@@ -51,7 +51,7 @@ public class SpotStateSetupManager extends AbstractSetupManager<ArenaSpotState> 
             this.visualTask = null;
         }
 
-        EditorSpotMain spotMain = state.getSpot().getEditor();
+        SpotSettingsEditor spotMain = state.getSpot().getEditor();
         spotMain.openStates(player);
     }
 
@@ -90,13 +90,9 @@ public class SpotStateSetupManager extends AbstractSetupManager<ArenaSpotState> 
 
     private void updateVisualParticles(@NotNull Player player) {
         ArenaCuboid cuboid = this.getObject().getSpot().getCuboid();
-        if (cuboid.isEmpty()) return;
-
-        Location loc1 = cuboid.getLocationMin();
-        Location loc2 = cuboid.getLocationMax();
-
-        //ArenaSetupUtils.playCuboid(new Location[]{loc1,loc2});
-        this.getObject().getSpot().getCuboid().getVisualizer().draw(player);
+        if (!cuboid.isEmpty()) {
+            cuboid.getVisualizer().draw(player);
+        }
     }
 
     @Override
@@ -114,7 +110,7 @@ public class SpotStateSetupManager extends AbstractSetupManager<ArenaSpotState> 
         Block block = e.getBlock();
         ArenaCuboid cuboid = spot.getCuboid();
         if (cuboid.isEmpty() || !cuboid.contains(block.getLocation())) {
-            plugin.getMessage(Lang.Setup_Spot_State_Error_Outside).send(player);
+            plugin.getMessage(Lang.SETUP_SPOT_STATE_ERROR_OUTSIDE).send(player);
             e.setCancelled(true);
         }
     }
@@ -129,7 +125,7 @@ public class SpotStateSetupManager extends AbstractSetupManager<ArenaSpotState> 
         Block block = e.getBlock();
         ArenaCuboid cuboid = spot.getCuboid();
         if (cuboid.isEmpty() || !cuboid.contains(block.getLocation())) {
-            plugin.getMessage(Lang.Setup_Spot_State_Error_Outside).send(player);
+            plugin.getMessage(Lang.SETUP_SPOT_STATE_ERROR_OUTSIDE).send(player);
             e.setCancelled(true);
         }
     }

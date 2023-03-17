@@ -3,19 +3,19 @@ package su.nightexpress.ama.api.event;
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
 import su.nightexpress.ama.arena.impl.Arena;
-import su.nightexpress.ama.arena.shop.impl.ArenaShopCategory;
+import su.nightexpress.ama.arena.shop.impl.ShopCategory;
 
 public class ArenaShopCategoryEvent extends ArenaGameGenericEvent {
 
-    private final ArenaShopCategory shopCategory;
+    private final ShopCategory shopCategory;
 
-    public ArenaShopCategoryEvent(@NotNull Arena arena, @NotNull ArenaShopCategory shopCategory, @NotNull ArenaGameEventType eventType) {
+    public ArenaShopCategoryEvent(@NotNull Arena arena, @NotNull ShopCategory shopCategory, @NotNull ArenaGameEventType eventType) {
         super(arena, eventType);
         this.shopCategory = shopCategory;
     }
 
     @NotNull
-    public ArenaShopCategory getShopCategory() {
+    public ShopCategory getShopCategory() {
         return shopCategory;
     }
 }

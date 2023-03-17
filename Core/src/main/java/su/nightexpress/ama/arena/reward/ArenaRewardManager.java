@@ -11,10 +11,9 @@ import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.IProblematic;
-import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
 import su.nightexpress.ama.api.arena.type.ArenaTargetType;
-import su.nightexpress.ama.arena.editor.reward.EditorRewardList;
+import su.nightexpress.ama.arena.editor.reward.RewardListEditor;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.arena.script.action.ParameterResult;
 import su.nightexpress.ama.arena.script.action.Parameters;
@@ -30,16 +29,16 @@ import java.util.function.UnaryOperator;
 
 public class ArenaRewardManager implements ArenaChild, ConfigHolder, ILoadable, IEditable, IProblematic {
 
-    private final ArenaConfig      arenaConfig;
-    private final JYML             config;
+    private static final String CONFIG_NAME = "rewards.yml";
+
+    private final ArenaConfig              arenaConfig;
+    private final JYML                     config;
     private final Map<String, ArenaReward> rewards;
 
     private boolean isRetainOnLeave;
     private boolean isRetainOnDeath;
 
-    private EditorRewardList editor;
-
-    private static final String CONFIG_NAME = "rewards.yml";
+    private RewardListEditor editor;
 
     public ArenaRewardManager(@NotNull ArenaConfig arenaConfig) {
         this.arenaConfig = arenaConfig;
@@ -58,7 +57,7 @@ public class ArenaRewardManager implements ArenaChild, ConfigHolder, ILoadable, 
             String name = config.getString(path2 + "Name", sId);
             boolean isLate = config.getBoolean(path2 + "Late");
             double chance = config.getDouble(path2 + "Chance");
-            Set<ArenaGameEventTrigger<?>> triggers = ArenaGameEventTrigger.parse(config, path2 + "Triggers");
+
             ArenaTargetType targetType = config.getEnum(path2 + "Target", ArenaTargetType.class, ArenaTargetType.PLAYER_ALL);
             List<String> commands = config.getStringList(path2 + "Commands");
             List<ItemStack> items = new ArrayList<>(Arrays.asList(config.getItemsEncoded(path2 + "Items")));
@@ -85,10 +84,11 @@ public class ArenaRewardManager implements ArenaChild, ConfigHolder, ILoadable, 
 
                 this.getArenaConfig().getScriptManager().addConverted(script);
             }
+            config.remove(path2 + "Triggers");
             // ----------- CONVERT SCRIPTS END -----------
 
-            ArenaReward reward = new ArenaReward(arenaConfig, name, isLate, triggers, targetType, chance, commands, items);
-            this.getRewardsMap().put(sId.toLowerCase(), reward);
+            ArenaReward reward = new ArenaReward(arenaConfig, sId, name, isLate, commands, items);
+            this.getRewardsMap().put(reward.getId(), reward);
         }
     }
 
@@ -114,9 +114,9 @@ public class ArenaRewardManager implements ArenaChild, ConfigHolder, ILoadable, 
 
     @NotNull
     @Override
-    public EditorRewardList getEditor() {
+    public RewardListEditor getEditor() {
         if (this.editor == null) {
-            this.editor = new EditorRewardList(this);
+            this.editor = new RewardListEditor(this);
         }
         return editor;
     }
@@ -140,13 +140,8 @@ public class ArenaRewardManager implements ArenaChild, ConfigHolder, ILoadable, 
         config.set("List", null);
         this.getRewardsMap().forEach((id, reward) -> {
             String path2 = "List." + id + ".";
-            reward.getTriggers().forEach(trigger -> {
-                config.set(path2 + "Triggers." + trigger.getType().name(), trigger.getValuesRaw());
-            });
             config.set(path2 + "Name", reward.getName());
             config.set(path2 + "Late", reward.isLate());
-            config.set(path2 + "Chance", reward.getChance());
-            config.set(path2 + "Target", reward.getTargetType().name());
             config.set(path2 + "Commands", reward.getCommands());
             config.setItemsEncoded(path2 + "Items", reward.getItems());
         });
@@ -156,6 +151,14 @@ public class ArenaRewardManager implements ArenaChild, ConfigHolder, ILoadable, 
     @Override
     public ArenaConfig getArenaConfig() {
         return arenaConfig;
+    }
+
+    public boolean createReward(@NotNull String id) {
+        if (this.getReward(id).isPresent()) return false;
+
+        ArenaReward reward = new ArenaReward(this.getArenaConfig(), id);
+        this.getRewardsMap().put(reward.getId(), reward);
+        return true;
     }
 
     @NotNull

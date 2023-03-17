@@ -7,7 +7,7 @@ import su.nexmedia.engine.api.manager.IPlaceholder;
 import su.nexmedia.engine.utils.random.Rnd;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
-import su.nightexpress.ama.arena.editor.wave.WaveSettingsEditor;
+import su.nightexpress.ama.arena.editor.wave.WaveMobsEditor;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
 
 import java.util.HashSet;
@@ -20,20 +20,17 @@ public class ArenaWave implements ArenaChild, IEditable, ICleanable, IPlaceholde
     private final ArenaConfig arenaConfig;
     private final String      id;
     private final Set<ArenaWaveMob> mobs;
-    private final Set<String>       amplifiers;
 
-    private WaveSettingsEditor editor;
+    private WaveMobsEditor editor;
 
     public ArenaWave(
         @NotNull ArenaConfig arenaConfig,
         @NotNull String id,
-        @NotNull Set<ArenaWaveMob> mobs,
-        @NotNull Set<String> amplifiers
+        @NotNull Set<ArenaWaveMob> mobs
     ) {
         this.arenaConfig = arenaConfig;
         this.id = id.toLowerCase();
         this.mobs = new HashSet<>(mobs);
-        this.amplifiers = new HashSet<>(amplifiers);
     }
 
     @Override
@@ -46,9 +43,9 @@ public class ArenaWave implements ArenaChild, IEditable, ICleanable, IPlaceholde
 
     @Override
     @NotNull
-    public WaveSettingsEditor getEditor() {
+    public WaveMobsEditor getEditor() {
         if (this.editor == null) {
-            this.editor = new WaveSettingsEditor(this);
+            this.editor = new WaveMobsEditor(this);
         }
         return this.editor;
     }
@@ -59,7 +56,6 @@ public class ArenaWave implements ArenaChild, IEditable, ICleanable, IPlaceholde
         return str -> str
             .replace(Placeholders.ARENA_WAVE_ID, this.getId())
             .replace(Placeholders.ARENA_WAVE_MOBS, String.join(DELIMITER_DEFAULT, this.getMobs().stream().map(ArenaWaveMob::getMobId).toList()))
-            .replace(Placeholders.ARENA_WAVE_AMPLIFIERS, String.join(", ", this.getAmplifiers()))
             ;
     }
 
@@ -82,10 +78,5 @@ public class ArenaWave implements ArenaChild, IEditable, ICleanable, IPlaceholde
     @NotNull
     public List<ArenaWaveMob> getMobsByChance() {
         return this.getMobs().stream().filter(mob -> mob.getAmount() > 0 && Rnd.chance(mob.getChance())).toList();
-    }
-
-    @NotNull
-    public Set<String> getAmplifiers() {
-        return amplifiers;
     }
 }

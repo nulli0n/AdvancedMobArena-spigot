@@ -1,5 +1,6 @@
 package su.nightexpress.ama.arena.util;
 
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;
@@ -7,7 +8,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.utils.EffectUtil;
+import su.nexmedia.engine.api.particle.SimpleParticle;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -184,14 +185,14 @@ public class ArenaCuboid {
             World world = this.min.getWorld();
             if (world == null) return;
 
-            Particle particle = Particle.REDSTONE;
-            String data = "255,0,0";
+            Particle.DustOptions dustOptions = new Particle.DustOptions(Color.RED, 1f);
+            SimpleParticle particle = SimpleParticle.of(Particle.REDSTONE, dustOptions);
 
             for (Vector[] point : this.sides) {
                 for (Vector position : this.traverse(point[0], point[1])) {
                     position = this.min.toVector().clone().add(position);
                     Location location = position.toLocation(world);
-                    EffectUtil.playEffect(player, location, particle, data, 0, 0, 0, 0.1, 0);
+                    particle.play(player, location, 0.15, 0);
                 }
             }
         }

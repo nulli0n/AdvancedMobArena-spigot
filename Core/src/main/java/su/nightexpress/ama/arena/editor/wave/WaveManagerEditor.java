@@ -11,43 +11,32 @@ import su.nexmedia.engine.api.menu.MenuItem;
 import su.nexmedia.engine.api.menu.MenuItemType;
 import su.nexmedia.engine.editor.AbstractEditorMenu;
 import su.nexmedia.engine.editor.EditorManager;
+import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.ItemUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.wave.ArenaWaveManager;
 import su.nightexpress.ama.config.Lang;
+import su.nightexpress.ama.editor.ArenaEditorHub;
 import su.nightexpress.ama.editor.ArenaEditorType;
-import su.nightexpress.ama.editor.ArenaEditorUtils;
 
 import java.util.Map;
 
 public class WaveManagerEditor extends AbstractEditorMenu<AMA, ArenaWaveManager> {
 
     private WavesListEditor            wavesListEditor;
-    private WavesGradualSettingsEditor editorGradual;
-    private WavesAmplifiersEditor      editorAmplificators;
+    private WavesGradualSettingsEditor gradualEditor;
 
     public WaveManagerEditor(@NotNull ArenaWaveManager waveManager) {
-        super(waveManager.plugin(), waveManager, ArenaEditorUtils.TITLE_WAVE_EDITOR, 54);
+        super(waveManager.plugin(), waveManager, ArenaEditorHub.TITLE_WAVE_EDITOR, 54);
 
         EditorInput<ArenaWaveManager, ArenaEditorType> input = (player, waves, type, e) -> {
-            String msg = StringUtil.color(e.getMessage());
+            String msg = e.getMessage();
             switch (type) {
-                case WAVES_CHANGE_DELAY_FIRST -> {
-                    int delay = StringUtil.getInteger(msg, 5);
-                    waves.setDelayFirst(delay);
-                }
-                case WAVES_CHANGE_DELAY_DEFAULT -> {
-                    int delay = StringUtil.getInteger(msg, 5);
-                    waves.setDelayDefault(delay);
-                }
-                case WAVES_CHANGE_FINAL_WAVE -> {
-                    int wave = StringUtil.getInteger(msg, 25);
-                    waves.setFinalWave(wave);
-                }
-                default -> {}
+                case WAVES_CHANGE_DELAY_FIRST -> waves.setDelayFirst(StringUtil.getInteger(Colorizer.strip(msg), 0));
+                case WAVES_CHANGE_DELAY_DEFAULT -> waves.setDelayDefault(StringUtil.getInteger(Colorizer.strip(msg), 0));
+                case WAVES_CHANGE_FINAL_WAVE -> waves.setFinalWave(StringUtil.getInteger(Colorizer.strip(msg), 0));
             }
-
             waves.save();
             return true;
         };
@@ -63,29 +52,27 @@ public class WaveManagerEditor extends AbstractEditorMenu<AMA, ArenaWaveManager>
                     case WAVES_CHANGE_DELAY -> {
                         if (e.isLeftClick()) {
                             EditorManager.startEdit(player, waveManager, ArenaEditorType.WAVES_CHANGE_DELAY_FIRST, input);
-                            EditorManager.tip(player, plugin.getMessage(Lang.Editor_Arena_Waves_Enter_Delay_First).getLocalized());
+                            EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_SECONDS).getLocalized());
                         }
                         else if (e.isRightClick()) {
                             EditorManager.startEdit(player, waveManager, ArenaEditorType.WAVES_CHANGE_DELAY_DEFAULT, input);
-                            EditorManager.tip(player, plugin.getMessage(Lang.Editor_Arena_Waves_Enter_Delay_Default).getLocalized());
+                            EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_SECONDS).getLocalized());
                         }
                         player.closeInventory();
                     }
                     case WAVES_CHANGE_FINAL_WAVE -> {
                         if (e.isRightClick()) {
-                            waveManager.setFinalWave(-1);
+                            this.object.setFinalWave(-1);
                             this.object.save();
                             this.open(player, 1);
                             break;
                         }
                         EditorManager.startEdit(player, waveManager, type2, input);
-                        EditorManager.tip(player, plugin.getMessage(Lang.Editor_Arena_Waves_Enter_FinalWave).getLocalized());
+                        EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NUMBER).getLocalized());
                         player.closeInventory();
                     }
-                    case WAVES_CHANGE_GRADUAL -> this.getEditorGradual().open(player, 1);
-                    case WAVES_CHANGE_WAVES -> this.getEditorWaveList().open(player, 1);
-                    case WAVES_CHANGE_AMPLIFIERS -> this.getEditorAmplificators().open(player, 1);
-                    default -> {}
+                    case WAVES_CHANGE_GRADUAL -> this.getGradualEditor().open(player, 1);
+                    case WAVES_CHANGE_WAVES -> this.getWavesListEditor().open(player, 1);
                 }
             }
         };
@@ -99,13 +86,9 @@ public class WaveManagerEditor extends AbstractEditorMenu<AMA, ArenaWaveManager>
             this.wavesListEditor.clear();
             this.wavesListEditor = null;
         }
-        if (this.editorGradual != null) {
-            this.editorGradual.clear();
-            this.editorGradual = null;
-        }
-        if (this.editorAmplificators != null) {
-            this.editorAmplificators.clear();
-            this.editorAmplificators = null;
+        if (this.gradualEditor != null) {
+            this.gradualEditor.clear();
+            this.gradualEditor = null;
         }
         super.clear();
     }
@@ -115,13 +98,12 @@ public class WaveManagerEditor extends AbstractEditorMenu<AMA, ArenaWaveManager>
         map.put(ArenaEditorType.WAVES_CHANGE_DELAY, 29);
         map.put(ArenaEditorType.WAVES_CHANGE_FINAL_WAVE, 33);
         map.put(ArenaEditorType.WAVES_CHANGE_WAVES, 31);
-        map.put(ArenaEditorType.WAVES_CHANGE_AMPLIFIERS, 15);
         map.put(ArenaEditorType.WAVES_CHANGE_GRADUAL, 13);
         map.put(MenuItemType.RETURN, 49);
     }
 
     @NotNull
-    public WavesListEditor getEditorWaveList() {
+    public WavesListEditor getWavesListEditor() {
         if (this.wavesListEditor == null) {
             this.wavesListEditor = new WavesListEditor(this.object);
         }
@@ -129,19 +111,11 @@ public class WaveManagerEditor extends AbstractEditorMenu<AMA, ArenaWaveManager>
     }
 
     @NotNull
-    public WavesGradualSettingsEditor getEditorGradual() {
-        if (this.editorGradual == null) {
-            this.editorGradual = new WavesGradualSettingsEditor(this.object);
+    public WavesGradualSettingsEditor getGradualEditor() {
+        if (this.gradualEditor == null) {
+            this.gradualEditor = new WavesGradualSettingsEditor(this.object);
         }
-        return this.editorGradual;
-    }
-
-    @NotNull
-    public WavesAmplifiersEditor getEditorAmplificators() {
-        if (this.editorAmplificators == null) {
-            this.editorAmplificators = new WavesAmplifiersEditor(this.object);
-        }
-        return this.editorAmplificators;
+        return this.gradualEditor;
     }
 
     @Override

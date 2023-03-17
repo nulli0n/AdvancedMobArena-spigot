@@ -6,6 +6,7 @@ import su.nexmedia.engine.api.lang.LangKey;
 import su.nexmedia.engine.lang.EngineLang;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.type.LeaveReason;
+import su.nightexpress.ama.currency.CurrencyId;
 import su.nightexpress.ama.hook.HookId;
 
 public class Lang extends EngineLang {
@@ -133,7 +134,7 @@ public class Lang extends EngineLang {
     public static final LangKey ARENA_SCHEDULER_CLOSE_ANNOUNCE = LangKey.of("Arena.Scheduler.Close.Announce", "&7Arena &c" + Placeholders.ARENA_NAME + "&7 have been closed!");
 
     public static final LangKey Arena_Game_Notify_Start  = new LangKey("Arena.Game.Notify.Start", "{message: ~type: TITLES; ~fadeIn: 10; ~stay: 40; ~fadeOut: 10; ~sound: ENTITY_ENDERMAN_TELEPORT;}&a&lYou have joined the arena! \n &2&lPickup your weapons and fight!");
-    public static final LangKey Arena_Game_Notify_Reward = new LangKey("Arena.Game.Notify.Reward", "You recieved reward: &a%reward_name%");
+    public static final LangKey ARENA_GAME_NOTIFY_REWARD = new LangKey("Arena.Game.Notify.Reward", "You recieved reward: &a" + Placeholders.REWARD_NAME);
 
     public static final LangKey Arena_Game_Announce_End   = new LangKey("Arena.Game.Announce.End", "Game on the arena &a%arena_name% &7has ended. Type &a/ama join &a%arena_id% &7to play!");
     public static final LangKey Arena_Game_Announce_Start = new LangKey("Arena.Game.Announce.Start", "Arena &a%arena_name% &7will start in &2%time% &7seconds. Type &a/ama join &a%arena_id% &7to join!");
@@ -181,149 +182,84 @@ public class Lang extends EngineLang {
     public static final LangKey Kit_Select_Error_Limit        = new LangKey("Kit.Select.Error.Limit", "You can not use this kit, because there is already enough players with it.");
     public static final LangKey Kit_Select_Success            = new LangKey("Kit.Select.Success", "You choosen &a%kit_name%&7 as your kit.");
 
-    @Deprecated
-    public static final LangKey Shop_Notify_NewItems            = new LangKey("Shop.Notify.NewItems", "&aNew items appeared in the shop!");
-    @Deprecated
-    public static final LangKey Shop_Buy_Success                = new LangKey("Shop.Buy.Success", "You successfully bought &a%shop_product_name% &7for &a%shop_product_price%7!");
-    @Deprecated
-    public static final LangKey Shop_Buy_Error_NoMoney          = new LangKey("Shop.Buy.Error.NoMoney", "&cYou don't have enough money to buy &e%shop_product_name%&c!");
-    @Deprecated
-    public static final LangKey Shop_Buy_Error_Locked           = new LangKey("Shop.Buy.Error.Locked", "&cThis item is not available yet!");
-    @Deprecated
-    public static final LangKey Shop_Buy_Error_BadKit           = new LangKey("Shop.Buy.Error.BadKit", "&cThis item is not available for your kit!");
-    public static final LangKey SHOP_OPEN_ERROR_LOCKED          = new LangKey("Shop.Open.Error.Locked", "&cShop is not available yet!");
+    public static final LangKey SHOP_OPEN_ERROR_LOCKED              = LangKey.of("Shop.Open.Error.Locked", "&cShop is not available yet!");
     public static final LangKey SHOP_OPEN_ERROR_DISABLED        = LangKey.of("Shop.Open.Error.Disabled", "&cShop is disabled on this arena.");
-    public static final LangKey SHOP_CATEGORY_OPEN_ERROR_LOCKED = new LangKey("Shop.Category.Open.Error.Locked", "&cShop Category &e%category_name%&c is not available yet!");
+    public static final LangKey SHOP_CATEGORY_OPEN_ERROR_LOCKED = LangKey.of("Shop.Category.Open.Error.Locked", "&cSorry, but this category is still locked!");
+    public static final LangKey SHOP_CATEGORY_OPEN_ERROR_UNAVAILABLE = LangKey.of("Shop.Category.Open.Error.Unavailable", "&cSorry, but you can't use this category!");
+    public static final LangKey SHOP_PRODUCT_PURCHASE                = LangKey.of("Shop.Product.Purchase", "You purchased &a" + Placeholders.SHOP_PRODUCT_NAME + " &7for &a" + Placeholders.SHOP_PRODUCT_PRICE + "&7!");
+    public static final LangKey SHOP_PRODUCT_ERROR_LOCKED            = LangKey.of("Shop.Product.Error.Locked", "&cSorry, but this product is still locked!");
+    public static final LangKey SHOP_PRODUCT_ERROR_UNAVAILABLE = LangKey.of("Shop.Product.Error.Unavailable", "&cSorry, but you can't use this product!");
+    public static final LangKey SHOP_PRODUCT_ERROR_NOT_ENOUGH_FUNDS = LangKey.of("Shop.Product.Error.NotEnoughFunds", "&cYou need &e" + Placeholders.SHOP_PRODUCT_PRICE + "&c to purchase " + Placeholders.SHOP_PRODUCT_NAME + "&c!");
 
-    @Deprecated
-    public static final LangKey Editor_Tip_Triggers = new LangKey("Editor.Tip.Triggers", """
-        {message: ~prefix: false;}
-        &7
-        &b&lTrigger Tips:
-        &2▸ &aMain Syntax: &2<Trigger_Type> <Value(s)>
-        &2▸ &aGroup Syntax: &2<Trigger_Type> <Value(s) OR Value(s) OR Value(s)...>
-        &2▸ &aExample #1: &2WAVE_START %5,!10
-        &2▸ &aExample #2: &2WAVE_START %2 OR %5 OR >15
-        &2▸ &aExample #3: &2WAVE_START !%5,>10
-        &7
-        &b&lValue Operators:
-        &6▸ &ePercent (%): &6Means each X number.
-        &dExample #1: &bWAVE_START %5 &7- Each 5th wave = 5/10/15/20/etc.
-        &7
-        &6▸ &eGreater/Smaller (> or <): &6Means greater or smaller than X number.
-        &dExample #1: &bWAVE_START >10,<20 &7- Any wave above 10th and below 20th.
-        &dExample #2: &bWAVE_START >10 OR <5 &7- Any wave above 10th or below 5th.
-        &7
-        &6▸ &eNegate (!): &6Any except X value.
-        &dExample #1: &bWAVE_START %5,!10 &7- Each 5th wave, but 10th.
-        &dExample #2: &bWAVE_START !%5 &7- Each NOT 5th wave = 1/2/3/4/6/7/8/9/11/etc.
-        &dExample #3: &bREGION_UNLOCKED !my_region &7- Any region except 'my_region'.
-        &7
-        &bList of all available trigger types is below.
-        &dFor more details please visit &aPlugin Wiki
-        """);
+    public static final LangKey EDITOR_GENERIC_ENTER_CURRENCY    = LangKey.of("Editor.Generic.Enter.Currency", "&7Enter &a[Currency]");
+    public static final LangKey EDITOR_GENERIC_ENTER_NAME        = LangKey.of("Editor.Generic.Enter.Name", "&7Enter &a[Display Name]");
+    public static final LangKey EDITOR_GENERIC_ENTER_DESCRIPTION = LangKey.of("Editor.Generic.Enter.Description", "&7Enter &a[Description]");
+    public static final LangKey EDITOR_GENERIC_ENTER_COMMAND     = LangKey.of("Editor.Generic.Enter.Command", "&7Enter &a[Command]");
+    public static final LangKey EDITOR_GENERIC_ENTER_NUMBER      = LangKey.of("Editor.Generic.Enter.Number", "&7Enter &a[Number]");
+    public static final LangKey EDITOR_GENERIC_ENTER_PERCENT     = LangKey.of("Editor.Generic.Enter.Percent", "&7Enter &a[Percent Amount]");
+    public static final LangKey EDITOR_GENERIC_ENTER_SECONDS     = LangKey.of("Editor.Generic.Enter.Seconds", "&7Enter &a[Seconds Amount]");
 
-    public static final LangKey Editor_Enter_Triggers            = new LangKey("Editor.Enter.Triggers", "&7Enter trigger type and value(s)...");
-    public static final LangKey Editor_Error_Triggers            = new LangKey("Editor.Error.Triggers", "&7Invalid trigger &ctype &7or &cvalue!");
-    public static final LangKey EDITOR_GENERIC_ENTER_CURRENCY    = LangKey.of("Editor.Generic.Enter.Currency", "&7Enter &acurrency&7 id...");
-    public static final LangKey EDITOR_GENERIC_ENTER_NAME        = new LangKey("Editor.Generic.Enter.Name", "&7Enter display &aname&7...");
-    public static final LangKey EDITOR_GENERIC_ENTER_DESCRIPTION = new LangKey("Editor.Generic.Enter.Description", "&7Enter &adescription&7...");
-
-    public static final LangKey Editor_Arena_Tip_Create         = new LangKey("Editor.Arena.Tip.Create", "&7Enter &aunqiue &7arena &aidentifier&7...");
-    public static final LangKey Editor_Arena_Error_Exist        = new LangKey("Editor.Arena.Error.Exist", "&cArena already exists!");
-    public static final LangKey EDITOR_ARENA_ENTER_NAME         = LangKey.of("Editor.Arena.Enter.Name", "&7Enter arena &aname&7...");
-    public static final LangKey EDITOR_ARENA_ENTER_SCHEDULER_TIME = new LangKey("Editor.Arena.Enter.SchedulerTime", "&7Syntax: &a<day> <time>&8 | &aMonday 15:30:00");
-    public static final LangKey EDITOR_ARENA_ENTER_JOIN_PAYMENT = new LangKey("Editor.Arena.Enter.JoinPayment", "&7Syntax: &a<currency> <amount>&8 | &avault 500");
-    public static final LangKey EDITOR_ARENA_ENTER_JOIN_LEVEL = new LangKey("Editor.Arena.Enter.JoinLevel", "&7Syntax: &a<plugin> <value>&8 | &a" + HookId.MMOCORE + " 10");
+    public static final LangKey EDITOR_ARENA_ENTER_ID             = LangKey.of("Editor.Arena.Enter.Id", "&7Enter &a[Arena Identifier]");
+    public static final LangKey EDITOR_ARENA_ENTER_SCHEDULER_TIME = LangKey.of("Editor.Arena.Enter.SchedulerTime", "&7Enter &a[Day] [Time] &7| &aMonday 15:30");
+    public static final LangKey EDITOR_ARENA_ENTER_JOIN_PAYMENT   = LangKey.of("Editor.Arena.Enter.JoinPayment", "&7Enter &a[Currency] [Amount] &7| &a" + CurrencyId.VAULT + " 500");
+    public static final LangKey EDITOR_ARENA_ENTER_JOIN_LEVEL     = LangKey.of("Editor.Arena.Enter.JoinLevel", "&7Enter &a[Plugin] [Value] &7| &a" + HookId.MMOCORE + " 10");
+    public static final LangKey EDITOR_ARENA_ERROR_EXISTS         = LangKey.of("Editor.Arena.Error.Exists", "&cArena is already exists!");
     public static final LangKey EDITOR_ARENA_ERROR_LEVEL_PROVIDER = LangKey.of("Editor.Arena.Error.Level_Provider", "&cSuch plugin is not supported!");
     public static final LangKey EDITOR_ARENA_ERROR_SCHEDULER_TIME = LangKey.of("Editor.Arena.Error.SchedulerTime", "&cInvalid day/time!");
 
-    public static final LangKey Editor_Arena_Gameplay_Enter_Timeleft             = new LangKey("Editor.Arena.Gameplay.Enter.Timeleft", "&7Enter time &c(in minutes)");
-    public static final LangKey Editor_Arena_Gameplay_Enter_LobbyTime            = new LangKey("Editor.Arena.Gameplay.Enter.LobbyTime", "&7Enter time &c(in seconds)");
-    public static final LangKey Editor_Arena_Gameplay_Enter_ScoreboardId         = new LangKey("Editor.Arena.Gameplay.Enter.ScoreboardId", "&7Enter &ascoreboard&7 id...");
-    public static final LangKey Editor_Arena_Gameplay_Enter_Mob_Highlight_Amount = new LangKey("Editor.Arena.Gameplay.Enter.Mob.Highlight.Amount", "&7Enter mob &aamount percent&7...");
-    public static final LangKey Editor_Arena_Gameplay_Enter_Players_Lives        = new LangKey("Editor.Arena.Gameplay.Enter.Players.Lives", "&7Enter lives amount");
-    public static final LangKey Editor_Arena_Gameplay_Enter_Players_MinMax       = new LangKey("Editor.Arena.Gameplay.Enter.Players.MinMax", "&7Enter players amount");
-    public static final LangKey Editor_Arena_Gameplay_Enter_BannedItems          = new LangKey("Editor.Arena.Gameplay.Enter.BannedItems", "&7Enter &amaterial &7name...");
-    public static final LangKey Editor_Arena_Gameplay_Enter_AllowedSpawnReason   = new LangKey("Editor.Arena.Gameplay.Enter.AllowedSpawnReason", "&7Enter &aspawn reason&7...");
-    public static final LangKey Editor_Arena_Gameplay_Enter_Commands_AddWhite    = new LangKey("Editor.Arena.Gameplay.Enter.Commands.AddWhite", "&7Enter a command");
-    public static final LangKey Editor_Arena_Gameplay_Enter_Kits_AddLimit        = new LangKey("Editor.Arena.Gameplay.Enter.Kits.AddLimit", "&7Enter a limit like: &a2 warrior");
-    public static final LangKey Editor_Arena_Gameplay_Enter_Kits_AddAllowed      = new LangKey("Editor.Arena.Gameplay.Enter.Kits.AddAllowed", "&7Enter a kit id");
-    public static final LangKey Editor_Arena_Gameplay_Error_BannedItems          = new LangKey("Editor.Arena.Gameplay.Error.BannedItems", "&7Invalid material!");
-    public static final LangKey Editor_Arena_Gameplay_Error_Kits_InvalidKit      = new LangKey("Editor.Arena.Gameplay.Error.Kits.InvalidKit", "&7Invalid kit!");
-    public static final LangKey Editor_Arena_Gameplay_Error_Kits_InvalidLimit    = new LangKey("Editor.Arena.Gameplay.Error.Kits.InvalidLimit", "&7Use format like: &c2 warrior");
+    public static final LangKey EDITOR_ARENA_GAMEPLAY_ENTER_SCOREBOARD_ID        = LangKey.of("Editor.Arena.Gameplay.Enter.ScoreboardId", "&7Enter &a[Scoreboard Id]");
+    public static final LangKey EDITOR_ARENA_GAMEPLAY_ENTER_BANNED_ITEMS         = LangKey.of("Editor.Arena.Gameplay.Enter.BannedItem", "&7Enter &a[Material Name]");
+    public static final LangKey EDITOR_ARENA_GAMEPLAY_ENTER_ALLOWED_SPAWN_REASON = LangKey.of("Editor.Arena.Gameplay.Enter.AllowedSpawnReason", "&7Enter &a[Spawn Reason]");
+    public static final LangKey EDITOR_ARENA_GAMEPLAY_ENTER_KIT_LIMIT            = LangKey.of("Editor.Arena.Gameplay.Enter.KitLimit", "&7Enter [Kit Id] [Limit] &7| &awarrior 3");
 
-    public static final LangKey Editor_Arena_Waves_Enter_Delay_First   = new LangKey("Editor.Arena.Waves.Enter.Delay.First", "&7Enter &afirst&7 wave delay...");
-    public static final LangKey Editor_Arena_Waves_Enter_Delay_Default = new LangKey("Editor.Arena.Waves.Enter.Delay.Default", "&7Enter &adefault&7 wave delay...");
-    public static final LangKey Editor_Arena_Waves_Enter_FinalWave     = new LangKey("Editor.Arena.Waves.Enter.FinalWave", "&7Enter &afinal wave&7...");
+    public static final LangKey EDITOR_ARENA_WAVES_ENTER_WAVE_ID     = LangKey.of("Editor.Arena.Waves.Enter.WaveId", "&7Enter &a[Wave Identifier]");
+    public static final LangKey EDITOR_ARENA_WAVES_ENTER_MOB_ID      = LangKey.of("Editor.Arena.Waves.Enter.MobId", "&7Enter &a[Mob Identifier]");
+    public static final LangKey EDITOR_ARENA_WAVES_ERROR_WAVE_EXISTS = LangKey.of("Editor.Arena.Waves.Error.Wave_Exists", "&сWave is already exists!");
+    public static final LangKey EDITOR_ARENA_WAVES_ERROR_MOB_INVALID = LangKey.of("Editor.Arena.Waves.Error.InvalidMob", "&cMob not found! Wrong Mob Provider?");
 
-    public static final LangKey Editor_Arena_Waves_Enter_Gradual_First_Percent    = new LangKey("Editor.Arena.Waves.Enter.Gradual.First.Percent", "&7Enter first spawn &apercent&7...");
-    public static final LangKey Editor_Arena_Waves_Enter_Gradual_Next_Percent     = new LangKey("Editor.Arena.Waves.Enter.Gradual.Next.Percent", "&7Enter next spawn &apercent&7...");
-    public static final LangKey Editor_Arena_Waves_Enter_Gradual_Next_Interval    = new LangKey("Editor.Arena.Waves.Enter.Gradual.Next.Interval", "&7Enter next spawn &ainterval&7...");
-    public static final LangKey Editor_Arena_Waves_Enter_Gradual_Next_KillPercent = new LangKey("Editor.Arena.Waves.Enter.Gradual.Next.KillPercent", "&7Enter next spawn kill &apercent&7...");
+    public static final LangKey EDITOR_ARENA_SHOP_ENTER_PRODUCT_ID      = LangKey.of("Editor.Arena.Shop.Enter.ProductId", "&7Enter &a[Product Identifier]");
+    public static final LangKey EDITOR_ARENA_SHOP_ENTER_CATEGORY_ID     = LangKey.of("Editor.Arena.Shop.Enter.CategoryId", "&7Enter &a[Category Identifier]");
+    public static final LangKey EDITOR_ARENA_SHOP_ENTER_PRODUCT_PRICE   = LangKey.of("Editor.Arena.Shop.Enter.Price", "&7Enter &a[Price]");
+    public static final LangKey EDITOR_ARENA_SHOP_ERROR_PRODUCT_EXISTS  = LangKey.of("Editor.Arena.Shop.Error.Product_Exists", "&cProduct is already exists!");
+    public static final LangKey EDITOR_ARENA_SHOP_ERROR_CATEGORY_EXISTS = LangKey.of("Editor.Arena.Shop.Error.Category_Exists", "&cCategory is already exists!");
 
-    public static final LangKey Editor_Arena_Waves_Enter_Wave_Create         = new LangKey("Editor.Arena.Waves.Enter.Wave.Create", "&7Enter &aunique &7wave &aidentifier&7...");
-    @Deprecated public static final LangKey Editor_Arena_Waves_Enter_Mob_Create          = new LangKey("Editor.Arena.Waves.Enter.Mob.Create", "&7Enter mob &aidentifier&7...");
-    public static final LangKey Editor_Arena_Waves_Enter_Mob_Amount          = new LangKey("Editor.Arena.Waves.Enter.Mob.Amount", "&7Enter mob &astart amount&7...");
-    public static final LangKey Editor_Arena_Waves_Enter_Mob_Level           = new LangKey("Editor.Arena.Waves.Enter.Mob.Level", "&7Enter mob &astart level&7...");
-    public static final LangKey Editor_Arena_Waves_Enter_Mob_Chance          = new LangKey("Editor.Arena.Waves.Enter.Mob.Chance", "&7Enter mob &aspawn chance&7...");
-    public static final LangKey Editor_Arena_Waves_Enter_Amplificator_Create = new LangKey("Editor.Arena.Waves.Enter.Amplificator.Create", "&7Enter &aunique &7amplificator &aidentifier&7...");
-    public static final LangKey Editor_Arena_Waves_Enter_Amplificator_Value  = new LangKey("Editor.Arena.Waves.Enter.Amplificator.Value", "&7Enter amplificator &avalue&7...");
-
-    public static final LangKey Editor_Arena_Waves_Error_Wave_Exist         = new LangKey("Editor.Arena.Waves.Error.Wave.Exist", "&7Wave already exist!");
-    @Deprecated public static final LangKey Editor_Arena_Waves_Error_Mob_Exist          = new LangKey("Editor.Arena.Waves.Error.Mob.Exist", "&7Mob already exist!");
-    public static final LangKey Editor_Arena_Waves_Error_Mob_Invalid        = new LangKey("Editor.Arena.Waves.Error.Mob.Invalid", "&7No such Arena Mob or Mythic Mob!");
-    public static final LangKey Editor_Arena_Waves_Error_Amplificator_Exist = new LangKey("Editor.Arena.Waves.Error.Amplificator.Exist", "&7Amplificator already exist!");
-    public static final LangKey Editor_Arena_Waves_Error_Amplificator_Invalid = new LangKey("Editor.Arena.Waves.Error.Amplificator.Invalid", "&7Amplifier does not exist!");
-
-    public static final LangKey Editor_Arena_Shop_Enter_Product_Create      = new LangKey("Editor.Arena.Shop.Enter.Product.Create", "&7Enter &aunique &7product &aidentifier&7...");
-    public static final LangKey Editor_Arena_Shop_Enter_Product_Price       = new LangKey("Editor.Arena.Shop.Enter.Product.Price", "&7Enter product &aprice&7...");
-    public static final LangKey Editor_Arena_Shop_Enter_Product_Command     = new LangKey("Editor.Arena.Shop.Enter.Product.Command", "&7Enter a command...");
-    public static final LangKey Editor_Arena_Shop_Enter_Product_RequiredKit = new LangKey("Editor.Arena.Shop.Enter.Product.RequiredKit", "&7Enter &akit identifier&7...");
-    public static final LangKey Editor_Arena_Shop_Error_Product_Exist       = new LangKey("Editor.Arena.Shop.Error.Product.Exist", "&cProduct already exist!");
-
-    public static final LangKey EDITOR_ARENA_SCRIPT_ENTER_CATEGORY = LangKey.of("Editor.Arena.Script.Enter.Category", "&7Enter &a[Category Name]");
-    public static final LangKey EDITOR_ARENA_SCRIPT_ENTER_SCRIPT        = LangKey.of("Editor.Arena.Script.Enter.Script", "&7Enter &a[Script Name]");
-    public static final LangKey EDITOR_ARENA_SCRIPT_ENTER_ACTION_NAME      = LangKey.of("Editor.Arena.Script.Enter.Action.Name", "&7Enter &a[Action Name]");
-    public static final LangKey EDITOR_ARENA_SCRIPT_ENTER_ACTION_PARAMETER = LangKey.of("Editor.Arena.Script.Enter.Action.Parameter", "&7Enter &a[Parameter] [Value]");
-    public static final LangKey EDITOR_ARENA_SCRIPT_ENTER_CONDITION_SECTION      = LangKey.of("Editor.Arena.Script.Enter.Condition.Section", "&7Enter &a[Section Name]");
-    public static final LangKey EDITOR_ARENA_SCRIPT_ENTER_CONDITION_VALUE      = LangKey.of("Editor.Arena.Script.Enter.Condition.Value", "&7Enter &a[Condition] [Operator] [Value]");
-    public static final LangKey EDITOR_ARENA_SCRIPT_ERROR_INVALID_ACTION = LangKey.of("Editor.Arena.Script.Error.InvalidAction", "&cInvalid action!");
+    public static final LangKey EDITOR_ARENA_SCRIPT_ENTER_CATEGORY          = LangKey.of("Editor.Arena.Script.Enter.Category", "&7Enter &a[Category Name]");
+    public static final LangKey EDITOR_ARENA_SCRIPT_ENTER_SCRIPT            = LangKey.of("Editor.Arena.Script.Enter.Script", "&7Enter &a[Script Name]");
+    public static final LangKey EDITOR_ARENA_SCRIPT_ENTER_ACTION_NAME       = LangKey.of("Editor.Arena.Script.Enter.Action.Name", "&7Enter &a[Action Name]");
+    public static final LangKey EDITOR_ARENA_SCRIPT_ENTER_ACTION_PARAMETER  = LangKey.of("Editor.Arena.Script.Enter.Action.Parameter", "&7Enter &a[Parameter] [Value]");
+    public static final LangKey EDITOR_ARENA_SCRIPT_ENTER_CONDITION_SECTION = LangKey.of("Editor.Arena.Script.Enter.Condition.Section", "&7Enter &a[Section Name]");
+    public static final LangKey EDITOR_ARENA_SCRIPT_ENTER_CONDITION_VALUE   = LangKey.of("Editor.Arena.Script.Enter.Condition.Value", "&7Enter &a[Condition] [Operator] [Value]");
+    public static final LangKey EDITOR_ARENA_SCRIPT_ERROR_INVALID_ACTION    = LangKey.of("Editor.Arena.Script.Error.InvalidAction", "&cInvalid action!");
     public static final LangKey EDITOR_ARENA_SCRIPT_ERROR_INVALID_PARAMETER = LangKey.of("Editor.Arena.Script.Error.InvalidParameter", "&cInvalid parameter!");
     public static final LangKey EDITOR_ARENA_SCRIPT_ERROR_INVALID_CONDITION = LangKey.of("Editor.Arena.Script.Error.InvalidCondition", "&cInvalid condition!");
-    public static final LangKey EDITOR_ARENA_SCRIPT_ERROR_INVALID_INPUT = LangKey.of("Editor.Arena.Script.Error.InvalidInput", "&cInvalid input!");
+    public static final LangKey EDITOR_ARENA_SCRIPT_ERROR_INVALID_INPUT     = LangKey.of("Editor.Arena.Script.Error.InvalidInput", "&cInvalid input!");
 
-    public static final LangKey Editor_Region_Enter_Create           = new LangKey("Editor.Region.Enter.Create", "&7Enter &aunique &7region identifier...");
-    public static final LangKey Editor_Region_Enter_Id               = new LangKey("Editor.Region.Enter.Id", "&7Enter region &aidentifier&7...");
-    public static final LangKey Editor_Region_Enter_Name             = new LangKey("Editor.Region.Enter.Name", "&7Enter region name...");
-    public static final LangKey Editor_Region_Error_Create           = new LangKey("Editor.Region.Error.Create", "&7Region already exists!");
-    public static final LangKey Editor_Region_Wave_Enter_Id          = new LangKey("Editor.Region.Wave.Enter.Id", "&7Enter &aarena wave &7identifier...");
-    public static final LangKey Editor_Region_Wave_Enter_SpawnerId   = new LangKey("Editor.Region.Wave.Enter.SpawnerId", "&7Enter &aspawner &7identifier...");
-    public static final LangKey Editor_Region_Wave_Enter_Create      = new LangKey("Editor.Region.Wave.Enter.Create", "&7Enter &aunique &7wave identifier");
-    public static final LangKey Editor_Region_Wave_Error_Create      = new LangKey("Editor.Region.Wave.Error.Create", "&7Wave already exist!");
-    public static final LangKey Editor_Region_Container_Enter_Amount = new LangKey("Editor.Region.Container.Enter.Amount", "&7Enter &aitems &7amount...");
+    public static final LangKey EDITOR_REGION_ENTER_ID     = LangKey.of("Editor.Region.Enter.Id", "&7Enter &a[Region Identifier]");
+    public static final LangKey EDITOR_REGION_ERROR_EXISTS = LangKey.of("Editor.Region.Error.Exists", "&cRegion is already exists!");
 
-    public static final LangKey Editor_Reward_Enter_Name    = new LangKey("Editor.Reward.Enter.Name", "&7Enter reward &aname&7...");
-    public static final LangKey Editor_Reward_Enter_Command = new LangKey("Editor.Reward.Enter.Command", "&7Enter a &acommand&7...");
-    public static final LangKey Editor_Reward_Enter_Chance  = new LangKey("Editor.Reward.Enter.Chance", "&7Enter reward &achance&7...");
+    public static final LangKey EDITOR_SUPPLY_CHEST_ENTER_ID      = LangKey.of("Editor.SupplyChest.Enter.Id", "&7Enter &a[Chest Identifier]");
+    public static final LangKey EDITOR_SUPPLY_CHEST_SET_CONTAINER = LangKey.of("Editor.SupplyChest.SetContainer", "&7Click on &a[Container]");
+    public static final LangKey EDITOR_SUPPLY_CHEST_ERROR_EXISTS  = LangKey.of("Editor.SupplyChest.Error.Exists", "&cSupply chest is already exists!");
 
-    public static final LangKey Editor_Spot_Enter_Id   = new LangKey("Editor.Spot.Enter.Id", "&7Enter &aunique&7 spot identifier...");
-    public static final LangKey Editor_Spot_Enter_Name = new LangKey("Editor.Spot.Enter.Name", "&7Enter spot name...");
-    public static final LangKey Editor_Spot_Error_Id   = new LangKey("Editor.Spot.Error.Id", "&7Such spot already exist!");
+    public static final LangKey EDITOR_REWARD_ENTER_ID    = LangKey.of("Editor.Reward.Enter.Id", "&7Enter &a[Reward Identifier]");
+    public static final LangKey EDITOR_REWARD_ERROR_EXIST = LangKey.of("Editor.Reward.Error.Exist", "&cReward is already exists!");
 
-    public static final LangKey Editor_Spot_State_Enter_Id       = new LangKey("Editor.Spot.State.Enter.Id", "&7Enter &aunique&7 state identifier...");
-    public static final LangKey Editor_Spot_State_Error_Id       = new LangKey("Editor.Spot.State.Error.Id", "&7Such state already exist!");
-    public static final LangKey Editor_Spot_State_Error_NoCuboid = new LangKey("Editor.Spot.State.Error.NoCuboid", "&cYou must set a spot cuboid!");
+    public static final LangKey EDITOR_SPOT_ENTER_ID     = LangKey.of("Editor.Spot.Enter.Id", "&7Enter &a[Spot Identifier]");
+    public static final LangKey EDITOR_SPOT_ERROR_EXISTS = LangKey.of("Editor.Spot.Error.Exists", "&cSpot is already exists!");
 
-    public static final LangKey Editor_Kit_Enter_Create  = new LangKey("Editor.Kit.Enter.Create", "&7Enter &aunique &7kit &aidentifier&7...");
-    public static final LangKey Editor_Kit_Enter_Name    = new LangKey("Editor.Kit.Enter.Name", "&7Enter new &aname&7...");
-    public static final LangKey Editor_Kit_Enter_Command = new LangKey("Editor.Kit.Enter.Command", "&7Enter &acommand&7...");
+    public static final LangKey EDITOR_SPOT_STATE_ENTER_ID        = LangKey.of("Editor.Spot.State.Enter.Id", "&7Enter &a[State Identifier]");
+    public static final LangKey EDITOR_SPOT_STATE_ERROR_EXISTS    = LangKey.of("Editor.Spot.State.Error.Exists", "&cState is already exists!");
+    public static final LangKey EDITOR_SPOT_STATE_ERROR_NO_CUBOID = LangKey.of("Editor.Spot.State.Error.NoCuboid", "&cYou must set a spot cuboid!");
+
+    public static final LangKey             EDITOR_KIT_ENTER_ID   = new LangKey("Editor.Kit.Enter.Create", "&7Enter &aunique &7kit &aidentifier&7...");
+    @Deprecated public static final LangKey Editor_Kit_Enter_Name = new LangKey("Editor.Kit.Enter.Name", "&7Enter new &aname&7...");
+    @Deprecated public static final LangKey Editor_Kit_Enter_Command = new LangKey("Editor.Kit.Enter.Command", "&7Enter &acommand&7...");
     public static final LangKey Editor_Kit_Enter_Effect  = new LangKey("Editor.Kit.Enter.Effect", "&7Enter &aEffect:Level&7...");
     public static final LangKey Editor_Kit_Enter_Cost    = new LangKey("Editor.Kit.Enter.Cost", "&7Enter &acost&7...");
     public static final LangKey Editor_Kit_Error_Exist   = new LangKey("Editor.Kit.Error.Exist", "&cKit already exists!");
 
     public static final LangKey Editor_Mob_Enter_Create        = new LangKey("Editor.Mob.Enter.Create", "&7Enter &aunique &7mob &aidentifier&7...");
-    public static final LangKey Editor_Mob_Enter_Name          = new LangKey("Editor.Mob.Enter.Name", "&7Enter &acustom &7mob &aname&7...");
+    @Deprecated public static final LangKey Editor_Mob_Enter_Name          = new LangKey("Editor.Mob.Enter.Name", "&7Enter &acustom &7mob &aname&7...");
     public static final LangKey Editor_Mob_Enter_Type          = new LangKey("Editor.Mob.Enter.Type", "&7Enter &aentity type&7...");
     public static final LangKey Editor_Mob_Enter_Level         = new LangKey("Editor.Mob.Enter.Level", "&7Enter &alevel&7 value...");
     public static final LangKey Editor_Mob_Enter_BossBar_Title = new LangKey("Editor.Mob.Enter.BossBar.Title", "&7Enter bossbar &atitle&7...");
@@ -340,24 +276,11 @@ public class Lang extends EngineLang {
     public static final LangKey Setup_Region_Spawn_Set            = new LangKey("Setup.Region.Spawn.Set", "&7Defined spawn location for &a%region_id% &7region!");
     public static final LangKey Setup_Region_Spawner_Add          = new LangKey("Setup.Region.Spawner.Add", "&7Added spawner to &a%region_id% &7region!");
     public static final LangKey Setup_Region_Spawner_Remove       = new LangKey("Setup.Region.Spawner.Remove", "&7Removed spawner from &a%region_id% &7region!");
-    public static final LangKey Setup_Region_Container_Add        = new LangKey("Setup.Region.Container.Add", "&7Added container to &a%region_id% &7region!");
-    public static final LangKey Setup_Region_Container_Remove     = new LangKey("Setup.Region.Container.Remove", "&7Removed container from &a%region_id% &7region!");
     public static final LangKey Setup_Region_Cuboid_Error_Overlap = new LangKey("Setup.Region.Cuboid.Error.Overlap", "&7This position is overlaps with &c%region_id% &7arena region!");
     public static final LangKey Setup_Region_Cuboid_Set           = new LangKey("Setup.Region.Cuboid.Set", "&7Set &a#%corner% &7corner for the &a%region_id% &7region!");
-    public static final LangKey Setup_Reigon_Cuboid_Preview       = new LangKey(
-        "Setup.Region.Cuboid.Preview", """
-        {message: ~prefix: false;}
-        &c&m----------------------------------------
-        &eYou defined new region position(s). The following changes will be made:
-        &c▸ &7Mob Spawners Lost: &c%spawners-lost%
-        &c▸ &7Region Containers Lost: &c%containers-lost%
-        &c▸ &7Region Spawn Location Lost: &c%spawn-lost%
-        &7
-        &eIf you want to cancel these changes simply use &cExit Tool&7.
-        &c&m----------------------------------------""");
     public static final LangKey Setup_Region_Error_Outside        = new LangKey("Setup.Region.Error.Outside", "&cLocation is outside of the editing region!");
 
-    public static final LangKey Setup_Spot_Cuboid_Error_Overlap = new LangKey("Setup.Spot.Cuboid.Error.Overlap", "&cThis location is overlaps with other &e%spot_id% &cspot!");
-    public static final LangKey Setup_Spot_Cuboid_Set           = new LangKey("Setup.Spot.Cuboid.Set", "&7Set &a#%corner% &7corner for the &a%spot_id% &7spot!");
-    public static final LangKey Setup_Spot_State_Error_Outside  = new LangKey("Setup.Spot.State.Error.Outside", "&cLocation is outside of the editing spot!");
+    public static final LangKey SETUP_SPOT_CUBOID_SET           = LangKey.of("Setup.Spot.Cuboid.Set", "&7Set &a#%corner% &7corner for the &a" + Placeholders.SPOT_ID + " &7spot!");
+    public static final LangKey SETUP_SPOT_CUBOID_ERROR_OVERLAP = LangKey.of("Setup.Spot.Cuboid.Error.Overlap", "&cThis location overlaps with &e" + Placeholders.SPOT_ID + " &cspot!");
+    public static final LangKey SETUP_SPOT_STATE_ERROR_OUTSIDE  = LangKey.of("Setup.Spot.State.Error.Outside", "&cLocation is outside of the editing spot!");
 }

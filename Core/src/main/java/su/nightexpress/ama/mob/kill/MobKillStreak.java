@@ -12,6 +12,7 @@ import su.nightexpress.ama.Placeholders;
 import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 
+@Deprecated
 public class MobKillStreak implements JOption.Writer {
 
     private final int                 amount;

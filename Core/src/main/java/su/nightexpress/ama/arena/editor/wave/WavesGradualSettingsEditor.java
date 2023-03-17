@@ -12,43 +12,30 @@ import su.nexmedia.engine.api.menu.MenuItem;
 import su.nexmedia.engine.api.menu.MenuItemType;
 import su.nexmedia.engine.editor.AbstractEditorMenu;
 import su.nexmedia.engine.editor.EditorManager;
+import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.ItemUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.wave.ArenaWaveManager;
 import su.nightexpress.ama.config.Lang;
+import su.nightexpress.ama.editor.ArenaEditorHub;
 import su.nightexpress.ama.editor.ArenaEditorType;
-import su.nightexpress.ama.editor.ArenaEditorUtils;
 
 import java.util.Map;
 
 public class WavesGradualSettingsEditor extends AbstractEditorMenu<AMA, ArenaWaveManager> {
 
     public WavesGradualSettingsEditor(@NotNull ArenaWaveManager waveManager) {
-        super(waveManager.getArena().plugin(), waveManager, ArenaEditorUtils.TITLE_WAVE_EDITOR, 45);
+        super(waveManager.getArena().plugin(), waveManager, ArenaEditorHub.TITLE_WAVE_EDITOR, 45);
 
         EditorInput<ArenaWaveManager, ArenaEditorType> input = (player, waves, type, e) -> {
-            String msg = StringUtil.colorOff(e.getMessage());
+            String msg = e.getMessage();
             switch (type) {
-                case WAVES_CHANGE_GRADUAL_FIRST_PERCENT -> {
-                    double value = StringUtil.getDouble(msg, 50D);
-                    waves.setGradualSpawnPercentFirst(value);
-                }
-                case WAVES_CHANGE_GRADUAL_NEXT_PERCENT -> {
-                    double value = StringUtil.getDouble(msg, 20D);
-                    waves.setGradualSpawnNextPercent(value);
-                }
-                case WAVES_CHANGE_GRADUAL_NEXT_INTERVAL -> {
-                    int value = StringUtil.getInteger(msg, 5);
-                    waves.setGradualSpawnNextInterval(value);
-                }
-                case WAVES_CHANGE_GRADUAL_NEXT_KILL_PERCENT -> {
-                    double value = StringUtil.getDouble(msg, 10D);
-                    waves.setGradualSpawnNextKillPercent(value);
-                }
-                default -> {}
+                case WAVES_CHANGE_GRADUAL_FIRST_PERCENT -> waves.setGradualSpawnPercentFirst(StringUtil.getDouble(Colorizer.strip(msg), 0D));
+                case WAVES_CHANGE_GRADUAL_NEXT_PERCENT -> waves.setGradualSpawnNextPercent(StringUtil.getDouble(Colorizer.strip(msg), 0D));
+                case WAVES_CHANGE_GRADUAL_NEXT_INTERVAL -> waves.setGradualSpawnNextInterval(StringUtil.getInteger(Colorizer.strip(msg), 0));
+                case WAVES_CHANGE_GRADUAL_NEXT_KILL_PERCENT -> waves.setGradualSpawnNextKillPercent(StringUtil.getDouble(Colorizer.strip(msg), 0D));
             }
-
             waves.save();
             return true;
         };
@@ -67,10 +54,10 @@ public class WavesGradualSettingsEditor extends AbstractEditorMenu<AMA, ArenaWav
                         this.open(player, 1);
                         return;
                     }
-                    case WAVES_CHANGE_GRADUAL_FIRST_PERCENT -> EditorManager.tip(player, plugin.getMessage(Lang.Editor_Arena_Waves_Enter_Gradual_First_Percent).getLocalized());
-                    case WAVES_CHANGE_GRADUAL_NEXT_PERCENT -> EditorManager.tip(player, plugin.getMessage(Lang.Editor_Arena_Waves_Enter_Gradual_Next_Percent).getLocalized());
-                    case WAVES_CHANGE_GRADUAL_NEXT_INTERVAL -> EditorManager.tip(player, plugin.getMessage(Lang.Editor_Arena_Waves_Enter_Gradual_Next_Interval).getLocalized());
-                    case WAVES_CHANGE_GRADUAL_NEXT_KILL_PERCENT -> EditorManager.tip(player, plugin.getMessage(Lang.Editor_Arena_Waves_Enter_Gradual_Next_KillPercent).getLocalized());
+                    case WAVES_CHANGE_GRADUAL_FIRST_PERCENT,
+                        WAVES_CHANGE_GRADUAL_NEXT_PERCENT,
+                        WAVES_CHANGE_GRADUAL_NEXT_KILL_PERCENT -> EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_PERCENT).getLocalized());
+                    case WAVES_CHANGE_GRADUAL_NEXT_INTERVAL -> EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_SECONDS).getLocalized());
                     default -> {return;}
                 }
                 EditorManager.startEdit(player, waveManager, type2, input);

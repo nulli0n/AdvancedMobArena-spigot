@@ -18,8 +18,8 @@ import su.nightexpress.ama.arena.script.action.*;
 import su.nightexpress.ama.arena.script.impl.ArenaScript;
 import su.nightexpress.ama.arena.script.impl.ScriptCategory;
 import su.nightexpress.ama.config.Lang;
+import su.nightexpress.ama.editor.ArenaEditorHub;
 import su.nightexpress.ama.editor.ArenaEditorType;
-import su.nightexpress.ama.editor.ArenaEditorUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +33,7 @@ public class ScriptActionsEditor extends AbstractEditorMenuAuto<AMA, ArenaScript
     private final ScriptCategory category;
 
     public ScriptActionsEditor(@NotNull ScriptCategory category, @NotNull ArenaScript script) {
-        super(script.plugin(), script, ArenaEditorUtils.TITLE_SCRIPT_EDITOR, 45);
+        super(script.plugin(), script, ArenaEditorHub.TITLE_SCRIPT_EDITOR, 45);
         this.category = category;
 
         EditorInput<ArenaScript, ArenaEditorType> input = (player, script1, type, e) -> {

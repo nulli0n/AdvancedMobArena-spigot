@@ -15,8 +15,8 @@ import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.config.Lang;
+import su.nightexpress.ama.editor.ArenaEditorHub;
 import su.nightexpress.ama.editor.ArenaEditorType;
-import su.nightexpress.ama.editor.ArenaEditorUtils;
 import su.nightexpress.ama.mob.config.MobConfig;
 import su.nightexpress.ama.mob.style.MobStyleType;
 
@@ -30,7 +30,7 @@ import java.util.stream.Stream;
 public class EditorMobStyles extends AbstractEditorMenuAuto<AMA, MobConfig, MobStyleType> {
 
     public EditorMobStyles(@NotNull AMA plugin, @NotNull MobConfig customMob) {
-        super(plugin, customMob, ArenaEditorUtils.TITLE_MOB_EDITOR, 45);
+        super(plugin, customMob, ArenaEditorHub.TITLE_MOB_EDITOR, 45);
 
         MenuClick click = (player, type, e) -> {
             if (type instanceof MenuItemType type2) {

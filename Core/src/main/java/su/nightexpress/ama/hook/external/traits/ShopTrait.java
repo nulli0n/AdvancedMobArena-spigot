@@ -8,6 +8,7 @@ import org.bukkit.event.EventHandler;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
 
 @TraitName("ama-shop")
+@Deprecated
 public class ShopTrait extends Trait {
 
     public ShopTrait() {

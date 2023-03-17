@@ -15,8 +15,8 @@ import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.wave.ArenaWave;
 import su.nightexpress.ama.arena.wave.ArenaWaveManager;
 import su.nightexpress.ama.config.Lang;
+import su.nightexpress.ama.editor.ArenaEditorHub;
 import su.nightexpress.ama.editor.ArenaEditorType;
-import su.nightexpress.ama.editor.ArenaEditorUtils;
 
 import java.util.*;
 import java.util.stream.IntStream;
@@ -24,18 +24,18 @@ import java.util.stream.IntStream;
 public class WavesListEditor extends AbstractEditorMenuAuto<AMA, ArenaWaveManager, ArenaWave> {
 
     public WavesListEditor(@NotNull ArenaWaveManager waveManager) {
-        super(waveManager.plugin(), waveManager, ArenaEditorUtils.TITLE_WAVE_EDITOR, 45);
+        super(waveManager.plugin(), waveManager, ArenaEditorHub.TITLE_WAVE_EDITOR, 45);
 
         EditorInput<ArenaWaveManager, ArenaEditorType> input = (player, waves, type, e) -> {
             String msg = e.getMessage();
             if (type == ArenaEditorType.WAVES_WAVE_CREATE) {
                 String id = EditorManager.fineId(msg);
                 if (waves.getWave(id) != null) {
-                    EditorManager.error(player, plugin.getMessage(Lang.Editor_Arena_Waves_Error_Wave_Exist).getLocalized());
+                    EditorManager.error(player, plugin.getMessage(Lang.EDITOR_ARENA_WAVES_ERROR_WAVE_EXISTS).getLocalized());
                     return false;
                 }
 
-                ArenaWave wave = new ArenaWave(waves.getArenaConfig(), id, new HashSet<>(), new HashSet<>());
+                ArenaWave wave = new ArenaWave(waves.getArenaConfig(), id, new HashSet<>());
                 waves.getWaves().put(id, wave);
             }
 
@@ -53,7 +53,7 @@ public class WavesListEditor extends AbstractEditorMenuAuto<AMA, ArenaWaveManage
             else if (type instanceof ArenaEditorType type2) {
                 if (type2 == ArenaEditorType.WAVES_WAVE_CREATE) {
                     EditorManager.startEdit(player, waveManager, type2, input);
-                    EditorManager.tip(player, plugin.getMessage(Lang.Editor_Arena_Waves_Enter_Wave_Create).getLocalized());
+                    EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_ARENA_WAVES_ENTER_WAVE_ID).getLocalized());
                     player.closeInventory();
                 }
             }

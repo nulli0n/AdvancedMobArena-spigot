@@ -8,9 +8,11 @@ import su.nightexpress.ama.hook.HookId;
 
 public class EssentialsHook {
 
-    private static Essentials essentials = (Essentials) Bukkit.getPluginManager().getPlugin(HookId.ESSENTIALS);
+    private static final Essentials ESSENTIALS = (Essentials) Bukkit.getPluginManager().getPlugin(HookId.ESSENTIALS);
 
     public static void disableGod(@NotNull Player player) {
-        essentials.getUser(player).setGodModeEnabled(false);
+        if (ESSENTIALS != null) {
+            ESSENTIALS.getUser(player).setGodModeEnabled(false);
+        }
     }
 }

@@ -17,10 +17,9 @@ import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.IProblematic;
-import su.nightexpress.ama.api.arena.game.ArenaGameEventTrigger;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
 import su.nightexpress.ama.api.arena.type.ArenaTargetType;
-import su.nightexpress.ama.arena.editor.game.EditorArenaGameplay;
+import su.nightexpress.ama.arena.editor.game.GameplayEditor;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.arena.script.action.ParameterResult;
 import su.nightexpress.ama.arena.script.action.Parameters;
@@ -28,6 +27,7 @@ import su.nightexpress.ama.arena.script.action.ScriptActions;
 import su.nightexpress.ama.arena.script.action.ScriptPreparedAction;
 import su.nightexpress.ama.arena.script.condition.ScriptPreparedCondition;
 import su.nightexpress.ama.arena.script.impl.ArenaScript;
+import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.hook.HookId;
 import su.nightexpress.ama.kit.Kit;
 
@@ -39,7 +39,7 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable
     private final ArenaConfig arenaConfig;
     private final JYML        config;
 
-    private EditorArenaGameplay editor;
+    private GameplayEditor editor;
 
     private int     timeleft;
     private int     lobbyTime;
@@ -58,7 +58,6 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable
     private double    mobHighlightAmount;
     private ChatColor mobHighlightColor;
 
-    private Set<ArenaGameCommand>               autoCommands;
     private Set<Material>                       bannedItems;
     private Set<CreatureSpawnEvent.SpawnReason> allowedSpawnReasons;
 
@@ -84,7 +83,6 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable
     public ArenaGameplayManager(@NotNull ArenaConfig arenaConfig) {
         this.arenaConfig = arenaConfig;
         this.config = new JYML(arenaConfig.getFile().getParentFile().getAbsolutePath(), CONFIG_NAME);
-        this.autoCommands = new HashSet<>();
         this.bannedItems = new HashSet<>();
         this.allowedSpawnReasons = new HashSet<>();
         this.playerCommandsAllowed = new HashSet<>();
@@ -118,10 +116,8 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable
             .stream().map(raw -> CollectionsUtil.getEnum(raw, CreatureSpawnEvent.SpawnReason.class))
             .filter(Objects::nonNull).toList());
 
-        this.autoCommands = new HashSet<>();
         for (String cmdId : config.getSection("Auto_Commands")) {
             String path2 = "Auto_Commands." + cmdId + ".";
-            Set<ArenaGameEventTrigger<?>> triggers = ArenaGameEventTrigger.parse(config, path2 + "Triggers");
             ArenaTargetType targetType = config.getEnum(path2 + "Target", ArenaTargetType.class, ArenaTargetType.GLOBAL);
             List<String> commands = config.getStringList(path2 + "Commands");
 
@@ -146,10 +142,8 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable
 
                 this.getArenaConfig().getScriptManager().addConverted(script);
             }
+            config.remove(path2 + "Triggers");
             // ----------- CONVERT SCRIPTS END -----------
-
-            ArenaGameCommand gameCommand = new ArenaGameCommand(arenaConfig, triggers, targetType, commands);
-            this.getAutoCommands().add(gameCommand);
         }
 
         String path = "Players.";
@@ -228,15 +222,6 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable
         config.set(path + "Whitelist", this.getPlayerCommandsAllowed());
 
         config.set("Auto_Commands", null);
-        this.getAutoCommands().forEach(gameCommand -> {
-            String path2 = "Auto_Commands." + UUID.randomUUID() + ".";
-
-            gameCommand.getTriggers().forEach(trigger -> {
-                config.set(path2 + "Triggers." + trigger.getType().name(), trigger.getValuesRaw());
-            });
-            config.set(path2 + "Target", gameCommand.getTargetType().name());
-            config.set(path2 + "Commands", gameCommand.getCommands());
-        });
 
         path = "Kits.";
         config.set(path + "Enabled", this.isKitsEnabled());
@@ -257,7 +242,7 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable
     public UnaryOperator<String> replacePlaceholders() {
         return str -> str
             .replace(Placeholders.GENERIC_PROBLEMS, Placeholders.formatProblems(this.getProblems()))
-            .replace(Placeholders.GAMEPLAY_TIMELEFT, this.getTimeleft() > 0 ? String.valueOf(this.getTimeleft()) : "-")
+            .replace(Placeholders.GAMEPLAY_TIMELEFT, this.hasTimeleft() ? String.valueOf(this.getTimeleft()) : LangManager.getPlain(Lang.OTHER_INFINITY))
             .replace(Placeholders.GAMEPLAY_LOBBY_TIME, String.valueOf(this.getLobbyTime()))
             .replace(Placeholders.GAMEPLAY_ANNOUNCEMENTS, LangManager.getBoolean(this.isAnnouncesEnabled()))
             .replace(Placeholders.GAMEPLAY_SCOREBOARD_ENABLED, LangManager.getBoolean(this.isScoreboardEnabled()))
@@ -291,9 +276,9 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable
 
     @Override
     @NotNull
-    public EditorArenaGameplay getEditor() {
+    public GameplayEditor getEditor() {
         if (this.editor == null) {
-            this.editor = new EditorArenaGameplay(this);
+            this.editor = new GameplayEditor(this);
         }
         return this.editor;
     }
@@ -322,6 +307,10 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable
 
     public int getTimeleft() {
         return this.timeleft;
+    }
+
+    public boolean hasTimeleft() {
+        return this.getTimeleft() > 0;
     }
 
     public void setTimeleft(int timeleft) {
@@ -456,17 +445,12 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable
         this.mobHighlightColor = mobHighlightColor;
     }
 
-    @NotNull
-    public Set<ArenaGameCommand> getAutoCommands() {
-        return autoCommands;
-    }
-
     public int getPlayerMinAmount() {
         return playerMinAmount;
     }
 
     public void setPlayerMinAmount(int playerMinAmount) {
-        this.playerMinAmount = playerMinAmount;
+        this.playerMinAmount = Math.max(1, playerMinAmount);
     }
 
     public int getPlayerMaxAmount() {
@@ -474,7 +458,7 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable
     }
 
     public void setPlayerMaxAmount(int playerMaxAmount) {
-        this.playerMaxAmount = playerMaxAmount;
+        this.playerMaxAmount = Math.max(1, playerMaxAmount);
     }
 
     public int getPlayerLivesAmount() {
@@ -482,7 +466,7 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable
     }
 
     public void setPlayerLivesAmount(int playerLivesAmount) {
-        this.playerLivesAmount = playerLivesAmount;
+        this.playerLivesAmount = Math.max(1, playerLivesAmount);
     }
 
     public boolean isPlayerDropItemsOnDeathEnabled() {

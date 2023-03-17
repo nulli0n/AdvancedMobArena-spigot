@@ -11,32 +11,28 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
-import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.api.lang.LangMessage;
 import su.nexmedia.engine.api.manager.AbstractListener;
 import su.nexmedia.engine.utils.ArrayUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.api.arena.type.ArenaLocationType;
-import su.nightexpress.ama.arena.lock.LockState;
-import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.api.arena.type.LeaveReason;
 import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
 import su.nightexpress.ama.api.event.ArenaMobDeathEvent;
 import su.nightexpress.ama.api.event.ArenaPlayerDeathEvent;
-import su.nightexpress.ama.api.event.ArenaPlayerReadyEvent;
 import su.nightexpress.ama.arena.ArenaManager;
-import su.nightexpress.ama.arena.util.LobbyItem;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.arena.region.ArenaRegion;
+import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.arena.util.ArenaUtils;
+import su.nightexpress.ama.arena.util.LobbyItem;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.mob.MobManager;
 import su.nightexpress.ama.mob.config.MobConfig;
@@ -59,19 +55,7 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
         e.getArena().onArenaGameEvent(e);
     }
 
-    @EventHandler(priority = EventPriority.NORMAL)
-    public void onArenaPlayerReadyEvent(ArenaPlayerReadyEvent e) {
-        ArenaPlayer arenaPlayer = e.getArenaPlayer();
-        Player player = arenaPlayer.getPlayer();
-        boolean isReady = e.isReady();
-
-        LangMessage msg = isReady ? plugin.getMessage(Lang.Arena_Game_Lobby_Ready_True) : plugin.getMessage(Lang.Arena_Game_Lobby_Ready_False);
-        arenaPlayer.getArena().getPlayers().forEach(arenaPlayer1 -> {
-            msg.replace(arenaPlayer.replacePlaceholders()).send(arenaPlayer1.getPlayer());
-        });
-    }
-
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onGamePlayerItemDurability(PlayerItemDamageEvent e) {
         Player player = e.getPlayer();
 
@@ -84,7 +68,7 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
         }
     }
 
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onGamePlayerItemDrop(PlayerDropItemEvent e) {
         Player player = e.getPlayer();
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
@@ -92,8 +76,7 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
 
         Arena arena = arenaPlayer.getArena();
         // Prevent drop lobby or kit items in lobby.
-        if (arena.getConfig().getGameplayManager().isKitsEnabled() &&
-            (arenaPlayer.getState() != GameState.INGAME)) {
+        if (arena.getConfig().getGameplayManager().isKitsEnabled() && arenaPlayer.getState() != GameState.INGAME) {
             e.setCancelled(true);
             return;
         }
@@ -103,22 +86,9 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
         }
     }
 
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
-    public void onGamePlayerItemPickup(EntityPickupItemEvent e) {
-        if (!(e.getEntity() instanceof Player player)) return;
-
-        ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
-        if (arenaPlayer == null) return;
-
-        Arena arena = arenaPlayer.getArena();
-        if (!arena.getConfig().getGameplayManager().isItemPickupEnabled()) {
-            e.setCancelled(true);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onGamePlayerRegen(EntityRegainHealthEvent e) {
-        if (e.getRegainReason() != RegainReason.SATIATED) return;
+        if (e.getRegainReason() != EntityRegainHealthEvent.RegainReason.SATIATED) return;
         if (!(e.getEntity() instanceof Player player)) return;
 
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
@@ -130,7 +100,7 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
         }
     }
 
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onGamePlayerHunger(FoodLevelChangeEvent e) {
         if (!(e.getEntity() instanceof Player player)) return;
 
@@ -143,7 +113,7 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
         }
     }
 
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onGamePlayerCmd(PlayerCommandPreprocessEvent e) {
         Player player = e.getPlayer();
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
@@ -179,7 +149,7 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
         ArenaRegion region = arena.getConfig().getRegionManager().getRegion(to);
         if (region == null) return;
 
-        if (region.getState() == LockState.LOCKED && region.getCuboid().contains(to) && !region.getCuboid().contains(from)) {
+        if (region.isLocked() && region.getCuboid().contains(to) && !region.getCuboid().contains(from)) {
             e.setCancelled(true);
         }
     }
@@ -265,7 +235,7 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
 
             plugin.getMessage(Lang.Arena_Game_Death_Lives).replace(arenaPlayer.replacePlaceholders()).send(player);
 
-            ArenaRegion defRegion = arena.getConfig().getRegionManager().getRegionAnyAvailable();
+            ArenaRegion defRegion = arena.getConfig().getRegionManager().getFirstUnlockedRegion();
             if (defRegion != null) {
                 e.setRespawnLocation(defRegion.getSpawnLocation());
             }
