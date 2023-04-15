@@ -50,7 +50,7 @@ public class RegionListEditor extends AbstractEditorMenuAuto<AMA, ArenaRegionMan
             else if (type instanceof ArenaEditorType type2) {
                 if (type2 == ArenaEditorType.REGION_CREATE) {
                     EditorManager.startEdit(player, regionManager, type2, input);
-                    EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_REGION_ENTER_ID).getLocalized());
+                    EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_REGION_ENTER_ID).getLocalized());
                     player.closeInventory();
                 }
             }

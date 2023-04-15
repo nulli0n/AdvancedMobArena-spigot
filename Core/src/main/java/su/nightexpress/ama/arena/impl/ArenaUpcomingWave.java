@@ -14,9 +14,19 @@ public class ArenaUpcomingWave {
     private final List<ArenaWaveMob> mobs;
     private final List<Location>     spawners;
 
-    public ArenaUpcomingWave(@NotNull ArenaRegion region, @NotNull List<ArenaWaveMob> mobs) {
+    public ArenaUpcomingWave(@NotNull ArenaRegion region, @NotNull List<ArenaWaveMob> mobs, @NotNull List<String> spawnerIds) {
         this.mobs = mobs;
-        this.spawners = new ArrayList<>(region.getMobSpawners().values());
+        this.spawners = new ArrayList<>();
+
+        spawnerIds.forEach(spawnerId -> {
+            Location location = region.getMobSpawner(spawnerId);
+            if (location != null) this.spawners.add(location);
+        });
+
+        if (this.spawners.isEmpty()) {
+            spawners.addAll(region.getMobSpawners().values());
+        }
+
         Collections.shuffle(this.spawners);
     }
 

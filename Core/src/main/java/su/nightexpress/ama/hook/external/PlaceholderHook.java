@@ -11,6 +11,7 @@ import su.nightexpress.ama.api.ArenaAPI;
 import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
+import su.nightexpress.ama.arena.type.PlayerType;
 import su.nightexpress.ama.data.ArenaUser;
 import su.nightexpress.ama.stats.object.StatType;
 
@@ -119,7 +120,7 @@ public class PlaceholderHook {
                     return String.valueOf(arena.getWaveNumber());
                 }
                 if (var.equalsIgnoreCase("players")) {
-                    return String.valueOf(arena.getPlayers(GameState.INGAME).size());
+                    return String.valueOf(arena.getPlayers(GameState.INGAME, PlayerType.REAL).size());
                 }
                 if (var.equalsIgnoreCase("next_wave")) {
                     return String.valueOf(arena.getWaveNextTimeleft());

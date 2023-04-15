@@ -21,8 +21,6 @@ import su.nexmedia.engine.utils.ArrayUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
-import su.nightexpress.ama.api.arena.type.ArenaLocationType;
-import su.nightexpress.ama.api.arena.type.LeaveReason;
 import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
 import su.nightexpress.ama.api.event.ArenaMobDeathEvent;
 import su.nightexpress.ama.api.event.ArenaPlayerDeathEvent;
@@ -139,88 +137,33 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
         if (to == null) return;
 
         Location from = e.getFrom();
-        if (to.getX() == from.getX() && to.getZ() == from.getZ()) return;
 
         Player player = e.getPlayer();
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
         if (arenaPlayer == null) return;
 
+        if (arenaPlayer.isReal()) {
+            if (to.getX() == from.getX() && to.getZ() == from.getZ()) return;
+        }
+        else if (arenaPlayer.isGhost()) {
+            if (to.getX() == from.getX() && to.getZ() == from.getZ() && to.getY() == from.getY()) return;
+        }
+
         Arena arena = arenaPlayer.getArena();
         ArenaRegion region = arena.getConfig().getRegionManager().getRegion(to);
-        if (region == null) return;
-
-        if (region.isLocked() && region.getCuboid().contains(to) && !region.getCuboid().contains(from)) {
+        if (arenaPlayer.isGhost() && region == null) {
             e.setCancelled(true);
-        }
-    }
-
-    /*@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onGamePlayerDeath(EntityDamageEvent e) {
-        if (!(e.getEntity() instanceof Player player)) return;
-
-        ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
-        if (arenaPlayer == null || e.getFinalDamage() == 0D) return;
-        if (player.getHealth() - e.getFinalDamage() > 0D) return;
-
-        e.setDamage(0);
-        e.setCancelled(true);
-
-        for (EquipmentSlot slot : new EquipmentSlot[]{EquipmentSlot.HAND, EquipmentSlot.OFF_HAND}) {
-            ItemStack totem = player.getInventory().getItem(slot);
-            if (totem.getType() == Material.TOTEM_OF_UNDYING) {
-                totem.setAmount(totem.getAmount() - 1);
-                player.playEffect(EntityEffect.TOTEM_RESURRECT);
-                player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 45 * 20, 1));
-                player.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 40 * 20, 0));
-                player.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, 5 * 20, 1));
-
-                return;
-            }
-        }
-
-        Arena arena = arenaPlayer.getArena();
-        PlayerSnapshot.clear(player);
-
-        ArenaPlayerDeathEvent playerDeathEvent = new ArenaPlayerDeathEvent(arena, arenaPlayer);
-        plugin.getPluginManager().callEvent(playerDeathEvent);
-
-        if (arena.getConfig().getGameplayManager().isPlayerDropItemsOnDeathEnabled()) {
-            for (ItemStack itemStack : player.getInventory().getContents()) {
-                if (itemStack == null || itemStack.getType().isAir()) continue;
-                player.getWorld().dropItemNaturally(player.getLocation(), itemStack);
-            }
-            player.getInventory().clear();
-        }
-
-        if (arenaPlayer.getLives() > 1) {
-            arenaPlayer.setLives(arenaPlayer.getLives() - 1);
-            arenaPlayer.setKillStreak(0);
-
-            plugin.getMessage(Lang.Arena_Game_Death_Lives).replace(arenaPlayer.replacePlaceholders()).send(player);
-
-            ArenaRegion defRegion = arena.getConfig().getRegionManager().getRegionAnyAvailable();
-            if (defRegion != null) {
-                player.teleport(defRegion.getSpawnLocation());
-            }
             return;
         }
 
-        arenaPlayer.addStats(StatType.DEATHS, 1);
+        if (region == null || !region.isActive() || region.isUnlocked()) return;
 
-        plugin.getServer().getScheduler().runTask(plugin, () -> {
-            arenaPlayer.leaveArena(LeaveReason.DEATH);
-
-            if (!arena.getPlayersIngame().isEmpty()) {
-                if (arena.getConfig().getGameplayManager().isSpectateOnDeathEnabled()) {
-                    arena.joinSpectate(player);
-                }
-
-                for (ArenaPlayer arenaPlayer1 : arena.getPlayers()) {
-                    plugin.getMessage(Lang.Arena_Game_Death_Player).replace(arenaPlayer.replacePlaceholders()).replace(arena.replacePlaceholders()).send(arenaPlayer1.getPlayer());
-                }
+        region.getCuboid().ifPresent(cuboid -> {
+            if (cuboid.contains(to) && !cuboid.contains(from)) {
+                e.setCancelled(true);
             }
         });
-    }*/
+    }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onGamePlayerDeathRealSpawn(PlayerRespawnEvent e) {
@@ -228,38 +171,8 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
         if (arenaPlayer == null) return;
 
-        Arena arena = arenaPlayer.getArena();
-        if (arenaPlayer.getLives() > 1) {
-            arenaPlayer.setLives(arenaPlayer.getLives() - 1);
-            arenaPlayer.setKillStreak(0);
-
-            plugin.getMessage(Lang.Arena_Game_Death_Lives).replace(arenaPlayer.replacePlaceholders()).send(player);
-
-            ArenaRegion defRegion = arena.getConfig().getRegionManager().getFirstUnlockedRegion();
-            if (defRegion != null) {
-                e.setRespawnLocation(defRegion.getSpawnLocation());
-            }
-            else {
-                arenaPlayer.leaveArena(LeaveReason.DEATH);
-            }
-            return;
-        }
-
-        e.setRespawnLocation(arena.getConfig().getLocation(ArenaLocationType.LOBBY));
-
-        this.plugin.runTask(task -> {
-            arenaPlayer.leaveArena(LeaveReason.DEATH);
-
-            if (!arena.getPlayers(GameState.INGAME).isEmpty()) {
-                if (arena.getConfig().getGameplayManager().isSpectateOnDeathEnabled()) {
-                    arena.joinSpectate(player);
-                }
-
-                for (ArenaPlayer arenaPlayer1 : arena.getPlayers()) {
-                    plugin.getMessage(Lang.Arena_Game_Death_Player).replace(arenaPlayer.replacePlaceholders()).replace(arena.replacePlaceholders()).send(arenaPlayer1.getPlayer());
-                }
-            }
-        });
+        arenaPlayer.onDeath();
+        e.setRespawnLocation(player.getLocation());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -269,8 +182,8 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
         if (arenaPlayer == null) return;
 
         Arena arena = arenaPlayer.getArena();
-        ArenaPlayerDeathEvent playerDeathEvent = new ArenaPlayerDeathEvent(arena, arenaPlayer);
-        plugin.getPluginManager().callEvent(playerDeathEvent);
+        ArenaPlayerDeathEvent deathEvent = new ArenaPlayerDeathEvent(arena, arenaPlayer);
+        plugin.getPluginManager().callEvent(deathEvent);
 
         if (!arena.getConfig().getGameplayManager().isPlayerDropItemsOnDeathEnabled()) {
             e.setKeepInventory(true);
@@ -279,8 +192,7 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
 
         e.setDroppedExp(0);
         e.setKeepLevel(true);
-        arenaPlayer.addStats(StatType.DEATHS, 1);
-        this.plugin.runTaskLater(task -> player.spigot().respawn(), 10L);
+        this.plugin.runTask(task -> player.spigot().respawn());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -399,13 +311,13 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
         arenaPlayer.addStats(StatType.EQUIPMENT_BROKEN, 1);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.NORMAL)
     public void onGamePlayerQuit(PlayerQuitEvent e) {
         Player player = e.getPlayer();
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
         if (arenaPlayer == null) return;
 
-        arenaPlayer.leaveArena(LeaveReason.SELF);
+        arenaPlayer.leaveArena();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

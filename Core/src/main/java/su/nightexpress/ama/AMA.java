@@ -26,7 +26,7 @@ import su.nightexpress.ama.config.Config;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.currency.CurrencyManager;
 import su.nightexpress.ama.data.ArenaUser;
-import su.nightexpress.ama.data.ArenaUserData;
+import su.nightexpress.ama.data.ArenaDataHandler;
 import su.nightexpress.ama.data.ArenaUserManager;
 import su.nightexpress.ama.editor.ArenaEditorHub;
 import su.nightexpress.ama.editor.ArenaEditorType;
@@ -59,7 +59,7 @@ import java.sql.SQLException;
 
 public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser>, EditorHolder<AMA, ArenaEditorType> {
 
-    private ArenaUserData    userData;
+    private ArenaDataHandler userData;
     private ArenaUserManager userManager;
 
     private CurrencyManager   currencyManager;
@@ -262,7 +262,7 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
     @Override
     public boolean setupDataHandlers() {
         try {
-            this.userData = ArenaUserData.getInstance(this);
+            this.userData = ArenaDataHandler.getInstance(this);
             this.userData.setup();
         }
         catch (SQLException e) {
@@ -279,7 +279,7 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
 
     @Override
     @NotNull
-    public ArenaUserData getData() {
+    public ArenaDataHandler getData() {
         return this.userData;
     }
 

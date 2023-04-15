@@ -18,6 +18,7 @@ import su.nexmedia.engine.api.menu.MenuItem;
 import su.nexmedia.engine.api.menu.MenuItemType;
 import su.nexmedia.engine.editor.AbstractEditorMenu;
 import su.nexmedia.engine.editor.EditorManager;
+import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.ItemUtil;
 import su.nexmedia.engine.utils.PlayerUtil;
 import su.nexmedia.engine.utils.StringUtil;
@@ -37,11 +38,11 @@ public class EditorKitMain extends AbstractEditorMenu<AMA, Kit> {
         super(kit.plugin(), kit, ArenaEditorHub.TITLE_KIT_EDITOR, 45);
 
         EditorInput<Kit, ArenaEditorType> input = (player, kit2, type, e) -> {
-            String msg = StringUtil.color(e.getMessage());
+            String msg = Colorizer.apply(e.getMessage());
             switch (type) {
                 case KIT_CHANGE_NAME -> kit2.setName(msg);
                 case KIT_CHANGE_DESCRIPTION -> kit2.getDescription().add(msg);
-                case KIT_CHANGE_COMMANDS -> kit2.getCommands().add(StringUtil.colorRaw(msg));
+                case KIT_CHANGE_COMMANDS -> kit2.getCommands().add(Colorizer.strip(msg));
                 case KIT_CHANGE_POTIONS -> {
                     String[] split = msg.split(":");
                     PotionEffectType effectType = PotionEffectType.getByName(split[0].toUpperCase());
@@ -54,7 +55,7 @@ public class EditorKitMain extends AbstractEditorMenu<AMA, Kit> {
                     kit2.getPotionEffects().add(potionEffect);
                 }
                 case KIT_CHANGE_CURRENCY -> {
-                    String curId = StringUtil.colorOff(msg);
+                    String curId = Colorizer.strip(msg);
                     ICurrency currency = plugin.getCurrencyManager().getCurrency(curId);
                     if (currency == null) {
                         EditorManager.error(player, plugin.getMessage(Lang.ERROR_CURRENCY_INVALID).getLocalized());
@@ -87,13 +88,13 @@ public class EditorKitMain extends AbstractEditorMenu<AMA, Kit> {
                 switch (type2) {
                     case KIT_CHANGE_NAME -> {
                         EditorManager.startEdit(player, kit, type2, input);
-                        EditorManager.tip(player, plugin.getMessage(Lang.Editor_Kit_Enter_Name).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.Editor_Kit_Enter_Name).getLocalized());
                         player.closeInventory();
                         return;
                     }
                     case KIT_CHANGE_DESCRIPTION -> {
                         EditorManager.startEdit(player, kit, type2, input);
-                        EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_DESCRIPTION).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_DESCRIPTION).getLocalized());
                         player.closeInventory();
                         return;
                     }
@@ -111,7 +112,7 @@ public class EditorKitMain extends AbstractEditorMenu<AMA, Kit> {
                     case KIT_CHANGE_COMMANDS -> {
                         if (e.isLeftClick()) {
                             EditorManager.startEdit(player, kit, type2, input);
-                            EditorManager.tip(player, plugin.getMessage(Lang.Editor_Kit_Enter_Command).getLocalized());
+                            EditorManager.prompt(player, plugin.getMessage(Lang.Editor_Kit_Enter_Command).getLocalized());
                             EditorManager.sendCommandTips(player);
                             player.closeInventory();
                             return;
@@ -123,7 +124,7 @@ public class EditorKitMain extends AbstractEditorMenu<AMA, Kit> {
                     case KIT_CHANGE_POTIONS -> {
                         if (e.isLeftClick()) {
                             EditorManager.startEdit(player, kit, type2, input);
-                            EditorManager.tip(player, plugin.getMessage(Lang.Editor_Kit_Enter_Effect).getLocalized());
+                            EditorManager.prompt(player, plugin.getMessage(Lang.Editor_Kit_Enter_Effect).getLocalized());
                             EditorManager.suggestValues(player, Stream.of(PotionEffectType.values()).map(PotionEffectType::getName).toList(), false);
                             player.closeInventory();
                             return;
@@ -145,13 +146,13 @@ public class EditorKitMain extends AbstractEditorMenu<AMA, Kit> {
                     case KIT_CHANGE_CURRENCY -> {
                         EditorManager.startEdit(player, kit, type2, input);
                         EditorManager.suggestValues(player, plugin.getCurrencyManager().getCurrencyIds(), true);
-                        EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_CURRENCY).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_CURRENCY).getLocalized());
                         player.closeInventory();
                         return;
                     }
                     case KIT_CHANGE_COST -> {
                         EditorManager.startEdit(player, kit, type2, input);
-                        EditorManager.tip(player, plugin.getMessage(Lang.Editor_Kit_Enter_Cost).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.Editor_Kit_Enter_Cost).getLocalized());
                         player.closeInventory();
                         return;
                     }

@@ -8,11 +8,13 @@ import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.ConfigHolder;
 import su.nexmedia.engine.api.manager.IEditable;
 import su.nexmedia.engine.api.manager.ILoadable;
+import su.nexmedia.engine.api.placeholder.Placeholder;
+import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.lang.LangManager;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
-import su.nightexpress.ama.api.arena.IProblematic;
+import su.nightexpress.ama.api.arena.Problematic;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
 import su.nightexpress.ama.api.currency.ICurrency;
 import su.nightexpress.ama.api.event.ArenaShopEvent;
@@ -35,15 +37,15 @@ import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.config.Lang;
 
 import java.util.*;
-import java.util.function.UnaryOperator;
 
-public class ShopManager implements ConfigHolder, ArenaChild, Lockable, ILoadable, IEditable, IProblematic {
+public class ShopManager implements ConfigHolder, ArenaChild, Lockable, ILoadable, IEditable, Problematic, Placeholder {
 
     private static final String CONFIG_NAME = "shop.yml";
 
     private final ArenaConfig                    arenaConfig;
     private final JYML                      config;
     private final Map<String, ShopCategory> categories;
+    private final PlaceholderMap placeholderMap;
 
     private boolean   isActive;
     private boolean   isHideOtherKitProducts;
@@ -56,6 +58,12 @@ public class ShopManager implements ConfigHolder, ArenaChild, Lockable, ILoadabl
         this.arenaConfig = arenaConfig;
         this.config = new JYML(arenaConfig.getFile().getParentFile().getAbsolutePath(), CONFIG_NAME);
         this.categories = new LinkedHashMap<>();
+
+        this.placeholderMap = new PlaceholderMap()
+            .add(Placeholders.GENERIC_PROBLEMS, () -> String.join("\n", this.getProblems()))
+            .add(Placeholders.SHOP_MANAGER_IS_ACTIVE, () -> LangManager.getBoolean(this.isActive()))
+            .add(Placeholders.SHOP_MANAGER_HIDE_OTHER_KIT_ITEMS, () -> LangManager.getBoolean(this.isHideOtherKitProducts()))
+        ;
     }
 
     @Override
@@ -172,6 +180,8 @@ public class ShopManager implements ConfigHolder, ArenaChild, Lockable, ILoadabl
 
             this.categories.put(category.getId(), category);
         }
+
+        config.saveChanges();
     }
 
     @Override
@@ -218,12 +228,8 @@ public class ShopManager implements ConfigHolder, ArenaChild, Lockable, ILoadabl
 
     @Override
     @NotNull
-    public UnaryOperator<String> replacePlaceholders() {
-        return str -> str
-            .replace(Placeholders.GENERIC_PROBLEMS, Placeholders.formatProblems(this.getProblems()))
-            .replace(Placeholders.SHOP_MANAGER_IS_ACTIVE, LangManager.getBoolean(this.isActive()))
-            .replace(Placeholders.SHOP_MANAGER_HIDE_OTHER_KIT_ITEMS, LangManager.getBoolean(this.isHideOtherKitProducts()))
-            ;
+    public PlaceholderMap getPlaceholders() {
+        return this.placeholderMap;
     }
 
     @Override

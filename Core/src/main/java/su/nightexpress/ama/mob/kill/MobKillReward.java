@@ -2,7 +2,6 @@ package su.nightexpress.ama.mob.kill;
 
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.api.config.JOption;
 import su.nexmedia.engine.api.config.JYML;
 import su.nightexpress.ama.api.currency.ICurrency;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
@@ -12,7 +11,7 @@ import java.util.Map;
 
 @Deprecated
 public record MobKillReward(String mobId,
-                            Map<ICurrency, Double> payment, int score) implements JOption.Writer {
+                            Map<ICurrency, Double> payment, int score) {
 
     public MobKillReward(@NotNull String mobId, @NotNull Map<ICurrency, Double> payment, int score) {
         this.mobId = mobId.toLowerCase();
@@ -38,11 +37,10 @@ public record MobKillReward(String mobId,
         arenaPlayer.addScore(this.score());
     }
 
-    @Override
-    public void write(@NotNull JYML cfg, @NotNull String path) {
-        this.payment().forEach((currency, amount) -> {
+    public static void write(@NotNull MobKillReward reward, @NotNull JYML cfg, @NotNull String path) {
+        reward.payment().forEach((currency, amount) -> {
             cfg.set(path + ".Currency." + currency.getId(), amount);
         });
-        cfg.set(path + ".Score", this.score());
+        cfg.set(path + ".Score", reward.score());
     }
 }

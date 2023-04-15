@@ -21,6 +21,7 @@ import su.nightexpress.ama.api.hologram.HologramHolder;
 import su.nightexpress.ama.api.hologram.HologramType;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
+import su.nightexpress.ama.arena.type.PlayerType;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.data.ArenaUser;
 import su.nightexpress.ama.hologram.HologramManager;
@@ -238,7 +239,7 @@ public class Kit extends AbstractLoadableItem<AMA> implements ConfigHolder, Holo
     }
 
     public void setName(@NotNull String name) {
-        this.name = StringUtil.color(name);
+        this.name = Colorizer.apply(name);
     }
 
     @NotNull
@@ -247,7 +248,7 @@ public class Kit extends AbstractLoadableItem<AMA> implements ConfigHolder, Holo
     }
 
     public void setDescription(@NotNull List<String> description) {
-        this.description = StringUtil.color(description);
+        this.description = Colorizer.apply(description);
     }
 
     @NotNull
@@ -458,7 +459,7 @@ public class Kit extends AbstractLoadableItem<AMA> implements ConfigHolder, Holo
         // Check for limit
         int limitMax = arena.getConfig().getGameplayManager().getKitLimit(this.getId());
         if (limitMax >= 0) {
-            int limitHas = (int) arena.getPlayers().stream()
+            int limitHas = (int) arena.getPlayers(PlayerType.REAL).stream()
                 .filter(arenaPlayer1 -> arenaPlayer1.getKit() != null && arenaPlayer1.getKit().equals(this)).count();
             if (limitHas >= limitMax) {
                 if (isMsg) plugin.getMessage(Lang.Kit_Select_Error_Limit).send(player);

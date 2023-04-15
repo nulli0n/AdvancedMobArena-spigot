@@ -65,7 +65,7 @@ public class ShopProductSettingsEditor extends AbstractEditorMenu<AMA, ShopProdu
                 switch (type2) {
                     case SHOP_PRODUCT_CHANGE_NAME -> {
                         EditorManager.startEdit(player, shopProduct, type2, input);
-                        EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NAME).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NAME).getLocalized());
                         player.closeInventory();
                     }
                     case SHOP_PRODUCT_CHANGE_DESCRIPTION -> {
@@ -76,18 +76,18 @@ public class ShopProductSettingsEditor extends AbstractEditorMenu<AMA, ShopProdu
                             break;
                         }
                         EditorManager.startEdit(player, shopProduct, type2, input);
-                        EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_DESCRIPTION).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_DESCRIPTION).getLocalized());
                         player.closeInventory();
                     }
                     case SHOP_PRODUCT_CHANGE_PRICE -> {
                         EditorManager.startEdit(player, shopProduct, type2, input);
-                        EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_ARENA_SHOP_ENTER_PRODUCT_PRICE).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_ARENA_SHOP_ENTER_PRODUCT_PRICE).getLocalized());
                         player.closeInventory();
                     }
                     case SHOP_PRODUCT_CHANGE_CURRENCY -> {
                         EditorManager.startEdit(player, shopProduct, type2, input);
                         EditorManager.suggestValues(player, plugin.getCurrencyManager().getCurrencyIds(), true);
-                        EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_CURRENCY).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_CURRENCY).getLocalized());
                         player.closeInventory();
                     }
                     case SHOP_PRODUCT_CHANGE_ICON -> {
@@ -107,7 +107,7 @@ public class ShopProductSettingsEditor extends AbstractEditorMenu<AMA, ShopProdu
                             break;
                         }
                         EditorManager.startEdit(player, shopProduct, type2, input);
-                        EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_COMMAND).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_COMMAND).getLocalized());
                         EditorManager.sendCommandTips(player);
                         player.closeInventory();
                     }
@@ -119,7 +119,7 @@ public class ShopProductSettingsEditor extends AbstractEditorMenu<AMA, ShopProdu
                             break;
                         }
                         EditorManager.startEdit(player, shopProduct, type2, input);
-                        EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_KIT_ENTER_ID).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_KIT_ENTER_ID).getLocalized());
                         EditorManager.suggestValues(player, plugin.getKitManager().getKitIds(), true);
                         player.closeInventory();
                     }

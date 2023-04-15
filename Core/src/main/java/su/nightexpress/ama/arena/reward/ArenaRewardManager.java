@@ -6,11 +6,13 @@ import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.ConfigHolder;
 import su.nexmedia.engine.api.manager.IEditable;
 import su.nexmedia.engine.api.manager.ILoadable;
+import su.nexmedia.engine.api.placeholder.Placeholder;
+import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.lang.LangManager;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
-import su.nightexpress.ama.api.arena.IProblematic;
+import su.nightexpress.ama.api.arena.Problematic;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
 import su.nightexpress.ama.api.arena.type.ArenaTargetType;
 import su.nightexpress.ama.arena.editor.reward.RewardListEditor;
@@ -25,15 +27,15 @@ import su.nightexpress.ama.arena.script.condition.ScriptPreparedCondition;
 import su.nightexpress.ama.arena.script.impl.ArenaScript;
 
 import java.util.*;
-import java.util.function.UnaryOperator;
 
-public class ArenaRewardManager implements ArenaChild, ConfigHolder, ILoadable, IEditable, IProblematic {
+public class ArenaRewardManager implements ArenaChild, ConfigHolder, ILoadable, IEditable, Problematic, Placeholder {
 
     private static final String CONFIG_NAME = "rewards.yml";
 
     private final ArenaConfig              arenaConfig;
     private final JYML                     config;
     private final Map<String, ArenaReward> rewards;
+    private final PlaceholderMap placeholderMap;
 
     private boolean isRetainOnLeave;
     private boolean isRetainOnDeath;
@@ -44,6 +46,12 @@ public class ArenaRewardManager implements ArenaChild, ConfigHolder, ILoadable, 
         this.arenaConfig = arenaConfig;
         this.config = new JYML(this.arenaConfig.getFile().getParentFile().getAbsolutePath(), CONFIG_NAME);
         this.rewards = new HashMap<>();
+
+        this.placeholderMap = new PlaceholderMap()
+            .add(Placeholders.GENERIC_PROBLEMS, () -> String.join("\n", this.getProblems()))
+            .add(Placeholders.REWARD_MANAGER_RETAIN_ON_DEATH, () -> LangManager.getBoolean(this.isRetainOnDeath()))
+            .add(Placeholders.REWARD_MANAGER_RETAIN_ON_LEAVE, () -> LangManager.getBoolean(this.isRetainOnLeave()))
+        ;
     }
 
     @Override
@@ -75,6 +83,9 @@ public class ArenaRewardManager implements ArenaChild, ConfigHolder, ILoadable, 
                 conditions.values().forEach(list -> {
                     list.add(new ScriptPreparedCondition(ScriptConditions.CHANCE, chance, ScriptCondition.Operator.SMALLER));
                 });
+                if (conditions.isEmpty()) {
+                    conditions.put(Placeholders.DEFAULT, Collections.singletonList(new ScriptPreparedCondition(ScriptConditions.CHANCE, chance, ScriptCondition.Operator.SMALLER)));
+                }
                 script.getConditions().putAll(conditions);
 
                 ScriptPreparedAction action = new ScriptPreparedAction(ScriptActions.GIVE_REWARD, new ParameterResult());
@@ -90,6 +101,7 @@ public class ArenaRewardManager implements ArenaChild, ConfigHolder, ILoadable, 
             ArenaReward reward = new ArenaReward(arenaConfig, sId, name, isLate, commands, items);
             this.getRewardsMap().put(reward.getId(), reward);
         }
+        config.saveChanges();
     }
 
     @Override
@@ -104,12 +116,8 @@ public class ArenaRewardManager implements ArenaChild, ConfigHolder, ILoadable, 
 
     @Override
     @NotNull
-    public UnaryOperator<String> replacePlaceholders() {
-        return str -> str
-            .replace(Placeholders.GENERIC_PROBLEMS, Placeholders.formatProblems(this.getProblems()))
-            .replace(Placeholders.REWARD_MANAGER_RETAIN_ON_DEATH, LangManager.getBoolean(this.isRetainOnDeath()))
-            .replace(Placeholders.REWARD_MANAGER_RETAIN_ON_LEAVE, LangManager.getBoolean(this.isRetainOnLeave()))
-            ;
+    public PlaceholderMap getPlaceholders() {
+        return this.placeholderMap;
     }
 
     @NotNull

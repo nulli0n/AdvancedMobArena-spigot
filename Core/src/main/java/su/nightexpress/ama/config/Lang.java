@@ -1,30 +1,22 @@
 package su.nightexpress.ama.config;
 
 import org.bukkit.Sound;
-import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.lang.LangKey;
 import su.nexmedia.engine.lang.EngineLang;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.api.arena.type.LeaveReason;
 import su.nightexpress.ama.currency.CurrencyId;
 import su.nightexpress.ama.hook.HookId;
 
 public class Lang extends EngineLang {
 
-    @NotNull
-    public static LangKey getLeaveReason(@NotNull LeaveReason reason) {
-        return switch (reason) {
-            case DEATH -> Arena_Game_Leave_Death;
-            case FINISH -> Arena_Game_Leave_Finish;
-            case FORCE -> Arena_Game_Leave_ForceEnd;
-            case KICK -> Arena_Game_Leave_Kick;
-            case NO_KIT -> Arena_Game_Leave_NoKit;
-            case OUTSIDE -> Arena_Game_Leave_Outside;
-            case SELF -> Arena_Game_Leave_Self;
-            case TIMELEFT -> Arena_Game_Leave_Timeleft;
-            case NO_REGION -> Arena_Game_Leave_NoRegion;
-        };
-    }
+    private static final String DARK_GRAY = "#6c6c62";
+    private static final String LIME = "#b3ff5d";
+    private static final String GRAY = "#d4d9d8";
+    private static final String GREEN = "#aefd5e";
+    private static final String YELLOW = "#fdf35e";
+    private static final String ORANGE = "#feb54f";
+    private static final String RED = "#ff4141";
+    private static final String CYAN = "#5eeafd";
 
     @Deprecated
     public static final LangKey Help_Score = new LangKey(
@@ -126,9 +118,13 @@ public class Lang extends EngineLang {
     public static final LangKey ARENA_JOIN_ERROR_IN_GAME    = new LangKey("Arena.Join.Error.InGame", "&cYou are already in game!");
     public static final LangKey ARENA_JOIN_ERROR_MAXIMUM    = new LangKey("Arena.Join.Error.Maximum", "&cThere is maximum players on the arena.");
     public static final LangKey ARENA_JOIN_ERROR_STARTED    = new LangKey("Arena.Join.Error.Started", "Arena &a%arena_name% &7is already in game. You can not join now.");
+    public static final LangKey ARENA_JOIN_ERROR_ENDING    = LangKey.of("Arena.Join.Error.Ending", "Arena " + RED + Placeholders.ARENA_NAME + GRAY + " is about to end. Try again in a few seconds.");
+    public static final LangKey ARENA_JOIN_ERROR_NO_KIT    = LangKey.of("Arena.Join.Error.NoKit", "You don't have any kit to play on this arena.");
+    public static final LangKey ARENA_JOIN_ERROR_NO_REGION    = LangKey.of("Arena.Join.Error.NoRegion", "No regions are available to play on.");
 
     public static final LangKey ARENA_JOIN_SPECTATE_SUCCESS        = new LangKey("Arena.Join.Spectate.Success", "Now you are spectating arena &a%arena_name%");
     public static final LangKey ARENA_JOIN_SPECTATE_ERROR_DISABLED = new LangKey("Arena.Join.Spectate.Error.Disabled", "Spectating is disabled on this arena.");
+    public static final LangKey ARENA_SPECTATE_ERROR_NOTHING = new LangKey("Arena.Spectate.Error.Nothing", "There is nothing to spectate for at the moment.");
 
     public static final LangKey ARENA_SCHEDULER_OPEN_ANNOUNCE = LangKey.of("Arena.Scheduler.Open.Announce", "&7Arena &a" + Placeholders.ARENA_NAME + "&7 is opened for play!");
     public static final LangKey ARENA_SCHEDULER_CLOSE_ANNOUNCE = LangKey.of("Arena.Scheduler.Close.Announce", "&7Arena &c" + Placeholders.ARENA_NAME + "&7 have been closed!");
@@ -144,31 +140,68 @@ public class Lang extends EngineLang {
     public static final LangKey Arena_Game_Restrict_NoPets   = new LangKey("Arena.Game.Restrict.NoPets", "Pets are not allowed on this arena. Your pet has gone.");
     public static final LangKey ARENA_GAME_ERROR_NOT_IN_GAME = new LangKey("Arena.Game.Error.NotInGame", "You are not in game!");
 
-    public static final LangKey Arena_Game_Leave_Death    = new LangKey("Arena.Game.Leave.Death", "{message: ~type: TITLES; ~fadeIn: 10; ~stay: 60; ~fadeOut: 10;}&c&lYou died! \n &7&lYou has left the arena.");
-    public static final LangKey Arena_Game_Leave_Finish   = new LangKey("Arena.Game.Leave.Finish", "{message: ~type: TITLES; ~fadeIn: 10; ~stay: 60; ~fadeOut: 10;}&a&lCongratulations! You finished the arena! \n &2&lCheck your inventory for rewards!");
-    public static final LangKey Arena_Game_Leave_Timeleft = new LangKey("Arena.Game.Leave.Timeleft", "{message: ~type: TITLES; ~fadeIn: 10; ~stay: 60; ~fadeOut: 10;}&4&lTime is ended! \n &7&lYou has left the arena.");
-    public static final LangKey Arena_Game_Leave_NoRegion = new LangKey("Arena.Game.Leave.NoRegion", "{message: ~type: TITLES; ~fadeIn: 10; ~stay: 60; ~fadeOut: 10;}&4&lNo Regions! \n &7&lYou has left the arena.");
-    public static final LangKey Arena_Game_Leave_ForceEnd = new LangKey("Arena.Game.Leave.ForceEnd", "{message: ~type: TITLES; ~fadeIn: 10; ~stay: 60; ~fadeOut: 10;}&4&lForce End! \n &7&lYou has left the arena.");
-    public static final LangKey Arena_Game_Leave_Outside  = new LangKey("Arena.Game.Leave.Outside", "{message: ~type: TITLES; ~fadeIn: 10; ~stay: 60; ~fadeOut: 10;}&4&lYou're out of the arena! \n &7&lYou has left the arena.");
-    public static final LangKey Arena_Game_Leave_Self     = new LangKey("Arena.Game.Leave.Self", "{message: ~type: TITLES; ~fadeIn: 10; ~stay: 60; ~fadeOut: 10;}&4&lMob Arena \n &7&lYou has left the arena.");
-    public static final LangKey Arena_Game_Leave_NoKit    = new LangKey("Arena.Game.Leave.NoKit", "{message: ~type: TITLES; ~fadeIn: 10; ~stay: 60; ~fadeOut: 10;}&4&lYou don't have a kit! \n &7&lYou has left the arena.");
-    public static final LangKey Arena_Game_Leave_Kick     = new LangKey("Arena.Game.Leave.Kick", "{message: ~type: TITLES; ~fadeIn: 10; ~stay: 60; ~fadeOut: 10;}&4&lKICKED! \n &7&lYou has left the arena.");
+    public static final LangKey ARENA_GAME_LEAVE_INFO  = LangKey.of("Arena.Game.Leave.Info", "You has left the arena.");
 
-    public static final LangKey Arena_Game_Lobby_Ready_True  = new LangKey("Arena.Game.Lobby.Ready.True", "&a%player_name% &7is ready to play!");
-    public static final LangKey Arena_Game_Lobby_Ready_False = new LangKey("Arena.Game.Lobby.Ready.False", "&c%player_name% &7is not ready to play...");
     public static final LangKey Arena_Game_Lobby_Enter       = new LangKey("Arena.Game.Lobby.Enter", "{message: ~type: TITLES; ~fadeIn: 10; ~stay: 40; ~fadeOut: 10;}&a&lWelcome to Mob Arena! \n &2&lPlease, choose your kit");
     public static final LangKey Arena_Game_Lobby_Timer       = new LangKey("Arena.Game.Lobby.Timer", "{message: ~type: TITLES; ~fadeIn: 10; ~stay: 40; ~fadeOut: 10; ~sound: BLOCK_NOTE_BLOCK_PLING;}&e&lThe game will start in \n &a&l%time% seconds!");
     public static final LangKey Arena_Game_Lobby_MinPlayers  = new LangKey("Arena.Game.Lobby.MinPlayers", "Minimum players to start: &c%min%");
     public static final LangKey Arena_Game_Lobby_Joined      = new LangKey("Arena.Game.Lobby.Joined", "&a%player_name% &7has joined the arena.");
 
-    public static final LangKey Arena_Game_Death_Lives  = new LangKey("Arena.Game.Death.Lives", "{message: ~type: TITLES; ~fadeIn: 10; ~stay: 40; ~fadeOut: 10;}&4&lYou Died! \n &cLives left: &e&lx%player_lives%");
-    public static final LangKey Arena_Game_Death_Player = new LangKey("Arena.Game.Death.Player", "&c%player_name% &7died! Players left: &c%arena_players%");
+    public static final LangKey ARENA_GAME_DEATH_WITH_LIFES = LangKey.of("Arena.Game.Death.WithLifes",
+        "<! type:\"titles:10:60:10\" sound:\"" + Sound.ENTITY_ZOMBIE_DEATH.name() + "\" !>" +
+            "\n" + RED + "&lYou Died!" +
+            "\n" + GRAY + "You have " + RED + Placeholders.PLAYER_LIVES + "❤" + GRAY + " extra lifes!");
+    public static final LangKey ARENA_GAME_DEATH_NO_LIFES   = LangKey.of("Arena.Game.Death.NoLifes",
+        "<! type:\"titles:10:60:10\" sound:\"" + Sound.ENTITY_ZOMBIE_DEATH.name() + "\" !>" +
+            "\n" + RED + "&lYou Died!" +
+            "\n" + GRAY + "You don't have extra lifes. Leave: " + RED + "/ama leave");
 
-    public static final LangKey Arena_Game_Wave_Latest   = new LangKey("Arena.Game.Wave.Latest", "&a&lCongrats! &7You just reached the latest arena wave!");
+    public static final LangKey ARENA_GAME_REVIVE_WITH_LIFES = LangKey.of("Arena.Game.Revive.WithLifes",
+        "<! type:\"titles:10:60:10\" sound:\"" + Sound.ITEM_TOTEM_USE.name() + "\" !>" +
+            "\n" + GREEN + "&lYou've been revived!" +
+            "\n" + GRAY + "You have " + GREEN + Placeholders.PLAYER_LIVES + "❤" + GRAY + " extra lifes!");
+    public static final LangKey ARENA_GAME_REVIVE_NO_LIFES   = LangKey.of("Arena.Game.Revive.NoLifes",
+        "<! type:\"titles:10:60:10\" sound:\"" + Sound.ITEM_TOTEM_USE.name() + "\" !>" +
+            "\n" + GREEN + "&lYou've been revived!" +
+            "\n" + GRAY + "This is your " + RED + "last" + GRAY + " chance!");
+
+    public static final LangKey ARENA_GAME_INFO_PLAYER_READY     = LangKey.of("Arena.Game.Info.Player.Ready",
+        GREEN + Placeholders.Player.NAME + GRAY + " is ready to play!");
+    public static final LangKey ARENA_GAME_INFO_PLAYER_NOT_READY = LangKey.of("Arena.Game.Info.Player.NotReady",
+        RED + Placeholders.Player.NAME + GRAY + " is not ready to play.");
+    public static final LangKey ARENA_GAME_INFO_PLAYER_DEATH = LangKey.of("Arena.Game.Info.Player.Death",
+        RED + Placeholders.Player.NAME + " " + GRAY + "died!");
+
+    public static final LangKey ARENA_GAME_END_ALL_DEAD = LangKey.of("Arena.Game.End.AllDead",
+        "<! type:\"titles:10:100:10\" sound:\"" + Sound.ENTITY_BLAZE_DEATH.name() + "\" !>" +
+            "\n" + RED + "&lDefeat" +
+            "\n" + GRAY + "All players died...");
+    public static final LangKey ARENA_GAME_END_TIMEOUT = LangKey.of("Arena.Game.End.Timeout",
+        "<! type:\"titles:10:100:10\" sound:\"" + Sound.ENTITY_BLAZE_DEATH.name() + "\" !>" +
+            "\n" + RED + "&lTime Out" +
+            "\n" + GRAY + "You were unable to beat them in a time...");
+    public static final LangKey ARENA_GAME_END_COMPLETED = LangKey.of("Arena.Game.End.Completed",
+        "<! type:\"titles:10:100:10\" sound:\"" + Sound.ENTITY_PLAYER_LEVELUP.name() + "\" !>" +
+            "\n" + GREEN + "&lVictory!" +
+            "\n" + GRAY + "You've passed all the waves!");
+
+    public static final LangKey ARENA_GAME_STATUS_SPECTATE = LangKey.of("Arena.Game.Status.Spectate",
+        "<! type:\"action_bar\" !>" + GRAY + "You're spectating the arena. Type " + LIME + "/ama leave" + GRAY + " to leave.");
+
+    public static final LangKey ARENA_GAME_STATUS_DEAD_WITH_LIFES = LangKey.of("Arena.Game.Status.Dead.WithLifes",
+        "<! type:\"action_bar\" !>" + RED + "You're dead. You will be revived at the round end.");
+    public static final LangKey ARENA_GAME_STATUS_DEAD_NO_LIFES   = LangKey.of("Arena.Game.Status.Dead.NoLifes",
+        "<! type:\"action_bar\" !>" + RED + "You're dead. You don't have extra lifes and can spectate only.");
+
+    public static final LangKey ARENA_GAME_STATUS_ROUND_PREPARE = LangKey.of("Arena.Game.Status.Round.Prepare",
+        "<! type:\"action_bar\" !>&6&lNew round in: &e&l%arena_wave_next_in% &6&lseconds!");
+    public static final LangKey ARENA_GAME_STATUS_ROUND_ACTIVE  = LangKey.of("Arena.Game.Status.Round.Active",
+        "<! type:\"action_bar\" !>&b[Mobs] &aAlive: &2" + Placeholders.ARENA_MOBS_ALIVE + " &7| &eLeft: &6" + Placeholders.ARENA_MOBS_LEFT);
+
+    public static final LangKey ARENA_GAME_STATUS_ENDING = LangKey.of("Arena.Game.Status.Ending",
+        "<! type:\"action_bar\" !>" + CYAN + "Game ends in " + GRAY + Placeholders.ARENA_END_COUNTDOWN + CYAN + " seconds.");
+
     public static final LangKey Arena_Game_Wave_Start    = new LangKey("Arena.Game.Wave.Start", "{message: ~type: TITLES; ~fadeIn: 10; ~stay: 40; ~fadeOut: 10;}&6&lWave &e&l#%arena_wave_number% \n &4&lPrepare to fight!");
-    public static final LangKey Arena_Game_Wave_Timer    = new LangKey("Arena.Game.Wave.Timer", "{message: ~type: ACTION_BAR;}&6&lNew wave in: &e&l%arena_wave_next_in% &6&lseconds!");
-    public static final LangKey Arena_Game_Wave_TimerEnd = new LangKey("Arena.Game.Wave.TimerEnd", "{message: ~type: ACTION_BAR;}&b&l&nGame Ends in:&d&l %arena_wave_next_in% &b&lseconds!");
-    public static final LangKey Arena_Game_Wave_Progress = new LangKey("Arena.Game.Wave.Progress", "{message: ~type: ACTION_BAR;}&b[Mobs] &aAlive: &2" + Placeholders.ARENA_MOBS_ALIVE + " &7| &eLeft: &6" + Placeholders.ARENA_MOBS_LEFT);
 
     public static final LangKey ARENA_REGION_UNLOCKED_NOTIFY = new LangKey("Arena.Region.Unlocked.Notify", "{message: ~type: TITLES; ~fadeIn: 0; ~stay: 30; ~fadeOut: 10; ~sound: " + Sound.BLOCK_NOTE_BLOCK_BELL.name() + ";}&a&lRegion Unlocked!\n&f" + Placeholders.REGION_NAME);
     public static final LangKey ARENA_REGION_LOCKED_NOTIFY   = new LangKey("Arena.Region.Locked.Notify", "{message: ~type: TITLES; ~fadeIn: 0; ~stay: 30; ~fadeOut: 10;}&c&lNew Region!\n&4&lFollow to the next arena region!");

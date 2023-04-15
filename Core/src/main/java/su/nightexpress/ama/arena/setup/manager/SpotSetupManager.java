@@ -29,11 +29,10 @@ public class SpotSetupManager extends AbstractSetupManager<ArenaSpot> {
     @Override
     protected void onSetupStart(@NotNull Player player, @NotNull ArenaSpot spot) {
         this.cuboidCache = new Location[2];
-        ArenaCuboid cuboid = spot.getCuboid();
-        if (!cuboid.isEmpty()) {
-            this.cuboidCache[0] = cuboid.getLocationMin().clone();
-            this.cuboidCache[1] = cuboid.getLocationMax().clone();
-        }
+        spot.getCuboid().ifPresent(cuboid -> {
+            this.cuboidCache[0] = cuboid.getMin().clone();
+            this.cuboidCache[1] = cuboid.getMax().clone();
+        });
 
         this.visualTask = new VisualTask();
         this.visualTask.start();

@@ -6,29 +6,33 @@ import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.IEditable;
 import su.nexmedia.engine.api.manager.ILoadable;
+import su.nexmedia.engine.api.placeholder.Placeholder;
+import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
-import su.nightexpress.ama.api.arena.IProblematic;
+import su.nightexpress.ama.api.arena.Problematic;
 import su.nightexpress.ama.arena.editor.spot.SpotListEditor;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
-import su.nightexpress.ama.arena.util.ArenaCuboid;
 
 import java.util.*;
-import java.util.function.UnaryOperator;
 
-public class ArenaSpotManager implements ArenaChild, ILoadable, IEditable, IProblematic {
+public class ArenaSpotManager implements ArenaChild, ILoadable, IEditable, Problematic, Placeholder {
 
     public static final String DIR_SPOTS = "/spots/";
 
     private final ArenaConfig arenaConfig;
     private final Map<String, ArenaSpot> spots;
+    private final PlaceholderMap placeholderMap;
 
     private SpotListEditor editor;
 
     public ArenaSpotManager(@NotNull ArenaConfig arenaConfig) {
         this.arenaConfig = arenaConfig;
         this.spots = new HashMap<>();
+
+        this.placeholderMap = new PlaceholderMap()
+            .add(Placeholders.GENERIC_PROBLEMS, () -> String.join("\n", this.getProblems()));
     }
 
     @Override
@@ -54,8 +58,8 @@ public class ArenaSpotManager implements ArenaChild, ILoadable, IEditable, IProb
 
     @Override
     @NotNull
-    public UnaryOperator<String> replacePlaceholders() {
-        return str -> str.replace(Placeholders.GENERIC_PROBLEMS, Placeholders.formatProblems(this.getProblems()));
+    public PlaceholderMap getPlaceholders() {
+        return this.placeholderMap;
     }
 
     @NotNull
@@ -69,7 +73,7 @@ public class ArenaSpotManager implements ArenaChild, ILoadable, IEditable, IProb
         List<String> list = new ArrayList<>();
         this.getSpots().forEach(spot -> {
             if (spot.isActive() && spot.hasProblems()) {
-                list.add("Problems with '" + spot.getId() + "' spot!");
+                list.add(problem("Problems with '" + spot.getId() + "' spot!"));
             }
         });
 
@@ -108,7 +112,6 @@ public class ArenaSpotManager implements ArenaChild, ILoadable, IEditable, IProb
         ArenaSpot spot = new ArenaSpot(this.getArenaConfig(), new JYML(this.getSpotsPath(), id + ".yml"));
         spot.setActive(false);
         spot.setName(StringUtil.capitalizeUnderscored(spot.getId()) + " Spot");
-        spot.setCuboid(ArenaCuboid.empty());
         spot.save();
         spot.load();
         this.addSpot(spot);
@@ -133,6 +136,8 @@ public class ArenaSpotManager implements ArenaChild, ILoadable, IEditable, IProb
 
     @Nullable
     public ArenaSpot getSpot(@NotNull Location location) {
-        return this.getSpots().stream().filter(spot -> spot.getCuboid().contains(location)).findFirst().orElse(null);
+        return this.getSpots().stream()
+            .filter(spot -> spot.getCuboid().isPresent() && spot.getCuboid().get().contains(location))
+            .findFirst().orElse(null);
     }
 }

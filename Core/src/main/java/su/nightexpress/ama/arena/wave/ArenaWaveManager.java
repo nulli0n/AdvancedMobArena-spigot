@@ -6,13 +6,15 @@ import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.ConfigHolder;
 import su.nexmedia.engine.api.manager.IEditable;
 import su.nexmedia.engine.api.manager.ILoadable;
+import su.nexmedia.engine.api.placeholder.Placeholder;
+import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.lang.LangManager;
 import su.nexmedia.engine.utils.NumberUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nexmedia.engine.utils.TimeUtil;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
-import su.nightexpress.ama.api.arena.IProblematic;
+import su.nightexpress.ama.api.arena.Problematic;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
 import su.nightexpress.ama.arena.editor.wave.WaveManagerEditor;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
@@ -27,15 +29,15 @@ import su.nightexpress.ama.hook.mob.PluginMobProvider;
 import su.nightexpress.ama.hook.mob.impl.InternalMobProvider;
 
 import java.util.*;
-import java.util.function.UnaryOperator;
 
-public class ArenaWaveManager implements ArenaChild, ConfigHolder, ILoadable, IProblematic, IEditable {
+public class ArenaWaveManager implements ArenaChild, ConfigHolder, ILoadable, Problematic, Placeholder, IEditable {
 
     public static final String CONFIG_NAME = "waves.yml";
 
     private final ArenaConfig                     arenaConfig;
     private final JYML                            config;
     private final Map<String, ArenaWave>          waves;
+    private final PlaceholderMap placeholderMap;
 
     private int finalWave;
     private int delayFirst;
@@ -53,6 +55,18 @@ public class ArenaWaveManager implements ArenaChild, ConfigHolder, ILoadable, IP
         this.arenaConfig = arenaConfig;
         this.config = new JYML(arenaConfig.getFile().getParentFile().getAbsolutePath(), CONFIG_NAME);
         this.waves = new HashMap<>();
+
+        this.placeholderMap = new PlaceholderMap()
+            .add(Placeholders.GENERIC_PROBLEMS, () -> String.join("\n", this.getProblems()))
+            .add(Placeholders.ARENA_WAVES_DELAY_FIRST, () -> TimeUtil.formatTime(this.getDelayFirst() * 1000L))
+            .add(Placeholders.ARENA_WAVES_DELAY_DEFAULT, () -> TimeUtil.formatTime(this.getDelayDefault() * 1000L))
+            .add(Placeholders.ARENA_WAVES_FINAL_WAVE, () -> String.valueOf(this.getFinalWave()))
+            .add(Placeholders.ARENA_WAVES_GRADUAL_ENABLED, () -> LangManager.getBoolean(this.isGradualSpawnEnabled()))
+            .add(Placeholders.ARENA_WAVES_GRADUAL_FIRST_PERCENT, () -> NumberUtil.format(this.getGradualSpawnPercentFirst()))
+            .add(Placeholders.ARENA_WAVES_GRADUAL_NEXT_PERCENT, () -> NumberUtil.format(this.getGradualSpawnNextPercent()))
+            .add(Placeholders.ARENA_WAVES_GRADUAL_NEXT_INTERVAL, () -> TimeUtil.formatTime(this.getGradualSpawnNextInterval() * 1000L))
+            .add(Placeholders.ARENA_WAVES_GRADUAL_NEXT_KILL_PERCENT, () -> NumberUtil.format(this.getGradualSpawnNextKillPercent()))
+        ;
     }
 
     @Override
@@ -132,6 +146,8 @@ public class ArenaWaveManager implements ArenaChild, ConfigHolder, ILoadable, IP
 
             this.waves.put(wave.getId(), wave);
         }
+
+        config.saveChanges();
     }
 
     @Override
@@ -173,18 +189,8 @@ public class ArenaWaveManager implements ArenaChild, ConfigHolder, ILoadable, IP
 
     @Override
     @NotNull
-    public UnaryOperator<String> replacePlaceholders() {
-        return str -> str
-            .replace(Placeholders.GENERIC_PROBLEMS, Placeholders.formatProblems(this.getProblems()))
-            .replace(Placeholders.ARENA_WAVES_DELAY_FIRST, TimeUtil.formatTime(this.getDelayFirst() * 1000L))
-            .replace(Placeholders.ARENA_WAVES_DELAY_DEFAULT, TimeUtil.formatTime(this.getDelayDefault() * 1000L))
-            .replace(Placeholders.ARENA_WAVES_FINAL_WAVE, String.valueOf(this.getFinalWave()))
-            .replace(Placeholders.ARENA_WAVES_GRADUAL_ENABLED, LangManager.getBoolean(this.isGradualSpawnEnabled()))
-            .replace(Placeholders.ARENA_WAVES_GRADUAL_FIRST_PERCENT, NumberUtil.format(this.getGradualSpawnPercentFirst()))
-            .replace(Placeholders.ARENA_WAVES_GRADUAL_NEXT_PERCENT, NumberUtil.format(this.getGradualSpawnNextPercent()))
-            .replace(Placeholders.ARENA_WAVES_GRADUAL_NEXT_INTERVAL, TimeUtil.formatTime(this.getGradualSpawnNextInterval() * 1000L))
-            .replace(Placeholders.ARENA_WAVES_GRADUAL_NEXT_KILL_PERCENT, NumberUtil.format(this.getGradualSpawnNextKillPercent()))
-            ;
+    public PlaceholderMap getPlaceholders() {
+        return this.placeholderMap;
     }
 
     @Override
@@ -213,10 +219,14 @@ public class ArenaWaveManager implements ArenaChild, ConfigHolder, ILoadable, IP
     public List<String> getProblems() {
         List<String> list = new ArrayList<>();
         if (this.getWaves().isEmpty()) {
-            list.add("No waves defined!");
+            list.add(problem("No Waves Created!"));
         }
 
         return list;
+    }
+
+    public boolean isInfiniteWaves() {
+        return this.getFinalWave() <= 0;
     }
 
     @NotNull
@@ -234,7 +244,7 @@ public class ArenaWaveManager implements ArenaChild, ConfigHolder, ILoadable, IP
     }
 
     public void setFinalWave(int finalWave) {
-        this.finalWave = finalWave == 0 ? -1 : finalWave;
+        this.finalWave = finalWave <= 0 ? -1 : finalWave;
     }
 
     public int getDelayDefault() {

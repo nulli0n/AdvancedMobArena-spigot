@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import su.nightexpress.ama.api.ArenaAPI;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
+import su.nightexpress.ama.arena.type.PlayerType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,7 +50,7 @@ public class ArenaUtils {
     }
 
     public static void addMobBossBar(@NotNull Arena arena, @NotNull LivingEntity mob, @NotNull BossBar bossBar) {
-        arena.getPlayers().stream().map(ArenaPlayer::getPlayer).forEach(bossBar::addPlayer);
+        arena.getPlayers(PlayerType.REAL).stream().map(ArenaPlayer::getPlayer).forEach(bossBar::addPlayer);
         MOB_BARS.put(mob.getUniqueId(), bossBar);
     }
 

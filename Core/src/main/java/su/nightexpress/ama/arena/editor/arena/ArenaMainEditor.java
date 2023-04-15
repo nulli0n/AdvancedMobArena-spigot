@@ -123,7 +123,7 @@ public class ArenaMainEditor extends AbstractEditorMenu<AMA, ArenaConfig> {
                     }
                     case ARENA_CHANGE_NAME -> {
                         EditorManager.startEdit(player, config, type2, input);
-                        EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NAME).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NAME).getLocalized());
                         player.closeInventory();
                     }
                     case ARENA_CHANGE_REQUIREMENT_PERMISSION -> {
@@ -152,7 +152,7 @@ public class ArenaMainEditor extends AbstractEditorMenu<AMA, ArenaConfig> {
                             EditorManager.startEdit(player, config, ArenaEditorType.ARENA_AUTO_STATE_SCHEDULERS_ADD_CLOSE, input);
                         }
                         EditorManager.suggestValues(player, CollectionsUtil.getEnumsList(DayOfWeek.class), false);
-                        EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_ARENA_ENTER_SCHEDULER_TIME).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_ARENA_ENTER_SCHEDULER_TIME).getLocalized());
                         player.closeInventory();
                     }
                     case ARENA_CHANGE_REQUIREMENT_PAYMENT -> {
@@ -164,7 +164,7 @@ public class ArenaMainEditor extends AbstractEditorMenu<AMA, ArenaConfig> {
                         }
                         EditorManager.startEdit(player, config, type2, input);
                         EditorManager.suggestValues(player, plugin.getCurrencyManager().getCurrencyIds(), false);
-                        EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_ARENA_ENTER_JOIN_PAYMENT).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_ARENA_ENTER_JOIN_PAYMENT).getLocalized());
                         player.closeInventory();
                     }
                     case ARENA_CHANGE_REQUIREMENT_LEVEL -> {
@@ -179,7 +179,7 @@ public class ArenaMainEditor extends AbstractEditorMenu<AMA, ArenaConfig> {
                         }
                         EditorManager.startEdit(player, config, type2, input);
                         EditorManager.suggestValues(player, PluginLevelProvider.getProvidersMap().keySet(), false);
-                        EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_ARENA_ENTER_JOIN_LEVEL).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_ARENA_ENTER_JOIN_LEVEL).getLocalized());
                         player.closeInventory();
                     }
                     case ARENA_SETUP_KIT -> {

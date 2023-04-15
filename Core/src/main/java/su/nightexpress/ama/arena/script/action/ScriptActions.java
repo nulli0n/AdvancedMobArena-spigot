@@ -90,7 +90,7 @@ public class ScriptActions {
     public static final ScriptAction BROADCAST = register("broadcast", (event, result) -> {
         ArenaTargetType targetType = result.get(Parameters.TARGET, ArenaTargetType.GLOBAL);
         String message = Colorizer.apply(result.get(Parameters.MESSAGE, ""));
-        event.getArena().broadcast(message, targetType);
+        event.getArena().broadcast(targetType, message);
     }, Parameters.MESSAGE, Parameters.TARGET);
 
     public static final ScriptAction CHANGE_SPOT = register("change_spot", (event, result) -> {
@@ -123,6 +123,7 @@ public class ScriptActions {
     public static final ScriptAction INJECT_WAVE = register("inject_wave", (event, result) -> {
         String regionId = result.get(Parameters.REGION, "");
         String waveId = result.get(Parameters.WAVE, "");
+        String spawnerIds = result.get(Parameters.SPAWNERS, "");
 
         Arena arena = event.getArena();
         ArenaConfig config = arena.getConfig();
@@ -138,8 +139,11 @@ public class ScriptActions {
         mobs.removeIf(mob -> mob.getAmount() <= 0);
         if (mobs.isEmpty()) return;
 
-        arena.injectWave(new ArenaUpcomingWave(region, mobs));
-    }, Parameters.WAVE, Parameters.REGION);
+        List<String> spawners = new ArrayList<>(Arrays.asList(spawnerIds.split(",")));
+        spawners.removeIf(String::isEmpty);
+
+        arena.injectWave(new ArenaUpcomingWave(region, mobs, spawners));
+    }, Parameters.WAVE, Parameters.REGION, Parameters.SPAWNERS);
 
     @NotNull
     public static ScriptAction register(@NotNull String name,

@@ -8,6 +8,7 @@ import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
+import su.nightexpress.ama.arena.type.PlayerType;
 import su.nightexpress.ama.config.Lang;
 
 import java.util.ArrayList;
@@ -48,7 +49,7 @@ public class ScoreCmd extends AbstractCommand<AMA> {
         if (i == 2) {
             List<String> names = new ArrayList<>();
             plugin.getArenaManager().getArenas().forEach(arena -> {
-                names.addAll(arena.getPlayers().stream()
+                names.addAll(arena.getPlayers(PlayerType.REAL).stream()
                     .map(ap -> ap.getPlayer().getName()).collect(Collectors.toList()));
             });
 

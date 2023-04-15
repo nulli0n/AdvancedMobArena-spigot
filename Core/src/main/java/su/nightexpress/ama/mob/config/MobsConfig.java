@@ -72,7 +72,7 @@ public class MobsConfig {
         "For Mob names, use mob identifiers from the /mobs/ sub-folder, or MythicMobs internal mob names.",
         "Also, you can use the 'default' keyword for all other mobs not listed here.",
         "For Currency, use currency identifiers from the /currency/ sub-folder."
-    );
+    ).setWriter((cfg, path, map) -> map.forEach((id, reward) -> MobKillReward.write(reward, cfg, path + "." + id)));
 
     public static final JOption<Boolean>                     KILL_STREAK_ENABLED = JOption.create("Mobs.Kill_Streaks.Enabled", true, "Enables the Mob Kill Streak feature.");
     public static final JOption<Integer>                     KILL_STREAK_DECAY   = JOption.create("Mobs.Kill_Streaks.Streak_Decay", 5, "Sets for how long (in seconds) kill streak will retain before reset to zero.");
@@ -110,10 +110,5 @@ public class MobsConfig {
         "For 'Bonus' section you can set percent values like 100%. Then it will be applied as a multiplier to the Mob Kill Reward value(s).",
         "For 'Message' you can use " + Placeholders.GENERIC_AMOUNT + " placeholder for a kills amount. Please check: https://github.com/nulli0n/NexEngine-spigot/wiki/Language-Config#message-options",
         "For 'Commands', please check https://github.com/nulli0n/NexEngine-spigot/wiki/Configuration-Tips#command-sections"
-        );
-
-    static {
-        KILL_REWARD_VALUES.setWriter((cfg, path) -> KILL_REWARD_VALUES.get().forEach((id, reward) -> reward.write(cfg, path + "." + id)));
-        KILL_STREAK_TABLE.setWriter((cfg, path) -> KILL_STREAK_TABLE.get().forEach((ks, streak) -> streak.write(cfg, path + "." + ks)));
-    }
+        ).setWriter((cfg, path, map) -> map.forEach((ks, streak) -> MobKillStreak.write(streak, cfg, path + "." + ks)));
 }

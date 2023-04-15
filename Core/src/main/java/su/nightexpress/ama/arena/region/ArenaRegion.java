@@ -10,6 +10,8 @@ import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.AbstractConfigHolder;
 import su.nexmedia.engine.api.manager.ICleanable;
 import su.nexmedia.engine.api.manager.IEditable;
+import su.nexmedia.engine.api.placeholder.Placeholder;
+import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.lang.LangManager;
 import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.LocationUtil;
@@ -17,7 +19,7 @@ import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
-import su.nightexpress.ama.api.arena.IProblematic;
+import su.nightexpress.ama.api.arena.Problematic;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
 import su.nightexpress.ama.api.event.ArenaRegionEvent;
 import su.nightexpress.ama.api.hologram.HologramHolder;
@@ -35,19 +37,20 @@ import su.nightexpress.ama.arena.script.condition.ScriptPreparedCondition;
 import su.nightexpress.ama.arena.script.impl.ArenaScript;
 import su.nightexpress.ama.arena.supply.ArenaSupplyChest;
 import su.nightexpress.ama.arena.type.GameState;
+import su.nightexpress.ama.arena.type.PlayerType;
 import su.nightexpress.ama.arena.util.ArenaCuboid;
 import su.nightexpress.ama.hologram.HologramManager;
 
 import java.util.*;
-import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
-public class ArenaRegion extends AbstractConfigHolder<AMA> implements ArenaChild, Lockable, HologramHolder, IProblematic, IEditable, ICleanable {
+public class ArenaRegion extends AbstractConfigHolder<AMA> implements ArenaChild, Lockable, HologramHolder, Problematic, Placeholder, IEditable, ICleanable {
 
     private final ArenaConfig           arenaConfig;
     private final Map<String, Location> mobSpawners;
     private final Set<Location>         hologramLocations;
     private final Set<UUID>             hologramIds;
+    private final PlaceholderMap placeholderMap;
 
     private boolean     isActive;
     private boolean     isDefault;
@@ -65,6 +68,16 @@ public class ArenaRegion extends AbstractConfigHolder<AMA> implements ArenaChild
         this.hologramLocations = new HashSet<>();
         this.hologramIds = new HashSet<>();
         this.lockState = LockState.UNLOCKED;
+
+        this.placeholderMap = new PlaceholderMap()
+            .add(Placeholders.GENERIC_PROBLEMS, () -> String.join("\n", this.getProblems()))
+            .add(Placeholders.REGION_FILE, () -> this.getFile().getName())
+            .add(Placeholders.REGION_ID, this::getId)
+            .add(Placeholders.REGION_NAME, this::getName)
+            .add(Placeholders.REGION_ACTIVE, () -> LangManager.getBoolean(this.isActive()))
+            .add(Placeholders.REGION_DEFAULT, () -> LangManager.getBoolean(this.isDefault()))
+            .add(Placeholders.REGION_STATE, () -> this.plugin().getLangManager().getEnum(this.getLockState()))
+        ;
     }
 
     @Override
@@ -76,7 +89,9 @@ public class ArenaRegion extends AbstractConfigHolder<AMA> implements ArenaChild
 
         Location from = cfg.getLocation("Bounds.From");
         Location to = cfg.getLocation("Bounds.To");
-        this.setCuboid((from == null || to == null) ? ArenaCuboid.empty() : new ArenaCuboid(from, to));
+        if (from != null && to != null) {
+            this.setCuboid(new ArenaCuboid(from, to));
+        }
         this.spawnLocation = cfg.getLocation("Spawn_Location");
 
         for (String sId : cfg.getSection("Mob_Spawners")) {
@@ -123,6 +138,8 @@ public class ArenaRegion extends AbstractConfigHolder<AMA> implements ArenaChild
             Set<String> waveIds = cfg.getStringSet(path2 + "Arena_Wave_Ids");
             if (!waveIdOld.isEmpty() && waveIds.isEmpty()) waveIds.add(waveIdOld);
 
+            Set<String> spawnerIds = cfg.getStringSet(path2 + "Spawners");
+
             // ----------- CONVERT SCRIPTS START -----------
             for (String eventRaw : cfg.getSection(path2 + "Triggers")) {
                 ArenaGameEventType eventType = StringUtil.getEnum(eventRaw, ArenaGameEventType.class).orElse(null);
@@ -139,6 +156,7 @@ public class ArenaRegion extends AbstractConfigHolder<AMA> implements ArenaChild
                     ScriptPreparedAction action = new ScriptPreparedAction(ScriptActions.INJECT_WAVE, new ParameterResult());
                     action.getParameters().add(Parameters.WAVE, waveId);
                     action.getParameters().add(Parameters.REGION, this.getId());
+                    if (!spawnerIds.isEmpty()) action.getParameters().add(Parameters.SPAWNERS, String.join(",", spawnerIds));
                     script.getActions().add(action);
                 }
 
@@ -196,6 +214,8 @@ public class ArenaRegion extends AbstractConfigHolder<AMA> implements ArenaChild
         this.getProblems().forEach(problem -> {
             this.plugin().warn("Problem in '" + getFile().getName() + "' Region: " + problem);
         });
+
+        cfg.saveChanges();
         return true;
     }
 
@@ -204,8 +224,11 @@ public class ArenaRegion extends AbstractConfigHolder<AMA> implements ArenaChild
         cfg.set("Enabled", this.isActive());
         cfg.set("Is_Default", this.isDefault());
         cfg.set("Name", this.getName());
-        cfg.set("Bounds.From", this.getCuboid().getLocationMin());
-        cfg.set("Bounds.To", this.getCuboid().getLocationMax());
+        cfg.remove("Bounds");
+        this.getCuboid().ifPresent(cuboid -> {
+            cfg.set("Bounds.From", cuboid.getMin());
+            cfg.set("Bounds.To", cuboid.getMax());
+        });
         cfg.set("Spawn_Location", this.getSpawnLocation());
         cfg.set("Mob_Spawners", null);
         this.mobSpawners.forEach((id, loc) -> {
@@ -225,16 +248,8 @@ public class ArenaRegion extends AbstractConfigHolder<AMA> implements ArenaChild
 
     @Override
     @NotNull
-    public UnaryOperator<String> replacePlaceholders() {
-        return str -> str
-            .replace(Placeholders.GENERIC_PROBLEMS, Placeholders.formatProblems(this.getProblems()))
-            .replace(Placeholders.REGION_FILE, this.getFile().getName())
-            .replace(Placeholders.REGION_ID, this.getId())
-            .replace(Placeholders.REGION_NAME, this.getName())
-            .replace(Placeholders.REGION_ACTIVE, LangManager.getBoolean(this.isActive()))
-            .replace(Placeholders.REGION_DEFAULT, LangManager.getBoolean(this.isDefault()))
-            .replace(Placeholders.REGION_STATE, this.plugin().getLangManager().getEnum(this.getLockState()))
-            ;
+    public PlaceholderMap getPlaceholders() {
+        return this.placeholderMap;
     }
 
     @Override
@@ -242,20 +257,20 @@ public class ArenaRegion extends AbstractConfigHolder<AMA> implements ArenaChild
     public List<String> getProblems() {
         List<String> list = new ArrayList<>();
         if (this.getCuboid().isEmpty()) {
-            list.add(Placeholders.PROBLEM_REGION_CUBOID_INVALID);
+            list.add(problem("Invalid Cuboid Selection!"));
         }
-        if (this.getSpawnLocation() == null || !this.getCuboid().contains(this.getSpawnLocation())) {
-            list.add(Placeholders.PROBLEM_REGION_SPAWN_LOCATION);
+        if (this.getSpawnLocation() == null || !this.getCuboid().get().contains(this.getSpawnLocation())) {
+            list.add(problem("Invalid Spawn Location!"));
         }
         if (this.getMobSpawners().isEmpty()) {
-            list.add(Placeholders.PROBLEM_REGION_SPAWNERS_EMPTY);
+            list.add(problem("No Mob Spawners!"));
         }
         return list;
     }
 
     @NotNull
     public Set<ArenaPlayer> getPlayers() {
-        return this.getArena().getPlayers(GameState.INGAME).stream().filter(arenaPlayer -> {
+        return this.getArena().getPlayers(GameState.INGAME, PlayerType.REAL).stream().filter(arenaPlayer -> {
             return this.equals(arenaPlayer.getRegion());
         }).collect(Collectors.toSet());
     }
@@ -320,11 +335,11 @@ public class ArenaRegion extends AbstractConfigHolder<AMA> implements ArenaChild
     }
 
     @NotNull
-    public ArenaCuboid getCuboid() {
-        return this.cuboid;
+    public Optional<ArenaCuboid> getCuboid() {
+        return Optional.ofNullable(this.cuboid);
     }
 
-    public void setCuboid(@NotNull ArenaCuboid cuboid) {
+    public void setCuboid(@Nullable ArenaCuboid cuboid) {
         this.cuboid = cuboid;
     }
 
@@ -343,7 +358,8 @@ public class ArenaRegion extends AbstractConfigHolder<AMA> implements ArenaChild
 
     @Nullable
     public Location getMobSpawner(@NotNull String id) {
-        return this.getMobSpawners().get(id.toLowerCase()).clone();
+        Location location = this.getMobSpawners().get(id.toLowerCase());
+        return location == null ? null : location.clone();
     }
 
     public boolean addMobSpawner(@NotNull Location location) {
@@ -352,7 +368,7 @@ public class ArenaRegion extends AbstractConfigHolder<AMA> implements ArenaChild
         }
 
         Block block = location.getBlock();
-        String id = "spawner_on_" + block.getType().name().toLowerCase() + "_";
+        String id = "s";
         int count = 0;
 
         String idFinal = id + count;

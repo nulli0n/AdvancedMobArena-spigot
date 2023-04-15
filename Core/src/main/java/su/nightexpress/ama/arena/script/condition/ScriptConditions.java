@@ -12,6 +12,7 @@ import su.nightexpress.ama.arena.region.ArenaRegion;
 import su.nightexpress.ama.arena.region.ArenaRegionManager;
 import su.nightexpress.ama.arena.shop.ShopManager;
 import su.nightexpress.ama.arena.type.GameState;
+import su.nightexpress.ama.arena.type.PlayerType;
 import su.nightexpress.ama.utils.TriFunction;
 
 import java.util.HashMap;
@@ -26,7 +27,7 @@ public class ScriptConditions {
 
     public static final ScriptCondition<Number, Number> CHANCE            = numeric("chance", event -> Rnd.get(true));
     public static final ScriptCondition<Number, Number> WAVE_NUMBER       = numeric("wave_number", event -> event.getArena().getWaveNumber());
-    public static final ScriptCondition<Number, Number> PLAYERS_AMOUNT    = numeric("players_amount", event -> event.getArena().getPlayers(GameState.INGAME).size());
+    public static final ScriptCondition<Number, Number> PLAYERS_AMOUNT    = numeric("players_amount", event -> event.getArena().getPlayers(GameState.INGAME, PlayerType.REAL).size());
     public static final ScriptCondition<Number, Number> ENEMY_MOBS_AMOUNT = numeric("enemy_mobs_amount", event -> event.getArena().getMobs().size());
     public static final ScriptCondition<Number, Number> ALLY_MOBS_AMOUNT  = numeric("ally_mobs_amount", event -> event.getArena().getAllyMobs().size());
     public static final ScriptCondition<Number, Number> GAME_SCORE        = numeric("game_score", event -> event.getArena().getGameScore());

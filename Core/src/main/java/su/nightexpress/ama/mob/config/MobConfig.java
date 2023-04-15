@@ -261,7 +261,7 @@ public class MobConfig extends AbstractLoadableItem<AMA> implements IPlaceholder
     }
 
     public void setBarTitle(@NotNull String barTitle) {
-        this.barTitle = StringUtil.color(barTitle);
+        this.barTitle = Colorizer.apply(barTitle);
     }
 
     @NotNull

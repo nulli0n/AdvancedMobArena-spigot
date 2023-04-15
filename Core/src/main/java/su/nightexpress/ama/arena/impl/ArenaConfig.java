@@ -7,6 +7,8 @@ import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.AbstractConfigHolder;
 import su.nexmedia.engine.api.manager.ICleanable;
 import su.nexmedia.engine.api.manager.IEditable;
+import su.nexmedia.engine.api.placeholder.Placeholder;
+import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.lang.LangManager;
 import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.LocationUtil;
@@ -14,7 +16,7 @@ import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.api.arena.IProblematic;
+import su.nightexpress.ama.api.arena.Problematic;
 import su.nightexpress.ama.api.arena.type.ArenaLocationType;
 import su.nightexpress.ama.api.currency.ICurrency;
 import su.nightexpress.ama.api.hologram.HologramHolder;
@@ -39,10 +41,9 @@ import su.nightexpress.ama.stats.object.StatType;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.*;
-import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
-public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHolder, IEditable, ICleanable, IProblematic {
+public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHolder, IEditable, ICleanable, Problematic, Placeholder {
 
     private final Map<DayOfWeek, Set<LocalTime>>    autoOpenTimes;
     private final Map<DayOfWeek, Set<LocalTime>>    autoCloseTimes;
@@ -62,6 +63,7 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
     private final ArenaRewardManager rewardManager;
     private final ShopManager        shopManager;
     private final ArenaScriptManager scriptManager;
+    private final PlaceholderMap placeholderMap;
 
     private boolean isActive;
     private String  name;
@@ -93,6 +95,34 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
         this.rewardManager = new ArenaRewardManager(this);
         this.shopManager = new ShopManager(this);
         this.scriptManager = new ArenaScriptManager(this);
+
+        this.placeholderMap = new PlaceholderMap()
+            .add(Placeholders.GENERIC_PROBLEMS, () -> String.join("\n", this.getProblems()))
+            .add(Placeholders.ARENA_ID, this::getId)
+            .add(Placeholders.ARENA_ACTIVE, () -> LangManager.getBoolean(this.isActive()))
+            .add(Placeholders.ARENA_NAME, this::getName)
+            .add(Placeholders.ARENA_PERMISSION, this::getPermission)
+            .add(Placeholders.ARENA_AUTO_STATE_OPEN_TIMES, () -> {
+                return this.openScheduler.getTimes().entrySet().stream().map(entry -> {
+                    return entry.getKey().name() + ": " + entry.getValue().stream().map(time -> time.format(ArenaStateScheduler.TIME_FORMATTER)).collect(Collectors.joining(", "));
+                }).collect(Collectors.joining("\n"));
+            })
+            .add(Placeholders.ARENA_AUTO_STATE_CLOSE_TIMES, () -> {
+                return this.closeScheduler.getTimes().entrySet().stream().map(entry -> {
+                    return entry.getKey().name() + ": " + entry.getValue().stream().map(time -> time.format(ArenaStateScheduler.TIME_FORMATTER)).collect(Collectors.joining(", "));
+                }).collect(Collectors.joining("\n"));
+            })
+            .add(Placeholders.ARENA_REQUIREMENT_PERMISSION, LangManager.getBoolean(this.isPermissionRequired()))
+            .add(Placeholders.ARENA_REQUIREMENT_PAYMENT, () -> {
+                return this.getJoinPaymentRequirements().keySet().stream().map(c -> {
+                    return c.format(this.getJoinPaymentRequirements().getOrDefault(c, 0D));
+                }).collect(Collectors.joining(", "));
+            })
+            .add(Placeholders.ARENA_REQUIREMENT_LEVEL, () -> {
+                return this.getJoinLevelRequirements().entrySet().stream().map(c -> {
+                    return c.getKey().getName() + ": " + c.getValue();
+                }).collect(Collectors.joining(", "));
+            });
 
         this.arena = new Arena(this);
     }
@@ -168,36 +198,10 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
 
     @Override
     @NotNull
-    public UnaryOperator<String> replacePlaceholders() {
-        String payment = this.getJoinPaymentRequirements().keySet().stream().map(c -> {
-            return c.format(this.getJoinPaymentRequirements().getOrDefault(c, 0D));
-        }).collect(Collectors.joining(", "));
-
-        String reqLevel = this.getJoinLevelRequirements().entrySet().stream().map(c -> {
-            return c.getKey().getName() + ": " + c.getValue();
-        }).collect(Collectors.joining(", "));
-
-        String openTimes = this.openScheduler.getTimes().entrySet().stream().map(entry -> {
-            return entry.getKey().name() + ": " + entry.getValue().stream().map(time -> time.format(ArenaStateScheduler.TIME_FORMATTER)).collect(Collectors.joining(", "));
-        }).collect(Collectors.joining("\n"));
-
-        String closeTimes = this.closeScheduler.getTimes().entrySet().stream().map(entry -> {
-            return entry.getKey().name() + ": " + entry.getValue().stream().map(time -> time.format(ArenaStateScheduler.TIME_FORMATTER)).collect(Collectors.joining(", "));
-        }).collect(Collectors.joining("\n"));
-
-        return str -> str
-            .replace(Placeholders.GENERIC_PROBLEMS, Placeholders.formatProblems(this.getProblems()))
-            .replace(Placeholders.ARENA_ID, this.getId())
-            .replace(Placeholders.ARENA_ACTIVE, LangManager.getBoolean(this.isActive()))
-            .replace(Placeholders.ARENA_NAME, this.getName())
-            .replace(Placeholders.ARENA_PERMISSION, this.getPermission())
-            .replace(Placeholders.ARENA_AUTO_STATE_OPEN_TIMES, openTimes)
-            .replace(Placeholders.ARENA_AUTO_STATE_CLOSE_TIMES, closeTimes)
-            .replace(Placeholders.ARENA_REQUIREMENT_PERMISSION, LangManager.getBoolean(this.isPermissionRequired()))
-            .replace(Placeholders.ARENA_REQUIREMENT_PAYMENT, payment)
-            .replace(Placeholders.ARENA_REQUIREMENT_LEVEL, reqLevel)
-            ;
+    public PlaceholderMap getPlaceholders() {
+        return this.placeholderMap;
     }
+
     @Override
     public void clear() {
         this.removeHolograms();
@@ -267,26 +271,26 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
     public List<String> getProblems() {
         List<String> list = new ArrayList<>();
         if (this.getLocation(ArenaLocationType.LOBBY) == null) {
-            list.add("No Lobby Location");
+            list.add(problem("No Lobby Location"));
         }
         if (this.getLocation(ArenaLocationType.SPECTATE) == null) {
-            list.add("No Spectate Location");
+            list.add(problem("No Spectate Location"));
         }
 
         if (this.getRegionManager().hasProblems()) {
-            list.add("Problems in Region Manager");
+            list.add(problem("Problems in Region Manager"));
         }
         if (this.getGameplayManager().hasProblems()) {
-            list.add("Problems in Gameplay Manager");
+            list.add(problem("Problems in Gameplay Manager"));
         }
         if (this.getWaveManager().hasProblems()) {
-            list.add("Problems in Wave Manager");
+            list.add(problem("Problems in Wave Manager"));
         }
         if (this.getSpotManager().hasProblems()) {
-            list.add("Problems in Spot Manager");
+            list.add(problem("Problems in Spot Manager"));
         }
         if (this.getRewardManager().hasProblems()) {
-            list.add("Problems in Reward Manager");
+            list.add(problem("Problems in Reward Manager"));
         }
 
         return list;

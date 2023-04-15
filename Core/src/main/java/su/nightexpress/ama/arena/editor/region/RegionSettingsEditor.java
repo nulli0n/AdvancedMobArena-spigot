@@ -58,7 +58,7 @@ public class RegionSettingsEditor extends AbstractEditorMenu<AMA, ArenaRegion> {
                     }
                     case REGION_CHANGE_NAME -> {
                         EditorManager.startEdit(player, region, type2, input);
-                        EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NAME).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NAME).getLocalized());
                         player.closeInventory();
                     }
                     case REGION_SETUP_KIT -> {

@@ -26,7 +26,7 @@ public class ArenaMythicListener extends AbstractListener<AMA> {
         Arena arena = plugin.getArenaManager().getArenaAtLocation(location);
         if (arena == null || !arena.getConfig().isActive()) return;
 
-        if (arena.getState() == GameState.INGAME && !arena.isAboutToFinish()) {
+        if (arena.getState() == GameState.INGAME && !arena.isAboutToEnd()) {
             if (MobsConfig.ALLY_MYTHIC_MOBS.get().contains(e.getMobType().getInternalName())) {
                 if (arena.getMobs().remove(entity)) {
                     arena.setWaveMobsTotalAmount(arena.getWaveMobsTotalAmount() - 1);

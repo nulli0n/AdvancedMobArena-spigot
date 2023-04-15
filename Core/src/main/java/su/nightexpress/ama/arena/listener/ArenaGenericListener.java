@@ -30,6 +30,7 @@ import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.arena.ArenaManager;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
+import su.nightexpress.ama.arena.type.PlayerType;
 import su.nightexpress.ama.config.Config;
 import su.nightexpress.ama.kit.Kit;
 import su.nightexpress.ama.mob.config.MobConfig;
@@ -132,7 +133,7 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
         Arena arena = plugin.getArenaManager().getArenaAtLocation(location);
         if (arena == null/* || !arena.getConfig().isActive()*/) return;
 
-        if (arena.getState() == GameState.INGAME && !arena.isAboutToFinish()) {
+        if (arena.getState() == GameState.INGAME && !arena.isAboutToEnd()) {
             CreatureSpawnEvent.SpawnReason reason = e.getSpawnReason();
             if (reason == CreatureSpawnEvent.SpawnReason.CUSTOM || arena.getConfig().getGameplayManager().isAllowedSpawnReason(reason)) {
                 if (!arena.isAboutToSpawnMobs()) {
@@ -188,10 +189,10 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
 
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(e.getPlayer());
         Arena arenaFrom = arenaPlayer == null ? null : arenaPlayer.getArena();
-        if (arenaFrom != null && arenaFrom.isAboutToFinish()) return;
+        if (arenaFrom != null && arenaFrom.isAboutToEnd()) return;
 
         Arena arenaTo = this.manager.getArenaAtLocation(to);
-        if (arenaFrom != null && arenaTo != arenaFrom && arenaFrom.getPlayers().contains(arenaPlayer)) {
+        if (arenaFrom != null && arenaTo != arenaFrom && arenaFrom.getPlayers(PlayerType.ALL).contains(arenaPlayer)) {
             e.setCancelled(true);
         }
     }
@@ -355,7 +356,9 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
         Arena arena = arenaPlayer.getArena();
         Kit kit = arenaPlayer.getKit();
 
-        e.getRecipients().retainAll(arena.getPlayers().stream().map(ArenaPlayer::getPlayer).toList());
+        // TODO option for ghosts and dead speak
+
+        e.getRecipients().retainAll(arena.getPlayers(PlayerType.ALL).stream().map(ArenaPlayer::getPlayer).toList());
 
         String format = Config.CHAT_FORMAT.get()
             .replace(Placeholders.Player.NAME, "%1$s")

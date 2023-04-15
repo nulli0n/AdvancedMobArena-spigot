@@ -49,7 +49,7 @@ public class SpotListEditor extends AbstractEditorMenuAuto<AMA, ArenaSpotManager
             else if (type instanceof ArenaEditorType type2) {
                 if (type2 == ArenaEditorType.SPOT_CREATE) {
                     EditorManager.startEdit(player, spotManager, type2, input);
-                    EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_SPOT_ENTER_ID).getLocalized());
+                    EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_SPOT_ENTER_ID).getLocalized());
                     player.closeInventory();
                 }
             }

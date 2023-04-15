@@ -11,62 +11,33 @@ import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.particle.SimpleParticle;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class ArenaCuboid {
 
-    private int xMin;
-    private int xMax;
+    private final Location min;
+    private final Location max;
+    private final Location   center;
+    private final Visualizer visualizer;
 
-    private int yMin;
-    private int yMax;
+    public ArenaCuboid(@NotNull Location loc1, @NotNull Location loc2) {
+        int minX = Math.min(loc1.getBlockX(), loc2.getBlockX());
+        int minY = Math.min(loc1.getBlockY(), loc2.getBlockY());
+        int minZ = Math.min(loc1.getBlockZ(), loc2.getBlockZ());
 
-    private int zMin;
-    private int zMax;
+        int maxX = Math.max(loc1.getBlockX(), loc2.getBlockX());
+        int maxY = Math.max(loc1.getBlockY(), loc2.getBlockY());
+        int maxZ = Math.max(loc1.getBlockZ(), loc2.getBlockZ());
 
-    private Location locMin;
-    private Location locMax;
+        this.min = new Location(loc1.getWorld(), minX, minY, minZ);
+        this.max = new Location(loc1.getWorld(), maxX, maxY, maxZ);
 
-    private Location   center;
-    private Visualizer visualizer;
+        double cx = minX + (maxX - minX) / 2D;
+        double cy = minY + (maxY - minY) / 2D;
+        double cz = minZ + (maxZ - minZ) / 2D;
 
-    @NotNull
-    public static ArenaCuboid empty() {
-        return new ArenaCuboid();
-    }
-
-    private ArenaCuboid() {
-        this.xMin = 0;
-        this.xMax = 0;
-        this.yMin = 0;
-        this.yMax = 0;
-        this.zMin = 0;
-        this.zMax = 0;
-    }
-
-    public ArenaCuboid(@NotNull Location from, @NotNull Location to) {
-        this.redefine(from, to);
-    }
-
-    public void redefine(@NotNull Location from, @NotNull Location to) {
-        this.xMin = Math.min(from.getBlockX(), to.getBlockX());
-        this.yMin = Math.min(from.getBlockY(), to.getBlockY());
-        this.zMin = Math.min(from.getBlockZ(), to.getBlockZ());
-
-        this.xMax = Math.max(from.getBlockX(), to.getBlockX());
-        this.yMax = Math.max(from.getBlockY(), to.getBlockY());
-        this.zMax = Math.max(from.getBlockZ(), to.getBlockZ());
-
-        this.locMin = new Location(from.getWorld(), this.xMin, this.yMin, this.zMin);
-        this.locMax = new Location(from.getWorld(), this.xMax, this.yMax, this.zMax);
-
-        double cx = xMin + (xMax - xMin) / 2D;
-        double cy = yMin + (yMax - yMin) / 2D;
-        double cz = zMin + (zMax - zMin) / 2D;
-
-        this.center = new Location(from.getWorld(), cx, cy, cz);
-        this.visualizer = new Visualizer(this.locMin, this.locMax);
+        this.center = new Location(loc1.getWorld(), cx, cy, cz);
+        this.visualizer = new Visualizer(this.min, this.max);
     }
 
     @NotNull
@@ -74,37 +45,28 @@ public class ArenaCuboid {
         return visualizer;
     }
 
-    public boolean isEmpty() {
-        return this.xMin == 0 && this.xMax == 0 && this.yMin == 0 && this.yMax == 0
-            && this.zMin == 0 && this.zMax == 0;
-    }
-
     public boolean contains(@NotNull Location location) {
-        if (this.isEmpty()) return false;
-
         World world = location.getWorld();
-        if (world == null || !world.equals(this.locMin.getWorld())) return false;
+        if (world == null || !world.equals(this.min.getWorld())) return false;
 
         int x = location.getBlockX();
         int y = location.getBlockY();
         int z = location.getBlockZ();
 
-        return x >= this.xMin && x <= this.xMax
-            && y >= this.yMin && y <= this.yMax
-            && z >= this.zMin && z <= this.zMax;
+        return x >= min.getBlockX() && x <= max.getBlockX() &&
+            y >= min.getBlockY() && y <= max.getBlockY() &&
+            z >= min.getBlockZ() && z <= max.getBlockZ();
     }
 
     @NotNull
     public List<Block> getBlocks() {
-        if (this.isEmpty()) return Collections.emptyList();
-
         List<Block> list = new ArrayList<>(this.getSize());
         World world = this.center.getWorld();
         if (world == null) return list;
 
-        for (int x = this.xMin; x <= this.xMax; ++x) {
-            for (int y = this.yMin; y <= this.yMax; ++y) {
-                for (int z = this.zMin; z <= this.zMax; ++z) {
+        for (int x = this.min.getBlockX(); x <= this.max.getBlockX(); ++x) {
+            for (int y = this.min.getBlockY(); y <= this.max.getBlockY(); ++y) {
+                for (int z = this.min.getBlockZ(); z <= this.max.getBlockZ(); ++z) {
                     Block blockAt = world.getBlockAt(x, y, z);
                     list.add(blockAt);
                 }
@@ -115,17 +77,20 @@ public class ArenaCuboid {
     }
 
     public int getSize() {
-        return (this.xMax - this.xMin + 1) * (this.yMax - this.yMin + 1) * (this.zMax - this.zMin + 1);
+        int dx = max.getBlockX() - min.getBlockX() + 1;
+        int dy = max.getBlockY() - min.getBlockY() + 1;
+        int dz = max.getBlockZ() - min.getBlockZ() + 1;
+        return dx * dy * dz;
     }
 
     @NotNull
-    public Location getLocationMin() {
-        return this.locMin;
+    public Location getMin() {
+        return this.min;
     }
 
     @NotNull
-    public Location getLocationMax() {
-        return this.locMax;
+    public Location getMax() {
+        return this.max;
     }
 
     @NotNull

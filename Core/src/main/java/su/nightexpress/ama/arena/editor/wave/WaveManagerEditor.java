@@ -52,11 +52,11 @@ public class WaveManagerEditor extends AbstractEditorMenu<AMA, ArenaWaveManager>
                     case WAVES_CHANGE_DELAY -> {
                         if (e.isLeftClick()) {
                             EditorManager.startEdit(player, waveManager, ArenaEditorType.WAVES_CHANGE_DELAY_FIRST, input);
-                            EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_SECONDS).getLocalized());
+                            EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_SECONDS).getLocalized());
                         }
                         else if (e.isRightClick()) {
                             EditorManager.startEdit(player, waveManager, ArenaEditorType.WAVES_CHANGE_DELAY_DEFAULT, input);
-                            EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_SECONDS).getLocalized());
+                            EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_SECONDS).getLocalized());
                         }
                         player.closeInventory();
                     }
@@ -68,7 +68,7 @@ public class WaveManagerEditor extends AbstractEditorMenu<AMA, ArenaWaveManager>
                             break;
                         }
                         EditorManager.startEdit(player, waveManager, type2, input);
-                        EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NUMBER).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NUMBER).getLocalized());
                         player.closeInventory();
                     }
                     case WAVES_CHANGE_GRADUAL -> this.getGradualEditor().open(player, 1);

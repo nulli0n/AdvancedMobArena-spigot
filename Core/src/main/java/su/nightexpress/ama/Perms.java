@@ -9,17 +9,19 @@ public class Perms {
     public static final String PREFIX_ARENA = PREFIX + "arena.";
     public static final String PREFIX_KIT   = PREFIX + "kit.";
 
-    public static final JPermission PLUGIN         = new JPermission(PREFIX + Placeholders.MASK_ANY, "Access to all the plugin functions.");
+    public static final JPermission PLUGIN         = new JPermission(PREFIX + Placeholders.WILDCARD, "Access to all the plugin functions.");
     public static final JPermission PLUGIN_COMMAND = new JPermission(PREFIX + "command", "Access to all the plugin commands.");
     public static final JPermission PLUGIN_BYPASS  = new JPermission(PREFIX + "bypass", "Bypass all the plugin and arena restrictions.");
 
     public static final JPermission CREATOR   = new JPermission(PREFIX + "creator", "Allows to create signs and terraform arena regions.");
-    public static final JPermission ARENA_ALL = new JPermission(PREFIX_ARENA + Placeholders.MASK_ANY, "Access to all the arenas.");
-    public static final JPermission KIT_ALL   = new JPermission(PREFIX_KIT + Placeholders.MASK_ANY, "Access to all the arena kits.");
+    public static final JPermission ARENA_ALL = new JPermission(PREFIX_ARENA + Placeholders.WILDCARD, "Access to all the arenas.");
+    public static final JPermission KIT_ALL   = new JPermission(PREFIX_KIT + Placeholders.WILDCARD, "Access to all the arena kits.");
 
     public static final JPermission BYPASS_ARENA               = new JPermission(PREFIX + "bypass.arena", "Bypass all arena restrictions.");
     public static final JPermission BYPASS_KIT                 = new JPermission(PREFIX + "bypass.kit", "Bypass all kit restrictions.");
     public static final JPermission BYPASS_ARENA_JOIN_INGAME   = new JPermission(PREFIX + "bypass.arena.join.ingame", "Allows to join the arena during the game.");
+    public static final JPermission BYPASS_ARENA_JOIN_PAYMENT   = new JPermission(PREFIX + "bypass.arena.join.payment", "Bypasses arena join payments.");
+    public static final JPermission BYPASS_ARENA_JOIN_LEVEL   = new JPermission(PREFIX + "bypass.arena.join.level", "Bypasses arena level requirements.");
     public static final JPermission BYPASS_ARENA_GAME_COMMANDS = new JPermission(PREFIX + "bypass.arena.game.commands", "Allows to use non-arena commands in game.");
     public static final JPermission BYPASS_KIT_COST            = new JPermission(PREFIX + "bypass.kit.cost", "Allows to purchase kits from kit shop for free.");
 
@@ -56,7 +58,9 @@ public class Perms {
             COMMAND_SCORE, COMMAND_SHOP, COMMAND_SKIPWAVE,
             COMMAND_SPECTATE, COMMAND_SPOT, COMMAND_STATS);
 
-        BYPASS_ARENA.addChildren(BYPASS_ARENA_JOIN_INGAME, BYPASS_ARENA_GAME_COMMANDS);
+        BYPASS_ARENA.addChildren(
+            BYPASS_ARENA_JOIN_INGAME, BYPASS_ARENA_GAME_COMMANDS,
+            BYPASS_ARENA_JOIN_LEVEL, BYPASS_ARENA_JOIN_PAYMENT);
         BYPASS_KIT.addChildren(BYPASS_KIT_COST);
 
         COMMAND_CURRENCY.addChildren(COMMAND_CURRENCY_GIVE, COMMAND_CURRENCY_TAKE);

@@ -62,7 +62,7 @@ public class ScriptConditionsEditor extends AbstractEditorMenuAuto<AMA, ArenaScr
             else if (type instanceof ArenaEditorType type2) {
                 if (type2 == ArenaEditorType.SCRIPT_CONDITION_SECTION_CREATE) {
                     EditorManager.startEdit(player, script, type2, input);
-                    EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_ARENA_SCRIPT_ENTER_CONDITION_SECTION).getLocalized());
+                    EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_ARENA_SCRIPT_ENTER_CONDITION_SECTION).getLocalized());
                     player.closeInventory();
                 }
             }
@@ -144,7 +144,7 @@ public class ScriptConditionsEditor extends AbstractEditorMenuAuto<AMA, ArenaScr
 
                 EditorManager.startEdit(player2, section, ArenaEditorType.SCRIPT_CONDITION_SECTION_OBJECT, input);
                 EditorManager.suggestValues(player2, ScriptConditions.getConditions().stream().map(ScriptCondition::getName).toList(), false);
-                EditorManager.tip(player2, plugin.getMessage(Lang.EDITOR_ARENA_SCRIPT_ENTER_CONDITION_VALUE).getLocalized());
+                EditorManager.prompt(player2, plugin.getMessage(Lang.EDITOR_ARENA_SCRIPT_ENTER_CONDITION_VALUE).getLocalized());
                 player2.closeInventory();
                 return;
             }

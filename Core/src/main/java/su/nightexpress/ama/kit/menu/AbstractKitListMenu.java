@@ -12,8 +12,8 @@ import su.nexmedia.engine.api.menu.MenuClick;
 import su.nexmedia.engine.api.menu.MenuItem;
 import su.nexmedia.engine.api.menu.MenuItemType;
 import su.nexmedia.engine.lang.LangManager;
+import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.ItemUtil;
-import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
@@ -33,8 +33,8 @@ public abstract class AbstractKitListMenu extends AbstractMenuAuto<AMA, Kit> {
     public AbstractKitListMenu(@NotNull AMA plugin, @NotNull JYML cfg, @NotNull String path) {
         super(plugin, cfg, path);
 
-        this.objectName = StringUtil.color(cfg.getString(path + "Object.Name", Placeholders.KIT_NAME));
-        this.objectLore = StringUtil.color(cfg.getStringList(path + "Object.Lore"));
+        this.objectName = Colorizer.apply(cfg.getString(path + "Object.Name", Placeholders.KIT_NAME));
+        this.objectLore = Colorizer.apply(cfg.getStringList(path + "Object.Lore"));
         this.objectSlots = cfg.getIntArray(path + "Object.Slots");
 
         MenuClick click = (player, type, e) -> {

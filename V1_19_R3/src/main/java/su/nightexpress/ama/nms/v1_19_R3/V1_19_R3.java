@@ -29,8 +29,8 @@ import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.Reflex;
-import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.nms.ArenaNMS;
 
 import java.util.*;
@@ -188,7 +188,7 @@ public class V1_19_R3 implements ArenaNMS {
         entity.setYHeadRot(0);
         armorStand.setInvisible(true);
         armorStand.setInvulnerable(true);
-        entity.getBukkitEntity().setCustomName(StringUtil.color(name));
+        entity.getBukkitEntity().setCustomName(Colorizer.apply(name));
         armorStand.setSmall(true);
         armorStand.setGravity(false);
         armorStand.setCustomNameVisible(true);

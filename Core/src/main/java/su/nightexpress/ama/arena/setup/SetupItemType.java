@@ -6,8 +6,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.editor.EditorButtonType;
 import su.nexmedia.engine.utils.CollectionsUtil;
+import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.PDCUtil;
-import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.Keys;
 
 import java.util.ArrayList;
@@ -86,7 +86,7 @@ public enum SetupItemType implements EditorButtonType {
     }
 
     public void setName(@NotNull String name) {
-        this.name = StringUtil.color(name);
+        this.name = Colorizer.apply(name);
     }
 
     @NotNull
@@ -95,20 +95,20 @@ public enum SetupItemType implements EditorButtonType {
     }
 
     public void setLore(@NotNull List<String> lore) {
-        this.lore = StringUtil.color(new ArrayList<>(lore));
+        this.lore = Colorizer.apply(new ArrayList<>(lore));
     }
 
     @Override
     @NotNull
     public ItemStack getItem() {
         ItemStack item = EditorButtonType.super.getItem();
-        PDCUtil.setData(item, Keys.ITEM_SETUP_TYPE, this.name());
+        PDCUtil.set(item, Keys.ITEM_SETUP_TYPE, this.name());
         return item;
     }
 
     @Nullable
     public static SetupItemType getType(@NotNull ItemStack item) {
-        String raw = PDCUtil.getStringData(item, Keys.ITEM_SETUP_TYPE);
+        String raw = PDCUtil.getString(item, Keys.ITEM_SETUP_TYPE).orElse(null);
         return raw == null ? null : CollectionsUtil.getEnum(raw, SetupItemType.class);
     }
 }

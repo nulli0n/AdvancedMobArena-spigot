@@ -56,8 +56,8 @@ public class WavesGradualSettingsEditor extends AbstractEditorMenu<AMA, ArenaWav
                     }
                     case WAVES_CHANGE_GRADUAL_FIRST_PERCENT,
                         WAVES_CHANGE_GRADUAL_NEXT_PERCENT,
-                        WAVES_CHANGE_GRADUAL_NEXT_KILL_PERCENT -> EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_PERCENT).getLocalized());
-                    case WAVES_CHANGE_GRADUAL_NEXT_INTERVAL -> EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_SECONDS).getLocalized());
+                        WAVES_CHANGE_GRADUAL_NEXT_KILL_PERCENT -> EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_PERCENT).getLocalized());
+                    case WAVES_CHANGE_GRADUAL_NEXT_INTERVAL -> EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_SECONDS).getLocalized());
                     default -> {return;}
                 }
                 EditorManager.startEdit(player, waveManager, type2, input);

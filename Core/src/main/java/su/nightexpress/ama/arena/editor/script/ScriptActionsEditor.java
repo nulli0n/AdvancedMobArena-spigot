@@ -65,7 +65,7 @@ public class ScriptActionsEditor extends AbstractEditorMenuAuto<AMA, ArenaScript
                 if (type2 == ArenaEditorType.SCRIPT_ACTION_CREATE) {
                     EditorManager.startEdit(player, script, type2, input);
                     EditorManager.suggestValues(player, ScriptActions.getActions().stream().map(ScriptAction::getName).toList(), true);
-                    EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_ARENA_SCRIPT_ENTER_ACTION_NAME).getLocalized());
+                    EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_ARENA_SCRIPT_ENTER_ACTION_NAME).getLocalized());
                     player.closeInventory();
                 }
             }
@@ -142,7 +142,7 @@ public class ScriptActionsEditor extends AbstractEditorMenuAuto<AMA, ArenaScript
 
                 EditorManager.startEdit(player2, action, ArenaEditorType.SCRIPT_ACTION_OBJECT, input);
                 EditorManager.suggestValues(player2, action.getAction().getParameters().stream().map(Parameter::getName).toList(), false);
-                EditorManager.tip(player2, plugin.getMessage(Lang.EDITOR_ARENA_SCRIPT_ENTER_ACTION_PARAMETER).getLocalized());
+                EditorManager.prompt(player2, plugin.getMessage(Lang.EDITOR_ARENA_SCRIPT_ENTER_ACTION_PARAMETER).getLocalized());
                 player2.closeInventory();
                 return;
             }

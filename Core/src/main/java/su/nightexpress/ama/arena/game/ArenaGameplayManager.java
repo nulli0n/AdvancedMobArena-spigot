@@ -8,6 +8,8 @@ import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.ConfigHolder;
 import su.nexmedia.engine.api.manager.IEditable;
 import su.nexmedia.engine.api.manager.ILoadable;
+import su.nexmedia.engine.api.placeholder.Placeholder;
+import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.command.CommandRegister;
 import su.nexmedia.engine.hooks.Hooks;
 import su.nexmedia.engine.lang.LangManager;
@@ -16,7 +18,7 @@ import su.nexmedia.engine.utils.NumberUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
-import su.nightexpress.ama.api.arena.IProblematic;
+import su.nightexpress.ama.api.arena.Problematic;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
 import su.nightexpress.ama.api.arena.type.ArenaTargetType;
 import su.nightexpress.ama.arena.editor.game.GameplayEditor;
@@ -32,9 +34,8 @@ import su.nightexpress.ama.hook.HookId;
 import su.nightexpress.ama.kit.Kit;
 
 import java.util.*;
-import java.util.function.UnaryOperator;
 
-public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable, IProblematic, IEditable {
+public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable, Problematic, Placeholder, IEditable {
 
     private final ArenaConfig arenaConfig;
     private final JYML        config;
@@ -78,6 +79,8 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable
     private boolean isExternalPetsEnabled;
     private boolean isExternalMcmmoEnabled;
 
+    private final PlaceholderMap placeholderMap;
+
     private static final String CONFIG_NAME = "gameplay.yml";
 
     public ArenaGameplayManager(@NotNull ArenaConfig arenaConfig) {
@@ -89,6 +92,39 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable
         this.kitsAllowed = new HashSet<>();
         this.kitsLimits = new HashMap<>();
         this.setMobHighlightColor(ChatColor.RED);
+
+        this.placeholderMap = new PlaceholderMap()
+            .add(Placeholders.GENERIC_PROBLEMS, () -> String.join("\n", this.getProblems()))
+            .add(Placeholders.GAMEPLAY_TIMELEFT, () -> this.hasTimeleft() ? String.valueOf(this.getTimeleft()) : LangManager.getPlain(Lang.OTHER_INFINITY))
+            .add(Placeholders.GAMEPLAY_LOBBY_TIME, () -> String.valueOf(this.getLobbyTime()))
+            .add(Placeholders.GAMEPLAY_ANNOUNCEMENTS, () -> LangManager.getBoolean(this.isAnnouncesEnabled()))
+            .add(Placeholders.GAMEPLAY_SCOREBOARD_ENABLED, () -> LangManager.getBoolean(this.isScoreboardEnabled()))
+            .add(Placeholders.GAMEPLAY_SCOREBOARD_ID, this::getScoreboardId)
+            .add(Placeholders.GAMEPLAY_HUNGER_ENABLED, () -> LangManager.getBoolean(this.isHungerEnabled()))
+            .add(Placeholders.GAMEPLAY_REGENERATION_ENABLED, () -> LangManager.getBoolean(this.isRegenerationEnabled()))
+            .add(Placeholders.GAMEPLAY_ITEM_DROP_ENABLED, () -> LangManager.getBoolean(this.isItemDropEnabled()))
+            .add(Placeholders.GAMEPLAY_ITEM_PICKUP_ENABLED, () -> LangManager.getBoolean(this.isItemPickupEnabled()))
+            .add(Placeholders.GAMEPLAY_ITEM_DURABULITY_ENABLED, () -> LangManager.getBoolean(this.isItemDurabilityEnabled()))
+            .add(Placeholders.GAMEPLAY_MOB_DROP_EXP, () -> LangManager.getBoolean(this.isMobDropExpEnabled()))
+            .add(Placeholders.GAMEPLAY_MOB_DROP_ITEMS, () -> LangManager.getBoolean(this.isMobDropLootEnabled()))
+            .add(Placeholders.GAMEPLAY_MOB_HIGHLIGHT_ENABLED, () -> LangManager.getBoolean(this.isMobHighlightEnabled()))
+            .add(Placeholders.GAMEPLAY_MOB_HIGHLIGHT_AMOUNT, () -> NumberUtil.format(this.getMobHighlightAmount()))
+            .add(Placeholders.GAMEPLAY_MOB_HIGHLIGHT_COLOR, () -> this.getMobHighlightColor().name())
+            .add(Placeholders.GAMEPLAY_BANNED_ITEMS, () -> String.join("\n", this.getBannedItems().stream().map(Enum::name).toList()))
+            .add(Placeholders.GAMEPLAY_ALLOWED_SPAWN_REASONS, () -> String.join("\n", this.getAllowedSpawnReasons().stream().map(Enum::name).toList()))
+            .add(Placeholders.GAMEPLAY_PLAYERS_AMOUNT_MIN, () -> String.valueOf(this.getPlayerMinAmount()))
+            .add(Placeholders.GAMEPLAY_PLAYERS_AMOUNT_MAX, () -> String.valueOf(this.getPlayerMaxAmount()))
+            .add(Placeholders.GAMEPLAY_PLAYER_DEATH_LIVES_AMOUNT, () -> String.valueOf(this.getPlayerLivesAmount()))
+            .add(Placeholders.GAMEPLAY_PLAYER_DEATH_DROP_ITEMS, () -> LangManager.getBoolean(this.isPlayerDropItemsOnDeathEnabled()))
+            .add(Placeholders.GAMEPLAY_SPECTATE_ENABLED, () -> LangManager.getBoolean(this.isSpectateEnabled()))
+            .add(Placeholders.GAMEPLAY_SPECTATE_ON_DEATH, () -> LangManager.getBoolean(this.isSpectateOnDeathEnabled()))
+            .add(Placeholders.GAMEPLAY_COMMAND_USAGE_ENABLED, () -> LangManager.getBoolean(this.isPlayerCommandsEnabled()))
+            .add(Placeholders.GAMEPLAY_COMMAND_USAGE_WHITELIST, () -> String.join("\n", this.getPlayerCommandsAllowed()))
+            .add(Placeholders.GAMEPLAY_KITS_ENABLED, () -> LangManager.getBoolean(this.isKitsEnabled()))
+            .add(Placeholders.GAMEPLAY_KITS_ALLOWED, () -> String.join("\n", this.getKitsAllowed()))
+            .add(Placeholders.GAMEPLAY_KITS_LIMITS, () -> String.join("\n", this.getKitsLimits().entrySet().stream().map(e -> e.getKey() + " " + e.getValue()).toList()))
+            .add(Placeholders.GAMEPLAY_PETS_ALLOWED, () -> LangManager.getBoolean(this.isExternalPetsEnabled()))
+            .add(Placeholders.GAMEPLAY_MCMMO_ALLOWED, () -> LangManager.getBoolean(this.isExternalMcmmoEnabled()));
     }
 
     @Override
@@ -176,6 +212,8 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable
         path = "Compatibility.";
         this.setExternalPetsEnabled(config.getBoolean(path + "Pets_Enabled"));
         this.setExternalMcmmoEnabled(config.getBoolean(path + "Mcmmo_Enabled"));
+
+        config.saveChanges();
     }
 
     @Override
@@ -239,39 +277,8 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable
 
     @Override
     @NotNull
-    public UnaryOperator<String> replacePlaceholders() {
-        return str -> str
-            .replace(Placeholders.GENERIC_PROBLEMS, Placeholders.formatProblems(this.getProblems()))
-            .replace(Placeholders.GAMEPLAY_TIMELEFT, this.hasTimeleft() ? String.valueOf(this.getTimeleft()) : LangManager.getPlain(Lang.OTHER_INFINITY))
-            .replace(Placeholders.GAMEPLAY_LOBBY_TIME, String.valueOf(this.getLobbyTime()))
-            .replace(Placeholders.GAMEPLAY_ANNOUNCEMENTS, LangManager.getBoolean(this.isAnnouncesEnabled()))
-            .replace(Placeholders.GAMEPLAY_SCOREBOARD_ENABLED, LangManager.getBoolean(this.isScoreboardEnabled()))
-            .replace(Placeholders.GAMEPLAY_SCOREBOARD_ID, this.getScoreboardId())
-            .replace(Placeholders.GAMEPLAY_HUNGER_ENABLED, LangManager.getBoolean(this.isHungerEnabled()))
-            .replace(Placeholders.GAMEPLAY_REGENERATION_ENABLED, LangManager.getBoolean(this.isRegenerationEnabled()))
-            .replace(Placeholders.GAMEPLAY_ITEM_DROP_ENABLED, LangManager.getBoolean(this.isItemDropEnabled()))
-            .replace(Placeholders.GAMEPLAY_ITEM_PICKUP_ENABLED, LangManager.getBoolean(this.isItemPickupEnabled()))
-            .replace(Placeholders.GAMEPLAY_ITEM_DURABULITY_ENABLED, LangManager.getBoolean(this.isItemDurabilityEnabled()))
-            .replace(Placeholders.GAMEPLAY_MOB_DROP_EXP, LangManager.getBoolean(this.isMobDropExpEnabled()))
-            .replace(Placeholders.GAMEPLAY_MOB_DROP_ITEMS, LangManager.getBoolean(this.isMobDropLootEnabled()))
-            .replace(Placeholders.GAMEPLAY_MOB_HIGHLIGHT_ENABLED, LangManager.getBoolean(this.isMobHighlightEnabled()))
-            .replace(Placeholders.GAMEPLAY_MOB_HIGHLIGHT_AMOUNT, NumberUtil.format(this.getMobHighlightAmount()))
-            .replace(Placeholders.GAMEPLAY_MOB_HIGHLIGHT_COLOR, this.getMobHighlightColor().name())
-            .replace(Placeholders.GAMEPLAY_BANNED_ITEMS, String.join("\n", this.getBannedItems().stream().map(Enum::name).toList()))
-            .replace(Placeholders.GAMEPLAY_ALLOWED_SPAWN_REASONS, String.join("\n", this.getAllowedSpawnReasons().stream().map(Enum::name).toList()))
-            .replace(Placeholders.GAMEPLAY_PLAYERS_AMOUNT_MIN, String.valueOf(this.getPlayerMinAmount()))
-            .replace(Placeholders.GAMEPLAY_PLAYERS_AMOUNT_MAX, String.valueOf(this.getPlayerMaxAmount()))
-            .replace(Placeholders.GAMEPLAY_PLAYER_DEATH_LIVES_AMOUNT, String.valueOf(this.getPlayerLivesAmount()))
-            .replace(Placeholders.GAMEPLAY_PLAYER_DEATH_DROP_ITEMS, LangManager.getBoolean(this.isPlayerDropItemsOnDeathEnabled()))
-            .replace(Placeholders.GAMEPLAY_SPECTATE_ENABLED, LangManager.getBoolean(this.isSpectateEnabled()))
-            .replace(Placeholders.GAMEPLAY_SPECTATE_ON_DEATH, LangManager.getBoolean(this.isSpectateOnDeathEnabled()))
-            .replace(Placeholders.GAMEPLAY_COMMAND_USAGE_ENABLED, LangManager.getBoolean(this.isPlayerCommandsEnabled()))
-            .replace(Placeholders.GAMEPLAY_COMMAND_USAGE_WHITELIST, String.join("\n", this.getPlayerCommandsAllowed()))
-            .replace(Placeholders.GAMEPLAY_KITS_ENABLED, LangManager.getBoolean(this.isKitsEnabled()))
-            .replace(Placeholders.GAMEPLAY_KITS_ALLOWED, String.join("\n", this.getKitsAllowed()))
-            .replace(Placeholders.GAMEPLAY_KITS_LIMITS, String.join("\n", this.getKitsLimits().entrySet().stream().map(e -> e.getKey() + " " + e.getValue()).toList()))
-            .replace(Placeholders.GAMEPLAY_PETS_ALLOWED, LangManager.getBoolean(this.isExternalPetsEnabled()))
-            .replace(Placeholders.GAMEPLAY_MCMMO_ALLOWED, LangManager.getBoolean(this.isExternalMcmmoEnabled()));
+    public PlaceholderMap getPlaceholders() {
+        return this.placeholderMap;
     }
 
     @Override
@@ -300,7 +307,7 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable
     public List<String> getProblems() {
         List<String> list = new ArrayList<>();
         if (this.isKitsEnabled() && this.getKitsAllowed().isEmpty()) {
-            list.add("Kits are enabled, but no kits are allowed!");
+            list.add(problem("Kits are enabled, but no kits are allowed!"));
         }
         return list;
     }
@@ -507,10 +514,12 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable
         isSpectateEnabled = spectateEnabled;
     }
 
+    @Deprecated
     public boolean isSpectateOnDeathEnabled() {
         return isSpectateOnDeathEnabled;
     }
 
+    @Deprecated
     public void setSpectateOnDeathEnabled(boolean spectateOnDeathEnabled) {
         isSpectateOnDeathEnabled = spectateOnDeathEnabled;
     }

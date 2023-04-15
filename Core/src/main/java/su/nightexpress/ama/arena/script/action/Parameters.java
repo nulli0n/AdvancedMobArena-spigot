@@ -16,6 +16,7 @@ public class Parameters {
     private static final Map<String, Parameter<?>> REGISTRY = new HashMap<>();
 
     public static final Parameter<String> WAVE = asString("wave");
+    public static final Parameter<String> SPAWNERS = asString("spawners");
     public static final Parameter<String> REGION = asString("region");
     public static final Parameter<String> SHOP_CATEGORY = asString("shop_category");
     public static final Parameter<String> SHOP_PRODUCT = asString("shop_product");

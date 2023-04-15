@@ -54,7 +54,7 @@ public class ScriptsCategoryEditor extends AbstractEditorMenuAuto<AMA, ScriptCat
             else if (type instanceof ArenaEditorType type2) {
                 if (type2 == ArenaEditorType.SCRIPT_CREATE) {
                     EditorManager.startEdit(player, category, type2, input);
-                    EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_ARENA_SCRIPT_ENTER_SCRIPT).getLocalized());
+                    EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_ARENA_SCRIPT_ENTER_SCRIPT).getLocalized());
                     player.closeInventory();
                 }
             }

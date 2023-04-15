@@ -55,7 +55,7 @@ class SpotStatesEditor extends AbstractEditorMenuAuto<AMA, ArenaSpot, ArenaSpotS
             else if (type instanceof ArenaEditorType type2) {
                 if (type2 == ArenaEditorType.SPOT_STATE_CREATE) {
                     EditorManager.startEdit(player, spot, type2, input);
-                    EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_SPOT_STATE_ENTER_ID).getLocalized());
+                    EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_SPOT_STATE_ENTER_ID).getLocalized());
                     player.closeInventory();
                 }
             }

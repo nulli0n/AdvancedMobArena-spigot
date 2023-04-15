@@ -45,10 +45,10 @@ public class RegionSetupManager extends AbstractSetupManager<ArenaRegion> {
     @Override
     protected void onSetupStart(@NotNull Player player, @NotNull ArenaRegion region) {
         this.cuboidCache = new Location[2];
-        if (!region.getCuboid().isEmpty()) {
-            ArenaCuboid cuboid = region.getCuboid();
-            this.cuboidCache[0] = cuboid.getLocationMin().clone();
-            this.cuboidCache[1] = cuboid.getLocationMax().clone();
+        if (region.getCuboid().isPresent()) {
+            ArenaCuboid cuboid = region.getCuboid().get();
+            this.cuboidCache[0] = cuboid.getMin().clone();
+            this.cuboidCache[1] = cuboid.getMax().clone();
         }
 
         Inventory inventory = player.getInventory();
@@ -131,7 +131,7 @@ public class RegionSetupManager extends AbstractSetupManager<ArenaRegion> {
             }
             case REGION_SPAWN -> {
                 Location location = player.getLocation();
-                if (!region.getCuboid().contains(location)) {
+                if (region.getCuboid().isEmpty() || !region.getCuboid().get().contains(location)) {
                     plugin.getMessage(Lang.Setup_Region_Error_Outside).send(player);
                     return;
                 }
@@ -143,7 +143,7 @@ public class RegionSetupManager extends AbstractSetupManager<ArenaRegion> {
                 if (block == null) return;
 
                 Location location = block.getLocation();
-                if (!region.getCuboid().contains(location)) {
+                if (region.getCuboid().isEmpty() || !region.getCuboid().get().contains(location)) {
                     plugin.getMessage(Lang.Setup_Region_Error_Outside).send(player);
                     return;
                 }
@@ -160,9 +160,6 @@ public class RegionSetupManager extends AbstractSetupManager<ArenaRegion> {
             case REGION_SAVE -> {
                 if (cuboidCache[0] != null && cuboidCache[1] != null) {
                     region.setCuboid(new ArenaCuboid(cuboidCache[0], cuboidCache[1]));
-                }
-                else {
-                    region.setCuboid(ArenaCuboid.empty());
                 }
                 region.save();
                 this.endSetup(player);

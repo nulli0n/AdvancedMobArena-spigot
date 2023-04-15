@@ -12,8 +12,8 @@ import su.nexmedia.engine.api.menu.MenuClick;
 import su.nexmedia.engine.api.menu.MenuItemType;
 import su.nexmedia.engine.editor.AbstractEditorMenuAuto;
 import su.nexmedia.engine.editor.EditorManager;
+import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.ItemUtil;
-import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.editor.ArenaEditorHub;
@@ -33,7 +33,7 @@ public class EditorMobList extends AbstractEditorMenuAuto<AMA, MobManager, MobCo
         super(mobManager.plugin(), mobManager, ArenaEditorHub.TITLE_MOB_EDITOR, 45);
 
         EditorInput<MobManager, ArenaEditorType> input = (player, mobManager2, type, e) -> {
-            String msg = StringUtil.colorOff(e.getMessage());
+            String msg = Colorizer.strip(e.getMessage());
             if (type == ArenaEditorType.MOB_CREATE) {
                 String id = EditorManager.fineId(msg);
                 if (mobManager2.getMobById(id) != null) {
@@ -59,7 +59,7 @@ public class EditorMobList extends AbstractEditorMenuAuto<AMA, MobManager, MobCo
             else if (type instanceof ArenaEditorType type2) {
                 if (type2 == ArenaEditorType.MOB_CREATE) {
                     EditorManager.startEdit(player, mobManager, type2, input);
-                    EditorManager.tip(player, plugin.getMessage(Lang.Editor_Mob_Enter_Create).getLocalized());
+                    EditorManager.prompt(player, plugin.getMessage(Lang.Editor_Mob_Enter_Create).getLocalized());
                     player.closeInventory();
                 }
             }

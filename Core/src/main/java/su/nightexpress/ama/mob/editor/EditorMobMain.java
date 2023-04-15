@@ -20,6 +20,7 @@ import su.nexmedia.engine.api.menu.MenuItemType;
 import su.nexmedia.engine.editor.AbstractEditorMenu;
 import su.nexmedia.engine.editor.EditorManager;
 import su.nexmedia.engine.utils.CollectionsUtil;
+import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.ItemUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
@@ -40,7 +41,7 @@ public class EditorMobMain extends AbstractEditorMenu<AMA, MobConfig> {
         super(mob.plugin(), mob, ArenaEditorHub.TITLE_MOB_EDITOR, 45);
 
         EditorInput<MobConfig, ArenaEditorType> input = (player, mob2, type, e) -> {
-            String msg = StringUtil.color(e.getMessage());
+            String msg = Colorizer.apply(e.getMessage());
             switch (type) {
                 case MOB_CHANGE_BOSSBAR_TITLE -> mob2.setBarTitle(msg);
                 case MOB_CHANGE_ATTRIBUTES_BASE, MOB_CHANGE_ATTRIBUTES_LEVEL -> {
@@ -90,13 +91,13 @@ public class EditorMobMain extends AbstractEditorMenu<AMA, MobConfig> {
                             break;
                         }
                         EditorManager.startEdit(player, mob, type2, input);
-                        EditorManager.tip(player, plugin.getMessage(Lang.Editor_Mob_Enter_Name).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.Editor_Mob_Enter_Name).getLocalized());
                         player.closeInventory();
                         return;
                     }
                     case MOB_CHANGE_ENTITY_TYPE -> {
                         EditorManager.startEdit(player, mob, type2, input);
-                        EditorManager.tip(player, plugin.getMessage(Lang.Editor_Mob_Enter_Type).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.Editor_Mob_Enter_Type).getLocalized());
                         EditorManager.suggestValues(player, Stream.of(EntityType.values())
                             .filter(EntityType::isSpawnable).filter(EntityType::isAlive).map(Enum::name).toList(), true);
                         player.closeInventory();
@@ -107,7 +108,7 @@ public class EditorMobMain extends AbstractEditorMenu<AMA, MobConfig> {
                         else type2 = ArenaEditorType.MOB_CHANGE_LEVEL_MAX;
 
                         EditorManager.startEdit(player, mob, type2, input);
-                        EditorManager.tip(player, plugin.getMessage(Lang.Editor_Mob_Enter_Create).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.Editor_Mob_Enter_Create).getLocalized());
                         player.closeInventory();
                         return;
                     }
@@ -126,7 +127,7 @@ public class EditorMobMain extends AbstractEditorMenu<AMA, MobConfig> {
                             }
                             else if (e.isRightClick()) {
                                 EditorManager.startEdit(player, mob, ArenaEditorType.MOB_CHANGE_BOSSBAR_TITLE, input);
-                                EditorManager.tip(player, plugin.getMessage(Lang.Editor_Mob_Enter_Create).getLocalized());
+                                EditorManager.prompt(player, plugin.getMessage(Lang.Editor_Mob_Enter_Create).getLocalized());
                                 player.closeInventory();
                                 return;
                             }
@@ -144,7 +145,7 @@ public class EditorMobMain extends AbstractEditorMenu<AMA, MobConfig> {
                         else type2 = ArenaEditorType.MOB_CHANGE_ATTRIBUTES_LEVEL;
 
                         EditorManager.startEdit(player, mob, type2, input);
-                        EditorManager.tip(player, plugin.getMessage(Lang.Editor_Mob_Enter_Attribute).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.Editor_Mob_Enter_Attribute).getLocalized());
                         EditorManager.suggestValues(player, Stream.of(Attribute.values()).map(Enum::name).toList(), false);
                         player.closeInventory();
                         return;

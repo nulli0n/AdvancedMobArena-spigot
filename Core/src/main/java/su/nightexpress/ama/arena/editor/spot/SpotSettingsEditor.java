@@ -52,7 +52,7 @@ public class SpotSettingsEditor extends AbstractEditorMenu<AMA, ArenaSpot> {
                     }
                     case SPOT_CHANGE_NAME -> {
                         EditorManager.startEdit(player, spot, type2, input);
-                        EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NAME).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NAME).getLocalized());
                         player.closeInventory();
                     }
                     case SPOT_SETUP_KIT -> {

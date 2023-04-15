@@ -49,7 +49,7 @@ public class ArenaListEditor extends AbstractEditorMenuAuto<AMA, AMA, Arena> {
             else if (type instanceof ArenaEditorType type2) {
                 if (type2 == ArenaEditorType.ARENA_CREATE) {
                     EditorManager.startEdit(player, plugin.getArenaManager(), type2, input);
-                    EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_ARENA_ENTER_ID).getLocalized());
+                    EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_ARENA_ENTER_ID).getLocalized());
                     player.closeInventory();
                 }
             }

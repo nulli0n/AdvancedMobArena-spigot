@@ -7,13 +7,15 @@ import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.AbstractConfigHolder;
 import su.nexmedia.engine.api.manager.ICleanable;
 import su.nexmedia.engine.api.manager.IEditable;
+import su.nexmedia.engine.api.placeholder.Placeholder;
+import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.lang.LangManager;
 import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
-import su.nightexpress.ama.api.arena.IProblematic;
+import su.nightexpress.ama.api.arena.Problematic;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
 import su.nightexpress.ama.arena.editor.spot.SpotSettingsEditor;
 import su.nightexpress.ama.arena.impl.Arena;
@@ -26,16 +28,13 @@ import su.nightexpress.ama.arena.script.condition.ScriptPreparedCondition;
 import su.nightexpress.ama.arena.script.impl.ArenaScript;
 import su.nightexpress.ama.arena.util.ArenaCuboid;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.UnaryOperator;
+import java.util.*;
 
-public class ArenaSpot extends AbstractConfigHolder<AMA> implements ArenaChild, IEditable, ICleanable, IProblematic {
+public class ArenaSpot extends AbstractConfigHolder<AMA> implements ArenaChild, IEditable, ICleanable, Problematic, Placeholder {
 
     private final ArenaConfig arenaConfig;
     private final Map<String, ArenaSpotState> states;
+    private final PlaceholderMap placeholderMap;
 
     private boolean     isActive;
     private String      name;
@@ -47,6 +46,13 @@ public class ArenaSpot extends AbstractConfigHolder<AMA> implements ArenaChild, 
         super(arenaConfig.plugin(), cfg);
         this.arenaConfig = arenaConfig;
         this.states = new HashMap<>();
+
+        this.placeholderMap = new PlaceholderMap()
+            .add(Placeholders.GENERIC_PROBLEMS, () -> String.join("\n", this.getProblems()))
+            .add(Placeholders.SPOT_ID, this::getId)
+            .add(Placeholders.SPOT_NAME, this::getName)
+            .add(Placeholders.SPOT_ACTIVE, () -> LangManager.getBoolean(this.isActive()))
+        ;
     }
 
     @Override
@@ -56,11 +62,7 @@ public class ArenaSpot extends AbstractConfigHolder<AMA> implements ArenaChild, 
 
         Location from = cfg.getLocation("Bounds.From");
         Location to = cfg.getLocation("Bounds.To");
-        if (from == null || to == null) {
-            this.plugin.error("Invalid cuboid bounds in '" + getId() + "' spot of '" + arenaConfig.getId() + "' arena!");
-            this.setCuboid(ArenaCuboid.empty());
-        }
-        else {
+        if (from != null && to != null) {
             this.setCuboid(new ArenaCuboid(from, to));
         }
 
@@ -93,6 +95,7 @@ public class ArenaSpot extends AbstractConfigHolder<AMA> implements ArenaChild, 
             ArenaSpotState state = new ArenaSpotState(this, stateId, blockSchemeRaw);
             this.states.put(state.getId(), state);
         }
+        cfg.saveChanges();
         return true;
     }
 
@@ -102,10 +105,10 @@ public class ArenaSpot extends AbstractConfigHolder<AMA> implements ArenaChild, 
         cfg.set("Name", this.getName());
 
         cfg.set("Bounds", null);
-        if (!this.cuboid.isEmpty()) {
-            cfg.set("Bounds.From", cuboid.getLocationMin());
-            cfg.set("Bounds.To", cuboid.getLocationMax());
-        }
+        this.getCuboid().ifPresent(cuboid -> {
+            cfg.set("Bounds.From", cuboid.getMin());
+            cfg.set("Bounds.To", cuboid.getMax());
+        });
 
         cfg.set("States", null);
         this.states.forEach((id, state) -> {
@@ -119,10 +122,10 @@ public class ArenaSpot extends AbstractConfigHolder<AMA> implements ArenaChild, 
     public List<String> getProblems() {
         List<String> list = new ArrayList<>();
         if (this.getCuboid().isEmpty()) {
-            list.add("Invalid Cuboid Selection!");
+            list.add(problem("Invalid Cuboid Selection!"));
         }
         if (this.getStates().isEmpty()) {
-            list.add("No Spot States!");
+            list.add(problem("No Spot States!"));
         }
 
         return list;
@@ -130,13 +133,8 @@ public class ArenaSpot extends AbstractConfigHolder<AMA> implements ArenaChild, 
 
     @Override
     @NotNull
-    public UnaryOperator<String> replacePlaceholders() {
-        return str -> str
-            .replace(Placeholders.GENERIC_PROBLEMS, Placeholders.formatProblems(this.getProblems()))
-            .replace(Placeholders.SPOT_ID, this.getId())
-            .replace(Placeholders.SPOT_NAME, this.getName())
-            .replace(Placeholders.SPOT_ACTIVE, LangManager.getBoolean(this.isActive()))
-            ;
+    public PlaceholderMap getPlaceholders() {
+        return this.placeholderMap;
     }
 
     @Override
@@ -180,11 +178,11 @@ public class ArenaSpot extends AbstractConfigHolder<AMA> implements ArenaChild, 
     }
 
     @NotNull
-    public ArenaCuboid getCuboid() {
-        return this.cuboid;
+    public Optional<ArenaCuboid> getCuboid() {
+        return Optional.ofNullable(this.cuboid);
     }
 
-    public void setCuboid(@NotNull ArenaCuboid cuboid) {
+    public void setCuboid(@Nullable ArenaCuboid cuboid) {
         this.cuboid = cuboid;
     }
 

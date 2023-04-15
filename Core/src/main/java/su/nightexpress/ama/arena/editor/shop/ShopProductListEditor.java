@@ -49,7 +49,7 @@ public class ShopProductListEditor extends AbstractEditorMenuAuto<AMA, ShopCateg
             else if (type instanceof ArenaEditorType type2) {
                 if (type2 == ArenaEditorType.SHOP_PRODUCT_CREATE) {
                     EditorManager.startEdit(player, shopCategory, type2, input);
-                    EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_ARENA_SHOP_ENTER_PRODUCT_ID).getLocalized());
+                    EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_ARENA_SHOP_ENTER_PRODUCT_ID).getLocalized());
                     player.closeInventory();
                 }
             }

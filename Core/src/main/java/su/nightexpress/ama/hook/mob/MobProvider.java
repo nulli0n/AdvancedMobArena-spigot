@@ -11,8 +11,7 @@ public interface MobProvider {
 
     @NotNull String getName();
 
-    @NotNull
-    Optional<LivingEntity> spawn(@NotNull String mobId, @NotNull Location location, int level);
+    @NotNull Optional<LivingEntity> spawn(@NotNull String mobId, @NotNull Location location, int level);
 
     @NotNull List<String> getMobNames();
 }

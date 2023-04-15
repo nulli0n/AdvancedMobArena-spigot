@@ -91,15 +91,14 @@ public class WaveMobsEditor extends AbstractEditorMenuAuto<AMA, ArenaWave, Arena
     @NotNull
     protected MenuClick getObjectClick(@NotNull Player player, @NotNull ArenaWaveMob waveMob) {
         EditorInput<ArenaWaveMob, ArenaEditorType> input = (player2, mob, type, e) -> {
-            String msg = e.getMessage();
+            String msg = Colorizer.strip(e.getMessage());
             switch (type) {
                 case WAVES_WAVE_MOB_CHANGE_TYPE -> {
-                    String mobId = Colorizer.strip(msg);
-                    if (!mob.getProvider().getMobNames().contains(mobId)) {
+                    if (!mob.getProvider().getMobNames().contains(msg)) {
                         EditorManager.error(player, plugin.getMessage(Lang.EDITOR_ARENA_WAVES_ERROR_MOB_INVALID).getLocalized());
                         return false;
                     }
-                    mob.setMobId(mobId);
+                    mob.setMobId(msg);
                 }
                 case WAVES_WAVE_MOB_CHANGE_AMOUNT -> mob.setAmount(StringUtil.getInteger(msg, 1));
                 case WAVES_WAVE_MOB_CHANGE_LEVEL -> mob.setLevel(StringUtil.getInteger(msg, 1));
@@ -118,31 +117,35 @@ public class WaveMobsEditor extends AbstractEditorMenuAuto<AMA, ArenaWave, Arena
                 return;
             }
 
-            if (e.isLeftClick()) {
-                EditorManager.startEdit(player2, waveMob, ArenaEditorType.WAVES_WAVE_MOB_CHANGE_TYPE, input);
-                EditorManager.suggestValues(player2, waveMob.getProvider().getMobNames(), true);
-                EditorManager.tip(player2, plugin.getMessage(Lang.EDITOR_ARENA_WAVES_ENTER_MOB_ID).getLocalized());
+            if (e.isShiftClick()) {
+                if (e.isLeftClick()) {
+                    EditorManager.startEdit(player2, waveMob, ArenaEditorType.WAVES_WAVE_MOB_CHANGE_LEVEL, input);
+                    EditorManager.prompt(player2, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NUMBER).getLocalized());
+                }
             }
-            else if (e.isRightClick()) {
-                EditorManager.startEdit(player2, waveMob, ArenaEditorType.WAVES_WAVE_MOB_CHANGE_AMOUNT, input);
-                EditorManager.tip(player2, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NUMBER).getLocalized());
+            else {
+                if (e.isLeftClick()) {
+                    EditorManager.startEdit(player2, waveMob, ArenaEditorType.WAVES_WAVE_MOB_CHANGE_TYPE, input);
+                    EditorManager.suggestValues(player2, waveMob.getProvider().getMobNames(), true);
+                    EditorManager.prompt(player2, plugin.getMessage(Lang.EDITOR_ARENA_WAVES_ENTER_MOB_ID).getLocalized());
+                }
+                else if (e.isRightClick()) {
+                    EditorManager.startEdit(player2, waveMob, ArenaEditorType.WAVES_WAVE_MOB_CHANGE_AMOUNT, input);
+                    EditorManager.prompt(player2, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NUMBER).getLocalized());
+                }
+                else if (e.getClick() == ClickType.DROP) {
+                    EditorManager.startEdit(player2, waveMob, ArenaEditorType.WAVES_WAVE_MOB_CHANGE_CHANCE, input);
+                    EditorManager.prompt(player2, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_PERCENT).getLocalized());
+                }
+                else if (e.getClick() == ClickType.SWAP_OFFHAND) {
+                    List<MobProvider> providers = new ArrayList<>(PluginMobProvider.getProviders());
+                    waveMob.setProvider(CollectionsUtil.shifted(providers, providers.indexOf(waveMob.getProvider()), 1));
+                    this.parent.getArenaConfig().getWaveManager().save();
+                    this.open(player2, this.getPage(player2));
+                    return;
+                }
+                else return;
             }
-            else if (e.isShiftClick() && e.isLeftClick()) {
-                EditorManager.startEdit(player2, waveMob, ArenaEditorType.WAVES_WAVE_MOB_CHANGE_LEVEL, input);
-                EditorManager.tip(player2, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NUMBER).getLocalized());
-            }
-            else if (e.getClick() == ClickType.DROP) {
-                EditorManager.startEdit(player2, waveMob, ArenaEditorType.WAVES_WAVE_MOB_CHANGE_CHANCE, input);
-                EditorManager.tip(player2, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_PERCENT).getLocalized());
-            }
-            else if (e.getClick() == ClickType.SWAP_OFFHAND) {
-                List<MobProvider> providers = new ArrayList<>(PluginMobProvider.getProviders());
-                waveMob.setProvider(CollectionsUtil.shifted(providers, providers.indexOf(waveMob.getProvider()), 1));
-                this.parent.getArenaConfig().getWaveManager().save();
-                this.open(player2, this.getPage(player2));
-                return;
-            }
-            else return;
             player2.closeInventory();
         };
     }

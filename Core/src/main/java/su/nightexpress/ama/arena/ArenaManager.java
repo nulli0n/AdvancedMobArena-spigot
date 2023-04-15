@@ -10,7 +10,6 @@ import su.nexmedia.engine.hooks.Hooks;
 import su.nexmedia.engine.utils.FileUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
-import su.nightexpress.ama.api.arena.type.ArenaEndType;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.arena.listener.ArenaGameplayListener;
@@ -84,7 +83,7 @@ public class ArenaManager extends AbstractManager<AMA> {
         }
 
         this.arenas.values().forEach(arena -> {
-            arena.stop(ArenaEndType.FORCE);
+            arena.stop();
             arena.getConfig().clear();
         });
         this.arenas.clear();
@@ -153,9 +152,9 @@ public class ArenaManager extends AbstractManager<AMA> {
     }
 
     @Nullable
-    public Arena getArenaAtLocation(@NotNull Location loc) {
+    public Arena getArenaAtLocation(@NotNull Location location) {
         return this.getArenas().stream()
-            .filter(arena -> arena.getConfig().getRegionManager().getRegions().stream().anyMatch(reg -> reg.getCuboid().contains(loc)))
+            .filter(arena -> arena.getConfig().getRegionManager().getRegion(location) != null)
             .findFirst().orElse(null);
     }
 

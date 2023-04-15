@@ -2,7 +2,6 @@ package su.nightexpress.ama.mob.kill;
 
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.api.config.JOption;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.lang.LangMessage;
 import su.nexmedia.engine.utils.PlayerUtil;
@@ -13,7 +12,7 @@ import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 
 @Deprecated
-public class MobKillStreak implements JOption.Writer {
+public class MobKillStreak {
 
     private final int                 amount;
     private final LangMessage         message;
@@ -77,11 +76,10 @@ public class MobKillStreak implements JOption.Writer {
         });
     }
 
-    @Override
-    public void write(@NotNull JYML cfg, @NotNull String path) {
-        cfg.set(path + ".Message", this.getMessage().getRaw());
-        cfg.set(path + ".Bonus.Payment", this.bonusPaymentRaw);
-        cfg.set(path + ".Bonus.Score", this.bonusScoreRaw);
-        cfg.set(path + ".Commands", this.getCommands());
+    public static void write(@NotNull MobKillStreak streak, @NotNull JYML cfg, @NotNull String path) {
+        cfg.set(path + ".Message", streak.getMessage().getRaw());
+        cfg.set(path + ".Bonus.Payment", streak.bonusPaymentRaw);
+        cfg.set(path + ".Bonus.Score", streak.bonusScoreRaw);
+        cfg.set(path + ".Commands", streak.getCommands());
     }
 }

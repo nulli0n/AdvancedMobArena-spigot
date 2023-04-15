@@ -1,7 +1,7 @@
 package su.nightexpress.ama.sign.type;
 
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.utils.StringUtil;
+import su.nexmedia.engine.utils.Colorizer;
 
 import java.util.Arrays;
 import java.util.List;
@@ -21,7 +21,7 @@ public enum SignType {
     private final List<String> defaultText;
 
     SignType(@NotNull List<String> defaultText) {
-        this.defaultText = StringUtil.color(defaultText);
+        this.defaultText = Colorizer.apply(defaultText);
     }
 
     @NotNull

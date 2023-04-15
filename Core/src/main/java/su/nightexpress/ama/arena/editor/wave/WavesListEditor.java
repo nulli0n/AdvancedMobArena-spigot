@@ -53,7 +53,7 @@ public class WavesListEditor extends AbstractEditorMenuAuto<AMA, ArenaWaveManage
             else if (type instanceof ArenaEditorType type2) {
                 if (type2 == ArenaEditorType.WAVES_WAVE_CREATE) {
                     EditorManager.startEdit(player, waveManager, type2, input);
-                    EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_ARENA_WAVES_ENTER_WAVE_ID).getLocalized());
+                    EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_ARENA_WAVES_ENTER_WAVE_ID).getLocalized());
                     player.closeInventory();
                 }
             }

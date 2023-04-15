@@ -1,13 +1,14 @@
 package su.nightexpress.ama.api.arena.type;
 
+@Deprecated
 public enum LeaveReason {
-    OUTSIDE,
+    @Deprecated OUTSIDE,
     SELF,
     FINISH,
     DEATH,
-    KICK,
+    @Deprecated KICK,
     NO_KIT,
-    FORCE,
-    TIMELEFT,
-    NO_REGION,
+    @Deprecated FORCE,
+    @Deprecated TIMELEFT,
+    @Deprecated NO_REGION,
 }

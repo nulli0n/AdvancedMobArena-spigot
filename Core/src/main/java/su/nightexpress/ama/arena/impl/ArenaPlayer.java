@@ -1,23 +1,25 @@
 package su.nightexpress.ama.arena.impl;
 
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import su.nexmedia.engine.api.lang.LangMessage;
-import su.nexmedia.engine.api.manager.IPlaceholder;
+import su.nexmedia.engine.api.placeholder.Placeholder;
+import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.hooks.Hooks;
 import su.nexmedia.engine.lang.LangManager;
+import su.nexmedia.engine.utils.EntityUtil;
 import su.nexmedia.engine.utils.TimeUtil;
+import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.api.arena.type.ArenaTargetType;
-import su.nightexpress.ama.api.arena.type.LeaveReason;
 import su.nightexpress.ama.api.event.ArenaPlayerReadyEvent;
 import su.nightexpress.ama.arena.board.ArenaBoard;
 import su.nightexpress.ama.arena.board.ArenaBoardConfig;
 import su.nightexpress.ama.arena.region.ArenaRegion;
 import su.nightexpress.ama.arena.reward.ArenaReward;
 import su.nightexpress.ama.arena.type.GameState;
+import su.nightexpress.ama.arena.util.ArenaUtils;
 import su.nightexpress.ama.config.Config;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.data.ArenaUser;
@@ -28,29 +30,32 @@ import su.nightexpress.ama.stats.object.StatType;
 
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.function.UnaryOperator;
 
-public final class ArenaPlayer implements IPlaceholder {
+public final class ArenaPlayer implements Placeholder {
 
     private static final Map<UUID, ArenaPlayer> PLAYER_MAP    = new HashMap<>();
     private static final DateTimeFormatter      FORMAT_STREAK = DateTimeFormatter.ofPattern("ss");
 
+    private final AMA plugin;
     private final Player player;
     private final Arena  arena;
     private final Map<StatType, Integer> stats;
+    private final List<ArenaReward>      rewards;
+    private final PlaceholderMap         placeholderMap;
 
-    private GameState         state;
-    private ArenaBoard        board;
-    private Kit               kit;
-    private List<ArenaReward> rewards;
-    private int               lives;
-    private int               score;
-    private int               killStreak;
-    private long              killStreakDecay;
+    private GameState  state;
+    private ArenaBoard board;
+    private Kit        kit;
+    private int        lifes;
+    private int        score;
+    private int        killStreak;
+    private long       killStreakDecay;
+    private boolean    dead;
+    private boolean    ghost;
 
     @Nullable
     public static ArenaPlayer getPlayer(@NotNull Player player) {
-        if (Hooks.isCitizensNPC(player)) return null;
+        if (EntityUtil.isNPC(player)) return null;
 
         return ArenaPlayer.getPlayer(player.getUniqueId());
     }
@@ -83,34 +88,135 @@ public final class ArenaPlayer implements IPlaceholder {
     }
 
     private ArenaPlayer(@NotNull Player player, @NotNull Arena arena) {
+        this.plugin = arena.plugin();
         this.stats = new HashMap<>();
+        this.rewards = new ArrayList<>();
         this.player = player;
         this.arena = arena;
-        this.setState(GameState.WAITING);
+        this.state = GameState.WAITING;
+        this.setReal();
         this.setKit(null);
-        this.setRewards(new ArrayList<>());
-        this.setLives(arena.getConfig().getGameplayManager().getPlayerLivesAmount());
+        this.setLifes(arena.getConfig().getGameplayManager().getPlayerLivesAmount());
         this.setScore(0);
         this.setKillStreak(0);
+        this.setDead(false);
+
+        this.placeholderMap = new PlaceholderMap()
+            .add(Placeholders.PLAYER_NAME, this.getPlayer().getName())
+            .add(Placeholders.PLAYER_LIVES, () -> String.valueOf(this.getLifes()))
+            .add(Placeholders.PLAYER_STREAK, () -> String.valueOf(this.getKillStreak()))
+            .add(Placeholders.PLAYER_STREAK_DECAY, () -> TimeUtil.getLocalTimeOf(this.getKillStreakDecay()).format(FORMAT_STREAK))
+            .add(Placeholders.PLAYER_SCORE, () -> String.valueOf(this.getScore()))
+            .add(Placeholders.PLAYER_KILLS, () -> String.valueOf(this.getStats(StatType.MOB_KILLS)))
+            .add(Placeholders.PLAYER_IS_READY, () -> LangManager.getBoolean(this.isReady()))
+            .add(Placeholders.PLAYER_KIT_NAME, () -> this.getKit() == null ? "-" : this.getKit().getName())
+        ;
     }
 
     @Override
     @NotNull
-    public UnaryOperator<String> replacePlaceholders() {
-        return str -> str
-            .replace(Placeholders.PLAYER_NAME, this.getPlayer().getName())
-            .replace(Placeholders.PLAYER_LIVES, String.valueOf(this.getLives()))
-            .replace(Placeholders.PLAYER_STREAK, String.valueOf(this.getKillStreak()))
-            .replace(Placeholders.PLAYER_STREAK_DECAY, TimeUtil.getLocalTimeOf(this.getKillStreakDecay()).format(FORMAT_STREAK))
-            .replace(Placeholders.PLAYER_SCORE, String.valueOf(this.getScore()))
-            .replace(Placeholders.PLAYER_KILLS, String.valueOf(this.getStats(StatType.MOB_KILLS)))
-            .replace(Placeholders.PLAYER_IS_READY, LangManager.getBoolean(this.isReady()))
-            .replace(Placeholders.PLAYER_KIT_NAME, this.getKit() == null ? "-" : this.getKit().getName())
-            ;
+    public PlaceholderMap getPlaceholders() {
+        return this.placeholderMap;
     }
 
-    public boolean leaveArena(@NotNull LeaveReason reason) {
-        return this.getArena().leaveArena(this, reason);
+    public boolean leaveArena() {
+        return this.getArena().leaveArena(this);
+    }
+
+    public void tick() {
+        if (!this.isDead() && !this.isGhost()) {
+            if (!this.getArena().isAwaitingNewRound()) {
+                this.setKillStreakDecay(this.getKillStreakDecay() - 1000L);
+                if (this.getKillStreakDecay() == 0) {
+                    this.setKillStreak(0);
+                    this.getStats().remove(StatType.BEST_KILL_STREAK);
+                }
+            }
+
+            if (this.kit != null) {
+                this.kit.applyPotionEffects(this.player);
+            }
+        }
+        if (this.board != null) {
+            this.board.update();
+        }
+
+        if (this.isDead()) {
+            if (this.isGhost()) {
+                this.plugin.getMessage(Lang.ARENA_GAME_STATUS_DEAD_NO_LIFES).send(this.getPlayer());
+            }
+            else {
+                this.plugin.getMessage(Lang.ARENA_GAME_STATUS_DEAD_WITH_LIFES).send(this.getPlayer());
+            }
+        }
+        else if (this.isGhost()) {
+            this.plugin.getMessage(Lang.ARENA_GAME_STATUS_SPECTATE).send(this.getPlayer());
+        }
+
+        // TODO
+		/*V1_19_R1 nms = (V1_19_R1) this.getArena().plugin.getArenaNMS();
+    	Block end = this.getArena().getConfig().getRegionManager().getRegionDefault().getSpawnLocation().getBlock();
+		Set<Block> path = nms.createPath(this.getPlayer().getLocation().getBlock(), end);
+		System.out.println(path);
+		path.stream().map(block -> block.getRelative(BlockFace.UP)).forEach(block -> {
+			EffectUtil.playEffect(block.getLocation(), Particle.REDSTONE, "", 0, 0, 0, 0.1, 5);
+		});*/
+    }
+
+    public void onDeath() {
+        this.setDead(true);
+
+        if (this.isOutOfLifes()) {
+            if (!this.getArena().getConfig().getRewardManager().isRetainOnDeath()) {
+                this.getRewards().clear();
+            }
+            if (!this.getArena().getAlivePlayers().isEmpty()) {
+                this.plugin.getMessage(Lang.ARENA_GAME_DEATH_NO_LIFES).replace(this.replacePlaceholders()).send(this.getPlayer());
+            }
+            this.setGhost();
+            if (!this.getArena().getConfig().getWaveManager().isInfiniteWaves()) {
+                this.addStats(StatType.GAMES_LOST, 1);
+            }
+            ArenaUtils.removeMobBossBars(this.getPlayer());
+        }
+        else {
+            this.takeLive();
+            if (!this.getArena().getAlivePlayers().isEmpty()) {
+                this.plugin.getMessage(Lang.ARENA_GAME_DEATH_WITH_LIFES).replace(this.replacePlaceholders()).send(this.getPlayer());
+            }
+        }
+
+        this.getPlayer().setGameMode(GameMode.SPECTATOR);
+        this.addStats(StatType.DEATHS, 1);
+        this.setKillStreak(0);
+        this.setKillStreakDecay(0);
+        this.getArena().broadcast(plugin.getMessage(Lang.ARENA_GAME_INFO_PLAYER_DEATH)
+            .replace(this.getArena().replacePlaceholders())
+            .replace(this.replacePlaceholders())
+        );
+    }
+
+    public void revive() {
+        if (!this.isDead() || this.isGhost()) return;
+
+        ArenaRegion defRegion = this.getArena().getConfig().getRegionManager().getFirstUnlocked();
+        if (defRegion != null) {
+            this.getPlayer().teleport(defRegion.getSpawnLocation());
+        }
+
+        this.setDead(false);
+        this.getPlayer().setGameMode(GameMode.SURVIVAL);
+
+        if (this.isOutOfLifes()) {
+            this.plugin.getMessage(Lang.ARENA_GAME_REVIVE_NO_LIFES).replace(this.replacePlaceholders()).send(this.getPlayer());
+        }
+        else {
+            this.plugin.getMessage(Lang.ARENA_GAME_REVIVE_WITH_LIFES).replace(this.replacePlaceholders()).send(this.getPlayer());
+        }
+    }
+
+    public boolean isOutOfLifes() {
+        return this.getLifes() < 1;
     }
 
     @NotNull
@@ -128,11 +234,10 @@ public final class ArenaPlayer implements IPlaceholder {
 
         if (this.getState() == GameState.READY || this.getState() == GameState.WAITING) {
             ArenaPlayerReadyEvent readyEvent = new ArenaPlayerReadyEvent(this.getArena(), this);
-            this.getArena().plugin().getPluginManager().callEvent(readyEvent);
+            plugin.getPluginManager().callEvent(readyEvent);
 
-            Arena arena = this.getArena();
-            LangMessage msg = arena.plugin().getMessage(this.isReady() ? Lang.Arena_Game_Lobby_Ready_True : Lang.Arena_Game_Lobby_Ready_False);
-            arena.broadcast(msg.replace(this.replacePlaceholders()), ArenaTargetType.PLAYER_ALL);
+            this.getArena().broadcast(plugin.getMessage(this.isReady() ? Lang.ARENA_GAME_INFO_PLAYER_READY : Lang.ARENA_GAME_INFO_PLAYER_NOT_READY)
+                .replace(this.replacePlaceholders()));
         }
     }
 
@@ -150,25 +255,45 @@ public final class ArenaPlayer implements IPlaceholder {
         return this.rewards;
     }
 
-    public void setRewards(@NotNull List<ArenaReward> rewards) {
-        this.rewards = rewards;
-    }
-
     @NotNull
     public Player getPlayer() {
         return this.player;
     }
 
-    public int getLives() {
-        return this.lives;
+    public int getLifes() {
+        return this.lifes;
     }
 
-    public void setLives(int lives) {
-        this.lives = Math.max(0, lives);
+    public void setLifes(int lifes) {
+        this.lifes = Math.max(0, lifes);
     }
 
     public void takeLive() {
-        this.setLives(this.getLives() - 1);
+        this.setLifes(this.getLifes() - 1);
+    }
+
+    public boolean isDead() {
+        return dead;
+    }
+
+    public void setDead(boolean dead) {
+        this.dead = dead;
+    }
+
+    public boolean isGhost() {
+        return this.ghost;
+    }
+
+    public boolean isReal() {
+        return !this.isGhost();
+    }
+
+    public void setGhost() {
+        this.ghost = true;
+    }
+
+    public void setReal() {
+        this.ghost = false;
     }
 
     public boolean isReady() {
@@ -198,32 +323,6 @@ public final class ArenaPlayer implements IPlaceholder {
             this.board.remove();
             this.board = null;
         }
-    }
-
-    public void tick() {
-        if (!this.getArena().isNextWaveAllowed()) {
-            this.setKillStreakDecay(this.getKillStreakDecay() - 1000L);
-            if (this.getKillStreakDecay() == 0) {
-                this.setKillStreak(0);
-                this.getStats().remove(StatType.BEST_KILL_STREAK);
-            }
-        }
-
-        if (this.kit != null) {
-            this.kit.applyPotionEffects(this.player);
-        }
-        if (this.board != null) {
-            this.board.update();
-        }
-
-        // TODO
-		/*V1_19_R1 nms = (V1_19_R1) this.getArena().plugin.getArenaNMS();
-    	Block end = this.getArena().getConfig().getRegionManager().getRegionDefault().getSpawnLocation().getBlock();
-		Set<Block> path = nms.createPath(this.getPlayer().getLocation().getBlock(), end);
-		System.out.println(path);
-		path.stream().map(block -> block.getRelative(BlockFace.UP)).forEach(block -> {
-			EffectUtil.playEffect(block.getLocation(), Particle.REDSTONE, "", 0, 0, 0, 0.1, 5);
-		});*/
     }
 
     /**

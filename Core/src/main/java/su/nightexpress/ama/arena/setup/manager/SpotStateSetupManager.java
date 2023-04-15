@@ -61,14 +61,17 @@ public class SpotStateSetupManager extends AbstractSetupManager<ArenaSpotState> 
             case SPOT_STATE_PREVIEW -> state.build();
             case SPOT_STATE_EXIT -> this.endSetup(player);
             case SPOT_SAVE -> {
-                List<String> scheme = new ArrayList<>();
-                for (Block block : state.getSpot().getCuboid().getBlocks()) {
-                    String bLoc = LocationUtil.serialize(block.getLocation());
-                    String bData = block.getBlockData().getAsString();
-                    scheme.add(bLoc + "~" + bData);
+                ArenaCuboid cuboid = state.getSpot().getCuboid().orElse(null);
+                if (cuboid != null) {
+                    List<String> scheme = new ArrayList<>();
+                    for (Block block : cuboid.getBlocks()) {
+                        String bLoc = LocationUtil.serialize(block.getLocation());
+                        String bData = block.getBlockData().getAsString();
+                        scheme.add(bLoc + "~" + bData);
+                    }
+                    state.setSchemeRaw(scheme);
+                    state.getSpot().save();
                 }
-                state.setSchemeRaw(scheme);
-                state.getSpot().save();
                 this.endSetup(player);
             }
         }
@@ -76,11 +79,11 @@ public class SpotStateSetupManager extends AbstractSetupManager<ArenaSpotState> 
 
     @Override
     protected void updateVisuals() {
-        ArenaCuboid cuboid = this.getObject().getSpot().getCuboid();
-        if (cuboid.isEmpty()) return;
+        ArenaCuboid cuboid = this.getObject().getSpot().getCuboid().orElse(null);
+        if (cuboid == null) return;
 
-        Location loc1 = cuboid.getLocationMin();
-        Location loc2 = cuboid.getLocationMax();
+        Location loc1 = cuboid.getMin();
+        Location loc2 = cuboid.getMax();
 
         ArenaSetupUtils.addVisualText(player, "&9« 1st Corner »", loc1);
         ArenaSetupUtils.addVisualBlock(player, loc1);
@@ -89,10 +92,9 @@ public class SpotStateSetupManager extends AbstractSetupManager<ArenaSpotState> 
     }
 
     private void updateVisualParticles(@NotNull Player player) {
-        ArenaCuboid cuboid = this.getObject().getSpot().getCuboid();
-        if (!cuboid.isEmpty()) {
+        this.getObject().getSpot().getCuboid().ifPresent(cuboid -> {
             cuboid.getVisualizer().draw(player);
-        }
+        });
     }
 
     @Override
@@ -108,8 +110,8 @@ public class SpotStateSetupManager extends AbstractSetupManager<ArenaSpotState> 
         ArenaSpot spot = this.getObject().getSpot();
 
         Block block = e.getBlock();
-        ArenaCuboid cuboid = spot.getCuboid();
-        if (cuboid.isEmpty() || !cuboid.contains(block.getLocation())) {
+        ArenaCuboid cuboid = spot.getCuboid().orElse(null);
+        if (cuboid == null || !cuboid.contains(block.getLocation())) {
             plugin.getMessage(Lang.SETUP_SPOT_STATE_ERROR_OUTSIDE).send(player);
             e.setCancelled(true);
         }
@@ -123,8 +125,8 @@ public class SpotStateSetupManager extends AbstractSetupManager<ArenaSpotState> 
         ArenaSpot spot = this.getObject().getSpot();
 
         Block block = e.getBlock();
-        ArenaCuboid cuboid = spot.getCuboid();
-        if (cuboid.isEmpty() || !cuboid.contains(block.getLocation())) {
+        ArenaCuboid cuboid = spot.getCuboid().orElse(null);
+        if (cuboid == null || !cuboid.contains(block.getLocation())) {
             plugin.getMessage(Lang.SETUP_SPOT_STATE_ERROR_OUTSIDE).send(player);
             e.setCancelled(true);
         }

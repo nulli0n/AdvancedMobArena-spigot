@@ -75,7 +75,7 @@ public abstract class AbstractHologramCommand extends AbstractCommand<AMA> {
 
         HologramType type = CollectionsUtil.getEnum(args[2], HologramType.class);
         if (type == null) {
-            this.errorType(sender, HologramType.class);
+            this.printUsage(sender);
             return;
         }
 

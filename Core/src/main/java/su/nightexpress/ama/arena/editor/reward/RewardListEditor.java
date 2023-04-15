@@ -52,7 +52,7 @@ public class RewardListEditor extends AbstractEditorMenuAuto<AMA, ArenaRewardMan
                 switch (type2) {
                     case REWARD_CREATE -> {
                         EditorManager.startEdit(player, rewardManager, type2, input);
-                        EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_REWARD_ENTER_ID).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_REWARD_ENTER_ID).getLocalized());
                         player.closeInventory();
                         return;
                     }

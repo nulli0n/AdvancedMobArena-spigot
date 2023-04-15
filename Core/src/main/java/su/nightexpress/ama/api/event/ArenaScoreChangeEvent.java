@@ -1,16 +1,15 @@
 package su.nightexpress.ama.api.event;
 
 import org.jetbrains.annotations.NotNull;
-import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
 import su.nightexpress.ama.arena.impl.Arena;
 
-public class ArenaScoreChangeEvent extends ArenaGameGenericEvent {
+public class ArenaScoreChangeEvent extends ArenaEvent {
 
     private final int oldScore;
     private final int newScore;
 
-    public ArenaScoreChangeEvent(@NotNull Arena arena, @NotNull ArenaGameEventType eventType, int oldScore, int newScore) {
-        super(arena, eventType);
+    public ArenaScoreChangeEvent(@NotNull Arena arena, int oldScore, int newScore) {
+        super(arena);
         this.oldScore = oldScore;
         this.newScore = newScore;
     }

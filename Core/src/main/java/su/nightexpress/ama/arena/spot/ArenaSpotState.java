@@ -77,7 +77,7 @@ public class ArenaSpotState implements ArenaChild, IPlaceholder {
                 plugin.error("Invalid block location '" + block + "' in '" + id + "' state of '" + spot.getFile().getName() + "' spot in '" + spot.getArenaConfig().getId() + "' arena!");
                 continue;
             }
-            if (this.spot.getCuboid().isEmpty() || !this.spot.getCuboid().contains(blockLoc)) {
+            if (this.spot.getCuboid().isEmpty() || !this.spot.getCuboid().get().contains(blockLoc)) {
                 plugin.error("Block is outside of the spot region: '" + block + "' in '" + id + "' state of '" + spot.getFile().getName() + "' spot in '" + spot.getArenaConfig().getId() + "' arena!");
                 continue;
             }

@@ -50,7 +50,7 @@ public class SupplyChestListEditor extends AbstractEditorMenuAuto<AMA, ArenaSupp
             else if (type instanceof ArenaEditorType type2) {
                 if (type2 == ArenaEditorType.SUPPLY_CHEST_CREATE) {
                     EditorManager.startEdit(player, supplyManager, type2, input);
-                    EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_SUPPLY_CHEST_ENTER_ID).getLocalized());
+                    EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_SUPPLY_CHEST_ENTER_ID).getLocalized());
                     player.closeInventory();
                 }
             }

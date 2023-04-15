@@ -49,7 +49,7 @@ public class ShopCategorySettingsEditor extends AbstractEditorMenu<AMA, ShopCate
                 switch (type2) {
                     case SHOP_CATEGORY_CHANGE_NAME -> {
                         EditorManager.startEdit(player, shopCategory, type2, input);
-                        EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NAME).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NAME).getLocalized());
                         player.closeInventory();
                     }
                     case SHOP_CATEGORY_CHANGE_DESCRIPTION -> {
@@ -60,7 +60,7 @@ public class ShopCategorySettingsEditor extends AbstractEditorMenu<AMA, ShopCate
                             break;
                         }
                         EditorManager.startEdit(player, shopCategory, type2, input);
-                        EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_DESCRIPTION).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_DESCRIPTION).getLocalized());
                         player.closeInventory();
                     }
                     case SHOP_CATEGORY_CHANGE_ICON -> {
@@ -80,7 +80,7 @@ public class ShopCategorySettingsEditor extends AbstractEditorMenu<AMA, ShopCate
                             break;
                         }
                         EditorManager.startEdit(player, shopCategory, type2, input);
-                        EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_KIT_ENTER_ID).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_KIT_ENTER_ID).getLocalized());
                         EditorManager.suggestValues(player, plugin.getKitManager().getKitIds(), true);
                         player.closeInventory();
                     }

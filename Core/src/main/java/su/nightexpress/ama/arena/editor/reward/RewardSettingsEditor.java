@@ -51,7 +51,7 @@ public class RewardSettingsEditor extends AbstractEditorMenu<AMA, ArenaReward> {
                     case REWARD_CHANGE_LATE -> reward.setLate(!reward.isLate());
                     case REWARD_CHANGE_NAME -> {
                         EditorManager.startEdit(player, reward, type2, input);
-                        EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NAME).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NAME).getLocalized());
                         player.closeInventory();
                         return;
                     }
@@ -65,7 +65,7 @@ public class RewardSettingsEditor extends AbstractEditorMenu<AMA, ArenaReward> {
                             break;
                         }
                         EditorManager.startEdit(player, reward, type2, input);
-                        EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_COMMAND).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_COMMAND).getLocalized());
                         EditorManager.sendCommandTips(player);
                         player.closeInventory();
                         return;

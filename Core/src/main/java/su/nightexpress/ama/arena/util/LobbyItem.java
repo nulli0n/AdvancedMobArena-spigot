@@ -7,24 +7,22 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import su.nexmedia.engine.api.config.JOption;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.utils.CollectionsUtil;
+import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.PDCUtil;
-import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.Keys;
 import su.nightexpress.ama.api.ArenaAPI;
-import su.nightexpress.ama.arena.type.GameState;
-import su.nightexpress.ama.api.arena.type.LeaveReason;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
+import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.config.Config;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.function.BiConsumer;
 
-public class LobbyItem implements JOption.Writer {
+public class LobbyItem {
 
     private final Type      type;
     private final boolean   isEnabled;
@@ -83,7 +81,7 @@ public class LobbyItem implements JOption.Writer {
 
     @Nullable
     public static Type getType(@NotNull ItemStack item) {
-        String raw = PDCUtil.getStringData(item, Keys.ITEM_LOBBY_TYPE);
+        String raw = PDCUtil.getString(item, Keys.ITEM_LOBBY_TYPE).orElse(null);
         return raw == null ? null : CollectionsUtil.getEnum(raw, Type.class);
     }
 
@@ -94,13 +92,12 @@ public class LobbyItem implements JOption.Writer {
         }
     }
 
-    @Override
-    public void write(@NotNull JYML cfg, @NotNull String path) {
-        ItemStack item = this.getItem();
-        PDCUtil.removeData(item, Keys.ITEM_LOBBY_TYPE);
+    public static void write(@NotNull LobbyItem lobbyItem, @NotNull JYML cfg, @NotNull String path) {
+        ItemStack item = lobbyItem.getItem();
+        PDCUtil.remove(item, Keys.ITEM_LOBBY_TYPE);
 
-        cfg.set(path + ".Enabled", this.isEnabled());
-        cfg.set(path + ".Slot", this.getSlot());
+        cfg.set(path + ".Enabled", lobbyItem.isEnabled());
+        cfg.set(path + ".Slot", lobbyItem.getSlot());
         cfg.setItem(path + ".Item", item);
     }
 
@@ -108,7 +105,7 @@ public class LobbyItem implements JOption.Writer {
 
         KIT_SELECT((arena, arenaPlayer) -> ArenaAPI.getKitManager().getSelectMenu().open(arenaPlayer.getPlayer(), 1)),
         KIT_SHOP((arena, arenaPlayer) -> ArenaAPI.getKitManager().getShopMenu().open(arenaPlayer.getPlayer(), 1)),
-        EXIT((arena, arenaPlayer) -> arenaPlayer.leaveArena(LeaveReason.SELF)),
+        EXIT((arena, arenaPlayer) -> arenaPlayer.leaveArena()),
         STATS((arena, arenaPlayer) -> ArenaAPI.getStatsManager().getStatsMenu().open(arenaPlayer.getPlayer(), 1)),
         READY((arena, arenaPlayer) -> arenaPlayer.setState(arenaPlayer.isReady() ? GameState.WAITING : GameState.READY));
 
@@ -136,28 +133,28 @@ public class LobbyItem implements JOption.Writer {
 
             Material material = switch (this) {
                 case KIT_SHOP -> {
-                    meta.setDisplayName(StringUtil.color("&d&lKit Shop&7 (Right-Click)"));
-                    meta.setLore(StringUtil.color(new ArrayList<>(Collections.singletonList("&7Purchase and try new kits!"))));
+                    meta.setDisplayName(Colorizer.apply("&d&lKit Shop&7 (Right-Click)"));
+                    meta.setLore(Colorizer.apply(new ArrayList<>(Collections.singletonList("&7Purchase and try new kits!"))));
                     yield Material.ENDER_CHEST;
                 }
                 case KIT_SELECT -> {
-                    meta.setDisplayName(StringUtil.color("&6&lKit Selector&7 (Right-Click)"));
-                    meta.setLore(StringUtil.color(new ArrayList<>(Collections.singletonList("&7Select your kit to fight with!"))));
+                    meta.setDisplayName(Colorizer.apply("&6&lKit Selector&7 (Right-Click)"));
+                    meta.setLore(Colorizer.apply(new ArrayList<>(Collections.singletonList("&7Select your kit to fight with!"))));
                     yield Material.CHEST;
                 }
                 case STATS -> {
-                    meta.setDisplayName(StringUtil.color("&b&lStatistics&7 (Right-Click)"));
-                    meta.setLore(StringUtil.color(new ArrayList<>(Collections.singletonList("&7Check your game stats!"))));
+                    meta.setDisplayName(Colorizer.apply("&b&lStatistics&7 (Right-Click)"));
+                    meta.setLore(Colorizer.apply(new ArrayList<>(Collections.singletonList("&7Check your game stats!"))));
                     yield Material.MAP;
                 }
                 case READY -> {
-                    meta.setDisplayName(StringUtil.color("&a&lReady State&7 (Right-Click)"));
-                    meta.setLore(StringUtil.color(new ArrayList<>(Collections.singletonList("&7Are you ready to play?"))));
+                    meta.setDisplayName(Colorizer.apply("&a&lReady State&7 (Right-Click)"));
+                    meta.setLore(Colorizer.apply(new ArrayList<>(Collections.singletonList("&7Are you ready to play?"))));
                     yield Material.LIME_DYE;
                 }
                 case EXIT -> {
-                    meta.setDisplayName(StringUtil.color("&c&lExit&7 (Right-Click)"));
-                    meta.setLore(StringUtil.color(new ArrayList<>(Collections.singletonList("&7Leaving so soon?"))));
+                    meta.setDisplayName(Colorizer.apply("&c&lExit&7 (Right-Click)"));
+                    meta.setLore(Colorizer.apply(new ArrayList<>(Collections.singletonList("&7Leaving so soon?"))));
                     yield Material.REDSTONE;
                 }
             };

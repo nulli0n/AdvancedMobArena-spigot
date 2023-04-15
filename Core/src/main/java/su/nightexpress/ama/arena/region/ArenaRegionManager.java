@@ -6,29 +6,33 @@ import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.IEditable;
 import su.nexmedia.engine.api.manager.ILoadable;
+import su.nexmedia.engine.api.placeholder.Placeholder;
+import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
-import su.nightexpress.ama.api.arena.IProblematic;
+import su.nightexpress.ama.api.arena.Problematic;
 import su.nightexpress.ama.arena.editor.region.RegionListEditor;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
-import su.nightexpress.ama.arena.util.ArenaCuboid;
 
 import java.util.*;
-import java.util.function.UnaryOperator;
 
-public class ArenaRegionManager implements ArenaChild, ILoadable, IEditable, IProblematic {
+public class ArenaRegionManager implements ArenaChild, ILoadable, IEditable, Problematic, Placeholder {
 
     public static final String DIR_REGIONS = "/regions/";
 
     private final ArenaConfig arenaConfig;
     private final Map<String, ArenaRegion> regions;
+    private final PlaceholderMap placeholderMap;
 
     private RegionListEditor editor;
 
     public ArenaRegionManager(@NotNull ArenaConfig arenaConfig) {
         this.arenaConfig = arenaConfig;
         this.regions = new HashMap<>();
+
+        this.placeholderMap = new PlaceholderMap()
+            .add(Placeholders.GENERIC_PROBLEMS, () -> String.join("\n", this.getProblems()));
     }
 
     @Override
@@ -62,8 +66,8 @@ public class ArenaRegionManager implements ArenaChild, ILoadable, IEditable, IPr
 
     @Override
     @NotNull
-    public UnaryOperator<String> replacePlaceholders() {
-        return str -> str.replace(Placeholders.GENERIC_PROBLEMS, Placeholders.formatProblems(this.getProblems()));
+    public PlaceholderMap getPlaceholders() {
+        return this.placeholderMap;
     }
 
     @Override
@@ -71,18 +75,18 @@ public class ArenaRegionManager implements ArenaChild, ILoadable, IEditable, IPr
     public List<String> getProblems() {
         List<String> list = new ArrayList<>();
         if (this.getRegionsMap().isEmpty()) {
-            list.add("No Regions Defined!");
+            list.add(problem("No Regions Created!"));
         }
         if (this.getDefaultRegion() == null) {
-            list.add("No Default Region!");
+            list.add(problem("No Default Region!"));
         }
         else if (!this.getDefaultRegion().isActive()) {
-            list.add("Default Region is Inactive!");
+            list.add(problem("Default Region is Inactive!"));
         }
 
         for (ArenaRegion region : this.getRegions()) {
             if (region.isActive() && region.hasProblems()) {
-                list.add("Problems with " + region.getId() + " region!");
+                list.add(problem("Problems with " + region.getId() + " region!"));
             }
         }
         return list;
@@ -124,7 +128,7 @@ public class ArenaRegionManager implements ArenaChild, ILoadable, IEditable, IPr
     }
 
     @Nullable
-    public ArenaRegion getFirstUnlockedRegion() {
+    public ArenaRegion getFirstUnlocked() {
         return this.getRegions().stream().filter(ArenaRegion::isUnlocked).findFirst().orElse(null);
     }
 
@@ -135,7 +139,9 @@ public class ArenaRegionManager implements ArenaChild, ILoadable, IEditable, IPr
 
     @Nullable
     public ArenaRegion getRegion(@NotNull Location location) {
-        return this.getRegions().stream().filter(reg -> reg.getCuboid().contains(location)).findFirst().orElse(null);
+        return this.getRegions().stream()
+            .filter(region -> region.getCuboid().isPresent() && region.getCuboid().get().contains(location))
+            .findFirst().orElse(null);
     }
 
     public void addRegion(@NotNull ArenaRegion region) {
@@ -150,8 +156,7 @@ public class ArenaRegionManager implements ArenaChild, ILoadable, IEditable, IPr
         region.setActive(false);
         region.setDefault(this.getRegions().isEmpty());
         region.setName(StringUtil.capitalizeUnderscored(region.getId()) + " Region");
-        region.setCuboid(ArenaCuboid.empty());
-        region.setSpawnLocation(region.getCuboid().isEmpty() ? null : region.getCuboid().getCenter());
+        region.setSpawnLocation(null);
         region.save();
         region.load();
         this.addRegion(region);

@@ -4,15 +4,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.command.AbstractCommand;
-import su.nexmedia.engine.utils.CollectionsUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
-import su.nightexpress.ama.api.arena.type.ArenaEndType;
-import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.arena.impl.Arena;
+import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.config.Lang;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -46,9 +43,6 @@ public class ForceEndCommand extends AbstractCommand<AMA> {
             return plugin.getArenaManager().getArenas().stream().filter(arena -> arena.getState() == GameState.INGAME)
                 .map(Arena::getId).toList();
         }
-        if (arg == 2) {
-            return Arrays.stream(ArenaEndType.values()).map(ArenaEndType::name).toList();
-        }
         return super.getTab(player, arg, args);
     }
 
@@ -70,9 +64,7 @@ public class ForceEndCommand extends AbstractCommand<AMA> {
             return;
         }
 
-        String typeRaw = args.length >= 3 ? args[2] : null;
-        ArenaEndType endType = typeRaw != null ? CollectionsUtil.getEnum(typeRaw, ArenaEndType.class) : ArenaEndType.FORCE;
-        arena.stop(endType != null ? endType : ArenaEndType.FORCE);
+        arena.stop();
 
         plugin.getMessage(Lang.COMMAND_FORCE_END_DONE).replace(arena.replacePlaceholders()).send(sender);
     }

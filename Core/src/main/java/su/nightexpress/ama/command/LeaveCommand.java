@@ -6,7 +6,6 @@ import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.command.AbstractCommand;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
-import su.nightexpress.ama.api.arena.type.LeaveReason;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.config.Lang;
 
@@ -45,6 +44,6 @@ public class LeaveCommand extends AbstractCommand<AMA> {
             return;
         }
 
-        arenaPlayer.leaveArena(LeaveReason.SELF);
+        arenaPlayer.leaveArena();
     }
 }

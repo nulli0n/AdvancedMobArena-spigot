@@ -1,10 +1,5 @@
 package su.nightexpress.ama;
 
-import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.utils.StringUtil;
-
-import java.util.List;
-
 public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
 
     public static final String GENERIC_TIME     = "%time%";
@@ -29,13 +24,18 @@ public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
     public static final String ARENA_REQUIREMENT_LEVEL      = "%arena_requirement_level%";
     public static final String ARENA_PERMISSION             = "%arena_permission%";
     public static final String ARENA_STATE                  = "%arena_state%";
-    public static final String ARENA_PLAYERS                = "%arena_players%";
+    @Deprecated public static final String ARENA_PLAYERS                = "%arena_players%";
+    public static final String ARENA_REAL_PLAYERS                = "%arena_real_players%";
+    public static final String ARENA_GHOST_PLAYERS                = "%arena_ghost_players%";
+    public static final String ARENA_ALIVE_PLAYERS                = "%arena_alive_players%";
+    public static final String ARENA_DEAD_PLAYERS                = "%arena_dead_players%";
     public static final String ARENA_PLAYERS_MAX            = "%arena_players_max%";
     public static final String ARENA_MOBS_ALIVE             = "%arena_mobs_alive%";
     public static final String ARENA_MOBS_LEFT              = "%arena_mobs_left%";
     public static final String ARENA_MOBS_TOTAL             = "%arena_mobs_total%";
     public static final String ARENA_WAVE_NUMBER            = "%arena_wave_number%";
     public static final String ARENA_WAVE_NEXT_IN           = "%arena_wave_next_in%";
+    public static final String ARENA_END_COUNTDOWN = "%arena_end_countdown%";
     public static final String ARENA_TIMELEFT               = "%arena_timeleft%";
     public static final String ARENA_SCORE                  = "%arena_score%";
 
@@ -172,11 +172,6 @@ public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
     public static final String KIT_ICON_MATERIAL  = "%kit_icon_material%";
     public static final String KIT_CURRENCY       = "%kit_currency%";
 
-    public static final String PROBLEM_PREFIX                = StringUtil.color("&c⚠ &e");
-    public static final String PROBLEM_REGION_CUBOID_INVALID = "Invalid Region Cuboid!";
-    public static final String PROBLEM_REGION_SPAWN_LOCATION = "Invalid Spawn Location!";
-    public static final String PROBLEM_REGION_SPAWNERS_EMPTY = "No Mob Spawners Defined!";
-
     public static final String STATS_SCORE_POSITION = "%score_position%";
     public static final String STATS_SCORE_NAME     = "%score_name%";
     public static final String STATS_SCORE_AMOUNT   = "%score_amount%";
@@ -190,12 +185,4 @@ public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
     public static final String PLAYER_SCORE        = "%player_score%";
     public static final String PLAYER_IS_READY     = "%player_is_ready%";
     public static final String PLAYER_KIT_NAME     = "%player_kit_name%";
-
-    @NotNull
-    @Deprecated
-    public static String formatProblems(@NotNull List<String> problems) {
-        List<String> problems2 = problems.stream().map(str -> Placeholders.PROBLEM_PREFIX + str).toList();
-
-        return String.join("\n", problems2);
-    }
 }

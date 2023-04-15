@@ -65,12 +65,12 @@ public class SupplyChestSettingsEditor extends AbstractEditorMenu<AMA, ArenaSupp
                     case SUPPLY_CHEST_CHANGE_REFILL_AMOUNT -> {
                         type2 = e.isLeftClick() ? ArenaEditorType.SUPPLY_CHEST_CHANGE_REFILL_AMOUNT_MIN : ArenaEditorType.SUPPLY_CHEST_CHANGE_REFILL_AMOUNT_MAX;
                         EditorManager.startEdit(player, container, type2, input);
-                        EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NUMBER).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NUMBER).getLocalized());
                         player.closeInventory();
                     }
                     case SUPPLY_CHEST_CHANGE_LOCATION -> {
                         EditorManager.startEdit(player, container, type2, input);
-                        EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_SUPPLY_CHEST_SET_CONTAINER).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_SUPPLY_CHEST_SET_CONTAINER).getLocalized());
                         player.closeInventory();
                     }
                     case SUPPLY_CHEST_CHANGE_ITEMS -> new ContainerGUI(container).open(player, 1);

@@ -83,13 +83,13 @@ public class GameplayEditor extends AbstractEditorMenu<AMA, ArenaGameplayManager
                             break;
                         }
                         EditorManager.startEdit(player, game, type2, input);
-                        EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_SECONDS).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_SECONDS).getLocalized());
                         player.closeInventory();
                         return;
                     }
                     case GAMEPLAY_CHANGE_LOBBY_TIME -> {
                         EditorManager.startEdit(player, game, type2, input);
-                        EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_SECONDS).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_SECONDS).getLocalized());
                         player.closeInventory();
                         return;
                     }
@@ -97,7 +97,7 @@ public class GameplayEditor extends AbstractEditorMenu<AMA, ArenaGameplayManager
                     case GAMEPLAY_CHANGE_SCOREBOARD -> {
                         if (e.isRightClick()) {
                             EditorManager.startEdit(player, game, ArenaEditorType.GAMEPLAY_CHANGE_SCOREBOARD_ID, input);
-                            EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_ARENA_GAMEPLAY_ENTER_SCOREBOARD_ID).getLocalized());
+                            EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_ARENA_GAMEPLAY_ENTER_SCOREBOARD_ID).getLocalized());
                             EditorManager.suggestValues(player, Config.SCOREBOARDS.get().keySet(), true);
                             player.closeInventory();
                             return;
@@ -140,7 +140,7 @@ public class GameplayEditor extends AbstractEditorMenu<AMA, ArenaGameplayManager
                             }
                             if (e.isRightClick()) {
                                 EditorManager.startEdit(player, game, ArenaEditorType.GAMEPLAY_CHANGE_MOB_HIGHLIGHT_AMOUNT, input);
-                                EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_PERCENT).getLocalized());
+                                EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_PERCENT).getLocalized());
                                 player.closeInventory();
                                 return;
                             }
@@ -154,7 +154,7 @@ public class GameplayEditor extends AbstractEditorMenu<AMA, ArenaGameplayManager
                             type2 = ArenaEditorType.GAMEPLAY_CHANGE_PLAYERS_AMOUNT_MAX;
                         }
                         EditorManager.startEdit(player, game, type2, input);
-                        EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NUMBER).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NUMBER).getLocalized());
                         player.closeInventory();
                         return;
                     }
@@ -164,7 +164,7 @@ public class GameplayEditor extends AbstractEditorMenu<AMA, ArenaGameplayManager
                         }
                         else if (e.isRightClick()) {
                             EditorManager.startEdit(player, game, ArenaEditorType.GAMEPLAY_CHANGE_PLAYERS_DEATH_LIVES, input);
-                            EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NUMBER).getLocalized());
+                            EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NUMBER).getLocalized());
                             player.closeInventory();
                             return;
                         }
@@ -184,7 +184,7 @@ public class GameplayEditor extends AbstractEditorMenu<AMA, ArenaGameplayManager
                         }
 
                         EditorManager.startEdit(player, game, type2, input);
-                        EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_ARENA_GAMEPLAY_ENTER_BANNED_ITEMS).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_ARENA_GAMEPLAY_ENTER_BANNED_ITEMS).getLocalized());
                         player.closeInventory();
                         return;
                     }
@@ -195,7 +195,7 @@ public class GameplayEditor extends AbstractEditorMenu<AMA, ArenaGameplayManager
                         }
 
                         EditorManager.startEdit(player, game, type2, input);
-                        EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_ARENA_GAMEPLAY_ENTER_ALLOWED_SPAWN_REASON).getLocalized());
+                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_ARENA_GAMEPLAY_ENTER_ALLOWED_SPAWN_REASON).getLocalized());
                         EditorManager.suggestValues(player, CollectionsUtil.getEnumsList(CreatureSpawnEvent.SpawnReason.class), true);
                         player.closeInventory();
                         return;
@@ -204,7 +204,7 @@ public class GameplayEditor extends AbstractEditorMenu<AMA, ArenaGameplayManager
                         if (e.isShiftClick()) {
                             if (e.isLeftClick()) {
                                 EditorManager.startEdit(player, game, ArenaEditorType.GAMEPLAY_CHANGE_COMMANDS_ADD_WHITE, input);
-                                EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_COMMAND).getLocalized());
+                                EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_COMMAND).getLocalized());
                                 player.closeInventory();
                                 return;
                             }
@@ -222,7 +222,7 @@ public class GameplayEditor extends AbstractEditorMenu<AMA, ArenaGameplayManager
                         if (e.isShiftClick()) {
                             if (e.isLeftClick()) {
                                 EditorManager.startEdit(player, game, ArenaEditorType.GAMEPLAY_CHANGE_KITS_ADD_ALLOWED, input);
-                                EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_ARENA_GAMEPLAY_ENTER_KIT_LIMIT).getLocalized());
+                                EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_ARENA_GAMEPLAY_ENTER_KIT_LIMIT).getLocalized());
                                 EditorManager.suggestValues(player, plugin.getKitManager().getKitIds(), true);
                                 player.closeInventory();
                                 return;
@@ -240,7 +240,7 @@ public class GameplayEditor extends AbstractEditorMenu<AMA, ArenaGameplayManager
                     case GAMEPLAY_CHANGE_KITS_LIMITS -> {
                         if (e.isLeftClick()) {
                             EditorManager.startEdit(player, game, ArenaEditorType.GAMEPLAY_CHANGE_KITS_ADD_LIMIT, input);
-                            EditorManager.tip(player, plugin.getMessage(Lang.EDITOR_ARENA_GAMEPLAY_ENTER_KIT_LIMIT).getLocalized());
+                            EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_ARENA_GAMEPLAY_ENTER_KIT_LIMIT).getLocalized());
                             EditorManager.suggestValues(player, plugin.getKitManager().getKitIds(), true);
                             player.closeInventory();
                             return;

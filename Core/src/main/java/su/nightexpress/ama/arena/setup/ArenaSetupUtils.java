@@ -21,11 +21,14 @@ public class ArenaSetupUtils {
         list.forEach(id -> ArenaAPI.getArenaNMS().visualEntityRemove(player, id));
     }
 
-    public static void addVisualText(@NotNull Player player, @NotNull String name, @NotNull Location loc) {
+    public static void addVisualText(@NotNull Player player, @NotNull String name, @NotNull Location location) {
         List<Integer> list = VISUALS_MAP.computeIfAbsent(player, k -> new ArrayList<>());
 
-        Location clone = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
-        int id = ArenaAPI.getArenaNMS().visualEntityAdd(player, name, LocationUtil.getCenter(LocationUtil.getFirstGroundBlock(clone.add(0, 1, 0)), false));
+        Location clone = new Location(location.getWorld(), location.getX(), location.getY(), location.getZ());
+        clone = LocationUtil.getFirstGroundBlock(clone);
+        clone = LocationUtil.getCenter(clone, false);
+
+        int id = ArenaAPI.getArenaNMS().visualEntityAdd(player, name, clone);
         list.add(id);
     }
 

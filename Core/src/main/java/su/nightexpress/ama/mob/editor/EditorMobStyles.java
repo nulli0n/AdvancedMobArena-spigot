@@ -10,8 +10,8 @@ import su.nexmedia.engine.api.menu.MenuClick;
 import su.nexmedia.engine.api.menu.MenuItemType;
 import su.nexmedia.engine.editor.AbstractEditorMenuAuto;
 import su.nexmedia.engine.editor.EditorManager;
+import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.ItemUtil;
-import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.config.Lang;
@@ -77,7 +77,7 @@ public class EditorMobStyles extends AbstractEditorMenuAuto<AMA, MobConfig, MobS
     @NotNull
     protected MenuClick getObjectClick(@NotNull Player player, @NotNull MobStyleType styleType) {
         EditorInput<MobConfig, MobStyleType> input = (player2, mob, type, e) -> {
-            String msg = StringUtil.colorOff(e.getMessage());
+            String msg = Colorizer.strip(e.getMessage());
             mob.addStyle(type, msg);
             mob.save();
             return true;
@@ -86,7 +86,7 @@ public class EditorMobStyles extends AbstractEditorMenuAuto<AMA, MobConfig, MobS
         return ((player2, type, e) -> {
             if (e.isLeftClick()) {
                 EditorManager.startEdit(player2, this.parent, styleType, input);
-                EditorManager.tip(player2, plugin.getMessage(Lang.EDITOR_MOB_ENTER_STYLE).getLocalized());
+                EditorManager.prompt(player2, plugin.getMessage(Lang.EDITOR_MOB_ENTER_STYLE).getLocalized());
                 EditorManager.suggestValues(player2, Stream.of(styleType.getWrapper().getWriter().values()).map(String::valueOf).toList(), true);
                 player2.closeInventory();
             }
