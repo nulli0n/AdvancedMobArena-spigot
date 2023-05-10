@@ -1,19 +1,14 @@
 package su.nightexpress.ama.editor;
 
-import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.api.editor.EditorButtonType;
-import su.nexmedia.engine.api.menu.MenuClick;
-import su.nexmedia.engine.api.menu.MenuItemType;
-import su.nexmedia.engine.editor.AbstractEditorMenu;
+import su.nexmedia.engine.api.menu.impl.EditorMenu;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.editor.arena.ArenaListEditor;
 import su.nightexpress.ama.kit.editor.EditorKitList;
 import su.nightexpress.ama.mob.editor.EditorMobList;
 
-import java.util.Map;
-
-public class ArenaEditorHub extends AbstractEditorMenu<AMA, AMA> {
+public class ArenaEditorHub extends EditorMenu<AMA, AMA> {
 
     public static final String TITLE_EDITOR          = "AdvancedMobArena Editor";
     public static final String TITLE_ARENA_EDITOR    = "Arena Editor";
@@ -35,29 +30,25 @@ public class ArenaEditorHub extends AbstractEditorMenu<AMA, AMA> {
     public ArenaEditorHub(@NotNull AMA plugin) {
         super(plugin, plugin, TITLE_EDITOR, 36);
 
-        MenuClick click = (player, type, e) -> {
-            if (type instanceof MenuItemType type2) {
-                if (type2 == MenuItemType.CLOSE) {
-                    player.closeInventory();
-                }
-            }
-            else if (type instanceof ArenaEditorType type2) {
-                switch (type2) {
-                    case EDITOR_ARENA -> this.getArenaEditor().open(player, 1);
-                    case EDITOR_KITS -> this.getKitEditor().open(player, 1);
-                    case EDITOR_MOBS -> this.getMobEditor().open(player, 1);
-                    default -> {}
-                }
-            }
-        };
+        this.addExit(31);
 
-        this.loadItems(click);
+        this.addItem(Material.MAP, EditorLocales.ARENA_EDITOR, 11).setClick((viewer, event) -> {
+            this.plugin.runTask(task -> this.getArenaEditor().open(viewer.getPlayer(), 1));
+        });
+
+        this.addItem(Material.ARMOR_STAND, EditorLocales.KIT_EDITOR, 13).setClick((viewer, event) -> {
+            this.plugin.runTask(task -> this.getKitEditor().open(viewer.getPlayer(), 1));
+        });
+
+        this.addItem(Material.ZOMBIE_HEAD, EditorLocales.MOB_EDITOR, 15).setClick((viewer, event) -> {
+            this.plugin.runTask(task -> this.getMobEditor().open(viewer.getPlayer(), 1));
+        });
     }
 
     @NotNull
     public ArenaListEditor getArenaEditor() {
         if (this.arenaEditor == null) {
-            this.arenaEditor = new ArenaListEditor(this.plugin);
+            this.arenaEditor = new ArenaListEditor(this.plugin.getArenaManager());
         }
         return this.arenaEditor;
     }
@@ -84,23 +75,14 @@ public class ArenaEditorHub extends AbstractEditorMenu<AMA, AMA> {
             this.arenaEditor.clear();
             this.arenaEditor = null;
         }
+        if (this.mobEditor != null) {
+            this.mobEditor.clear();
+            this.mobEditor = null;
+        }
         if (this.kitEditor != null) {
             this.kitEditor.clear();
             this.kitEditor = null;
         }
         super.clear();
-    }
-
-    @Override
-    public void setTypes(@NotNull Map<EditorButtonType, Integer> map) {
-        map.put(ArenaEditorType.EDITOR_ARENA, 11);
-        map.put(ArenaEditorType.EDITOR_KITS, 13);
-        map.put(ArenaEditorType.EDITOR_MOBS, 15);
-        map.put(MenuItemType.CLOSE, 31);
-    }
-
-    @Override
-    public boolean cancelClick(@NotNull InventoryClickEvent e, @NotNull SlotType slotType) {
-        return true;
     }
 }

@@ -51,7 +51,8 @@ public final class ArenaPlayer implements Placeholder {
     private int        killStreak;
     private long       killStreakDecay;
     private boolean    dead;
-    private boolean    ghost;
+    private boolean ghost;
+    private boolean transfer;
 
     @Nullable
     public static ArenaPlayer getPlayer(@NotNull Player player) {
@@ -165,6 +166,7 @@ public final class ArenaPlayer implements Placeholder {
 
     public void onDeath() {
         this.setDead(true);
+        this.takeLive();
 
         if (this.isOutOfLifes()) {
             if (!this.getArena().getConfig().getRewardManager().isRetainOnDeath()) {
@@ -180,7 +182,6 @@ public final class ArenaPlayer implements Placeholder {
             ArenaUtils.removeMobBossBars(this.getPlayer());
         }
         else {
-            this.takeLive();
             if (!this.getArena().getAlivePlayers().isEmpty()) {
                 this.plugin.getMessage(Lang.ARENA_GAME_DEATH_WITH_LIFES).replace(this.replacePlaceholders()).send(this.getPlayer());
             }
@@ -294,6 +295,14 @@ public final class ArenaPlayer implements Placeholder {
 
     public void setReal() {
         this.ghost = false;
+    }
+
+    public boolean isTransfer() {
+        return transfer;
+    }
+
+    public void setTransfer(boolean transfer) {
+        this.transfer = transfer;
     }
 
     public boolean isReady() {

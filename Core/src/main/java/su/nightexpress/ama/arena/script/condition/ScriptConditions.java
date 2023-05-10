@@ -15,10 +15,7 @@ import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.arena.type.PlayerType;
 import su.nightexpress.ama.utils.TriFunction;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 public class ScriptConditions {
@@ -27,6 +24,7 @@ public class ScriptConditions {
 
     public static final ScriptCondition<Number, Number> CHANCE            = numeric("chance", event -> Rnd.get(true));
     public static final ScriptCondition<Number, Number> WAVE_NUMBER       = numeric("wave_number", event -> event.getArena().getWaveNumber());
+    public static final ScriptCondition<Number[], Number> ROUND_NUMBER    = numerics("round_number", event -> event.getArena().getWaveNumber());
     public static final ScriptCondition<Number, Number> PLAYERS_AMOUNT    = numeric("players_amount", event -> event.getArena().getPlayers(GameState.INGAME, PlayerType.REAL).size());
     public static final ScriptCondition<Number, Number> ENEMY_MOBS_AMOUNT = numeric("enemy_mobs_amount", event -> event.getArena().getMobs().size());
     public static final ScriptCondition<Number, Number> ALLY_MOBS_AMOUNT  = numeric("ally_mobs_amount", event -> event.getArena().getAllyMobs().size());
@@ -113,6 +111,40 @@ public class ScriptConditions {
                 case EACH -> eventValue.intValue() % condValue.intValue() == 0;
                 case EACH_NOT -> eventValue.intValue() % condValue.intValue() != 0;
             };
+        };
+
+        return register(name, parser, extractor, tester);
+    }
+
+    @NotNull
+    public static ScriptCondition<Number[], Number> numerics(@NotNull String name,
+                                                          @NotNull Function<ArenaGameGenericEvent, Number> extractor) {
+
+        Function<String, Number[]> parser = str -> {
+            String[] split = StringUtil.noSpace(str).split(",");
+            Integer[] array = new Integer[split.length];
+
+            for(int index = 0; index < split.length; ++index) {
+                try {
+                    array[index] = Integer.parseInt(split[index]);
+                } catch (NumberFormatException var5) {
+                    array[index] = 0;
+                }
+            }
+
+            return array;
+        };
+        TriFunction<Number, Number[], ScriptCondition.Operator, Boolean> tester = (eventValue, condValue, operator) -> {
+            return Arrays.stream(condValue).anyMatch(number -> {
+                return switch (operator) {
+                    case EQUAL -> eventValue.doubleValue() == number.doubleValue();
+                    case NOT_EQUAL -> eventValue.doubleValue() != number.doubleValue();
+                    case GREATER -> eventValue.doubleValue() > number.doubleValue();
+                    case SMALLER -> eventValue.doubleValue() < number.doubleValue();
+                    case EACH -> eventValue.intValue() % number.intValue() == 0;
+                    case EACH_NOT -> eventValue.intValue() % number.intValue() != 0;
+                };
+            });
         };
 
         return register(name, parser, extractor, tester);

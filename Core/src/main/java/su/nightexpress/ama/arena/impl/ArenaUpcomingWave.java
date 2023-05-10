@@ -2,6 +2,7 @@ package su.nightexpress.ama.arena.impl;
 
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
+import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.arena.region.ArenaRegion;
 import su.nightexpress.ama.arena.wave.ArenaWaveMob;
 
@@ -23,7 +24,7 @@ public class ArenaUpcomingWave {
             if (location != null) this.spawners.add(location);
         });
 
-        if (this.spawners.isEmpty()) {
+        if (this.spawners.isEmpty() || spawnerIds.contains(Placeholders.WILDCARD)) {
             spawners.addAll(region.getMobSpawners().values());
         }
 
@@ -32,6 +33,10 @@ public class ArenaUpcomingWave {
 
     public boolean isAllMobsSpawned() {
         return this.getPreparedMobs().stream().allMatch(mob -> mob.getAmount() <= 0);
+    }
+
+    public int getMobsAmount() {
+        return this.getPreparedMobs().stream().mapToInt(ArenaWaveMob::getAmount).sum();
     }
 
     @NotNull

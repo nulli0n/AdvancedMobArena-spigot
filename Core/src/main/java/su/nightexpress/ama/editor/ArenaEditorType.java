@@ -10,25 +10,9 @@ import su.nightexpress.ama.hook.HookId;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public enum ArenaEditorType implements EditorButtonType {
 
-    EDITOR_ARENA(Material.MAP, "Arena Editor",
-        EditorButtonType.info("There you can create and configure your arenas."),
-        EditorButtonType.click("Left-Click to &fNavigate")),
-    EDITOR_KITS(Material.ARMOR_STAND, "Kit Editor",
-        EditorButtonType.info("There you can create and configure arena kits."),
-        EditorButtonType.click("Left-Click to &fNavigate")),
-    EDITOR_MOBS(Material.ZOMBIE_HEAD, "Mob Editor",
-        EditorButtonType.info("There you can create and configure arena mobs."),
-        EditorButtonType.click("Left-Click to &fNavigate")),
-
-    ARENA_OBJECT(Material.MAP, "&6" + Placeholders.ARENA_NAME + " &7(ID: &f" + Placeholders.ARENA_ID + "&7)",
-        EditorButtonType.info("Arena Enabled: &f" + Placeholders.ARENA_ACTIVE),
-        EditorButtonType.warn("Please ensure there are no problems:\n" + Placeholders.GENERIC_PROBLEMS),
-        EditorButtonType.click("Left-Click to &fEdit\nRight-Click to &fDelete &7(No Undo)")),
-    ARENA_CREATE(Material.ANVIL, "Create an Arena",
-        EditorButtonType.info("Create a new arena config."),
-        EditorButtonType.click("Left-Click to &fCreate")),
     ARENA_CHANGE_ACTIVE(Material.REPEATER, "Is Active",
         EditorButtonType.current("Arena Enabled: &f" + Placeholders.ARENA_ACTIVE),
         EditorButtonType.info("Enables/Disables the arena for play."),

@@ -82,9 +82,9 @@ public class RegionSetupManager extends AbstractSetupManager<ArenaRegion> {
             ArenaSetupUtils.addVisualBlock(player, region.getSpawnLocation());
         }
 
-        region.getMobSpawners().values().forEach(spawner -> {
-            ArenaSetupUtils.addVisualText(player, "&c« Mob Spawner »", spawner);
-            ArenaSetupUtils.addVisualBlock(player, spawner);
+        region.getMobSpawners().forEach((id, location) -> {
+            ArenaSetupUtils.addVisualText(player, "&cMob Spawner &7(ID: &f" + id + "&7)", location);
+            ArenaSetupUtils.addVisualBlock(player, location);
         });
     }
 

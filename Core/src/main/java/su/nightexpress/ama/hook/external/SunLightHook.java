@@ -4,9 +4,9 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.sunlight.SunLight;
 import su.nightexpress.sunlight.SunLightAPI;
-import su.nightexpress.sunlight.data.SunUser;
-import su.nightexpress.sunlight.modules.scoreboard.ScoreboardManager;
-import su.nightexpress.sunlight.user.settings.UserSetting;
+import su.nightexpress.sunlight.command.list.GodCommand;
+import su.nightexpress.sunlight.data.impl.SunUser;
+import su.nightexpress.sunlight.module.scoreboard.ScoreboardModule;
 
 public class SunLightHook {
 
@@ -14,11 +14,11 @@ public class SunLightHook {
 
     public static void disableGod(@NotNull Player player) {
         SunUser user = SUNLIGHT.getUserManager().getUserData(player);
-        user.getSettings().set(UserSetting.GOD_MODE, false);
+        user.getSettings().set(GodCommand.GOD_MODE, false);
     }
 
     public static void disableBoard(@NotNull Player player) {
-        ScoreboardManager scoreboardManager = SUNLIGHT.getModuleManager().getScoreboardManager();
+        ScoreboardModule scoreboardManager = SUNLIGHT.getModuleManager().getModule(ScoreboardModule.class).orElse(null);
         if (scoreboardManager == null) return;
 
         scoreboardManager.removeBoard(player);

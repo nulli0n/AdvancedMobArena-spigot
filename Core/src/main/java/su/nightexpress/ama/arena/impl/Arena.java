@@ -19,7 +19,9 @@ import su.nexmedia.engine.utils.random.Rnd;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.api.arena.type.*;
+import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
+import su.nightexpress.ama.api.arena.type.ArenaLocationType;
+import su.nightexpress.ama.api.arena.type.ArenaTargetType;
 import su.nightexpress.ama.api.event.*;
 import su.nightexpress.ama.arena.region.ArenaRegion;
 import su.nightexpress.ama.arena.region.ArenaRegionManager;
@@ -417,19 +419,19 @@ public class Arena implements Placeholder {
 
     @Nullable
     public ArenaPlayer getPlayerRandom() {
-        return Rnd.get(new ArrayList<>(this.getAlivePlayers()));
+        Set<ArenaPlayer> alive = this.getAlivePlayers();
+        return alive.isEmpty() ? null : Rnd.get(new ArrayList<>(alive));
     }
 
     public int getMobsAwaitingSpawn() {
         return this.getUpcomingWaves().stream()
-            .filter(Predicate.not(ArenaUpcomingWave::isAllMobsSpawned))
-            .mapToInt(wave -> wave.getPreparedMobs().stream().mapToInt(ArenaWaveMob::getAmount).sum()).sum();
+            .filter(Predicate.not(ArenaUpcomingWave::isAllMobsSpawned)).mapToInt(ArenaUpcomingWave::getMobsAmount).sum();
     }
 
     @Nullable
     public LivingEntity getMobRandom() {
         List<LivingEntity> list = new ArrayList<>(this.getMobs());
-        return Rnd.get(list);
+        return list.isEmpty() ? null : Rnd.get(list);
     }
 
     public double[] getWaveAmplificatorValues(@NotNull String waveId) {
@@ -550,14 +552,16 @@ public class Arena implements Placeholder {
     private void tickGame() {
         if (this.getState() != GameState.INGAME) return;
 
-        this.showGameStatus();
-
         if (this.isAboutToEnd()) {
-            if (this.endCountdown-- <= 0) {
+            --this.endCountdown;
+            this.showGameStatus();
+            if (this.endCountdown <= 0) {
                 this.stop();
             }
             return;
         }
+
+        this.showGameStatus();
 
         // Time is ended, Game Over.
         if (this.getGameTimeleft() > 0) {
@@ -779,8 +783,10 @@ public class Arena implements Placeholder {
         // Save the player inventory, effects, game modes, etc. before teleporting to the arena.
         PlayerSnapshot.doSnapshot(player);
 
+        arenaPlayer.setTransfer(true);
         player.teleport(this.getConfig().getLocation(ArenaLocationType.LOBBY));
         SimpleParticle.of(Particle.CLOUD).play(player.getLocation(), 0.25, 0.15, 30);
+        arenaPlayer.setTransfer(false);
 
         // Now clear all player's active effects, god modes, etc.
         PlayerSnapshot.clear(player);
@@ -837,8 +843,10 @@ public class Arena implements Placeholder {
                 // If kits are saved to account, then try to select random obtained kit.
                 if (kitManager.isSavePurchasedKits()) {
                     ArenaUser user = plugin.getUserManager().getUserData(arenaPlayer.getPlayer());
-                    String userKit = Rnd.get(new ArrayList<>(user.getKits()));
-                    kit = userKit == null ? null : kitManager.getKitById(userKit);
+                    if (!user.getKits().isEmpty()) {
+                        String userKit = Rnd.get(new ArrayList<>(user.getKits()));
+                        kit = kitManager.getKitById(userKit);
+                    }
                 }
 
                 // If kits are not saved to account or user don't obtain any kit
@@ -868,8 +876,10 @@ public class Arena implements Placeholder {
             return;
         }
 
+        arenaPlayer.setTransfer(true);
         Player player = arenaPlayer.getPlayer();
         player.teleport(regionDefault.getSpawnLocation());
+        arenaPlayer.setTransfer(false);
 
         // Restore player's health before the game.
         player.setHealth(EntityUtil.getAttribute(player, Attribute.GENERIC_MAX_HEALTH));
@@ -939,6 +949,7 @@ public class Arena implements Placeholder {
         Player player = arenaPlayer.getPlayer();
         player.closeInventory();                // In case if player have opened any arena GUIs.
 
+        arenaPlayer.setTransfer(true);
         arenaPlayer.removeBoard();                // Remove scoreboard.
         ArenaUtils.removeMobBossBars(player);
         this.players.remove(arenaPlayer);        // Remove player from the arena.
@@ -1057,12 +1068,12 @@ public class Arena implements Placeholder {
     public void injectWave(@NotNull ArenaUpcomingWave wave) {
         // TODO prepared mob class
         this.getUpcomingWaves().add(wave);
-        this.setWaveMobsTotalAmount(this.getWaveMobsTotalAmount() + this.getMobsAwaitingSpawn());
+        this.setWaveMobsTotalAmount(this.getWaveMobsTotalAmount() + wave.getMobsAmount());
 
         ArenaWaveManager waveManager = this.getConfig().getWaveManager();
-        //if (!this.getConfig().getWaveManager().isGradualSpawnEnabled()) {
-        this.spawnMobs(waveManager.isGradualSpawnEnabled() ? waveManager.getGradualSpawnPercentFirst() : 100D);
-        //}
+        if (!this.getConfig().getWaveManager().isGradualSpawnEnabled()) {
+            this.spawnMobs(100D);
+        }
     }
 
     public void newWave() {
@@ -1097,6 +1108,11 @@ public class Arena implements Placeholder {
 
         //this.setSpawnedMobsAmount(0);
         this.setGradualMobsKilled(0);
+
+        ArenaWaveManager waveManager = this.getConfig().getWaveManager();
+        if (waveManager.isGradualSpawnEnabled()) {
+            this.spawnMobs(waveManager.getGradualSpawnPercentFirst());
+        }
 
         // New wave is started, store the complete amount of mobs from all upcoming waves.
         // This value is TOTAL amount of mobs that arena is about to spawn this round.
@@ -1233,12 +1249,12 @@ public class Arena implements Placeholder {
                 int mobsSpawner = mobsPerSpawner[counterSpawner];
 
                 for (int countSpawned = 0; countSpawned < mobsSpawner; countSpawned++) {
-                    ArenaWaveMob preparedMob = Rnd.get(waveUpcoming.getPreparedMobs());
-                    if (preparedMob == null) {
+                    if (waveUpcoming.getPreparedMobs().isEmpty()) {
                         if (Config.DEBUG_MOB_SPAWN.get()) System.out.println("Invalid mob");
                         continue;
                     }
 
+                    ArenaWaveMob preparedMob = Rnd.get(waveUpcoming.getPreparedMobs());
                     int mobsSpawned = Math.min(preparedMob.getAmount(), /*mobsSpawner*/ 1);
                     preparedMob.setAmount(preparedMob.getAmount() - mobsSpawned);
 

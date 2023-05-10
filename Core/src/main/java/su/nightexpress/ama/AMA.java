@@ -6,35 +6,35 @@ import su.nexmedia.engine.NexPlugin;
 import su.nexmedia.engine.Version;
 import su.nexmedia.engine.api.command.GeneralCommand;
 import su.nexmedia.engine.api.data.UserDataHolder;
-import su.nexmedia.engine.api.editor.EditorHolder;
-import su.nexmedia.engine.command.list.EditorSubCommand;
 import su.nexmedia.engine.command.list.ReloadSubCommand;
 import su.nexmedia.engine.hooks.Hooks;
 import su.nexmedia.engine.hooks.external.citizens.CitizensHook;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
-import su.nightexpress.ama.arena.lock.LockState;
-import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.api.arena.type.ArenaTargetType;
 import su.nightexpress.ama.api.hologram.HologramType;
 import su.nightexpress.ama.api.hologram.IHologramHandler;
 import su.nightexpress.ama.arena.ArenaManager;
+import su.nightexpress.ama.arena.lock.LockState;
 import su.nightexpress.ama.arena.setup.ArenaSetupManager;
 import su.nightexpress.ama.arena.setup.SetupItemType;
+import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.command.*;
 import su.nightexpress.ama.command.currency.CurrencyMainCommand;
 import su.nightexpress.ama.config.Config;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.currency.CurrencyManager;
-import su.nightexpress.ama.data.ArenaUser;
 import su.nightexpress.ama.data.ArenaDataHandler;
+import su.nightexpress.ama.data.ArenaUser;
 import su.nightexpress.ama.data.ArenaUserManager;
 import su.nightexpress.ama.editor.ArenaEditorHub;
 import su.nightexpress.ama.editor.ArenaEditorType;
+import su.nightexpress.ama.editor.EditorLocales;
 import su.nightexpress.ama.hologram.HologramManager;
 import su.nightexpress.ama.hologram.handler.HologramDecentHandler;
 import su.nightexpress.ama.hologram.handler.HologramDisplaysHandler;
 import su.nightexpress.ama.hook.HookId;
-import su.nightexpress.ama.hook.external.*;
+import su.nightexpress.ama.hook.external.McMMOHook;
+import su.nightexpress.ama.hook.external.PlaceholderHook;
 import su.nightexpress.ama.hook.external.traits.*;
 import su.nightexpress.ama.hook.level.PluginLevelProvider;
 import su.nightexpress.ama.hook.level.impl.MMOCorePlayerLevelProvider;
@@ -57,7 +57,7 @@ import su.nightexpress.ama.stats.object.StatType;
 
 import java.sql.SQLException;
 
-public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser>, EditorHolder<AMA, ArenaEditorType> {
+public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser> {
 
     private ArenaDataHandler userData;
     private ArenaUserManager userManager;
@@ -193,6 +193,7 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
     @Override
     public void loadLang() {
         this.getLangManager().loadMissing(Lang.class);
+        this.getLangManager().loadEditor(EditorLocales.class);
         this.getLangManager().setupEnum(GameState.class);
         this.getLangManager().setupEnum(LockState.class);
         this.getLangManager().setupEnum(ArenaGameEventType.class);
@@ -238,7 +239,7 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
     @Override
     public void registerCommands(@NotNull GeneralCommand<AMA> mainCommand) {
         mainCommand.addChildren(new CurrencyMainCommand(this));
-        mainCommand.addChildren(new EditorSubCommand<>(this, this, Perms.COMMAND_EDITOR));
+        mainCommand.addChildren(new EditorCommand(this));
         mainCommand.addChildren(new ReloadSubCommand<>(this, Perms.COMMAND_RELOAD));
         mainCommand.addChildren(new ForceEndCommand(this));
         mainCommand.addChildren(new ForceStartCommand(this));
@@ -289,7 +290,6 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
         return userManager;
     }
 
-    @Override
     @NotNull
     public ArenaEditorHub getEditor() {
         if (this.editorHub == null) {

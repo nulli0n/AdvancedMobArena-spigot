@@ -135,7 +135,12 @@ public class ScriptActionsEditor extends AbstractEditorMenuAuto<AMA, ArenaScript
                         EditorManager.error(player3, plugin.getMessage(Lang.EDITOR_ARENA_SCRIPT_ERROR_INVALID_PARAMETER).getLocalized());
                         return false;
                     }
-                    action1.getParameters().add(parameter, parameter.getParser().apply(paramValue));
+                    if (paramValue.equalsIgnoreCase("null")) {
+                        action1.getParameters().getParams().remove(parameter);
+                    }
+                    else {
+                        action1.getParameters().add(parameter, parameter.getParser().apply(paramValue));
+                    }
                     this.category.save();
                     return true;
                 };

@@ -347,6 +347,7 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
         Arena arena = arenaPlayer.getArena();
         if (arena.getConfig().getGameplayManager().getBannedItems().contains(item.getType())) {
             e.setUseItemInHand(Result.DENY);
+            e.setUseInteractedBlock(Result.DENY);
         }
     }
 }

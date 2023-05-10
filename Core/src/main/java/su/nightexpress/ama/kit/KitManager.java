@@ -122,7 +122,7 @@ public class KitManager extends AbstractManager<AMA> {
 
     @Nullable
     public Kit getDefaultKit() {
-        return Rnd.get(this.getKits().stream().filter(Kit::isDefault).toList());
+        return this.getKits().isEmpty() ? null : Rnd.get(this.getKits().stream().filter(Kit::isDefault).toList());
     }
 
     class Listener extends AbstractListener<AMA> {

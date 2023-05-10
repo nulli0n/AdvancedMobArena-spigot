@@ -1,69 +1,56 @@
 package su.nightexpress.ama.arena.editor.arena;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.api.editor.EditorButtonType;
-import su.nexmedia.engine.api.editor.EditorInput;
-import su.nexmedia.engine.api.menu.MenuClick;
-import su.nexmedia.engine.api.menu.MenuItemType;
-import su.nexmedia.engine.editor.AbstractEditorMenuAuto;
+import su.nexmedia.engine.api.menu.AutoPaged;
+import su.nexmedia.engine.api.menu.click.ItemClick;
+import su.nexmedia.engine.api.menu.impl.EditorMenu;
+import su.nexmedia.engine.api.menu.impl.MenuOptions;
+import su.nexmedia.engine.api.menu.impl.MenuViewer;
 import su.nexmedia.engine.editor.EditorManager;
 import su.nexmedia.engine.utils.ItemUtil;
+import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.ArenaManager;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.editor.ArenaEditorHub;
-import su.nightexpress.ama.editor.ArenaEditorType;
+import su.nightexpress.ama.editor.EditorLocales;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.IntStream;
 
-public class ArenaListEditor extends AbstractEditorMenuAuto<AMA, AMA, Arena> {
+public class ArenaListEditor extends EditorMenu<AMA, ArenaManager> implements AutoPaged<Arena> {
 
-    public ArenaListEditor(@NotNull AMA plugin) {
-        super(plugin, plugin, ArenaEditorHub.TITLE_ARENA_EDITOR, 45);
+    public ArenaListEditor(@NotNull ArenaManager arenaManager) {
+        super(arenaManager.plugin(), arenaManager, ArenaEditorHub.TITLE_ARENA_EDITOR, 45);
 
-        EditorInput<ArenaManager, ArenaEditorType> input = (player, arenaManager, type, e) -> {
-            String msg = e.getMessage();
-            if (type == ArenaEditorType.ARENA_CREATE) {
-                if (!arenaManager.create(EditorManager.fineId(msg))) {
-                    EditorManager.error(player, plugin.getMessage(Lang.EDITOR_ARENA_ERROR_EXISTS).getLocalized());
+        this.addReturn(39).setClick((viewer, event) -> {
+            this.plugin.runTask(task -> plugin.getEditor().open(viewer.getPlayer(), 1));
+        });
+        this.addNextPage(44);
+        this.addPreviousPage(36);
+
+        this.addCreation(EditorLocales.ARENA_CREATION, 41).setClick((viewer, event) -> {
+            this.startEdit(viewer.getPlayer(), plugin.getMessage(Lang.EDITOR_ARENA_ENTER_ID), chat -> {
+                if (!arenaManager.create(StringUtil.lowerCaseUnderscore(chat.getMessage()))) {
+                    EditorManager.error(viewer.getPlayer(), plugin.getMessage(Lang.EDITOR_ARENA_ERROR_EXISTS).getLocalized());
                     return false;
                 }
-            }
-            return true;
-        };
-
-        MenuClick click = (player, type, e) -> {
-            if (type instanceof MenuItemType type2) {
-                if (type2 == MenuItemType.RETURN) {
-                    plugin.getEditor().open(player, 1);
-                }
-                else super.onItemClickDefault(player, type2);
-            }
-            else if (type instanceof ArenaEditorType type2) {
-                if (type2 == ArenaEditorType.ARENA_CREATE) {
-                    EditorManager.startEdit(player, plugin.getArenaManager(), type2, input);
-                    EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_ARENA_ENTER_ID).getLocalized());
-                    player.closeInventory();
-                }
-            }
-        };
-
-        this.loadItems(click);
+                return true;
+            });
+        });
     }
 
     @Override
-    public void setTypes(@NotNull Map<EditorButtonType, Integer> map) {
-        map.put(ArenaEditorType.ARENA_CREATE, 41);
-        map.put(MenuItemType.RETURN, 39);
-        map.put(MenuItemType.PAGE_NEXT, 44);
-        map.put(MenuItemType.PAGE_PREVIOUS, 36);
+    public void onPrepare(@NotNull MenuViewer viewer, @NotNull MenuOptions options) {
+        super.onPrepare(viewer, options);
+        this.getItemsForPage(viewer).forEach(this::addItem);
     }
 
     @Override
@@ -73,25 +60,31 @@ public class ArenaListEditor extends AbstractEditorMenuAuto<AMA, AMA, Arena> {
 
     @Override
     @NotNull
-    protected List<Arena> getObjects(@NotNull Player player) {
+    public List<Arena> getObjects(@NotNull Player player) {
         return new ArrayList<>(this.plugin.getArenaManager().getArenas());
     }
 
     @Override
     @NotNull
-    protected ItemStack getObjectStack(@NotNull Player player, @NotNull Arena arena) {
-        ItemStack item = ArenaEditorType.ARENA_OBJECT.getItem();
-        ItemUtil.replace(item, arena.getConfig().replacePlaceholders());
+    public ItemStack getObjectStack(@NotNull Player player, @NotNull Arena arena) {
+        ItemStack item = new ItemStack(Material.MAP);
+        ItemUtil.mapMeta(item, meta -> {
+            meta.setDisplayName(EditorLocales.ARENA_OBJECT.getLocalizedName());
+            meta.setLore(EditorLocales.ARENA_OBJECT.getLocalizedLore());
+            meta.addItemFlags(ItemFlag.values());
+            ItemUtil.replace(meta, arena.getConfig().replacePlaceholders());
+        });
         return item;
     }
 
     @Override
     @NotNull
-    protected MenuClick getObjectClick(@NotNull Player player, @NotNull Arena arena) {
-        return (player2, type, e) -> {
+    public ItemClick getObjectClick(@NotNull Arena arena) {
+        return (viewer, e) -> {
+            Player player2 = viewer.getPlayer();
             if (e.isShiftClick() && e.isRightClick()) {
                 this.plugin.getArenaManager().delete(arena);
-                this.open(player2, this.getPage(player2));
+                this.plugin.runTask(task -> this.open(player2, viewer.getPage()));
                 return;
             }
             arena.getConfig().getEditor().open(player2, 1);
@@ -99,7 +92,8 @@ public class ArenaListEditor extends AbstractEditorMenuAuto<AMA, AMA, Arena> {
     }
 
     @Override
-    public boolean cancelClick(@NotNull InventoryClickEvent e, @NotNull SlotType slotType) {
-        return true;
+    @NotNull
+    public Comparator<Arena> getObjectSorter() {
+        return ((o1, o2) -> 0);
     }
 }

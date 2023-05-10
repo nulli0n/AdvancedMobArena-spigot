@@ -94,6 +94,7 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
             e.setCancelled(true);
         }
         else if (eDamager instanceof Player pDamager && victim instanceof Player pVictim) {
+            if (pDamager == pVictim) return;
             if (ArenaPlayer.isPlaying(pDamager) || ArenaPlayer.isPlaying(pVictim)) {
                 e.setCancelled(true);
             }
@@ -187,12 +188,21 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
         Location to = e.getTo();
         if (to == null) return;
 
-        ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(e.getPlayer());
-        Arena arenaFrom = arenaPlayer == null ? null : arenaPlayer.getArena();
-        if (arenaFrom != null && arenaFrom.isAboutToEnd()) return;
-
         Arena arenaTo = this.manager.getArenaAtLocation(to);
-        if (arenaFrom != null && arenaTo != arenaFrom && arenaFrom.getPlayers(PlayerType.ALL).contains(arenaPlayer)) {
+        ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(e.getPlayer());
+        if (arenaPlayer == null) {
+            Arena arenaFrom = this.manager.getArenaAtLocation(e.getFrom());
+            if (arenaFrom != null) return;
+
+            if (arenaTo != null) {
+                e.setCancelled(true);
+            }
+        }
+        else {
+            if (arenaPlayer.isTransfer() || arenaPlayer.isGhost() || arenaPlayer.isDead()) return;
+            if (arenaPlayer.getArena().isAboutToEnd()) return;
+            if (arenaPlayer.getArena() == arenaTo) return;
+
             e.setCancelled(true);
         }
     }

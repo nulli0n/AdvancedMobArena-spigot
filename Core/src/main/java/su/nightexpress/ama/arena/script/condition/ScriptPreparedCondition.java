@@ -3,6 +3,8 @@ package su.nightexpress.ama.arena.script.condition;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
+
 public class ScriptPreparedCondition {
 
     private final ScriptCondition<?, ?> condition;
@@ -37,7 +39,13 @@ public class ScriptPreparedCondition {
     public String toRaw() {
         String prefix = "[" + this.getCondition().getName() + "]";
         String oper = this.getOperator().getRaw();
-        String value = String.valueOf(this.getValue());
+        String value;
+        if (this.getValue() instanceof Number[] array) {
+            value = String.join(",", Arrays.stream(array).map(String::valueOf).toList());
+        }
+        else {
+            value = String.valueOf(this.getValue());
+        }
         return prefix + " " + oper + " " + value;
     }
 
