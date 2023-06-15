@@ -1,135 +1,107 @@
 package su.nightexpress.ama.arena.editor.reward;
 
-import org.bukkit.entity.Player;
+import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.api.editor.EditorButtonType;
-import su.nexmedia.engine.api.editor.EditorInput;
-import su.nexmedia.engine.api.menu.AbstractMenu;
-import su.nexmedia.engine.api.menu.MenuClick;
-import su.nexmedia.engine.api.menu.MenuItem;
-import su.nexmedia.engine.api.menu.MenuItemType;
-import su.nexmedia.engine.editor.AbstractEditorMenu;
-import su.nexmedia.engine.editor.EditorManager;
+import org.jetbrains.annotations.Nullable;
+import su.nexmedia.engine.api.menu.impl.EditorMenu;
+import su.nexmedia.engine.api.menu.impl.Menu;
+import su.nexmedia.engine.api.menu.impl.MenuViewer;
 import su.nexmedia.engine.utils.ItemUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.reward.ArenaReward;
 import su.nightexpress.ama.config.Lang;
-import su.nightexpress.ama.editor.ArenaEditorHub;
-import su.nightexpress.ama.editor.ArenaEditorType;
+import su.nightexpress.ama.editor.EditorHub;
+import su.nightexpress.ama.editor.EditorLocales;
 
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-public class RewardSettingsEditor extends AbstractEditorMenu<AMA, ArenaReward> {
+public class RewardSettingsEditor extends EditorMenu<AMA, ArenaReward> {
 
     public RewardSettingsEditor(@NotNull ArenaReward reward) {
-        super(reward.plugin(), reward, ArenaEditorHub.TITLE_REWARD_EDITOR, 36);
+        super(reward.plugin(), reward, EditorHub.TITLE_REWARD_EDITOR, 36);
 
-        EditorInput<ArenaReward, ArenaEditorType> input = (player, reward2, type, e) -> {
-            String msg = e.getMessage();
-            switch (type) {
-                case REWARD_CHANGE_NAME -> reward2.setName(msg);
-                case REWARD_CHANGE_COMMANDS -> reward2.getCommands().add(msg);
-            }
-            reward2.getArenaConfig().getRewardManager().save();
-            return true;
-        };
+        this.addReturn(31).setClick((viewer, event) -> {
+            reward.getArenaConfig().getRewardManager().getEditor().openNextTick(viewer, 1);
+        });
 
-        MenuClick click = (player, type, e) -> {
-            if (type instanceof MenuItemType type2) {
-                if (type == MenuItemType.RETURN) {
-                    reward.getArenaConfig().getRewardManager().getEditor().open(player, 1);
-                }
-            }
-            else if (type instanceof ArenaEditorType type2) {
-                switch (type2) {
-                    case REWARD_CHANGE_LATE -> reward.setLate(!reward.isLate());
-                    case REWARD_CHANGE_NAME -> {
-                        EditorManager.startEdit(player, reward, type2, input);
-                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NAME).getLocalized());
-                        player.closeInventory();
-                        return;
-                    }
-                    case REWARD_CHANGE_ITEMS -> {
-                        new RewardItems(reward).open(player, 1);
-                        return;
-                    }
-                    case REWARD_CHANGE_COMMANDS -> {
-                        if (e.isRightClick()) {
-                            reward.getCommands().clear();
-                            break;
-                        }
-                        EditorManager.startEdit(player, reward, type2, input);
-                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_COMMAND).getLocalized());
-                        EditorManager.sendCommandTips(player);
-                        player.closeInventory();
-                        return;
-                    }
-                }
+        this.addItem(Material.NAME_TAG, EditorLocales.REWARD_NAME, 10).setClick((viewer, event) -> {
+            this.handleInput(viewer, Lang.EDITOR_GENERIC_ENTER_NAME, wrapper -> {
+                reward.setName(wrapper.getText());
                 reward.getArenaConfig().getRewardManager().save();
-                this.open(player, 1);
+                return true;
+            });
+        });
+
+        this.addItem(Material.IRON_DOOR, EditorLocales.REWARD_LATE, 12).setClick((viewer, event) -> {
+            reward.setLate(!reward.isLate());
+            this.save(viewer);
+        });
+
+        this.addItem(Material.COMMAND_BLOCK, EditorLocales.REWARD_COMMANDS, 14).setClick((viewer, event) -> {
+            if (event.isRightClick()) {
+                reward.getCommands().clear();
+                this.save(viewer);
+                return;
             }
-        };
 
-        this.loadItems(click);
+            this.handleInput(viewer, Lang.EDITOR_GENERIC_ENTER_COMMAND, wrapper -> {
+                reward.getCommands().add(wrapper.getText());
+                reward.getArenaConfig().getRewardManager().save();
+                return true;
+            });
+        });
+
+        this.addItem(Material.CHEST_MINECART, EditorLocales.REWARD_ITEMS, 16).setClick((viewer, event) -> {
+            new ContentEditor(reward).openNextTick(viewer, 1);
+        });
+
+        this.getItems().forEach(menuItem -> {
+            menuItem.getOptions().addDisplayModifier((viewer, item) -> ItemUtil.replace(item, reward.replacePlaceholders()));
+        });
     }
 
-    @Override
-    public void setTypes(@NotNull Map<EditorButtonType, Integer> map) {
-        map.put(ArenaEditorType.REWARD_CHANGE_NAME, 10);
-        map.put(ArenaEditorType.REWARD_CHANGE_LATE, 12);
-        map.put(ArenaEditorType.REWARD_CHANGE_COMMANDS, 14);
-        map.put(ArenaEditorType.REWARD_CHANGE_ITEMS, 16);
-        map.put(MenuItemType.RETURN, 31);
+    private void save(@NotNull MenuViewer viewer) {
+        this.object.getArenaConfig().getRewardManager().save();
+        this.openNextTick(viewer, viewer.getPage());
     }
 
-    @Override
-    public void onItemPrepare(@NotNull Player player, @NotNull MenuItem menuItem, @NotNull ItemStack item) {
-        super.onItemPrepare(player, menuItem, item);
-        ItemUtil.replace(item, this.object.replacePlaceholders());
-    }
-
-    @Override
-    public boolean cancelClick(@NotNull InventoryClickEvent e, @NotNull SlotType slotType) {
-        return true;
-    }
-
-    static class RewardItems extends AbstractMenu<AMA> {
+    private static class ContentEditor extends Menu<AMA> {
 
         private final ArenaReward reward;
 
-        public RewardItems(@NotNull ArenaReward reward) {
+        public ContentEditor(@NotNull ArenaReward reward) {
             super(reward.plugin(), "Reward Items", 27);
             this.reward = reward;
         }
 
         @Override
-        public boolean onPrepare(@NotNull Player player, @NotNull Inventory inventory) {
-            inventory.setContents(this.reward.getItems().toArray(new ItemStack[this.getSize()]));
-            return true;
+        public void onReady(@NotNull MenuViewer viewer, @NotNull Inventory inventory) {
+            super.onReady(viewer, inventory);
+            inventory.setContents(this.reward.getItems().toArray(new ItemStack[this.getOptions().getSize()]));
         }
 
         @Override
-        public void onClose(@NotNull Player player, @NotNull InventoryCloseEvent e) {
-            Inventory inventory = e.getInventory();
+        public void onClick(@NotNull MenuViewer viewer, @Nullable ItemStack item, @NotNull SlotType slotType, int slot, @NotNull InventoryClickEvent event) {
+            super.onClick(viewer, item, slotType, slot, event);
+            event.setCancelled(false);
+        }
+
+        @Override
+        public void onClose(@NotNull MenuViewer viewer, @NotNull InventoryCloseEvent event) {
+            Inventory inventory = event.getInventory();
             this.reward.setItems(Stream.of(inventory.getContents()).filter(Objects::nonNull).toList());
             this.reward.getArenaConfig().getRewardManager().save();
-            this.plugin.runTask(task -> this.reward.getEditor().open(player, 1));
-            super.onClose(player, e);
+            this.reward.getEditor().openNextTick(viewer, 1);
+            super.onClose(viewer, event);
         }
 
         @Override
-        public boolean destroyWhenNoViewers() {
-            return true;
-        }
-
-        @Override
-        public boolean cancelClick(@NotNull InventoryClickEvent e, @NotNull SlotType slotType) {
+        public boolean isPersistent() {
             return false;
         }
     }

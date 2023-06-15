@@ -6,7 +6,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.ConfigHolder;
-import su.nexmedia.engine.api.manager.IEditable;
 import su.nexmedia.engine.api.manager.ILoadable;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
@@ -38,7 +37,7 @@ import su.nightexpress.ama.config.Lang;
 
 import java.util.*;
 
-public class ShopManager implements ConfigHolder, ArenaChild, Lockable, ILoadable, IEditable, Problematic, Placeholder {
+public class ShopManager implements ConfigHolder, ArenaChild, Lockable, ILoadable, Problematic, Placeholder {
 
     private static final String CONFIG_NAME = "shop.yml";
 
@@ -250,7 +249,6 @@ public class ShopManager implements ConfigHolder, ArenaChild, Lockable, ILoadabl
         return new ArrayList<>();
     }
 
-    @Override
     @NotNull
     public ShopManagerEditor getEditor() {
         if (this.editor == null) {

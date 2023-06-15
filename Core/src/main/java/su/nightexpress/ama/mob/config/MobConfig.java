@@ -16,14 +16,13 @@ import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.AbstractLoadableItem;
 import su.nexmedia.engine.api.manager.ICleanable;
-import su.nexmedia.engine.api.manager.IEditable;
 import su.nexmedia.engine.api.manager.IPlaceholder;
 import su.nexmedia.engine.lang.LangManager;
 import su.nexmedia.engine.utils.*;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.arena.util.ArenaUtils;
-import su.nightexpress.ama.mob.editor.EditorMobMain;
+import su.nightexpress.ama.mob.editor.MobMainEditor;
 import su.nightexpress.ama.mob.style.MobStyleType;
 
 import java.util.HashMap;
@@ -32,7 +31,7 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class MobConfig extends AbstractLoadableItem<AMA> implements IPlaceholder, IEditable, ICleanable {
+public class MobConfig extends AbstractLoadableItem<AMA> implements IPlaceholder, ICleanable {
 
     private String     name;
     private boolean    nameVisible;
@@ -51,7 +50,7 @@ public class MobConfig extends AbstractLoadableItem<AMA> implements IPlaceholder
     private final Map<EquipmentSlot, ItemStack> equipment;
     private final Map<Attribute, double[]>      attributes; // [0] Base, [1] Per Level
 
-    private EditorMobMain editor;
+    private MobMainEditor editor;
 
     @Override
     @NotNull
@@ -179,10 +178,9 @@ public class MobConfig extends AbstractLoadableItem<AMA> implements IPlaceholder
     }
 
     @NotNull
-    @Override
-    public EditorMobMain getEditor() {
+    public MobMainEditor getEditor() {
         if (this.editor == null) {
-            this.editor = new EditorMobMain(this);
+            this.editor = new MobMainEditor(this);
         }
         return editor;
     }

@@ -1,75 +1,60 @@
 package su.nightexpress.ama.arena.editor.spot;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.api.editor.EditorButtonType;
-import su.nexmedia.engine.api.editor.EditorInput;
-import su.nexmedia.engine.api.menu.MenuClick;
-import su.nexmedia.engine.api.menu.MenuItemType;
-import su.nexmedia.engine.editor.AbstractEditorMenuAuto;
+import su.nexmedia.engine.api.menu.AutoPaged;
+import su.nexmedia.engine.api.menu.click.ItemClick;
+import su.nexmedia.engine.api.menu.impl.EditorMenu;
+import su.nexmedia.engine.api.menu.impl.MenuOptions;
+import su.nexmedia.engine.api.menu.impl.MenuViewer;
 import su.nexmedia.engine.editor.EditorManager;
 import su.nexmedia.engine.utils.ItemUtil;
+import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.spot.ArenaSpot;
 import su.nightexpress.ama.arena.spot.ArenaSpotState;
 import su.nightexpress.ama.config.Lang;
-import su.nightexpress.ama.editor.ArenaEditorHub;
-import su.nightexpress.ama.editor.ArenaEditorType;
+import su.nightexpress.ama.editor.EditorHub;
+import su.nightexpress.ama.editor.EditorLocales;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.IntStream;
 
-class SpotStatesEditor extends AbstractEditorMenuAuto<AMA, ArenaSpot, ArenaSpotState> {
+public class SpotStatesEditor extends EditorMenu<AMA, ArenaSpot> implements AutoPaged<ArenaSpotState> {
 
     public SpotStatesEditor(@NotNull ArenaSpot spot) {
-        super(spot.plugin(), spot, ArenaEditorHub.TITLE_SPOT_EDITOR, 45);
+        super(spot.plugin(), spot, EditorHub.TITLE_SPOT_EDITOR, 45);
 
-        EditorInput<ArenaSpot, ArenaEditorType> input = (player, spot2, type, e) -> {
-            String msg = e.getMessage();
-            if (type == ArenaEditorType.SPOT_STATE_CREATE) {
-                String id = EditorManager.fineId(msg);
-                if (spot2.getState(id) != null) {
-                    EditorManager.error(player, plugin.getMessage(Lang.EDITOR_SPOT_STATE_ERROR_EXISTS).getLocalized());
+        this.addReturn(39).setClick((viewer, event) -> {
+            spot.getEditor().openNextTick(viewer, 1);
+        });
+        this.addNextPage(44);
+        this.addPreviousPage(36);
+
+        this.addCreation(EditorLocales.SPOT_STATE_CREATE, 41).setClick((viewer, event) -> {
+            this.handleInput(viewer, Lang.EDITOR_SPOT_STATE_ENTER_ID, wrapper -> {
+                String id = StringUtil.lowerCaseUnderscore(wrapper.getTextRaw());
+                if (spot.getState(id) != null) {
+                    EditorManager.error(viewer.getPlayer(), plugin.getMessage(Lang.EDITOR_SPOT_STATE_ERROR_EXISTS).getLocalized());
                     return false;
                 }
 
                 ArenaSpotState state = new ArenaSpotState(spot, id, new ArrayList<>());
-                spot2.getStates().put(state.getId(), state);
-            }
-
-            spot2.save();
-            return true;
-        };
-
-        MenuClick click = (player, type, e) -> {
-            if (type instanceof MenuItemType type2) {
-                if (type2 == MenuItemType.RETURN) {
-                    spot.getEditor().open(player, 1);
-                }
-                else this.onItemClickDefault(player, type2);
-            }
-            else if (type instanceof ArenaEditorType type2) {
-                if (type2 == ArenaEditorType.SPOT_STATE_CREATE) {
-                    EditorManager.startEdit(player, spot, type2, input);
-                    EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_SPOT_STATE_ENTER_ID).getLocalized());
-                    player.closeInventory();
-                }
-            }
-        };
-
-        this.loadItems(click);
+                spot.getStates().put(state.getId(), state);
+                spot.save();
+                return true;
+            });
+        });
     }
 
     @Override
-    public void setTypes(@NotNull Map<EditorButtonType, Integer> map) {
-        map.put(ArenaEditorType.SPOT_STATE_CREATE, 41);
-        map.put(MenuItemType.RETURN, 39);
-        map.put(MenuItemType.PAGE_NEXT, 44);
-        map.put(MenuItemType.PAGE_PREVIOUS, 36);
+    public void onPrepare(@NotNull MenuViewer viewer, @NotNull MenuOptions options) {
+        super.onPrepare(viewer, options);
+        this.getItemsForPage(viewer).forEach(this::addItem);
     }
 
     @Override
@@ -79,38 +64,38 @@ class SpotStatesEditor extends AbstractEditorMenuAuto<AMA, ArenaSpot, ArenaSpotS
 
     @Override
     @NotNull
-    protected List<ArenaSpotState> getObjects(@NotNull Player player) {
-        return new ArrayList<>(this.parent.getStates().values());
+    public List<ArenaSpotState> getObjects(@NotNull Player player) {
+        return new ArrayList<>(this.object.getStates().values());
     }
 
     @Override
     @NotNull
-    protected ItemStack getObjectStack(@NotNull Player player, @NotNull ArenaSpotState state) {
-        ItemStack item = ArenaEditorType.SPOT_STATE_OBJECT.getItem();
-        ItemUtil.replace(item, state.replacePlaceholders());
+    public ItemStack getObjectStack(@NotNull Player player, @NotNull ArenaSpotState state) {
+        ItemStack item = new ItemStack(Material.ITEM_FRAME);
+        ItemUtil.mapMeta(item, meta -> {
+            meta.setDisplayName(EditorLocales.SPOT_STATE_OBJECT.getLocalizedName());
+            meta.setLore(EditorLocales.SPOT_STATE_OBJECT.getLocalizedLore());
+            meta.addItemFlags(ItemFlag.values());
+            ItemUtil.replace(meta, state.replacePlaceholders());
+        });
         return item;
     }
 
     @Override
     @NotNull
-    protected MenuClick getObjectClick(@NotNull Player player, @NotNull ArenaSpotState state) {
-        return (p, type, e) -> {
-            if (e.isShiftClick()) {
-                if (e.isRightClick()) {
-                    this.parent.getStates().remove(state.getId());
-                    this.parent.save();
-                    this.open(p, this.getPage(p));
+    public ItemClick getObjectClick(@NotNull ArenaSpotState state) {
+        return (viewer, event) -> {
+            if (event.isShiftClick()) {
+                if (event.isRightClick()) {
+                    this.object.getStates().remove(state.getId());
+                    this.object.save();
+                    this.openNextTick(viewer, viewer.getPage());
                 }
                 return;
             }
 
-            p.closeInventory();
-            plugin.getArenaSetupManager().getSpotStateSetupManager().startSetup(player, state);
+            viewer.getPlayer().closeInventory();
+            plugin.getArenaSetupManager().getSpotStateSetupManager().startSetup(viewer.getPlayer(), state);
         };
-    }
-
-    @Override
-    public boolean cancelClick(@NotNull InventoryClickEvent e, @NotNull SlotType slotType) {
-        return true;
     }
 }

@@ -9,7 +9,6 @@ import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.AbstractConfigHolder;
 import su.nexmedia.engine.api.manager.ICleanable;
-import su.nexmedia.engine.api.manager.IEditable;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.lang.LangManager;
@@ -24,7 +23,7 @@ import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
 import su.nightexpress.ama.api.event.ArenaRegionEvent;
 import su.nightexpress.ama.api.hologram.HologramHolder;
 import su.nightexpress.ama.api.hologram.HologramType;
-import su.nightexpress.ama.arena.editor.region.RegionSettingsEditor;
+import su.nightexpress.ama.arena.editor.region.RegionMainEditor;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.arena.lock.LockState;
@@ -44,7 +43,7 @@ import su.nightexpress.ama.hologram.HologramManager;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ArenaRegion extends AbstractConfigHolder<AMA> implements ArenaChild, Lockable, HologramHolder, Problematic, Placeholder, IEditable, ICleanable {
+public class ArenaRegion extends AbstractConfigHolder<AMA> implements ArenaChild, Lockable, HologramHolder, Problematic, Placeholder, ICleanable {
 
     private final ArenaConfig           arenaConfig;
     private final Map<String, Location> mobSpawners;
@@ -59,7 +58,7 @@ public class ArenaRegion extends AbstractConfigHolder<AMA> implements ArenaChild
     private ArenaCuboid cuboid;
     private Location    spawnLocation;
 
-    private RegionSettingsEditor editor;
+    private RegionMainEditor editor;
 
     public ArenaRegion(@NotNull ArenaConfig arenaConfig, @NotNull JYML cfg) {
         super(arenaConfig.plugin(), cfg);
@@ -275,11 +274,10 @@ public class ArenaRegion extends AbstractConfigHolder<AMA> implements ArenaChild
         }).collect(Collectors.toSet());
     }
 
-    @Override
     @NotNull
-    public RegionSettingsEditor getEditor() {
+    public RegionMainEditor getEditor() {
         if (this.editor == null) {
-            this.editor = new RegionSettingsEditor(this);
+            this.editor = new RegionMainEditor(this);
         }
         return this.editor;
     }

@@ -4,7 +4,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.manager.ICleanable;
-import su.nexmedia.engine.api.manager.IEditable;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.lang.LangManager;
@@ -23,7 +22,7 @@ import su.nightexpress.ama.config.Lang;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArenaReward implements ArenaChild, Placeholder, IEditable, ICleanable {
+public class ArenaReward implements ArenaChild, Placeholder, ICleanable {
 
     private final String      id;
     private final ArenaConfig arenaConfig;
@@ -79,7 +78,6 @@ public class ArenaReward implements ArenaChild, Placeholder, IEditable, ICleanab
     }
 
     @NotNull
-    @Override
     public RewardSettingsEditor getEditor() {
         if (this.editor == null) {
             this.editor = new RewardSettingsEditor(this);

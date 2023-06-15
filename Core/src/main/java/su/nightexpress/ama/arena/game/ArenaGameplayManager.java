@@ -6,14 +6,12 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.ConfigHolder;
-import su.nexmedia.engine.api.manager.IEditable;
 import su.nexmedia.engine.api.manager.ILoadable;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.command.CommandRegister;
 import su.nexmedia.engine.hooks.Hooks;
 import su.nexmedia.engine.lang.LangManager;
-import su.nexmedia.engine.utils.CollectionsUtil;
 import su.nexmedia.engine.utils.NumberUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.Placeholders;
@@ -35,7 +33,7 @@ import su.nightexpress.ama.kit.Kit;
 
 import java.util.*;
 
-public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable, Problematic, Placeholder, IEditable {
+public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable, Problematic, Placeholder {
 
     private final ArenaConfig arenaConfig;
     private final JYML        config;
@@ -54,6 +52,7 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable
     private boolean isItemDurabilityEnabled;
     private boolean isMobDropExpEnabled;
     private boolean isMobDropLootEnabled;
+    private boolean isSpectateEnabled;
 
     private boolean   mobHighlightEnabled;
     private double    mobHighlightAmount;
@@ -65,12 +64,12 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable
     private int         playerMinAmount;
     private int         playerMaxAmount;
     private int         playerLivesAmount;
-    private boolean     isPlayerDropItemsOnDeathEnabled;
-    private boolean     isPlayerCommandsEnabled;
+    private int     playerReviveTime;
+    private boolean keepInventory;
+    private boolean isPlayerCommandsEnabled;
     private Set<String> playerCommandsAllowed;
 
-    private boolean isSpectateEnabled;
-    private boolean isSpectateOnDeathEnabled;
+
 
     private boolean              isKitsEnabled;
     private Set<String>          kitsAllowed;
@@ -95,7 +94,7 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable
 
         this.placeholderMap = new PlaceholderMap()
             .add(Placeholders.GENERIC_PROBLEMS, () -> String.join("\n", this.getProblems()))
-            .add(Placeholders.GAMEPLAY_TIMELEFT, () -> this.hasTimeleft() ? String.valueOf(this.getTimeleft()) : LangManager.getPlain(Lang.OTHER_INFINITY))
+            .add(Placeholders.GAMEPLAY_TIMELEFT, () -> this.hasTimeleft() ? NumberUtil.format(this.getTimeleft()) : LangManager.getPlain(Lang.OTHER_INFINITY))
             .add(Placeholders.GAMEPLAY_LOBBY_TIME, () -> String.valueOf(this.getLobbyTime()))
             .add(Placeholders.GAMEPLAY_ANNOUNCEMENTS, () -> LangManager.getBoolean(this.isAnnouncesEnabled()))
             .add(Placeholders.GAMEPLAY_SCOREBOARD_ENABLED, () -> LangManager.getBoolean(this.isScoreboardEnabled()))
@@ -112,12 +111,12 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable
             .add(Placeholders.GAMEPLAY_MOB_HIGHLIGHT_COLOR, () -> this.getMobHighlightColor().name())
             .add(Placeholders.GAMEPLAY_BANNED_ITEMS, () -> String.join("\n", this.getBannedItems().stream().map(Enum::name).toList()))
             .add(Placeholders.GAMEPLAY_ALLOWED_SPAWN_REASONS, () -> String.join("\n", this.getAllowedSpawnReasons().stream().map(Enum::name).toList()))
-            .add(Placeholders.GAMEPLAY_PLAYERS_AMOUNT_MIN, () -> String.valueOf(this.getPlayerMinAmount()))
-            .add(Placeholders.GAMEPLAY_PLAYERS_AMOUNT_MAX, () -> String.valueOf(this.getPlayerMaxAmount()))
-            .add(Placeholders.GAMEPLAY_PLAYER_DEATH_LIVES_AMOUNT, () -> String.valueOf(this.getPlayerLivesAmount()))
-            .add(Placeholders.GAMEPLAY_PLAYER_DEATH_DROP_ITEMS, () -> LangManager.getBoolean(this.isPlayerDropItemsOnDeathEnabled()))
+            .add(Placeholders.GAMEPLAY_PLAYER_AMOUNT_MIN, () -> String.valueOf(this.getPlayerMinAmount()))
+            .add(Placeholders.GAMEPLAY_PLAYER_AMOUNT_MAX, () -> String.valueOf(this.getPlayerMaxAmount()))
+            .add(Placeholders.GAMEPLAY_PLAYER_LIFES_AMOUNT, () -> String.valueOf(this.getPlayerLivesAmount()))
+            .add(Placeholders.GAMEPLAY_PLAYER_REVIVE_TIME, () -> NumberUtil.format(this.getPlayerReviveTime()))
+            .add(Placeholders.GAMEPLAY_KEEP_INVENTORY, () -> LangManager.getBoolean(this.isKeepInventory()))
             .add(Placeholders.GAMEPLAY_SPECTATE_ENABLED, () -> LangManager.getBoolean(this.isSpectateEnabled()))
-            .add(Placeholders.GAMEPLAY_SPECTATE_ON_DEATH, () -> LangManager.getBoolean(this.isSpectateOnDeathEnabled()))
             .add(Placeholders.GAMEPLAY_COMMAND_USAGE_ENABLED, () -> LangManager.getBoolean(this.isPlayerCommandsEnabled()))
             .add(Placeholders.GAMEPLAY_COMMAND_USAGE_WHITELIST, () -> String.join("\n", this.getPlayerCommandsAllowed()))
             .add(Placeholders.GAMEPLAY_KITS_ENABLED, () -> LangManager.getBoolean(this.isKitsEnabled()))
@@ -149,7 +148,7 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable
         this.bannedItems = new HashSet<>(config.getStringSet("Banned_Items").stream()
             .map(Material::getMaterial).filter(Objects::nonNull).toList());
         this.allowedSpawnReasons = new HashSet<>(config.getStringSet("Allowed_Spawn_Reasons")
-            .stream().map(raw -> CollectionsUtil.getEnum(raw, CreatureSpawnEvent.SpawnReason.class))
+            .stream().map(raw -> StringUtil.getEnum(raw, CreatureSpawnEvent.SpawnReason.class).orElse(null))
             .filter(Objects::nonNull).toList());
 
         for (String cmdId : config.getSection("Auto_Commands")) {
@@ -186,11 +185,11 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable
         this.setPlayerMinAmount(config.getInt(path + "Minimum", 1));
         this.setPlayerMaxAmount(config.getInt(path + "Maximum", 10));
         this.setPlayerLivesAmount(config.getInt(path + "Lives", 1));
-        this.setPlayerDropItemsOnDeathEnabled(config.getBoolean(path + "Drop_Items_On_Death"));
+        this.setPlayerReviveTime(config.getInt(path + "Revive_Time", -1));
+        this.setKeepInventory(config.getBoolean("Keep_Inventory"));
 
         path = "Spectate.";
         this.setSpectateEnabled(config.getBoolean(path + "Enabled", true));
-        this.setSpectateOnDeathEnabled(config.getBoolean(path + "After_Death", true));
 
         path = "Commands.";
         this.setPlayerCommandsEnabled(config.getBoolean(path + "Allowed"));
@@ -249,11 +248,11 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable
         config.set(path + "Minimum", this.getPlayerMinAmount());
         config.set(path + "Maximum", this.getPlayerMaxAmount());
         config.set(path + "Lives", this.getPlayerLivesAmount());
-        config.set(path + "Drop_Items_On_Death", this.isPlayerDropItemsOnDeathEnabled());
+        config.set(path + "Revive_Time", this.getPlayerReviveTime());
+        config.set("Keep_Inventory", this.isKeepInventory());
 
         path = "Spectate.";
         config.set(path + "Enabled", this.isSpectateEnabled());
-        config.set(path + "After_Death", this.isSpectateOnDeathEnabled());
 
         path = "Commands.";
         config.set(path + "Allowed", this.isPlayerCommandsEnabled());
@@ -281,7 +280,6 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable
         return this.placeholderMap;
     }
 
-    @Override
     @NotNull
     public GameplayEditor getEditor() {
         if (this.editor == null) {
@@ -307,7 +305,7 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable
     public List<String> getProblems() {
         List<String> list = new ArrayList<>();
         if (this.isKitsEnabled() && this.getKitsAllowed().isEmpty()) {
-            list.add(problem("Kits are enabled, but no kits are allowed!"));
+            list.add(this.problem("Kits are enabled, but no kits are allowed!"));
         }
         return list;
     }
@@ -476,12 +474,20 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable
         this.playerLivesAmount = Math.max(1, playerLivesAmount);
     }
 
-    public boolean isPlayerDropItemsOnDeathEnabled() {
-        return isPlayerDropItemsOnDeathEnabled;
+    public int getPlayerReviveTime() {
+        return playerReviveTime;
     }
 
-    public void setPlayerDropItemsOnDeathEnabled(boolean playerDropItemsOnDeathEnabled) {
-        isPlayerDropItemsOnDeathEnabled = playerDropItemsOnDeathEnabled;
+    public void setPlayerReviveTime(int playerReviveTime) {
+        this.playerReviveTime = playerReviveTime;
+    }
+
+    public boolean isKeepInventory() {
+        return keepInventory;
+    }
+
+    public void setKeepInventory(boolean keepInventory) {
+        this.keepInventory = keepInventory;
     }
 
     public boolean isPlayerCommandsEnabled() {
@@ -512,16 +518,6 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable
 
     public void setSpectateEnabled(boolean spectateEnabled) {
         isSpectateEnabled = spectateEnabled;
-    }
-
-    @Deprecated
-    public boolean isSpectateOnDeathEnabled() {
-        return isSpectateOnDeathEnabled;
-    }
-
-    @Deprecated
-    public void setSpectateOnDeathEnabled(boolean spectateOnDeathEnabled) {
-        isSpectateOnDeathEnabled = spectateOnDeathEnabled;
     }
 
     public boolean isKitsEnabled() {

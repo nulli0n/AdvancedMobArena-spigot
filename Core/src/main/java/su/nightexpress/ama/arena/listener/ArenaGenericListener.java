@@ -185,6 +185,8 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onArenaPlayerTeleport(PlayerTeleportEvent e) {
+        if (e.getPlayer().hasPermission(Perms.CREATOR)) return;
+
         Location to = e.getTo();
         if (to == null) return;
 

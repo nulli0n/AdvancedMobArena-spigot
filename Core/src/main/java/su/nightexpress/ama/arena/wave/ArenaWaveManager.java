@@ -4,14 +4,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.ConfigHolder;
-import su.nexmedia.engine.api.manager.IEditable;
 import su.nexmedia.engine.api.manager.ILoadable;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.lang.LangManager;
 import su.nexmedia.engine.utils.NumberUtil;
 import su.nexmedia.engine.utils.StringUtil;
-import su.nexmedia.engine.utils.TimeUtil;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.Problematic;
@@ -30,7 +28,7 @@ import su.nightexpress.ama.hook.mob.impl.InternalMobProvider;
 
 import java.util.*;
 
-public class ArenaWaveManager implements ArenaChild, ConfigHolder, ILoadable, Problematic, Placeholder, IEditable {
+public class ArenaWaveManager implements ArenaChild, ConfigHolder, ILoadable, Problematic, Placeholder {
 
     public static final String CONFIG_NAME = "waves.yml";
 
@@ -39,9 +37,9 @@ public class ArenaWaveManager implements ArenaChild, ConfigHolder, ILoadable, Pr
     private final Map<String, ArenaWave>          waves;
     private final PlaceholderMap placeholderMap;
 
-    private int finalWave;
-    private int delayFirst;
-    private int delayDefault;
+    private int finalRound;
+    private int firstRoundCountdown;
+    private int roundCountdown;
 
     private boolean gradualSpawnEnabled;
     private double  gradualSpawnPercentFirst;
@@ -58,22 +56,22 @@ public class ArenaWaveManager implements ArenaChild, ConfigHolder, ILoadable, Pr
 
         this.placeholderMap = new PlaceholderMap()
             .add(Placeholders.GENERIC_PROBLEMS, () -> String.join("\n", this.getProblems()))
-            .add(Placeholders.ARENA_WAVES_DELAY_FIRST, () -> TimeUtil.formatTime(this.getDelayFirst() * 1000L))
-            .add(Placeholders.ARENA_WAVES_DELAY_DEFAULT, () -> TimeUtil.formatTime(this.getDelayDefault() * 1000L))
-            .add(Placeholders.ARENA_WAVES_FINAL_WAVE, () -> String.valueOf(this.getFinalWave()))
+            .add(Placeholders.ARENA_WAVES_FIRST_ROUND_COUNTDOWN, () -> NumberUtil.format(this.getFirstRoundCountdown()))
+            .add(Placeholders.ARENA_WAVES_ROUND_COUNTDOWN, () -> NumberUtil.format(this.getRoundCountdown()))
+            .add(Placeholders.ARENA_WAVES_FINAL_ROUND, () -> String.valueOf(this.getFinalRound()))
             .add(Placeholders.ARENA_WAVES_GRADUAL_ENABLED, () -> LangManager.getBoolean(this.isGradualSpawnEnabled()))
             .add(Placeholders.ARENA_WAVES_GRADUAL_FIRST_PERCENT, () -> NumberUtil.format(this.getGradualSpawnPercentFirst()))
             .add(Placeholders.ARENA_WAVES_GRADUAL_NEXT_PERCENT, () -> NumberUtil.format(this.getGradualSpawnNextPercent()))
-            .add(Placeholders.ARENA_WAVES_GRADUAL_NEXT_INTERVAL, () -> TimeUtil.formatTime(this.getGradualSpawnNextInterval() * 1000L))
+            .add(Placeholders.ARENA_WAVES_GRADUAL_NEXT_INTERVAL, () -> NumberUtil.format(this.getGradualSpawnNextInterval()))
             .add(Placeholders.ARENA_WAVES_GRADUAL_NEXT_KILL_PERCENT, () -> NumberUtil.format(this.getGradualSpawnNextKillPercent()))
         ;
     }
 
     @Override
     public void setup() {
-        this.setFinalWave(config.getInt("Final_Wave", 100));
-        this.setDelayFirst(config.getInt("Delay.First", 5));
-        this.setDelayDefault(config.getInt("Delay.Default", 10));
+        this.setFinalRound(config.getInt("Final_Wave", 100));
+        this.setFirstRoundCountdown(config.getInt("Delay.First", 5));
+        this.setRoundCountdown(config.getInt("Delay.Default", 10));
 
         String path = "Gradual_Spawn.";
         this.setGradualSpawnEnabled(config.getBoolean(path + "Enabled"));
@@ -162,10 +160,10 @@ public class ArenaWaveManager implements ArenaChild, ConfigHolder, ILoadable, Pr
 
     @Override
     public void onSave() {
-        config.set("Final_Wave", this.getFinalWave());
+        config.set("Final_Wave", this.getFinalRound());
 
-        config.set("Delay.First", this.getDelayFirst());
-        config.set("Delay.Default", this.getDelayDefault());
+        config.set("Delay.First", this.getFirstRoundCountdown());
+        config.set("Delay.Default", this.getRoundCountdown());
 
         config.set("Gradual_Spawn.Enabled", this.isGradualSpawnEnabled());
         config.set("Gradual_Spawn.First.Amount_Percent", this.getGradualSpawnPercentFirst());
@@ -193,7 +191,6 @@ public class ArenaWaveManager implements ArenaChild, ConfigHolder, ILoadable, Pr
         return this.placeholderMap;
     }
 
-    @Override
     @NotNull
     public WaveManagerEditor getEditor() {
         if (this.editor == null) {
@@ -226,7 +223,7 @@ public class ArenaWaveManager implements ArenaChild, ConfigHolder, ILoadable, Pr
     }
 
     public boolean isInfiniteWaves() {
-        return this.getFinalWave() <= 0;
+        return this.getFinalRound() <= 0;
     }
 
     @NotNull
@@ -239,28 +236,28 @@ public class ArenaWaveManager implements ArenaChild, ConfigHolder, ILoadable, Pr
         return this.getWaves().get(id.toLowerCase());
     }
 
-    public int getFinalWave() {
-        return this.finalWave;
+    public int getFinalRound() {
+        return this.finalRound;
     }
 
-    public void setFinalWave(int finalWave) {
-        this.finalWave = finalWave <= 0 ? -1 : finalWave;
+    public void setFinalRound(int finalRound) {
+        this.finalRound = finalRound <= 0 ? -1 : finalRound;
     }
 
-    public int getDelayDefault() {
-        return delayDefault;
+    public int getRoundCountdown() {
+        return roundCountdown;
     }
 
-    public void setDelayDefault(int delayDefault) {
-        this.delayDefault = Math.max(1, delayDefault);
+    public void setRoundCountdown(int roundCountdown) {
+        this.roundCountdown = Math.max(1, roundCountdown);
     }
 
-    public int getDelayFirst() {
-        return delayFirst;
+    public int getFirstRoundCountdown() {
+        return firstRoundCountdown;
     }
 
-    public void setDelayFirst(int delayFirst) {
-        this.delayFirst = Math.max(1, delayFirst);
+    public void setFirstRoundCountdown(int firstRoundCountdown) {
+        this.firstRoundCountdown = Math.max(1, firstRoundCountdown);
     }
 
 

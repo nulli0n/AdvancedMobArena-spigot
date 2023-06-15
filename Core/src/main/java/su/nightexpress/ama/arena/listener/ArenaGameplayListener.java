@@ -185,7 +185,7 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
         ArenaPlayerDeathEvent deathEvent = new ArenaPlayerDeathEvent(arena, arenaPlayer);
         plugin.getPluginManager().callEvent(deathEvent);
 
-        if (!arena.getConfig().getGameplayManager().isPlayerDropItemsOnDeathEnabled()) {
+        if (arena.getConfig().getGameplayManager().isKeepInventory()) {
             e.setKeepInventory(true);
             e.getDrops().clear();
         }

@@ -1,104 +1,89 @@
 package su.nightexpress.ama.arena.editor.script;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.api.editor.EditorButtonType;
-import su.nexmedia.engine.api.editor.EditorInput;
-import su.nexmedia.engine.api.menu.MenuClick;
-import su.nexmedia.engine.api.menu.MenuItemType;
-import su.nexmedia.engine.editor.AbstractEditorMenuAuto;
-import su.nexmedia.engine.editor.EditorManager;
+import su.nexmedia.engine.api.menu.AutoPaged;
+import su.nexmedia.engine.api.menu.click.ItemClick;
+import su.nexmedia.engine.api.menu.impl.EditorMenu;
+import su.nexmedia.engine.api.menu.impl.MenuOptions;
+import su.nexmedia.engine.api.menu.impl.MenuViewer;
 import su.nexmedia.engine.utils.ItemUtil;
+import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.arena.script.ArenaScriptManager;
 import su.nightexpress.ama.arena.script.impl.ScriptCategory;
 import su.nightexpress.ama.config.Lang;
-import su.nightexpress.ama.editor.ArenaEditorHub;
-import su.nightexpress.ama.editor.ArenaEditorType;
+import su.nightexpress.ama.editor.EditorHub;
+import su.nightexpress.ama.editor.EditorLocales;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.IntStream;
 
-public class ScriptsEditor extends AbstractEditorMenuAuto<AMA, ArenaScriptManager, ScriptCategory> {
+public class ScriptsEditor extends EditorMenu<AMA, ArenaScriptManager> implements AutoPaged<ScriptCategory> {
 
     public ScriptsEditor(@NotNull ArenaScriptManager scriptManager) {
-        super(scriptManager.plugin(), scriptManager, ArenaEditorHub.TITLE_SCRIPT_EDITOR, 45);
+        super(scriptManager.plugin(), scriptManager, EditorHub.TITLE_SCRIPT_EDITOR, 45);
 
-        EditorInput<ArenaScriptManager, ArenaEditorType> input = (player, scriptManager2, type, e) -> {
-            String msg = e.getMessage();
-            if (type == ArenaEditorType.SCRIPT_CATEGORY_CREATE) {
-                scriptManager2.createCategory(EditorManager.fineId(msg));
-            }
-            scriptManager2.save();
-            return true;
-        };
+        this.addReturn(39).setClick((viewer, event) -> {
+            scriptManager.getArenaConfig().getEditor().openNextTick(viewer, 1);
+        });
+        this.addNextPage(44);
+        this.addPreviousPage(36);
 
-        MenuClick click = (player, type, e) -> {
-            if (type instanceof MenuItemType type2) {
-                if (type2 == MenuItemType.RETURN) {
-                    scriptManager.getArenaConfig().getEditor().open(player, 1);
-                }
-                else this.onItemClickDefault(player, type2);
-            }
-            else if (type instanceof ArenaEditorType type2) {
-                if (type2 == ArenaEditorType.SCRIPT_CATEGORY_CREATE) {
-                    EditorManager.startEdit(player, scriptManager, type2, input);
-                    EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_ARENA_SCRIPT_ENTER_CATEGORY).getLocalized());
-                    player.closeInventory();
-                }
-            }
-        };
-
-        this.loadItems(click);
+        this.addCreation(EditorLocales.SCRIPT_CATEGORY_CREATE, 41).setClick((viewer, event) -> {
+            this.handleInput(viewer, Lang.EDITOR_ARENA_SCRIPT_ENTER_CATEGORY, wrapper -> {
+                scriptManager.createCategory(StringUtil.lowerCaseUnderscore(wrapper.getTextRaw()));
+                scriptManager.save();
+                return true;
+            });
+        });
     }
 
     @Override
-    public void setTypes(@NotNull Map<EditorButtonType, Integer> map) {
-        map.put(ArenaEditorType.SCRIPT_CATEGORY_CREATE, 41);
-        map.put(MenuItemType.RETURN, 39);
-        map.put(MenuItemType.PAGE_NEXT, 44);
-        map.put(MenuItemType.PAGE_PREVIOUS, 36);
+    public void onPrepare(@NotNull MenuViewer viewer, @NotNull MenuOptions options) {
+        super.onPrepare(viewer, options);
+        this.getItemsForPage(viewer).forEach(this::addItem);
     }
 
     @Override
-    protected int[] getObjectSlots() {
+    public int[] getObjectSlots() {
         return IntStream.range(0, 36).toArray();
     }
 
     @Override
     @NotNull
-    protected List<ScriptCategory> getObjects(@NotNull Player player) {
-        return new ArrayList<>(this.parent.getCategories());
+    public List<ScriptCategory> getObjects(@NotNull Player player) {
+        return new ArrayList<>(this.object.getCategories());
     }
 
     @Override
     @NotNull
-    protected ItemStack getObjectStack(@NotNull Player player, @NotNull ScriptCategory category) {
-        ItemStack item = ArenaEditorType.SCRIPT_CATEGORY_OBJECT.getItem();
-        ItemUtil.replace(item, str -> str.replace(Placeholders.SCRIPT_CATEGORY_ID, category.getId()));
+    public ItemStack getObjectStack(@NotNull Player player, @NotNull ScriptCategory category) {
+        ItemStack item = new ItemStack(Material.COMMAND_BLOCK_MINECART);
+        ItemUtil.mapMeta(item, meta -> {
+            meta.setDisplayName(EditorLocales.SCRIPT_CATEGORY_OBJECT.getLocalizedName());
+            meta.setLore(EditorLocales.SCRIPT_CATEGORY_OBJECT.getLocalizedLore());
+            meta.addItemFlags(ItemFlag.values());
+            ItemUtil.replace(meta, str -> str.replace(Placeholders.SCRIPT_CATEGORY_ID, category.getId()));
+        });
         return item;
     }
 
     @Override
     @NotNull
-    protected MenuClick getObjectClick(@NotNull Player player, @NotNull ScriptCategory category) {
-        return (player2, type, e) -> {
-            if (e.isShiftClick() && e.isRightClick()) {
-                this.parent.deleteCategory(category);
-                this.open(player2, this.getPage(player2));
+    public ItemClick getObjectClick(@NotNull ScriptCategory category) {
+        return (viewer, event) -> {
+            if (event.isShiftClick() && event.isRightClick()) {
+                this.object.deleteCategory(category);
+                this.openNextTick(viewer, viewer.getPage());
                 return;
             }
-            category.getEditor().open(player, 1);
+            category.getEditor().openNextTick(viewer, 1);
         };
-    }
-
-    @Override
-    public boolean cancelClick(@NotNull InventoryClickEvent inventoryClickEvent, @NotNull SlotType slotType) {
-        return true;
     }
 }

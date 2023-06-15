@@ -257,7 +257,7 @@ public class Arena implements Placeholder {
         this.setGameScore(0);
 
         this.setWaveNumber(0);
-        this.setWaveNextTimeleft(this.getConfig().getWaveManager().getDelayFirst());
+        this.setWaveNextTimeleft(this.getConfig().getWaveManager().getFirstRoundCountdown());
         this.getUpcomingWaves().clear();
         this.getWaveAmplificatorValues().clear();
         this.setWaveMobsTotalAmount(0);
@@ -357,7 +357,7 @@ public class Arena implements Placeholder {
     }
 
     public boolean isLatestWave() {
-        return this.getWaveNumber() == this.getConfig().getWaveManager().getFinalWave();
+        return this.getWaveNumber() == this.getConfig().getWaveManager().getFinalRound();
     }
 
     // TODO Add another stat type = InGameStatType
@@ -593,7 +593,7 @@ public class Arena implements Placeholder {
         }
 
         if (this.isAwaitingNewRound()) {
-            if (this.getWaveNextTimeleft() == this.getConfig().getWaveManager().getDelayDefault()) {
+            if (this.getWaveNextTimeleft() == this.getConfig().getWaveManager().getRoundCountdown()) {
 
                 ArenaWaveCompleteEvent event = new ArenaWaveCompleteEvent(this);
                 plugin.getPluginManager().callEvent(event);
@@ -619,7 +619,7 @@ public class Arena implements Placeholder {
             return false;
         }*/
 
-        if (this.getAlivePlayers().isEmpty()) {
+        if (this.getAlivePlayers().isEmpty() && this.getDeadPlayers().stream().noneMatch(ArenaPlayer::isAutoRevive)) {
             this.setEndCountdown(Config.ARENA_END_COUNTDOWN_DEFEAT.get(), GameResult.DEFEAT);
             this.broadcast(plugin.getMessage(Lang.ARENA_GAME_END_ALL_DEAD).replace(this.replacePlaceholders()));
             return false;
@@ -1104,7 +1104,7 @@ public class Arena implements Placeholder {
         this.plugin.getPluginManager().callEvent(event);
 
         // Set time until next wave
-        this.setWaveNextTimeleft(this.getConfig().getWaveManager().getDelayDefault());
+        this.setWaveNextTimeleft(this.getConfig().getWaveManager().getRoundCountdown());
 
         //this.setSpawnedMobsAmount(0);
         this.setGradualMobsKilled(0);

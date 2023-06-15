@@ -42,10 +42,10 @@ public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
     public static final String ARENA_WAVE_ID   = "%arena_wave_id%";
     public static final String ARENA_WAVE_MOBS = "%arena_wave_mobs%";
 
-    public static final String ARENA_WAVES_DELAY_FIRST               = "%arena_waves_delay_first%";
-    public static final String ARENA_WAVES_DELAY_DEFAULT             = "%arena_waves_delay_default%";
-    public static final String ARENA_WAVES_FINAL_WAVE                = "%arena_waves_final_wave%";
-    public static final String ARENA_WAVES_GRADUAL_ENABLED           = "%arena_waves_gradual_enabled%";
+    public static final String ARENA_WAVES_FIRST_ROUND_COUNTDOWN = "%arena_waves_delay_first%";
+    public static final String ARENA_WAVES_ROUND_COUNTDOWN = "%arena_waves_delay_default%";
+    public static final String ARENA_WAVES_FINAL_ROUND     = "%arena_waves_final_wave%";
+    public static final String ARENA_WAVES_GRADUAL_ENABLED = "%arena_waves_gradual_enabled%";
     public static final String ARENA_WAVES_GRADUAL_FIRST_PERCENT     = "%arena_waves_gradual_first_percent%";
     public static final String ARENA_WAVES_GRADUAL_NEXT_PERCENT      = "%arena_waves_gradual_next_percent%";
     public static final String ARENA_WAVES_GRADUAL_NEXT_INTERVAL     = "%arena_waves_gradual_next_interval%";
@@ -73,13 +73,13 @@ public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
     public static final String GAMEPLAY_MOB_HIGHLIGHT_AMOUNT      = "%gameplay_mob_highlight_amount%";
     public static final String GAMEPLAY_MOB_HIGHLIGHT_COLOR       = "%gameplay_mob_highlight_color%";
     public static final String GAMEPLAY_BANNED_ITEMS              = "%gameplay_banned_items%";
-    public static final String GAMEPLAY_ALLOWED_SPAWN_REASONS     = "%gameplay_allowed_spawn_reasons%";
-    public static final String GAMEPLAY_PLAYERS_AMOUNT_MIN        = "%gameplay_players_amount_min%";
-    public static final String GAMEPLAY_PLAYERS_AMOUNT_MAX        = "%gameplay_players_amount_max%";
-    public static final String GAMEPLAY_PLAYER_DEATH_DROP_ITEMS   = "%gameplay_player_death_drop_items%";
-    public static final String GAMEPLAY_PLAYER_DEATH_LIVES_AMOUNT = "%gameplay_player_death_lives_amount%";
+    public static final String GAMEPLAY_ALLOWED_SPAWN_REASONS = "%gameplay_allowed_spawn_reasons%";
+    public static final String GAMEPLAY_PLAYER_AMOUNT_MIN       = "%gameplay_players_amount_min%";
+    public static final String GAMEPLAY_PLAYER_AMOUNT_MAX   = "%gameplay_players_amount_max%";
+    public static final String GAMEPLAY_KEEP_INVENTORY      = "%gameplay_keep_inventory%";
+    public static final String GAMEPLAY_PLAYER_LIFES_AMOUNT = "%gameplay_player_lifes_amount%";
+    public static final String GAMEPLAY_PLAYER_REVIVE_TIME      = "%gameplay_player_revive_time%";
     public static final String GAMEPLAY_SPECTATE_ENABLED          = "%gameplay_spectate_enabled%";
-    public static final String GAMEPLAY_SPECTATE_ON_DEATH         = "%gameplay_spectate_on_death%";
     public static final String GAMEPLAY_COMMAND_USAGE_ENABLED     = "%gameplay_command_usage_enabled%";
     public static final String GAMEPLAY_COMMAND_USAGE_WHITELIST   = "%gameplay_command_usage_whitelist%";
     public static final String GAMEPLAY_KITS_ENABLED              = "%gameplay_kits_enabled%";

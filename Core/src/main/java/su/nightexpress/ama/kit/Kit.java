@@ -25,14 +25,14 @@ import su.nightexpress.ama.arena.type.PlayerType;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.data.ArenaUser;
 import su.nightexpress.ama.hologram.HologramManager;
-import su.nightexpress.ama.kit.editor.EditorKitMain;
+import su.nightexpress.ama.kit.editor.KitMainEditor;
 import su.nightexpress.ama.kit.menu.KitPreviewMenu;
 
 import java.util.*;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
-public class Kit extends AbstractLoadableItem<AMA> implements ConfigHolder, HologramHolder, IEditable, ICleanable, IPlaceholder {
+public class Kit extends AbstractLoadableItem<AMA> implements ConfigHolder, HologramHolder, ICleanable, IPlaceholder {
 
     private boolean      isDefault;
     private String       name;
@@ -53,7 +53,7 @@ public class Kit extends AbstractLoadableItem<AMA> implements ConfigHolder, Holo
     private final Set<Location> hologramLocations;
 
     private KitPreviewMenu preview;
-    private EditorKitMain  editor;
+    private KitMainEditor  editor;
 
     public Kit(@NotNull AMA plugin, @NotNull String path) {
         super(plugin, path);
@@ -208,11 +208,10 @@ public class Kit extends AbstractLoadableItem<AMA> implements ConfigHolder, Holo
         arenaPlayer.setKit(this);
     }
 
-    @Override
     @NotNull
-    public EditorKitMain getEditor() {
+    public KitMainEditor getEditor() {
         if (this.editor == null) {
-            this.editor = new EditorKitMain(this);
+            this.editor = new KitMainEditor(this);
         }
         return this.editor;
     }

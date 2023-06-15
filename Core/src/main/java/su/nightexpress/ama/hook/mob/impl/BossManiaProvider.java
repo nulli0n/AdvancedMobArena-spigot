@@ -13,8 +13,6 @@ import java.util.Optional;
 
 public class BossManiaProvider implements MobProvider {
 
-    private static final BossMania API = BossMania.api;
-
     @NotNull
     @Override
     public String getName() {
@@ -24,7 +22,7 @@ public class BossManiaProvider implements MobProvider {
     @NotNull
     @Override
     public Optional<LivingEntity> spawn(@NotNull String mobId, @NotNull Location location, int level) {
-        Boss boss = API.getBosses().find(mobId);
+        Boss boss = BossMania.api.getBosses().find(mobId);
         if (boss == null) return Optional.empty();
 
         return Optional.of(boss.spawn(location).getLivingEntity());
@@ -33,6 +31,6 @@ public class BossManiaProvider implements MobProvider {
     @NotNull
     @Override
     public List<String> getMobNames() {
-        return API.getBosses().stream().map(Boss::getKey).toList();
+        return BossMania.api.getBosses().stream().map(Boss::getKey).toList();
     }
 }

@@ -4,7 +4,6 @@ import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
-import su.nexmedia.engine.api.manager.IEditable;
 import su.nexmedia.engine.api.manager.ILoadable;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
@@ -17,7 +16,7 @@ import su.nightexpress.ama.arena.impl.ArenaConfig;
 
 import java.util.*;
 
-public class ArenaSpotManager implements ArenaChild, ILoadable, IEditable, Problematic, Placeholder {
+public class ArenaSpotManager implements ArenaChild, ILoadable, Problematic, Placeholder {
 
     public static final String DIR_SPOTS = "/spots/";
 
@@ -81,7 +80,6 @@ public class ArenaSpotManager implements ArenaChild, ILoadable, IEditable, Probl
     }
 
     @NotNull
-    @Override
     public SpotListEditor getEditor() {
         if (this.editor == null) {
             this.editor = new SpotListEditor(this);

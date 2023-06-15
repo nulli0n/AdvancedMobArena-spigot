@@ -17,28 +17,27 @@ import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.ArenaManager;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.config.Lang;
-import su.nightexpress.ama.editor.ArenaEditorHub;
+import su.nightexpress.ama.editor.EditorHub;
 import su.nightexpress.ama.editor.EditorLocales;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
 
 public class ArenaListEditor extends EditorMenu<AMA, ArenaManager> implements AutoPaged<Arena> {
 
     public ArenaListEditor(@NotNull ArenaManager arenaManager) {
-        super(arenaManager.plugin(), arenaManager, ArenaEditorHub.TITLE_ARENA_EDITOR, 45);
+        super(arenaManager.plugin(), arenaManager, EditorHub.TITLE_ARENA_EDITOR, 45);
 
         this.addReturn(39).setClick((viewer, event) -> {
-            this.plugin.runTask(task -> plugin.getEditor().open(viewer.getPlayer(), 1));
+            this.plugin.getEditor().openNextTick(viewer, 1);
         });
         this.addNextPage(44);
         this.addPreviousPage(36);
 
         this.addCreation(EditorLocales.ARENA_CREATION, 41).setClick((viewer, event) -> {
-            this.startEdit(viewer.getPlayer(), plugin.getMessage(Lang.EDITOR_ARENA_ENTER_ID), chat -> {
-                if (!arenaManager.create(StringUtil.lowerCaseUnderscore(chat.getMessage()))) {
+            this.handleInput(viewer, Lang.EDITOR_ARENA_ENTER_ID, wrapper -> {
+                if (!arenaManager.create(StringUtil.lowerCaseUnderscore(wrapper.getTextRaw()))) {
                     EditorManager.error(viewer.getPlayer(), plugin.getMessage(Lang.EDITOR_ARENA_ERROR_EXISTS).getLocalized());
                     return false;
                 }
@@ -80,20 +79,14 @@ public class ArenaListEditor extends EditorMenu<AMA, ArenaManager> implements Au
     @Override
     @NotNull
     public ItemClick getObjectClick(@NotNull Arena arena) {
-        return (viewer, e) -> {
-            Player player2 = viewer.getPlayer();
-            if (e.isShiftClick() && e.isRightClick()) {
+        return (viewer, event) -> {
+            Player player = viewer.getPlayer();
+            if (event.isShiftClick() && event.isRightClick()) {
                 this.plugin.getArenaManager().delete(arena);
-                this.plugin.runTask(task -> this.open(player2, viewer.getPage()));
+                this.openNextTick(viewer, viewer.getPage());
                 return;
             }
-            arena.getConfig().getEditor().open(player2, 1);
+            arena.getConfig().getEditor().openNextTick(viewer, 1);
         };
-    }
-
-    @Override
-    @NotNull
-    public Comparator<Arena> getObjectSorter() {
-        return ((o1, o2) -> 0);
     }
 }

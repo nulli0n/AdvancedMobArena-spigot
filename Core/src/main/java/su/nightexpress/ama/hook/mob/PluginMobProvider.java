@@ -13,8 +13,10 @@ public class PluginMobProvider {
     private static final Map<String, MobProvider> PROVIDERS = new HashMap<>();
 
     public static void registerProvider(@NotNull MobProvider provider) {
-        PROVIDERS.put(provider.getName().toLowerCase(), provider);
-        ArenaAPI.PLUGIN.info("Registered mob provider: " + provider.getName());
+        if (!PROVIDERS.containsKey(provider.getName().toLowerCase())) {
+            PROVIDERS.put(provider.getName().toLowerCase(), provider);
+            ArenaAPI.PLUGIN.info("Registered mob provider: " + provider.getName());
+        }
     }
 
     @Nullable

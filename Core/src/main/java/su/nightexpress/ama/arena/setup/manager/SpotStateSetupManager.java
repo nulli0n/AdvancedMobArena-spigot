@@ -52,7 +52,7 @@ public class SpotStateSetupManager extends AbstractSetupManager<ArenaSpotState> 
         }
 
         SpotSettingsEditor spotMain = state.getSpot().getEditor();
-        spotMain.openStates(player);
+        spotMain.getStatesEditor().open(player, 1);
     }
 
     @Override

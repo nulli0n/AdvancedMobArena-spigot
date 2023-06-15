@@ -1,5 +1,6 @@
 package su.nightexpress.ama.arena.editor.supply;
 
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -11,119 +12,95 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.api.editor.EditorButtonType;
-import su.nexmedia.engine.api.editor.EditorInput;
-import su.nexmedia.engine.api.editor.EditorObject;
-import su.nexmedia.engine.api.menu.AbstractMenu;
-import su.nexmedia.engine.api.menu.MenuClick;
-import su.nexmedia.engine.api.menu.MenuItem;
-import su.nexmedia.engine.api.menu.MenuItemType;
-import su.nexmedia.engine.editor.AbstractEditorMenu;
+import org.jetbrains.annotations.Nullable;
+import su.nexmedia.engine.api.editor.InputHandler;
+import su.nexmedia.engine.api.editor.InputWrapper;
+import su.nexmedia.engine.api.manager.IListener;
+import su.nexmedia.engine.api.menu.impl.EditorMenu;
+import su.nexmedia.engine.api.menu.impl.Menu;
+import su.nexmedia.engine.api.menu.impl.MenuViewer;
 import su.nexmedia.engine.editor.EditorManager;
-import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.ItemUtil;
-import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.supply.ArenaSupplyChest;
 import su.nightexpress.ama.config.Lang;
-import su.nightexpress.ama.editor.ArenaEditorHub;
-import su.nightexpress.ama.editor.ArenaEditorType;
+import su.nightexpress.ama.editor.EditorHub;
+import su.nightexpress.ama.editor.EditorLocales;
 
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-public class SupplyChestSettingsEditor extends AbstractEditorMenu<AMA, ArenaSupplyChest> {
+public class SupplyChestSettingsEditor extends EditorMenu<AMA, ArenaSupplyChest> implements IListener {
 
     public SupplyChestSettingsEditor(@NotNull ArenaSupplyChest container) {
-        super(container.plugin(), container, ArenaEditorHub.TITLE_SUPPLY_EDITOR, 36);
+        super(container.plugin(), container, EditorHub.TITLE_SUPPLY_EDITOR, 36);
 
-        EditorInput<ArenaSupplyChest, ArenaEditorType> input = (player, container2, type, e) -> {
-            String msg = e.getMessage();
-            switch (type) {
-                case SUPPLY_CHEST_CHANGE_REFILL_AMOUNT_MIN, SUPPLY_CHEST_CHANGE_REFILL_AMOUNT_MAX -> {
-                    int value = StringUtil.getInteger(Colorizer.strip(msg), 0);
-                    if (type == ArenaEditorType.SUPPLY_CHEST_CHANGE_REFILL_AMOUNT_MIN) {
-                        container2.setMinItems(value);
-                    }
-                    else container2.setMaxItems(value);
+        this.addReturn(31).setClick((viewer, event) -> {
+            container.getArenaConfig().getSupplyManager().getEditor().openNextTick(viewer, 1);
+        });
+
+        this.addItem(Material.REPEATER, EditorLocales.SUPPLY_CHEST_REFILL_AMOUNT, 11).setClick((viewer, event) -> {
+            this.handleInput(viewer, Lang.EDITOR_GENERIC_ENTER_NUMBER, wrapper -> {
+                if (event.isLeftClick()) {
+                    container.setMinItems(wrapper.asInt());
                 }
-            }
-
-            container2.getArenaConfig().getSupplyManager().save();
-            return true;
-        };
-
-        MenuClick click = (player, type, e) -> {
-            if (type instanceof MenuItemType type2) {
-                if (type == MenuItemType.RETURN) {
-                    container.getArenaConfig().getSupplyManager().getEditor().open(player, 1);
+                else {
+                    container.setMaxItems(wrapper.asInt());
                 }
-            }
-            else if (type instanceof ArenaEditorType type2) {
-                switch (type2) {
-                    case SUPPLY_CHEST_CHANGE_REFILL_AMOUNT -> {
-                        type2 = e.isLeftClick() ? ArenaEditorType.SUPPLY_CHEST_CHANGE_REFILL_AMOUNT_MIN : ArenaEditorType.SUPPLY_CHEST_CHANGE_REFILL_AMOUNT_MAX;
-                        EditorManager.startEdit(player, container, type2, input);
-                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NUMBER).getLocalized());
-                        player.closeInventory();
-                    }
-                    case SUPPLY_CHEST_CHANGE_LOCATION -> {
-                        EditorManager.startEdit(player, container, type2, input);
-                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_SUPPLY_CHEST_SET_CONTAINER).getLocalized());
-                        player.closeInventory();
-                    }
-                    case SUPPLY_CHEST_CHANGE_ITEMS -> new ContainerGUI(container).open(player, 1);
-                }
-            }
-        };
+                container.getArenaConfig().getSupplyManager().save();
+                return true;
+            });
+        });
 
-        this.loadItems(click);
+        this.addItem(Material.COMPASS, EditorLocales.SUPPLY_CHEST_LOCATION, 13).setClick((viewer, event) -> {
+            this.handleInput(viewer, Lang.EDITOR_SUPPLY_CHEST_SET_CONTAINER, wrapper -> {
+                return wrapper.asInt() == 13;
+            });
+        });
+
+        this.addItem(Material.CHEST_MINECART, EditorLocales.SUPPLY_CHEST_ITEMS, 15).setClick((viewer, event) -> {
+            new ContainerGUI(container).openNextTick(viewer, 1);
+        });
+
+        this.getItems().forEach(menuItem -> {
+            menuItem.getOptions().addDisplayModifier((viewer, item) -> ItemUtil.replace(item, container.replacePlaceholders()));
+        });
     }
 
     @Override
-    public void setTypes(@NotNull Map<EditorButtonType, Integer> map) {
-        map.put(ArenaEditorType.SUPPLY_CHEST_CHANGE_ITEMS, 15);
-        map.put(ArenaEditorType.SUPPLY_CHEST_CHANGE_LOCATION, 13);
-        map.put(ArenaEditorType.SUPPLY_CHEST_CHANGE_REFILL_AMOUNT, 11);
-        map.put(MenuItemType.RETURN, 31);
+    public void clear() {
+        super.clear();
+        this.unregisterListeners();
     }
 
     @Override
-    public void onItemPrepare(@NotNull Player player, @NotNull MenuItem menuItem, @NotNull ItemStack item) {
-        super.onItemPrepare(player, menuItem, item);
-        ItemUtil.replace(item, this.object.replacePlaceholders());
-    }
-
-    @Override
-    public boolean cancelClick(@NotNull InventoryClickEvent e, @NotNull SlotType slotType) {
-        return true;
+    public void registerListeners() {
+        this.plugin.getPluginManager().registerEvents(this, this.plugin);
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onBlockClick(PlayerInteractEvent e) {
         Player player = e.getPlayer();
 
-        EditorObject<?, ?> editor = EditorManager.getEditorInput(player);
-        if (editor == null) return;
+        InputHandler handler = EditorManager.getInputHandler(player);
+        if (handler == null) return;
 
         Block block = e.getClickedBlock();
         if (block == null) return;
 
-        if (editor.getType() == ArenaEditorType.SUPPLY_CHEST_CHANGE_LOCATION) {
+        if (handler.handle(new InputWrapper("13"))) {
             e.setUseInteractedBlock(Event.Result.DENY);
             e.setUseItemInHand(Event.Result.DENY);
 
             if (this.object.getArenaConfig().getSupplyManager().getChest(block) != null) return;
 
-            ArenaSupplyChest supplyChest = (ArenaSupplyChest) editor.getObject();
-            supplyChest.setLocation(block.getLocation());
-            supplyChest.getArenaConfig().getSupplyManager().save();
+            this.object.setLocation(block.getLocation());
+            this.object.getArenaConfig().getSupplyManager().save();
             EditorManager.endEdit(player);
         }
     }
 
-    static class ContainerGUI extends AbstractMenu<AMA> {
+    static class ContainerGUI extends Menu<AMA> {
 
         private final ArenaSupplyChest container;
 
@@ -133,27 +110,28 @@ public class SupplyChestSettingsEditor extends AbstractEditorMenu<AMA, ArenaSupp
         }
 
         @Override
-        public boolean onPrepare(@NotNull Player player, @NotNull Inventory inventory) {
-            inventory.setContents(this.container.getItems().toArray(new ItemStack[this.getSize()]));
-            return true;
+        public void onReady(@NotNull MenuViewer viewer, @NotNull Inventory inventory) {
+            super.onReady(viewer, inventory);
+            inventory.setContents(this.container.getItems().toArray(new ItemStack[this.getOptions().getSize()]));
         }
 
         @Override
-        public void onClose(@NotNull Player player, @NotNull InventoryCloseEvent e) {
-            Inventory inventory = e.getInventory();
+        public void onClick(@NotNull MenuViewer viewer, @Nullable ItemStack item, @NotNull SlotType slotType, int slot, @NotNull InventoryClickEvent event) {
+            super.onClick(viewer, item, slotType, slot, event);
+            event.setCancelled(false);
+        }
+
+        @Override
+        public void onClose(@NotNull MenuViewer viewer, @NotNull InventoryCloseEvent event) {
+            super.onClose(viewer, event);
+            Inventory inventory = event.getInventory();
             this.container.setItems(Stream.of(inventory.getContents()).filter(Objects::nonNull).toList());
             this.container.getArenaConfig().getSupplyManager().save();
-            this.plugin.runTask(task -> this.container.getEditor().open(player, 1));
-            super.onClose(player, e);
+            this.container.getEditor().openNextTick(viewer, 1);
         }
 
         @Override
-        public boolean destroyWhenNoViewers() {
-            return true;
-        }
-
-        @Override
-        public boolean cancelClick(@NotNull InventoryClickEvent e, @NotNull SlotType slotType) {
+        public boolean isPersistent() {
             return false;
         }
     }

@@ -26,8 +26,7 @@ import su.nightexpress.ama.currency.CurrencyManager;
 import su.nightexpress.ama.data.ArenaDataHandler;
 import su.nightexpress.ama.data.ArenaUser;
 import su.nightexpress.ama.data.ArenaUserManager;
-import su.nightexpress.ama.editor.ArenaEditorHub;
-import su.nightexpress.ama.editor.ArenaEditorType;
+import su.nightexpress.ama.editor.EditorHub;
 import su.nightexpress.ama.editor.EditorLocales;
 import su.nightexpress.ama.hologram.HologramManager;
 import su.nightexpress.ama.hologram.handler.HologramDecentHandler;
@@ -51,6 +50,7 @@ import su.nightexpress.ama.nms.v1_18_R2.V1_18_R2;
 import su.nightexpress.ama.nms.v1_19_R1.V1_19_R1;
 import su.nightexpress.ama.nms.v1_19_R2.V1_19_R2;
 import su.nightexpress.ama.nms.v1_19_R3.V1_19_R3;
+import su.nightexpress.ama.nms.v1_20_R1.V1_20_R1;
 import su.nightexpress.ama.sign.SignManager;
 import su.nightexpress.ama.stats.StatsManager;
 import su.nightexpress.ama.stats.object.StatType;
@@ -67,9 +67,9 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
     private ArenaSetupManager arenaSetupManager;
     private MobManager        mobManager;
     private KitManager        kitManager;
-    private StatsManager      statsManager;
-    private ArenaEditorHub    editorHub;
-    private SignManager       signManager;
+    private StatsManager statsManager;
+    private EditorHub    editorHub;
+    private SignManager  signManager;
     private HologramManager   hologramManager;
 
     private ArenaNMS arenaNMS;
@@ -88,6 +88,7 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
             case V1_19_R1 -> this.arenaNMS = new V1_19_R1();
             case V1_19_R2 -> this.arenaNMS = new V1_19_R2();
             case V1_19_R3 -> this.arenaNMS = new V1_19_R3();
+            case V1_20_R1 -> this.arenaNMS = new V1_20_R1();
             default -> { }
         }
         if (this.arenaNMS == null) {
@@ -201,7 +202,6 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
         this.getLangManager().setupEnum(StatType.class);
         this.getLangManager().setupEnum(HologramType.class);
         this.getLangManager().setupEnum(MobStyleType.class);
-        this.getLangManager().setupEditorEnum(ArenaEditorType.class);
         this.getLangManager().setupEditorEnum(SetupItemType.class);
         this.getLang().saveChanges();
     }
@@ -291,9 +291,9 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
     }
 
     @NotNull
-    public ArenaEditorHub getEditor() {
+    public EditorHub getEditor() {
         if (this.editorHub == null) {
-            this.editorHub = new ArenaEditorHub(this);
+            this.editorHub = new EditorHub(this);
         }
         return this.editorHub;
     }

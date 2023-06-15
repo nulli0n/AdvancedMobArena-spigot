@@ -5,10 +5,10 @@ import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.menu.impl.EditorMenu;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.editor.arena.ArenaListEditor;
-import su.nightexpress.ama.kit.editor.EditorKitList;
-import su.nightexpress.ama.mob.editor.EditorMobList;
+import su.nightexpress.ama.kit.editor.KitsListEditor;
+import su.nightexpress.ama.mob.editor.MobListEditor;
 
-public class ArenaEditorHub extends EditorMenu<AMA, AMA> {
+public class EditorHub extends EditorMenu<AMA, AMA> {
 
     public static final String TITLE_EDITOR          = "AdvancedMobArena Editor";
     public static final String TITLE_ARENA_EDITOR    = "Arena Editor";
@@ -24,10 +24,10 @@ public class ArenaEditorHub extends EditorMenu<AMA, AMA> {
     public static final String TITLE_SCRIPT_EDITOR   = "Arena Script Editor";
 
     private ArenaListEditor arenaEditor;
-    private EditorKitList   kitEditor;
-    private EditorMobList   mobEditor;
+    private KitsListEditor kitEditor;
+    private MobListEditor  mobEditor;
 
-    public ArenaEditorHub(@NotNull AMA plugin) {
+    public EditorHub(@NotNull AMA plugin) {
         super(plugin, plugin, TITLE_EDITOR, 36);
 
         this.addExit(31);
@@ -54,17 +54,17 @@ public class ArenaEditorHub extends EditorMenu<AMA, AMA> {
     }
 
     @NotNull
-    public EditorKitList getKitEditor() {
+    public KitsListEditor getKitEditor() {
         if (this.kitEditor == null) {
-            this.kitEditor = new EditorKitList(plugin.getKitManager());
+            this.kitEditor = new KitsListEditor(plugin.getKitManager());
         }
         return this.kitEditor;
     }
 
     @NotNull
-    public EditorMobList getMobEditor() {
+    public MobListEditor getMobEditor() {
         if (this.mobEditor == null) {
-            this.mobEditor = new EditorMobList(plugin.getMobManager());
+            this.mobEditor = new MobListEditor(plugin.getMobManager());
         }
         return mobEditor;
     }

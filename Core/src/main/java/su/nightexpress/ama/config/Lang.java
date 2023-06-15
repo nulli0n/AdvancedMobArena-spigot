@@ -284,15 +284,12 @@ public class Lang extends EngineLang {
     public static final LangKey EDITOR_SPOT_STATE_ERROR_EXISTS    = LangKey.of("Editor.Spot.State.Error.Exists", "&cState is already exists!");
     public static final LangKey EDITOR_SPOT_STATE_ERROR_NO_CUBOID = LangKey.of("Editor.Spot.State.Error.NoCuboid", "&cYou must set a spot cuboid!");
 
-    public static final LangKey             EDITOR_KIT_ENTER_ID   = new LangKey("Editor.Kit.Enter.Create", "&7Enter &aunique &7kit &aidentifier&7...");
-    @Deprecated public static final LangKey Editor_Kit_Enter_Name = new LangKey("Editor.Kit.Enter.Name", "&7Enter new &aname&7...");
-    @Deprecated public static final LangKey Editor_Kit_Enter_Command = new LangKey("Editor.Kit.Enter.Command", "&7Enter &acommand&7...");
-    public static final LangKey Editor_Kit_Enter_Effect  = new LangKey("Editor.Kit.Enter.Effect", "&7Enter &aEffect:Level&7...");
-    public static final LangKey Editor_Kit_Enter_Cost    = new LangKey("Editor.Kit.Enter.Cost", "&7Enter &acost&7...");
+    public static final LangKey EDITOR_KIT_ENTER_ID     = new LangKey("Editor.Kit.Enter.Create", "&7Enter &aunique &7kit &aidentifier&7...");
+    public static final LangKey EDITOR_KIT_ENTER_EFFECT = new LangKey("Editor.Kit.Enter.Effect", GRAY + "Enter " + GREEN + "[Effect] [Level] " + GRAY + "|" + GREEN + " SPEED 1");
+    public static final LangKey Editor_Kit_Enter_Cost   = new LangKey("Editor.Kit.Enter.Cost", "&7Enter &acost&7...");
     public static final LangKey Editor_Kit_Error_Exist   = new LangKey("Editor.Kit.Error.Exist", "&cKit already exists!");
 
     public static final LangKey Editor_Mob_Enter_Create        = new LangKey("Editor.Mob.Enter.Create", "&7Enter &aunique &7mob &aidentifier&7...");
-    @Deprecated public static final LangKey Editor_Mob_Enter_Name          = new LangKey("Editor.Mob.Enter.Name", "&7Enter &acustom &7mob &aname&7...");
     public static final LangKey Editor_Mob_Enter_Type          = new LangKey("Editor.Mob.Enter.Type", "&7Enter &aentity type&7...");
     public static final LangKey Editor_Mob_Enter_Level         = new LangKey("Editor.Mob.Enter.Level", "&7Enter &alevel&7 value...");
     public static final LangKey Editor_Mob_Enter_BossBar_Title = new LangKey("Editor.Mob.Enter.BossBar.Title", "&7Enter bossbar &atitle&7...");

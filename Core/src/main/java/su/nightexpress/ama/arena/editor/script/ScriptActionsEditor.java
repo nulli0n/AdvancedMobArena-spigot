@@ -1,129 +1,121 @@
 package su.nightexpress.ama.arena.editor.script;
 
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.api.editor.EditorButtonType;
-import su.nexmedia.engine.api.editor.EditorInput;
-import su.nexmedia.engine.api.menu.MenuClick;
-import su.nexmedia.engine.api.menu.MenuItemType;
-import su.nexmedia.engine.editor.AbstractEditorMenuAuto;
+import su.nexmedia.engine.api.menu.AutoPaged;
+import su.nexmedia.engine.api.menu.click.ItemClick;
+import su.nexmedia.engine.api.menu.impl.EditorMenu;
+import su.nexmedia.engine.api.menu.impl.MenuOptions;
+import su.nexmedia.engine.api.menu.impl.MenuViewer;
 import su.nexmedia.engine.editor.EditorManager;
 import su.nexmedia.engine.utils.ItemUtil;
+import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.arena.script.action.*;
 import su.nightexpress.ama.arena.script.impl.ArenaScript;
 import su.nightexpress.ama.arena.script.impl.ScriptCategory;
 import su.nightexpress.ama.config.Lang;
-import su.nightexpress.ama.editor.ArenaEditorHub;
-import su.nightexpress.ama.editor.ArenaEditorType;
+import su.nightexpress.ama.editor.EditorHub;
+import su.nightexpress.ama.editor.EditorLocales;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class ScriptActionsEditor extends AbstractEditorMenuAuto<AMA, ArenaScript, ScriptPreparedAction> {
+public class ScriptActionsEditor extends EditorMenu<AMA, ArenaScript> implements AutoPaged<ScriptPreparedAction> {
 
     private final ScriptCategory category;
 
     public ScriptActionsEditor(@NotNull ScriptCategory category, @NotNull ArenaScript script) {
-        super(script.plugin(), script, ArenaEditorHub.TITLE_SCRIPT_EDITOR, 45);
+        super(script.plugin(), script, EditorHub.TITLE_SCRIPT_EDITOR, 45);
         this.category = category;
 
-        EditorInput<ArenaScript, ArenaEditorType> input = (player, script1, type, e) -> {
-            String msg = e.getMessage();
-            if (type == ArenaEditorType.SCRIPT_ACTION_CREATE) {
-                String id = EditorManager.fineId(msg);
+        this.addReturn(39).setClick((viewer, event) -> {
+            category.getEditor().openNextTick(viewer, 1);
+        });
+        this.addNextPage(44);
+        this.addPreviousPage(36);
+
+        this.addCreation(EditorLocales.SCRIPT_ACTION_CREATE, 41).setClick((viewer, event) -> {
+            EditorManager.suggestValues(viewer.getPlayer(), ScriptActions.getActions().stream().map(ScriptAction::getName).toList(), true);
+            this.handleInput(viewer, Lang.EDITOR_ARENA_SCRIPT_ENTER_ACTION_NAME, wrapper -> {
+                String id = StringUtil.lowerCaseUnderscore(wrapper.getTextRaw());
                 ScriptAction scriptAction = ScriptActions.getByName(id);
                 if (scriptAction == null) {
-                    EditorManager.error(player, plugin.getMessage(Lang.EDITOR_ARENA_SCRIPT_ERROR_INVALID_ACTION).getLocalized());
+                    EditorManager.error(viewer.getPlayer(), plugin.getMessage(Lang.EDITOR_ARENA_SCRIPT_ERROR_INVALID_ACTION).getLocalized());
                     return false;
                 }
 
                 ScriptPreparedAction action = new ScriptPreparedAction(scriptAction, new ParameterResult());
-                script1.getActions().add(action);
-            }
+                script.getActions().add(action);
 
-            script1.getArenaConfig().getScriptManager().save();
-            return true;
-        };
-
-        MenuClick click = (player, type, e) -> {
-            if (type instanceof MenuItemType type2) {
-                if (type2 == MenuItemType.RETURN) {
-                    category.getEditor().open(player, 1);
-                }
-                else this.onItemClickDefault(player, type2);
-            }
-            else if (type instanceof ArenaEditorType type2) {
-                if (type2 == ArenaEditorType.SCRIPT_ACTION_CREATE) {
-                    EditorManager.startEdit(player, script, type2, input);
-                    EditorManager.suggestValues(player, ScriptActions.getActions().stream().map(ScriptAction::getName).toList(), true);
-                    EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_ARENA_SCRIPT_ENTER_ACTION_NAME).getLocalized());
-                    player.closeInventory();
-                }
-            }
-        };
-
-        this.loadItems(click);
+                script.getArenaConfig().getScriptManager().save();
+                return true;
+            });
+        });
     }
 
     @Override
-    public void setTypes(@NotNull Map<EditorButtonType, Integer> map) {
-        map.put(ArenaEditorType.SCRIPT_ACTION_CREATE, 41);
-        map.put(MenuItemType.RETURN, 39);
-        map.put(MenuItemType.PAGE_NEXT, 44);
-        map.put(MenuItemType.PAGE_PREVIOUS, 36);
+    public void onPrepare(@NotNull MenuViewer viewer, @NotNull MenuOptions options) {
+        super.onPrepare(viewer, options);
+        this.getItemsForPage(viewer).forEach(this::addItem);
     }
 
     @Override
-    protected int[] getObjectSlots() {
+    public int[] getObjectSlots() {
         return IntStream.range(0, 36).toArray();
     }
 
     @Override
     @NotNull
-    protected List<ScriptPreparedAction> getObjects(@NotNull Player player) {
-        return new ArrayList<>(this.parent.getActions());
+    public List<ScriptPreparedAction> getObjects(@NotNull Player player) {
+        return new ArrayList<>(this.object.getActions());
     }
 
     @Override
     @NotNull
-    protected ItemStack getObjectStack(@NotNull Player player, @NotNull ScriptPreparedAction action) {
-        ItemStack item = ArenaEditorType.SCRIPT_ACTION_OBJECT.getItem();
+    public ItemStack getObjectStack(@NotNull Player player, @NotNull ScriptPreparedAction action) {
+        ItemStack item = new ItemStack(Material.COMMAND_BLOCK);
 
         String params = action.getAction().getParameters().stream().map(parameter -> {
             return ChatColor.YELLOW.toString() + ChatColor.BOLD + parameter.getName() + ": " + ChatColor.AQUA + action.getParameters().get(parameter, null);
         }).collect(Collectors.joining("\n"));
 
-        ItemUtil.replace(item, str -> str
-            .replace(Placeholders.SCRIPT_ACTION_NAME, action.getAction().getName())
-            .replace(Placeholders.SCRIPT_ACTION_PARAMS, params));
+        ItemUtil.mapMeta(item, meta -> {
+            meta.setDisplayName(EditorLocales.SCRIPT_ACTION_OBJECT.getLocalizedName());
+            meta.setLore(EditorLocales.SCRIPT_ACTION_OBJECT.getLocalizedLore());
+            meta.addItemFlags(ItemFlag.values());
+            ItemUtil.replace(meta, str -> str
+                .replace(Placeholders.SCRIPT_ACTION_NAME, action.getAction().getName())
+                .replace(Placeholders.SCRIPT_ACTION_PARAMS, params));
+        });
         return item;
     }
 
     @Override
     @NotNull
-    protected MenuClick getObjectClick(@NotNull Player player, @NotNull ScriptPreparedAction action) {
-        return (player2, type, e) -> {
-            if (e.isShiftClick() && e.isRightClick()) {
-                this.parent.getActions().remove(action);
+    public ItemClick getObjectClick(@NotNull ScriptPreparedAction action) {
+        return (viewer, event) -> {
+            if (event.isShiftClick() && event.isRightClick()) {
+                this.object.getActions().remove(action);
                 this.category.save();
-                this.open(player2, this.getPage(player2));
+                this.openNextTick(viewer, viewer.getPage());
                 return;
             }
 
-            if (e.isLeftClick()) {
-                EditorInput<ScriptPreparedAction, ArenaEditorType> input = (player3, action1, type2, e2) -> {
-                    String[] input2 = e2.getMessage().split(" ");
+            if (event.isLeftClick()) {
+                EditorManager.suggestValues(viewer.getPlayer(), action.getAction().getParameters().stream().map(Parameter::getName).toList(), false);
+                this.handleInput(viewer, Lang.EDITOR_ARENA_SCRIPT_ENTER_ACTION_PARAMETER, wrapper -> {
+                    String[] input2 = wrapper.getTextRaw().split(" ");
                     if (input2.length < 2) {
-                        EditorManager.error(player3, plugin.getMessage(Lang.EDITOR_ARENA_SCRIPT_ERROR_INVALID_INPUT).getLocalized());
+                        EditorManager.error(viewer.getPlayer(), plugin.getMessage(Lang.EDITOR_ARENA_SCRIPT_ERROR_INVALID_INPUT).getLocalized());
                         return false;
                     }
 
@@ -131,36 +123,26 @@ public class ScriptActionsEditor extends AbstractEditorMenuAuto<AMA, ArenaScript
                     String paramValue = Stream.of(input2).skip(1).collect(Collectors.joining(" "));
 
                     Parameter<?> parameter = Parameters.getByName(paramName).orElse(null);
-                    if (parameter == null || !action1.getAction().getParameters().contains(parameter)) {
-                        EditorManager.error(player3, plugin.getMessage(Lang.EDITOR_ARENA_SCRIPT_ERROR_INVALID_PARAMETER).getLocalized());
+                    if (parameter == null || !action.getAction().getParameters().contains(parameter)) {
+                        EditorManager.error(viewer.getPlayer(), plugin.getMessage(Lang.EDITOR_ARENA_SCRIPT_ERROR_INVALID_PARAMETER).getLocalized());
                         return false;
                     }
                     if (paramValue.equalsIgnoreCase("null")) {
-                        action1.getParameters().getParams().remove(parameter);
+                        action.getParameters().getParams().remove(parameter);
                     }
                     else {
-                        action1.getParameters().add(parameter, parameter.getParser().apply(paramValue));
+                        action.getParameters().add(parameter, parameter.getParser().apply(paramValue));
                     }
                     this.category.save();
                     return true;
-                };
-
-                EditorManager.startEdit(player2, action, ArenaEditorType.SCRIPT_ACTION_OBJECT, input);
-                EditorManager.suggestValues(player2, action.getAction().getParameters().stream().map(Parameter::getName).toList(), false);
-                EditorManager.prompt(player2, plugin.getMessage(Lang.EDITOR_ARENA_SCRIPT_ENTER_ACTION_PARAMETER).getLocalized());
-                player2.closeInventory();
+                });
                 return;
             }
 
-            if (e.isRightClick()) {
-                this.parent.getActions().clear();
+            if (event.isRightClick()) {
+                this.object.getActions().clear();
                 this.category.save();
             }
         };
-    }
-
-    @Override
-    public boolean cancelClick(@NotNull InventoryClickEvent inventoryClickEvent, @NotNull SlotType slotType) {
-        return true;
     }
 }

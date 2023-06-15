@@ -1,138 +1,113 @@
 package su.nightexpress.ama.arena.editor.shop;
 
-import org.bukkit.entity.Player;
+import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.api.editor.EditorButtonType;
-import su.nexmedia.engine.api.editor.EditorInput;
-import su.nexmedia.engine.api.menu.MenuClick;
-import su.nexmedia.engine.api.menu.MenuItem;
-import su.nexmedia.engine.api.menu.MenuItemType;
-import su.nexmedia.engine.editor.AbstractEditorMenu;
+import org.jetbrains.annotations.Nullable;
+import su.nexmedia.engine.api.menu.impl.EditorMenu;
+import su.nexmedia.engine.api.menu.impl.MenuViewer;
 import su.nexmedia.engine.editor.EditorManager;
-import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.ItemUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.shop.impl.ShopCategory;
 import su.nightexpress.ama.config.Lang;
-import su.nightexpress.ama.editor.ArenaEditorHub;
-import su.nightexpress.ama.editor.ArenaEditorType;
+import su.nightexpress.ama.editor.EditorHub;
+import su.nightexpress.ama.editor.EditorLocales;
 
-import java.util.Map;
+public class ShopCategorySettingsEditor extends EditorMenu<AMA, ShopCategory> {
 
-public class ShopCategorySettingsEditor extends AbstractEditorMenu<AMA, ShopCategory> {
+    private ShopProductListEditor productsEditor;
 
-    private ShopProductListEditor editorProducts;
+    public ShopCategorySettingsEditor(@NotNull ShopCategory category) {
+        super(category.getShopManager().plugin(), category, EditorHub.TITLE_SHOP_EDITOR, 45);
 
-    public ShopCategorySettingsEditor(@NotNull ShopCategory shopCategory) {
-        super(shopCategory.getShopManager().plugin(), shopCategory, ArenaEditorHub.TITLE_SHOP_EDITOR, 45);
+        this.addReturn(40).setClick((viewer, event) -> {
+            category.getShopManager().getEditor().getCategoryListEditor().openNextTick(viewer, 1);
+        });
 
-        EditorInput<ShopCategory, ArenaEditorType> input = (player, category, type, e) -> {
-            String msg = e.getMessage();
-            switch (type) {
-                case SHOP_CATEGORY_CHANGE_NAME -> category.setName(msg);
-                case SHOP_CATEGORY_CHANGE_DESCRIPTION -> category.getDescription().add(Colorizer.apply(msg));
-                case SHOP_CATEGORY_CHANGE_ALLOWED_KITS -> category.getAllowedKits().add(Colorizer.strip(msg));
+        this.addItem(Material.NAME_TAG, EditorLocales.SHOP_CATEGORY_NAME, 20).setClick((viewer, event) -> {
+            this.handleInput(viewer, Lang.EDITOR_GENERIC_ENTER_NAME, wrapper -> {
+                category.setName(wrapper.getText());
+                category.getShopManager().save();
+                return true;
+            });
+        });
+
+        this.addItem(Material.PAPER, EditorLocales.SHOP_CATEGORY_DESCRIPTION, 21).setClick((viewer, event) -> {
+            if (event.isRightClick()) {
+                category.getDescription().clear();
+                this.save(viewer);
+                return;
             }
-            category.getShopManager().save();
-            return true;
-        };
+            this.handleInput(viewer, Lang.EDITOR_GENERIC_ENTER_DESCRIPTION, wrapper -> {
+                category.getDescription().add(wrapper.getText());
+                category.getShopManager().save();
+                return true;
+            });
+        });
 
-        MenuClick click = (player, type, e) -> {
-            if (type instanceof MenuItemType type2) {
-                if (type2 == MenuItemType.RETURN) {
-                    shopCategory.getShopManager().getEditor().getCategoryListEditor().open(player, 1);
-                }
+        this.addItem(Material.ITEM_FRAME, EditorLocales.SHOP_CATEGORY_ICON, 22).setClick((viewer, event) -> {
+            ItemStack cursor = event.getCursor();
+            if (cursor == null || cursor.getType().isAir()) return;
+
+            category.setIcon(cursor);
+            event.getView().setCursor(null);
+            this.save(viewer);
+        }).getOptions().addDisplayModifier((viewer, item) -> {
+            item.setType(category.getIcon().getType());
+        });
+
+        this.addItem(Material.ARMOR_STAND, EditorLocales.SHOP_CATEGORY_ALLOWED_KITS, 23).setClick((viewer, event) -> {
+            if (event.isRightClick()) {
+                category.getAllowedKits().clear();
+                this.save(viewer);
+                return;
             }
-            else if (type instanceof ArenaEditorType type2) {
-                switch (type2) {
-                    case SHOP_CATEGORY_CHANGE_NAME -> {
-                        EditorManager.startEdit(player, shopCategory, type2, input);
-                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NAME).getLocalized());
-                        player.closeInventory();
-                    }
-                    case SHOP_CATEGORY_CHANGE_DESCRIPTION -> {
-                        if (e.isRightClick()) {
-                            shopCategory.getDescription().clear();
-                            shopCategory.getShopManager().save();
-                            this.open(player, 1);
-                            break;
-                        }
-                        EditorManager.startEdit(player, shopCategory, type2, input);
-                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_DESCRIPTION).getLocalized());
-                        player.closeInventory();
-                    }
-                    case SHOP_CATEGORY_CHANGE_ICON -> {
-                        ItemStack cursor = e.getCursor();
-                        if (cursor == null || cursor.getType().isAir()) return;
+            EditorManager.suggestValues(viewer.getPlayer(), plugin.getKitManager().getKitIds(), true);
+            this.handleInput(viewer, Lang.EDITOR_KIT_ENTER_ID, wrapper -> {
+                category.getAllowedKits().add(wrapper.getTextRaw());
+                category.getShopManager().save();
+                return true;
+            });
+        });
 
-                        shopCategory.setIcon(cursor);
-                        e.getView().setCursor(null);
-                        shopCategory.getShopManager().save();
-                        this.open(player, 1);
-                    }
-                    case SHOP_CATEGORY_CHANGE_ALLOWED_KITS -> {
-                        if (e.isRightClick()) {
-                            shopCategory.getAllowedKits().clear();
-                            shopCategory.getShopManager().save();
-                            this.open(player, 1);
-                            break;
-                        }
-                        EditorManager.startEdit(player, shopCategory, type2, input);
-                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_KIT_ENTER_ID).getLocalized());
-                        EditorManager.suggestValues(player, plugin.getKitManager().getKitIds(), true);
-                        player.closeInventory();
-                    }
-                    case SHOP_CATEGORY_CHANGE_PRODUCTS -> this.getEditorProducts().open(player, 1);
-                }
-            }
-        };
+        this.addItem(Material.CHEST_MINECART, EditorLocales.SHOP_CATEGORY_PRODUCTS, 24).setClick((viewer, event) -> {
+            this.getProductsEditor().openNextTick(viewer, 1);
+        });
 
-        this.loadItems(click);
+        this.getItems().forEach(menuItem -> {
+            menuItem.getOptions().addDisplayModifier((viewer, item) -> ItemUtil.replace(item, category.replacePlaceholders()));
+        });
+    }
+
+    private void save(@NotNull MenuViewer viewer) {
+        this.object.getShopManager().save();
+        this.openNextTick(viewer, viewer.getPage());
     }
 
     @Override
     public void clear() {
         super.clear();
-        if (this.editorProducts != null) {
-            this.editorProducts.clear();
-            this.editorProducts = null;
+        if (this.productsEditor != null) {
+            this.productsEditor.clear();
+            this.productsEditor = null;
         }
     }
 
     @NotNull
-    public ShopProductListEditor getEditorProducts() {
-        if (this.editorProducts == null) {
-            this.editorProducts = new ShopProductListEditor(this.object);
+    public ShopProductListEditor getProductsEditor() {
+        if (this.productsEditor == null) {
+            this.productsEditor = new ShopProductListEditor(this.object);
         }
-        return editorProducts;
+        return productsEditor;
     }
 
     @Override
-    public void setTypes(@NotNull Map<EditorButtonType, Integer> map) {
-        map.put(ArenaEditorType.SHOP_CATEGORY_CHANGE_NAME, 20);
-        map.put(ArenaEditorType.SHOP_CATEGORY_CHANGE_DESCRIPTION, 21);
-        map.put(ArenaEditorType.SHOP_CATEGORY_CHANGE_ICON, 22);
-        map.put(ArenaEditorType.SHOP_CATEGORY_CHANGE_ALLOWED_KITS, 23);
-        map.put(ArenaEditorType.SHOP_CATEGORY_CHANGE_PRODUCTS, 24);
-        map.put(MenuItemType.RETURN, 40);
-
-    }
-
-    @Override
-    public void onItemPrepare(@NotNull Player player, @NotNull MenuItem menuItem, @NotNull ItemStack item) {
-        super.onItemPrepare(player, menuItem, item);
-        if (menuItem.getType() instanceof ArenaEditorType type) {
-            if (type == ArenaEditorType.SHOP_CATEGORY_CHANGE_ICON) {
-                item.setType(this.object.getIcon().getType());
-            }
+    public void onClick(@NotNull MenuViewer viewer, @Nullable ItemStack item, @NotNull SlotType slotType, int slot, @NotNull InventoryClickEvent event) {
+        super.onClick(viewer, item, slotType, slot, event);
+        if (slotType == SlotType.PLAYER || slotType == SlotType.PLAYER_EMPTY) {
+            event.setCancelled(false);
         }
-        ItemUtil.replace(item, this.object.replacePlaceholders());
-    }
-
-    @Override
-    public boolean cancelClick(@NotNull InventoryClickEvent e, @NotNull SlotType slotType) {
-        return slotType != SlotType.PLAYER && slotType != SlotType.EMPTY_PLAYER;
     }
 }

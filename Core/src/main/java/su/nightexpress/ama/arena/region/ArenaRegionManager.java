@@ -4,7 +4,6 @@ import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
-import su.nexmedia.engine.api.manager.IEditable;
 import su.nexmedia.engine.api.manager.ILoadable;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
@@ -17,7 +16,7 @@ import su.nightexpress.ama.arena.impl.ArenaConfig;
 
 import java.util.*;
 
-public class ArenaRegionManager implements ArenaChild, ILoadable, IEditable, Problematic, Placeholder {
+public class ArenaRegionManager implements ArenaChild, ILoadable, Problematic, Placeholder {
 
     public static final String DIR_REGIONS = "/regions/";
 
@@ -93,7 +92,6 @@ public class ArenaRegionManager implements ArenaChild, ILoadable, IEditable, Pro
     }
 
     @NotNull
-    @Override
     public RegionListEditor getEditor() {
         if (this.editor == null) {
             this.editor = new RegionListEditor(this);
@@ -129,7 +127,7 @@ public class ArenaRegionManager implements ArenaChild, ILoadable, IEditable, Pro
 
     @Nullable
     public ArenaRegion getFirstUnlocked() {
-        return this.getRegions().stream().filter(ArenaRegion::isUnlocked).findFirst().orElse(null);
+        return this.getRegions().stream().filter(ArenaRegion::isActive).filter(ArenaRegion::isUnlocked).findFirst().orElse(null);
     }
 
     @Nullable

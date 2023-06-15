@@ -6,7 +6,6 @@ import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.AbstractConfigHolder;
 import su.nexmedia.engine.api.manager.ICleanable;
-import su.nexmedia.engine.api.manager.IEditable;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.lang.LangManager;
@@ -30,7 +29,7 @@ import su.nightexpress.ama.arena.util.ArenaCuboid;
 
 import java.util.*;
 
-public class ArenaSpot extends AbstractConfigHolder<AMA> implements ArenaChild, IEditable, ICleanable, Problematic, Placeholder {
+public class ArenaSpot extends AbstractConfigHolder<AMA> implements ArenaChild, ICleanable, Problematic, Placeholder {
 
     private final ArenaConfig arenaConfig;
     private final Map<String, ArenaSpotState> states;
@@ -151,7 +150,6 @@ public class ArenaSpot extends AbstractConfigHolder<AMA> implements ArenaChild, 
         }
     }
 
-    @Override
     @NotNull
     public SpotSettingsEditor getEditor() {
         if (this.editor == null) {

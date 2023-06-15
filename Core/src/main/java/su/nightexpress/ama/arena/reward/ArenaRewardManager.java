@@ -4,7 +4,6 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.ConfigHolder;
-import su.nexmedia.engine.api.manager.IEditable;
 import su.nexmedia.engine.api.manager.ILoadable;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
@@ -28,7 +27,7 @@ import su.nightexpress.ama.arena.script.impl.ArenaScript;
 
 import java.util.*;
 
-public class ArenaRewardManager implements ArenaChild, ConfigHolder, ILoadable, IEditable, Problematic, Placeholder {
+public class ArenaRewardManager implements ArenaChild, ConfigHolder, ILoadable, Problematic, Placeholder {
 
     private static final String CONFIG_NAME = "rewards.yml";
 
@@ -121,7 +120,6 @@ public class ArenaRewardManager implements ArenaChild, ConfigHolder, ILoadable, 
     }
 
     @NotNull
-    @Override
     public RewardListEditor getEditor() {
         if (this.editor == null) {
             this.editor = new RewardListEditor(this);

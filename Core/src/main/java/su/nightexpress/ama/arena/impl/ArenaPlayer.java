@@ -47,12 +47,13 @@ public final class ArenaPlayer implements Placeholder {
     private ArenaBoard board;
     private Kit        kit;
     private int        lifes;
+    private int reviveTime;
     private int        score;
     private int        killStreak;
     private long       killStreakDecay;
     private boolean    dead;
-    private boolean ghost;
-    private boolean transfer;
+    private boolean    ghost;
+    private boolean    transfer;
 
     @Nullable
     public static ArenaPlayer getPlayer(@NotNull Player player) {
@@ -149,6 +150,16 @@ public final class ArenaPlayer implements Placeholder {
             else {
                 this.plugin.getMessage(Lang.ARENA_GAME_STATUS_DEAD_WITH_LIFES).send(this.getPlayer());
             }
+
+            if (this.isAutoRevive()) {
+                if (this.getReviveTime() == 0) {
+                    this.revive();
+                    this.setReviveTime(-1);
+                }
+                else {
+                    this.setReviveTime(this.getReviveTime() - 1);
+                }
+            }
         }
         else if (this.isGhost()) {
             this.plugin.getMessage(Lang.ARENA_GAME_STATUS_SPECTATE).send(this.getPlayer());
@@ -169,6 +180,7 @@ public final class ArenaPlayer implements Placeholder {
         this.takeLive();
 
         if (this.isOutOfLifes()) {
+            this.setReviveTime(-1);
             if (!this.getArena().getConfig().getRewardManager().isRetainOnDeath()) {
                 this.getRewards().clear();
             }
@@ -182,6 +194,7 @@ public final class ArenaPlayer implements Placeholder {
             ArenaUtils.removeMobBossBars(this.getPlayer());
         }
         else {
+            this.setReviveTime(this.getArena().getConfig().getGameplayManager().getPlayerReviveTime());
             if (!this.getArena().getAlivePlayers().isEmpty()) {
                 this.plugin.getMessage(Lang.ARENA_GAME_DEATH_WITH_LIFES).replace(this.replacePlaceholders()).send(this.getPlayer());
             }
@@ -201,19 +214,23 @@ public final class ArenaPlayer implements Placeholder {
         if (!this.isDead() || this.isGhost()) return;
 
         ArenaRegion defRegion = this.getArena().getConfig().getRegionManager().getFirstUnlocked();
-        if (defRegion != null) {
+        if (defRegion != null && defRegion.getSpawnLocation() != null) {
             this.getPlayer().teleport(defRegion.getSpawnLocation());
         }
 
         this.setDead(false);
         this.getPlayer().setGameMode(GameMode.SURVIVAL);
 
-        if (this.isOutOfLifes()) {
+        if (this.getLifes() == 1) {
             this.plugin.getMessage(Lang.ARENA_GAME_REVIVE_NO_LIFES).replace(this.replacePlaceholders()).send(this.getPlayer());
         }
         else {
             this.plugin.getMessage(Lang.ARENA_GAME_REVIVE_WITH_LIFES).replace(this.replacePlaceholders()).send(this.getPlayer());
         }
+    }
+
+    public boolean isAutoRevive() {
+        return this.isDead() && !this.isGhost() && this.getReviveTime() >= 0;
     }
 
     public boolean isOutOfLifes() {
@@ -259,6 +276,14 @@ public final class ArenaPlayer implements Placeholder {
     @NotNull
     public Player getPlayer() {
         return this.player;
+    }
+
+    public int getReviveTime() {
+        return reviveTime;
+    }
+
+    public void setReviveTime(int reviveTime) {
+        this.reviveTime = reviveTime;
     }
 
     public int getLifes() {

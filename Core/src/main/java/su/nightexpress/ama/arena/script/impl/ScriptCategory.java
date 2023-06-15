@@ -4,7 +4,6 @@ import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.AbstractConfigHolder;
 import su.nexmedia.engine.api.manager.ICleanable;
-import su.nexmedia.engine.api.manager.IEditable;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
@@ -15,7 +14,7 @@ import su.nightexpress.ama.arena.script.condition.ScriptPreparedCondition;
 
 import java.util.*;
 
-public class ScriptCategory extends AbstractConfigHolder<AMA> implements ArenaChild, IEditable, ICleanable {
+public class ScriptCategory extends AbstractConfigHolder<AMA> implements ArenaChild, ICleanable {
 
     private final ArenaConfig arenaConfig;
     private final Map<String, ArenaScript> scripts;
@@ -91,7 +90,6 @@ public class ScriptCategory extends AbstractConfigHolder<AMA> implements ArenaCh
     }
 
     @NotNull
-    @Override
     public ScriptsCategoryEditor getEditor() {
         if (this.editor == null) {
             this.editor = new ScriptsCategoryEditor(this);

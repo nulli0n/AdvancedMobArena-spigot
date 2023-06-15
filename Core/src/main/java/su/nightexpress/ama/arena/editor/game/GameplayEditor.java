@@ -2,300 +2,288 @@ package su.nightexpress.ama.arena.editor.game;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.event.inventory.ClickType;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.api.editor.EditorButtonType;
-import su.nexmedia.engine.api.editor.EditorInput;
-import su.nexmedia.engine.api.menu.MenuClick;
-import su.nexmedia.engine.api.menu.MenuItem;
-import su.nexmedia.engine.api.menu.MenuItemType;
-import su.nexmedia.engine.editor.AbstractEditorMenu;
+import su.nexmedia.engine.api.menu.impl.EditorMenu;
+import su.nexmedia.engine.api.menu.impl.MenuViewer;
 import su.nexmedia.engine.editor.EditorManager;
 import su.nexmedia.engine.utils.CollectionsUtil;
-import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.ItemUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.game.ArenaGameplayManager;
 import su.nightexpress.ama.config.Config;
 import su.nightexpress.ama.config.Lang;
-import su.nightexpress.ama.editor.ArenaEditorHub;
-import su.nightexpress.ama.editor.ArenaEditorType;
+import su.nightexpress.ama.editor.EditorHub;
+import su.nightexpress.ama.editor.EditorLocales;
 
-import java.util.Map;
+public class GameplayEditor extends EditorMenu<AMA, ArenaGameplayManager> {
 
-public class GameplayEditor extends AbstractEditorMenu<AMA, ArenaGameplayManager> {
+    private static final String TEXTURE_TIMER = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZGJjYjIzMGE0MTBlOTNiN2Q0YjVjMjg5NjMxZDYxNGI5MDQ1Mzg0M2Q2ZWQwM2RhZjVlNDAxNWEyZmUxZjU2YiJ9fX0=";
+    private static final String TEXTURE_ARROW_UP = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWFkNmM4MWY4OTlhNzg1ZWNmMjZiZTFkYzQ4ZWFlMmJjZmU3NzdhODYyMzkwZjU3ODVlOTViZDgzYmQxNGQifX19";
+    private static final String TEXTURE_ARROW_DOWN = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODgyZmFmOWE1ODRjNGQ2NzZkNzMwYjIzZjg5NDJiYjk5N2ZhM2RhZDQ2ZDRmNjVlMjg4YzM5ZWI0NzFjZTcifX19";
+    private static final String TEXTURE_GLOW_SQUID = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNmFlMTQ2MWE1NGFhNTRjZjI4ZGQ2YWVhZGFjNzJjOGQ3YzY5MTM5ODFkZWUxM2YyZTMzNTE0MjU2YWQ0YjgyNiJ9fX0=";
+    private static final String TEXTURE_BONE_BAG = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjQ1MTg0NTk0M2ZkMGMwN2Y2Mjk3MTFlMzQwMWE3MWEzMWNkMzcxY2MzY2IzNmYzZjk2MzdiMGU3NTljYzQ4YSJ9fX0=";
+    private static final String TEXTURE_BARRIER = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2VkMWFiYTczZjYzOWY0YmM0MmJkNDgxOTZjNzE1MTk3YmUyNzEyYzNiOTYyYzk3ZWJmOWU5ZWQ4ZWZhMDI1In19fQ==";
+    private static final String TEXTURE_SPAWN_EGG = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjE3ODdiNjUyYWY5MTA0YjgzYzljOGUyNmUzNzM0NGUyZmU0Y2I1OWZkYWZiMDRlZmY0ZWRkZDlkN2E5OTk5NCJ9fX0=";
+    private static final String TEXTURE_STEVE = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOGZhMDY1ZjA0MjkwZWNmNDMxZjlhYTkwMGFiNmVhMTdiYzM1NGY3MGE1OTZmMTgyNmJiMjM1OTJmODdkZGJhNyJ9fX0=";
+    private static final String TEXTURE_HEART = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMmM4ZmI2MzdkNmUxYTdiYThmYTk3ZWU5ZDI5MTVlODQzZThlYzc5MGQ4YjdiZjYwNDhiZTYyMWVlNGQ1OWZiYSJ9fX0=";
+    private static final String TEXTURE_IRON_HELMET = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTVlYjBiZDg1YWFkZGYwZDI5ZWQwODJlYWMwM2ZjYWRlNDNkMGVlODAzYjBlODE2MmFkZDI4YTYzNzlmYjU0ZSJ9fX0=";
 
     public GameplayEditor(@NotNull ArenaGameplayManager game) {
-        super(game.plugin(), game, ArenaEditorHub.TITLE_GAMEPLAY_EDITOR, 54);
+        super(game.plugin(), game, EditorHub.TITLE_GAMEPLAY_EDITOR, 54);
 
-        EditorInput<ArenaGameplayManager, ArenaEditorType> input = (player, game1, type, e) -> {
-            String msg = e.getMessage();
+        this.addReturn(49).setClick((viewer, event) -> {
+            game.getArenaConfig().getEditor().openNextTick(viewer, 1);
+        });
 
-            switch (type) {
-                case GAMEPLAY_CHANGE_TIMELEFT -> game1.setTimeleft(StringUtil.getInteger(Colorizer.strip(msg), 0));
-                case GAMEPLAY_CHANGE_LOBBY_TIME -> game1.setLobbyTime(StringUtil.getInteger(Colorizer.strip(msg), 0));
-                case GAMEPLAY_CHANGE_SCOREBOARD_ID -> game1.setScoreboardId(Colorizer.strip(msg));
-                case GAMEPLAY_CHANGE_MOB_HIGHLIGHT_AMOUNT -> game1.setMobHighlightAmount(StringUtil.getDouble(Colorizer.strip(msg), 0));
-                case GAMEPLAY_CHANGE_PLAYERS_AMOUNT_MIN -> game1.setPlayerMinAmount(StringUtil.getInteger(Colorizer.strip(msg), 0));
-                case GAMEPLAY_CHANGE_PLAYERS_AMOUNT_MAX -> game1.setPlayerMaxAmount(StringUtil.getInteger(Colorizer.strip(msg), 0));
-                case GAMEPLAY_CHANGE_PLAYERS_DEATH_LIVES -> game1.setPlayerLivesAmount(StringUtil.getInteger(Colorizer.strip(msg), 0));
-                case GAMEPLAY_CHANGE_COMMANDS_ADD_WHITE -> game1.getPlayerCommandsAllowed().add(Colorizer.strip(msg));
-                case GAMEPLAY_CHANGE_BANNED_ITEMS -> {
-                    Material material = Material.getMaterial(Colorizer.strip(msg).toUpperCase());
-                    if (material != null) {
-                        game1.getBannedItems().add(material);
-                    }
-                }
-                case GAMEPLAY_CHANGE_ALLOWED_SPAWN_REASONS -> StringUtil.getEnum(Colorizer.strip(msg), CreatureSpawnEvent.SpawnReason.class).ifPresent(spawnReason -> {
-                    game1.getAllowedSpawnReasons().add(spawnReason);
+        this.addItem(Material.CLOCK, EditorLocales.GAMEPLAY_TIMELEFT, 9).setClick((viewer, event) -> {
+            if (event.getClick() == ClickType.DROP) {
+                game.setTimeleft(-1);
+                this.save(viewer);
+                return;
+            }
+            this.handleInput(viewer, Lang.EDITOR_GENERIC_ENTER_SECONDS, wrapper -> {
+                game.setTimeleft(wrapper.asInt(0));
+                game.save();
+                return true;
+            });
+        });
+
+        this.addItem(ItemUtil.createCustomHead(TEXTURE_TIMER), EditorLocales.GAMEPLAY_LOBBY_COUNTDOWN, 10).setClick((viewer, event) -> {
+            this.handleInput(viewer, Lang.EDITOR_GENERIC_ENTER_SECONDS, wrapper -> {
+                game.setLobbyTime(wrapper.asInt());
+                game.save();
+                return true;
+            });
+        });
+
+        this.addItem(Material.BELL, EditorLocales.GAMEPLAY_ANNOUNCEMENTS, 11).setClick((viewer, event) -> {
+            game.setAnnouncesEnabled(!game.isAnnouncesEnabled());
+            this.save(viewer);
+        });
+
+        this.addItem(Material.OAK_SIGN, EditorLocales.GAMEPLAY_SCOREBOARD, 12).setClick((viewer, event) -> {
+            if (event.isRightClick()) {
+                EditorManager.suggestValues(viewer.getPlayer(), Config.SCOREBOARDS.get().keySet(), true);
+                this.handleInput(viewer, Lang.EDITOR_ARENA_GAMEPLAY_ENTER_SCOREBOARD_ID, wrapper -> {
+                    game.setScoreboardId(wrapper.getTextRaw());
+                    game.save();
+                    return true;
                 });
-                case GAMEPLAY_CHANGE_KITS_ADD_ALLOWED -> game1.getKitsAllowed().add(Colorizer.strip(msg).toLowerCase());
-                case GAMEPLAY_CHANGE_KITS_ADD_LIMIT -> {
-                    String[] split = Colorizer.strip(msg).split(" ");
+                return;
+            }
+            game.setScoreboardEnabled(!game.isScoreboardEnabled());
+            this.save(viewer);
+        });
+
+        this.addItem(Material.ROTTEN_FLESH, EditorLocales.GAMEPLAY_HUNGER, 13).setClick((viewer, event) -> {
+            game.setHungerEnabled(!game.isHungerEnabled());
+            this.save(viewer);
+        });
+
+        this.addItem(Material.APPLE, EditorLocales.GAMEPLAY_REGENERATION, 14).setClick((viewer, event) -> {
+            game.setRegenerationEnabled(!game.isRegenerationEnabled());
+            this.save(viewer);
+        });
+
+        this.addItem(ItemUtil.createCustomHead(TEXTURE_ARROW_UP), EditorLocales.GAMEPLAY_ITEM_SETTINGS, 15).setClick((viewer, event) -> {
+            if (event.isShiftClick()) {
+                if (event.isLeftClick()) {
+                    game.setItemDurabilityEnabled(!game.isItemDurabilityEnabled());
+                }
+            }
+            else {
+                if (event.isLeftClick()) {
+                    game.setItemDropEnabled(!game.isItemDropEnabled());
+                }
+                else if (event.isRightClick()) {
+                    game.setItemPickupEnabled(!game.isItemPickupEnabled());
+                }
+            }
+            this.save(viewer);
+        });
+
+        this.addItem(ItemUtil.createCustomHead(TEXTURE_GLOW_SQUID), EditorLocales.GAMEPLAY_MOB_HIGHLIGHT, 16).setClick((viewer, event) -> {
+            if (event.isShiftClick()) {
+                if (event.isLeftClick()) {
+                    game.setMobHighlightColor(CollectionsUtil.next(game.getMobHighlightColor(), ChatColor::isColor));
+                }
+            }
+            else {
+                if (event.isLeftClick()) {
+                    game.setMobHighlightEnabled(!game.isMobHighlightEnabled());
+                }
+                if (event.isRightClick()) {
+                    this.handleInput(viewer, Lang.EDITOR_GENERIC_ENTER_PERCENT, wrapper -> {
+                        game.setMobHighlightAmount(wrapper.asDouble(0D));
+                        game.save();
+                        return true;
+                    });
+                    return;
+                }
+            }
+            this.save(viewer);
+        });
+
+        this.addItem(ItemUtil.createCustomHead(TEXTURE_BONE_BAG), EditorLocales.GAMEPLAY_MOB_LOOT, 17).setClick((viewer, event) -> {
+            if (event.isLeftClick()) {
+                game.setMobDropLootEnabled(!game.isMobDropLootEnabled());
+            }
+            else if (event.isRightClick()) {
+                game.setMobDropExpEnabled(!game.isMobDropExpEnabled());
+            }
+            this.save(viewer);
+        });
+
+        this.addItem(ItemUtil.createCustomHead(TEXTURE_BARRIER), EditorLocales.GAMEPLAY_BANNED_ITEMS, 18).setClick((viewer, event) -> {
+            if (event.getClick() == ClickType.DROP) {
+                game.getBannedItems().clear();
+                this.save(viewer);
+                return;
+            }
+            this.handleInput(viewer, Lang.EDITOR_ARENA_GAMEPLAY_ENTER_BANNED_ITEMS, wrapper -> {
+                Material material = Material.getMaterial(wrapper.getTextRaw().toUpperCase());
+                if (material != null) {
+                    game.getBannedItems().add(material);
+                }
+                game.save();
+                return true;
+            });
+        });
+
+        this.addItem(ItemUtil.createCustomHead(TEXTURE_SPAWN_EGG), EditorLocales.GAMEPLAY_ALLOWED_SPAWN_REASONS, 19).setClick((viewer, event) -> {
+            if (event.getClick() == ClickType.DROP) {
+                game.getAllowedSpawnReasons().clear();
+                this.save(viewer);
+                return;
+            }
+
+            EditorManager.suggestValues(viewer.getPlayer(), CollectionsUtil.getEnumsList(CreatureSpawnEvent.SpawnReason.class), true);
+            this.handleInput(viewer, Lang.EDITOR_ARENA_GAMEPLAY_ENTER_ALLOWED_SPAWN_REASON, wrapper -> {
+                StringUtil.getEnum(wrapper.getTextRaw(), CreatureSpawnEvent.SpawnReason.class).ifPresent(spawnReason -> {
+                    game.getAllowedSpawnReasons().add(spawnReason);
+                    game.save();
+                });
+                return true;
+            });
+        });
+
+        this.addItem(ItemUtil.createCustomHead(TEXTURE_STEVE), EditorLocales.GAMEPLAY_PLAYER_AMOUNT, 20).setClick((viewer, event) -> {
+            this.handleInput(viewer.getPlayer(), plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NUMBER), wrapper -> {
+                if (event.isLeftClick()) {
+                    game.setPlayerMinAmount(wrapper.asInt(1));
+                }
+                else {
+                    game.setPlayerMaxAmount(wrapper.asInt(1));
+                }
+                game.save();
+                return true;
+            });
+        });
+
+        this.addItem(ItemUtil.createCustomHead(TEXTURE_HEART), EditorLocales.GAMEPLAY_PLAYER_LIFES, 21).setClick((viewer, event) -> {
+            if (event.isLeftClick()) {
+                this.handleInput(viewer, Lang.EDITOR_GENERIC_ENTER_NUMBER, wrapper -> {
+                    game.setPlayerLivesAmount(wrapper.asInt(1));
+                    game.save();
+                    return true;
+                });
+            }
+            else if (event.isRightClick()) {
+                this.handleInput(viewer, Lang.EDITOR_GENERIC_ENTER_SECONDS, wrapper -> {
+                    game.setPlayerReviveTime(wrapper.asAnyInt(-1));
+                    game.save();
+                    return true;
+                });
+            }
+        });
+
+        this.addItem(Material.SADDLE, EditorLocales.GAMEPLAY_KEEP_INVENTORY, 22).setClick((viewer, event) -> {
+            game.setKeepInventory(!game.isKeepInventory());
+            this.save(viewer);
+        });
+
+        this.addItem(Material.ENDER_EYE, EditorLocales.GAMEPLAY_SPECTATE, 23).setClick((viewer, event) -> {
+            game.setSpectateEnabled(!game.isSpectateEnabled());
+            this.save(viewer);
+        });
+
+        this.addItem(Material.COMMAND_BLOCK, EditorLocales.GAMEPLAY_COMMANDS, 24).setClick((viewer, event) -> {
+            if (event.isRightClick()) {
+                this.handleInput(viewer, Lang.EDITOR_GENERIC_ENTER_COMMAND, wrapper -> {
+                    game.getPlayerCommandsAllowed().add(wrapper.getTextRaw());
+                    game.save();
+                    return true;
+                });
+                return;
+            }
+
+            if (event.isLeftClick()) {
+                game.setPlayerCommandsEnabled(!game.isPlayerCommandsEnabled());
+            }
+            else if (event.getClick() == ClickType.DROP) {
+                game.getPlayerCommandsAllowed().clear();
+            }
+            this.save(viewer);
+        });
+
+        this.addItem(ItemUtil.createCustomHead(TEXTURE_IRON_HELMET), EditorLocales.GAMEPLAY_KITS, 25).setClick((viewer, event) -> {
+            if (event.isRightClick()) {
+                EditorManager.suggestValues(viewer.getPlayer(), plugin.getKitManager().getKitIds(), true);
+                this.handleInput(viewer, Lang.EDITOR_KIT_ENTER_ID, wrapper -> {
+                    game.getKitsAllowed().add(wrapper.getTextRaw().toLowerCase());
+                    game.save();
+                    return true;
+                });
+                return;
+            }
+
+            if (event.isLeftClick()) {
+                game.setKitsEnabled(!game.isKitsEnabled());
+            }
+            else if (event.getClick() == ClickType.DROP) {
+                game.getKitsAllowed().clear();
+            }
+            this.save(viewer);
+        });
+
+        this.addItem(Material.ARMOR_STAND, EditorLocales.GAMEPLAY_KIT_LIMITS, 26).setClick((viewer, event) -> {
+            if (event.isLeftClick()) {
+                EditorManager.suggestValues(viewer.getPlayer(), plugin.getKitManager().getKitIds(), true);
+                this.handleInput(viewer, Lang.EDITOR_ARENA_GAMEPLAY_ENTER_KIT_LIMIT, wrapper -> {
+                    String[] split = wrapper.getTextRaw().split(" ");
                     int limit = split.length >= 2 ? StringUtil.getInteger(split[0], -1) : -1;
                     String id = split[1];
-                    game1.getKitsLimits().put(id.toLowerCase(), limit);
-                }
-                default -> {
+                    game.getKitsLimits().put(id.toLowerCase(), limit);
+                    game.save();
                     return true;
-                }
+                });
             }
-
-            game1.save();
-            return true;
-        };
-
-        MenuClick click = (player, type, e) -> {
-            if (type instanceof MenuItemType type2) {
-                if (type2 == MenuItemType.RETURN) {
-                    this.object.getArenaConfig().getEditor().open(player, 1);
-                }
+            else if (event.getClick() == ClickType.DROP) {
+                game.getKitsLimits().clear();
+                this.save(viewer);
             }
-            else if (type instanceof ArenaEditorType type2) {
-                switch (type2) {
-                    case GAMEPLAY_CHANGE_TIMELEFT -> {
-                        if (e.isRightClick()) {
-                            game.setTimeleft(-1);
-                            break;
-                        }
-                        EditorManager.startEdit(player, game, type2, input);
-                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_SECONDS).getLocalized());
-                        player.closeInventory();
-                        return;
-                    }
-                    case GAMEPLAY_CHANGE_LOBBY_TIME -> {
-                        EditorManager.startEdit(player, game, type2, input);
-                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_SECONDS).getLocalized());
-                        player.closeInventory();
-                        return;
-                    }
-                    case GAMEPLAY_CHANGE_ANNOUNCES -> game.setAnnouncesEnabled(!game.isAnnouncesEnabled());
-                    case GAMEPLAY_CHANGE_SCOREBOARD -> {
-                        if (e.isRightClick()) {
-                            EditorManager.startEdit(player, game, ArenaEditorType.GAMEPLAY_CHANGE_SCOREBOARD_ID, input);
-                            EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_ARENA_GAMEPLAY_ENTER_SCOREBOARD_ID).getLocalized());
-                            EditorManager.suggestValues(player, Config.SCOREBOARDS.get().keySet(), true);
-                            player.closeInventory();
-                            return;
-                        }
-                        game.setScoreboardEnabled(!game.isScoreboardEnabled());
-                    }
-                    case GAMEPLAY_CHANGE_HUNGER -> game.setHungerEnabled(!game.isHungerEnabled());
-                    case GAMEPLAY_CHANGE_REGENERATION -> game.setRegenerationEnabled(!game.isRegenerationEnabled());
-                    case GAMEPLAY_CHANGE_ITEM -> {
-                        if (e.isShiftClick()) {
-                            if (e.isLeftClick()) {
-                                game.setItemDurabilityEnabled(!game.isItemDurabilityEnabled());
-                            }
-                            break;
-                        }
-                        if (e.isLeftClick()) {
-                            game.setItemDropEnabled(!game.isItemDropEnabled());
-                        }
-                        else if (e.isRightClick()) {
-                            game.setItemPickupEnabled(!game.isItemPickupEnabled());
-                        }
-                    }
-                    case GAMEPLAY_CHANGE_MOB_DROP -> {
-                        if (e.isLeftClick()) {
-                            game.setMobDropLootEnabled(!game.isMobDropLootEnabled());
-                        }
-                        else if (e.isRightClick()) {
-                            game.setMobDropExpEnabled(!game.isMobDropExpEnabled());
-                        }
-                    }
-                    case GAMEPLAY_CHANGE_MOB_HIGHLIGHT -> {
-                        if (e.isShiftClick()) {
-                            if (e.isLeftClick()) {
-                                game.setMobHighlightColor(CollectionsUtil.next(game.getMobHighlightColor(), ChatColor::isColor));
-                            }
-                        }
-                        else {
-                            if (e.isLeftClick()) {
-                                game.setMobHighlightEnabled(!game.isMobHighlightEnabled());
-                            }
-                            if (e.isRightClick()) {
-                                EditorManager.startEdit(player, game, ArenaEditorType.GAMEPLAY_CHANGE_MOB_HIGHLIGHT_AMOUNT, input);
-                                EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_PERCENT).getLocalized());
-                                player.closeInventory();
-                                return;
-                            }
-                        }
-                    }
-                    case GAMEPLAY_CHANGE_PLAYERS_AMOUNT -> {
-                        if (e.isLeftClick()) {
-                            type2 = ArenaEditorType.GAMEPLAY_CHANGE_PLAYERS_AMOUNT_MIN;
-                        }
-                        else if (e.isRightClick()) {
-                            type2 = ArenaEditorType.GAMEPLAY_CHANGE_PLAYERS_AMOUNT_MAX;
-                        }
-                        EditorManager.startEdit(player, game, type2, input);
-                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NUMBER).getLocalized());
-                        player.closeInventory();
-                        return;
-                    }
-                    case GAMEPLAY_CHANGE_PLAYERS_DEATH -> {
-                        if (e.isLeftClick()) {
-                            game.setPlayerDropItemsOnDeathEnabled(!game.isPlayerDropItemsOnDeathEnabled());
-                        }
-                        else if (e.isRightClick()) {
-                            EditorManager.startEdit(player, game, ArenaEditorType.GAMEPLAY_CHANGE_PLAYERS_DEATH_LIVES, input);
-                            EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NUMBER).getLocalized());
-                            player.closeInventory();
-                            return;
-                        }
-                    }
-                    case GAMEPLAY_CHANGE_SPECTATE -> {
-                        if (e.isLeftClick()) {
-                            game.setSpectateEnabled(!game.isSpectateEnabled());
-                        }
-                        else if (e.isRightClick()) {
-                            game.setSpectateOnDeathEnabled(!game.isSpectateOnDeathEnabled());
-                        }
-                    }
-                    case GAMEPLAY_CHANGE_BANNED_ITEMS -> {
-                        if (e.isRightClick()) {
-                            game.getBannedItems().clear();
-                            break;
-                        }
+        });
 
-                        EditorManager.startEdit(player, game, type2, input);
-                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_ARENA_GAMEPLAY_ENTER_BANNED_ITEMS).getLocalized());
-                        player.closeInventory();
-                        return;
-                    }
-                    case GAMEPLAY_CHANGE_ALLOWED_SPAWN_REASONS -> {
-                        if (e.isRightClick()) {
-                            game.getAllowedSpawnReasons().clear();
-                            break;
-                        }
+        this.addItem(Material.BONE, EditorLocales.GAMEPLAY_PETS, 27).setClick((viewer, event) -> {
+            game.setExternalPetsEnabled(!game.isExternalPetsEnabled());
+            this.save(viewer);
+        });
 
-                        EditorManager.startEdit(player, game, type2, input);
-                        EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_ARENA_GAMEPLAY_ENTER_ALLOWED_SPAWN_REASON).getLocalized());
-                        EditorManager.suggestValues(player, CollectionsUtil.getEnumsList(CreatureSpawnEvent.SpawnReason.class), true);
-                        player.closeInventory();
-                        return;
-                    }
-                    case GAMEPLAY_CHANGE_COMMANDS -> {
-                        if (e.isShiftClick()) {
-                            if (e.isLeftClick()) {
-                                EditorManager.startEdit(player, game, ArenaEditorType.GAMEPLAY_CHANGE_COMMANDS_ADD_WHITE, input);
-                                EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_COMMAND).getLocalized());
-                                player.closeInventory();
-                                return;
-                            }
-                            else {
-                                game.getPlayerCommandsAllowed().clear();
-                                break;
-                            }
-                        }
+        this.addItem(Material.DIAMOND_SWORD, EditorLocales.GAMEPLAY_MCMMO, 28).setClick((viewer, event) -> {
+            game.setExternalMcmmoEnabled(!game.isExternalMcmmoEnabled());
+            this.save(viewer);
+        });
 
-                        if (e.isLeftClick()) {
-                            game.setPlayerCommandsEnabled(!game.isPlayerCommandsEnabled());
-                        }
-                    }
-                    case GAMEPLAY_CHANGE_KITS -> {
-                        if (e.isShiftClick()) {
-                            if (e.isLeftClick()) {
-                                EditorManager.startEdit(player, game, ArenaEditorType.GAMEPLAY_CHANGE_KITS_ADD_ALLOWED, input);
-                                EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_ARENA_GAMEPLAY_ENTER_KIT_LIMIT).getLocalized());
-                                EditorManager.suggestValues(player, plugin.getKitManager().getKitIds(), true);
-                                player.closeInventory();
-                                return;
-                            }
-                            else {
-                                game.getKitsAllowed().clear();
-                            }
-                        }
-                        else {
-                            if (e.isLeftClick()) {
-                                game.setKitsEnabled(!game.isKitsEnabled());
-                            }
-                        }
-                    }
-                    case GAMEPLAY_CHANGE_KITS_LIMITS -> {
-                        if (e.isLeftClick()) {
-                            EditorManager.startEdit(player, game, ArenaEditorType.GAMEPLAY_CHANGE_KITS_ADD_LIMIT, input);
-                            EditorManager.prompt(player, plugin.getMessage(Lang.EDITOR_ARENA_GAMEPLAY_ENTER_KIT_LIMIT).getLocalized());
-                            EditorManager.suggestValues(player, plugin.getKitManager().getKitIds(), true);
-                            player.closeInventory();
-                            return;
-                        }
-                        else {
-                            game.getKitsLimits().clear();
-                        }
-                    }
-                    case GAMEPLAY_CHANGE_PETS_ALLOWED -> game.setExternalPetsEnabled(!game.isExternalPetsEnabled());
-                    case GAMEPLAY_CHANGE_MCMMO_ALLOWED -> game.setExternalMcmmoEnabled(!game.isExternalMcmmoEnabled());
-                    default -> {
-                        return;
-                    }
-                }
-                this.object.save();
-                this.open(player, 1);
-            }
-        };
-
-        this.loadItems(click);
+        this.getItems().forEach(menuItem -> {
+            menuItem.getOptions().addDisplayModifier((viewer, item) -> ItemUtil.replace(item, game.replacePlaceholders()));
+        });
     }
 
-    @Override
-    public void setTypes(@NotNull Map<EditorButtonType, Integer> map) {
-        map.put(ArenaEditorType.GAMEPLAY_CHANGE_TIMELEFT, 9);
-        map.put(ArenaEditorType.GAMEPLAY_CHANGE_LOBBY_TIME, 10);
-        map.put(ArenaEditorType.GAMEPLAY_CHANGE_ANNOUNCES, 11);
-        map.put(ArenaEditorType.GAMEPLAY_CHANGE_SCOREBOARD, 12);
-        map.put(ArenaEditorType.GAMEPLAY_CHANGE_HUNGER, 13);
-        map.put(ArenaEditorType.GAMEPLAY_CHANGE_REGENERATION, 14);
-        map.put(ArenaEditorType.GAMEPLAY_CHANGE_ITEM, 15);
-        map.put(ArenaEditorType.GAMEPLAY_CHANGE_MOB_HIGHLIGHT, 16);
-        map.put(ArenaEditorType.GAMEPLAY_CHANGE_MOB_DROP, 17);
-        map.put(ArenaEditorType.GAMEPLAY_CHANGE_BANNED_ITEMS, 18);
-        map.put(ArenaEditorType.GAMEPLAY_CHANGE_ALLOWED_SPAWN_REASONS, 19);
-        map.put(ArenaEditorType.GAMEPLAY_CHANGE_PLAYERS_AMOUNT, 20);
-        map.put(ArenaEditorType.GAMEPLAY_CHANGE_PLAYERS_DEATH, 21);
-        map.put(ArenaEditorType.GAMEPLAY_CHANGE_SPECTATE, 22);
-        map.put(ArenaEditorType.GAMEPLAY_CHANGE_COMMANDS, 23);
-        map.put(ArenaEditorType.GAMEPLAY_CHANGE_KITS, 24);
-        map.put(ArenaEditorType.GAMEPLAY_CHANGE_KITS_LIMITS, 25);
-        map.put(ArenaEditorType.GAMEPLAY_CHANGE_PETS_ALLOWED, 26);
-        map.put(ArenaEditorType.GAMEPLAY_CHANGE_MCMMO_ALLOWED, 27);
-
-        map.put(MenuItemType.RETURN, 49);
-    }
-
-    @Override
-    public void onItemPrepare(@NotNull Player player, @NotNull MenuItem menuItem, @NotNull ItemStack item) {
-        super.onItemPrepare(player, menuItem, item);
-        ItemUtil.replace(item, this.object.replacePlaceholders());
-    }
-
-    @Override
-    public boolean cancelClick(@NotNull InventoryClickEvent e, @NotNull SlotType slotType) {
-        return true;
+    private void save(@NotNull MenuViewer viewer) {
+        this.object.save();
+        this.openNextTick(viewer, viewer.getPage());
     }
 }

@@ -2,7 +2,6 @@ package su.nightexpress.ama.arena.wave;
 
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.manager.ICleanable;
-import su.nexmedia.engine.api.manager.IEditable;
 import su.nexmedia.engine.api.manager.IPlaceholder;
 import su.nexmedia.engine.utils.random.Rnd;
 import su.nightexpress.ama.Placeholders;
@@ -15,7 +14,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 
-public class ArenaWave implements ArenaChild, IEditable, ICleanable, IPlaceholder {
+public class ArenaWave implements ArenaChild, ICleanable, IPlaceholder {
 
     private final ArenaConfig arenaConfig;
     private final String      id;
@@ -41,7 +40,6 @@ public class ArenaWave implements ArenaChild, IEditable, ICleanable, IPlaceholde
         }
     }
 
-    @Override
     @NotNull
     public WaveMobsEditor getEditor() {
         if (this.editor == null) {
