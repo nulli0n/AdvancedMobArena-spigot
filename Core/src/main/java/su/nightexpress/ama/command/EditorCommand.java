@@ -4,10 +4,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.command.AbstractCommand;
+import su.nexmedia.engine.api.command.CommandResult;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
-
-import java.util.Map;
 
 public class EditorCommand extends AbstractCommand<AMA> {
 
@@ -33,7 +32,7 @@ public class EditorCommand extends AbstractCommand<AMA> {
     }
 
     @Override
-    public void onExecute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args, @NotNull Map<String, String> flags) {
+    public void onExecute(@NotNull CommandSender sender, @NotNull CommandResult result) {
         Player player = (Player) sender;
         this.plugin.getEditor().open(player, 1);
     }

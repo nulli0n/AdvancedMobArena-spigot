@@ -4,9 +4,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.command.AbstractCommand;
+import su.nexmedia.engine.api.command.CommandResult;
 import su.nexmedia.engine.utils.CollectionsUtil;
 import su.nexmedia.engine.utils.NumberUtil;
-import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.Placeholders;
@@ -16,7 +16,6 @@ import su.nightexpress.ama.config.Lang;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 public class CurrencyGiveTakeCommand extends AbstractCommand<AMA> {
 
@@ -64,27 +63,27 @@ public class CurrencyGiveTakeCommand extends AbstractCommand<AMA> {
     }
 
     @Override
-    protected void onExecute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args, @NotNull Map<String, String> flags) {
-        if (args.length < 5) {
+    public void onExecute(@NotNull CommandSender sender, @NotNull CommandResult result) {
+        if (result.length() < 5) {
             this.printUsage(sender);
             return;
         }
 
-        ICurrency currency = this.plugin.getCurrencyManager().getCurrency(args[2]);
+        ICurrency currency = this.plugin.getCurrencyManager().getCurrency(result.getArg(2));
         if (currency == null) {
             plugin.getMessage(Lang.ERROR_CURRENCY_INVALID).send(sender);
             return;
         }
 
-        Player player = plugin.getServer().getPlayer(args[3]);
+        Player player = plugin.getServer().getPlayer(result.getArg(3));
         if (player == null) {
             this.errorPlayer(sender);
             return;
         }
 
-        double amount = StringUtil.getDouble(args[4], 0D);
+        double amount = result.getDouble(4, 0);
         if (amount <= 0D) {
-            this.errorNumber(sender, args[4]);
+            this.errorNumber(sender, result.getArg(4));
             return;
         }
 
@@ -97,7 +96,7 @@ public class CurrencyGiveTakeCommand extends AbstractCommand<AMA> {
 
         plugin.getMessage(this.mode == Mode.GIVE ? Lang.COMMAND_CURRENCY_GIVE_DONE : Lang.COMMAND_CURRENCY_TAKE_DONE)
             .replace(currency.replacePlaceholders())
-            .replace(Placeholders.Player.replacer(player))
+            .replace(Placeholders.forPlayer(player))
             .replace(Placeholders.GENERIC_AMOUNT, NumberUtil.format(amount))
             .send(sender);
     }

@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
-import su.nexmedia.engine.api.menu.MenuClick;
+import su.nexmedia.engine.api.menu.click.ItemClick;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.config.Lang;
@@ -17,7 +17,7 @@ import java.util.function.Predicate;
 public class KitSelectMenu extends AbstractKitListMenu {
 
     public KitSelectMenu(@NotNull AMA plugin, @NotNull JYML cfg) {
-        super(plugin, cfg, "");
+        super(plugin, cfg);
     }
 
     @Override
@@ -28,25 +28,26 @@ public class KitSelectMenu extends AbstractKitListMenu {
 
     @Override
     @NotNull
-    public MenuClick getObjectClick(@NotNull Player player, @NotNull Kit kit) {
-        return (player1, type, e) -> {
-            ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player1);
+    public ItemClick getObjectClick(@NotNull Kit kit) {
+        return (viewer, event) -> {
+            Player player = viewer.getPlayer();
+            ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
             if (arenaPlayer == null) return;
 
-            if (e.isLeftClick()) {
+            if (event.isLeftClick()) {
                 if (!kit.isAvailable(arenaPlayer, true)) {
-                    player1.playSound(player1.getLocation(), Sound.BLOCK_ANVIL_BREAK, 1.0f, 1.0f);
+                    player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_BREAK, 1.0f, 1.0f);
                     return;
                 }
 
                 arenaPlayer.setKit(kit);
-                plugin.getMessage(Lang.Kit_Select_Success).replace(kit.replacePlaceholders()).send(player1);
-                player1.playSound(player1.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1.0f, 1.0f);
-                player1.closeInventory();
+                plugin.getMessage(Lang.Kit_Select_Success).replace(kit.replacePlaceholders()).send(player);
+                player.playSound(player.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1.0f, 1.0f);
+                player.closeInventory();
 
             }
-            else if (e.isRightClick()) {
-                kit.getPreview().open(player1, 1);
+            else if (event.isRightClick()) {
+                kit.getPreview().open(player, 1);
             }
         };
     }

@@ -96,14 +96,14 @@ public class MobsConfig {
         }, () -> {
         Map<Integer, MobKillStreak> map = new TreeMap<>();
         map.put(1, new MobKillStreak(1, new LangMessage(ArenaAPI.PLUGIN, ""), "0", "0", new ArrayList<>()));
-        map.put(2, new MobKillStreak(2, new LangMessage(ArenaAPI.PLUGIN, "{message: ~type: TITLES; ~fadeIn: 10; ~stay: 50; ~fadeOut: 10;}&c&lDouble Kill!"), "0", "0", new ArrayList<>()));
-        map.put(3, new MobKillStreak(3, new LangMessage(ArenaAPI.PLUGIN, "{message: ~type: TITLES; ~fadeIn: 10; ~stay: 50; ~fadeOut: 10;}&c&lTriple Kill!"), "0", "0", new ArrayList<>()));
-        map.put(4, new MobKillStreak(4, new LangMessage(ArenaAPI.PLUGIN, "{message: ~type: TITLES; ~fadeIn: 10; ~stay: 50; ~fadeOut: 10;}&b&lQuadra Kill!"), "0", "0", new ArrayList<>()));
-        map.put(5, new MobKillStreak(5, new LangMessage(ArenaAPI.PLUGIN, "{message: ~type: TITLES; ~fadeIn: 10; ~stay: 50; ~fadeOut: 10;}&b&lPenta Kill! \\n &d(+10 Coins)"), "0", "10", new ArrayList<>()));
-        map.put(10, new MobKillStreak(10, new LangMessage(ArenaAPI.PLUGIN, "{message: ~type: TITLES; ~fadeIn: 10; ~stay: 50; ~fadeOut: 10;}&e&lx" + Placeholders.GENERIC_AMOUNT + " Kill! \\n &a(+30 Score, Heal)"), "0", "30", Collections.singletonList("[CONSOLE] heal %player%")));
-        map.put(15, new MobKillStreak(15, new LangMessage(ArenaAPI.PLUGIN, "{message: ~type: TITLES; ~fadeIn: 10; ~stay: 50; ~fadeOut: 10;}&e&lx" + Placeholders.GENERIC_AMOUNT + " Kill! \\n &a(+30 Payment)"), "30", "0", new ArrayList<>()));
-        map.put(20, new MobKillStreak(20, new LangMessage(ArenaAPI.PLUGIN, "{message: ~type: TITLES; ~fadeIn: 10; ~stay: 50; ~fadeOut: 10;}&e&lx" + Placeholders.GENERIC_AMOUNT + " Kill! \\n &a(x10 Payment)"), "900%", "0", new ArrayList<>()));
-        map.put(30, new MobKillStreak(30, new LangMessage(ArenaAPI.PLUGIN, "{message: ~type: TITLES; ~fadeIn: 10; ~stay: 50; ~fadeOut: 10;}&e&lx" + Placeholders.GENERIC_AMOUNT + " Kill! \\n &a(x10 Score)"), "0", "900%", new ArrayList<>()));
+        map.put(2, new MobKillStreak(2, new LangMessage(ArenaAPI.PLUGIN, "<! type:\"titles:10:50:10\" !>" + "&c&lDouble Kill!"), "0", "0", new ArrayList<>()));
+        map.put(3, new MobKillStreak(3, new LangMessage(ArenaAPI.PLUGIN, "<! type:\"titles:10:50:10\" !>" + "&c&lTriple Kill!"), "0", "0", new ArrayList<>()));
+        map.put(4, new MobKillStreak(4, new LangMessage(ArenaAPI.PLUGIN, "<! type:\"titles:10:50:10\" !>" + "&b&lQuadra Kill!"), "0", "0", new ArrayList<>()));
+        map.put(5, new MobKillStreak(5, new LangMessage(ArenaAPI.PLUGIN, "<! type:\"titles:10:50:10\" !>" + "&b&lPenta Kill! \\n &d(+10 Coins)"), "0", "10", new ArrayList<>()));
+        map.put(10, new MobKillStreak(10, new LangMessage(ArenaAPI.PLUGIN, "<! type:\"titles:10:50:10\" !>" + "&e&lx" + Placeholders.GENERIC_AMOUNT + " Kill! \\n &a(+30 Score, Heal)"), "0", "30", Collections.singletonList("heal %player%")));
+        map.put(15, new MobKillStreak(15, new LangMessage(ArenaAPI.PLUGIN, "<! type:\"titles:10:50:10\" !>" + "&e&lx" + Placeholders.GENERIC_AMOUNT + " Kill! \\n &a(+30 Payment)"), "30", "0", new ArrayList<>()));
+        map.put(20, new MobKillStreak(20, new LangMessage(ArenaAPI.PLUGIN, "<! type:\"titles:10:50:10\" !>" + "&e&lx" + Placeholders.GENERIC_AMOUNT + " Kill! \\n &a(x10 Payment)"), "900%", "0", new ArrayList<>()));
+        map.put(30, new MobKillStreak(30, new LangMessage(ArenaAPI.PLUGIN, "<! type:\"titles:10:50:10\" !>" + "&e&lx" + Placeholders.GENERIC_AMOUNT + " Kill! \\n &a(x10 Score)"), "0", "900%", new ArrayList<>()));
         return map;
         },
         "A table with kill streaks. Each section is a streak kills amount.",

@@ -1044,9 +1044,8 @@ public class Arena implements Placeholder {
         if (withAlly) mobs.addAll(this.getAllyMobs());
 
         mobs.forEach(mob -> {
+            mob.getLocation();
             mob.setRemoveWhenFarAway(true);
-            mob.setLastDamageCause(null);
-            mob.setHealth(0);
             mob.remove();
         });
         this.getMobs().clear();

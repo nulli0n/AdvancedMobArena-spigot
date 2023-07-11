@@ -6,7 +6,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.config.JYML;
-import su.nexmedia.engine.api.manager.AbstractLoadableItem;
+import su.nexmedia.engine.api.manager.AbstractConfigHolder;
 import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
@@ -17,17 +17,20 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
-public class CurrencyConfig extends AbstractLoadableItem<AMA> implements ICurrencyConfig {
+public class CurrencyConfig extends AbstractConfigHolder<AMA> implements ICurrencyConfig {
 
-    protected final boolean       isEnabled;
-    protected final String        name;
-    protected final String        format;
-    protected final DecimalFormat numberFormat;
-    protected final ItemStack     icon;
+    protected boolean       isEnabled;
+    protected String        name;
+    protected String        format;
+    protected DecimalFormat numberFormat;
+    protected ItemStack     icon;
 
     public CurrencyConfig(@NotNull AMA plugin, @NotNull JYML cfg) {
         super(plugin, cfg);
+    }
 
+    @Override
+    public boolean load() {
         this.isEnabled = cfg.getBoolean("Enabled", true);
         this.name = Colorizer.apply(cfg.getString("Name", StringUtil.capitalizeFully(this.getId().replace("_", " "))));
         this.format = Colorizer.apply(cfg.getString("Format", Placeholders.GENERIC_PRICE + " " + Placeholders.CURRENCY_NAME));
@@ -44,6 +47,7 @@ public class CurrencyConfig extends AbstractLoadableItem<AMA> implements ICurren
             this.icon.setItemMeta(meta);
         }
         else this.icon = icon;
+        return true;
     }
 
     @Override

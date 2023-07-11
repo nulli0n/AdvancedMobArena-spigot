@@ -9,9 +9,9 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.hooks.Hooks;
-import su.nightexpress.ama.arena.impl.ArenaPlayer;
+import su.nexmedia.engine.utils.EngineUtils;
 import su.nightexpress.ama.arena.impl.Arena;
+import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.hook.external.ProtocolLibHook;
 
 import java.util.*;
@@ -101,7 +101,7 @@ public class ArenaBoard {
         Arena arena = this.arenaPlayer.getArena();
 
         lines.replaceAll(line -> {
-            if (Hooks.hasPlaceholderAPI()) {
+            if (EngineUtils.hasPlaceholderAPI()) {
                 line = PlaceholderAPI.setPlaceholders(player, line);
             }
             line = arena.replacePlaceholders().apply(line);

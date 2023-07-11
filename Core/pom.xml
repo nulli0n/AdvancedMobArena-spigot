@@ -5,7 +5,7 @@
     <parent>
         <artifactId>AdvancedMobArena</artifactId>
         <groupId>su.nightexpress.ama</groupId>
-        <version>7.8.4</version>
+        <version>7.8.5</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -45,13 +45,6 @@
         <repository>
             <id>sk89q-repo</id>
             <url>https://maven.enginehub.org/repo/</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>everything</id>
-            <url>https://repo.citizensnpcs.co/</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
@@ -117,42 +110,32 @@
         <dependency>
             <groupId>su.nightexpress.ama</groupId>
             <artifactId>NMS</artifactId>
-            <version>7.8.4</version>
+            <version>7.8.5</version>
         </dependency>
         <dependency>
             <groupId>su.nightexpress.ama</groupId>
             <artifactId>V1_17_R1</artifactId>
-            <version>7.8.4</version>
+            <version>7.8.5</version>
         </dependency>
         <dependency>
             <groupId>su.nightexpress.ama</groupId>
             <artifactId>V1_18_R2</artifactId>
-            <version>7.8.4</version>
-        </dependency>
-        <dependency>
-            <groupId>su.nightexpress.ama</groupId>
-            <artifactId>V1_19_R1</artifactId>
-            <version>7.8.4</version>
-        </dependency>
-        <dependency>
-            <groupId>su.nightexpress.ama</groupId>
-            <artifactId>V1_19_R2</artifactId>
-            <version>7.8.4</version>
+            <version>7.8.5</version>
         </dependency>
         <dependency>
             <groupId>su.nightexpress.ama</groupId>
             <artifactId>V1_19_R3</artifactId>
-            <version>7.8.4</version>
+            <version>7.8.5</version>
         </dependency>
         <dependency>
             <groupId>su.nightexpress.ama</groupId>
             <artifactId>V1_20_R1</artifactId>
-            <version>7.8.4</version>
+            <version>7.8.5</version>
         </dependency>
         <dependency>
             <groupId>su.nightexpress.sunlight</groupId>
             <artifactId>Core</artifactId>
-            <version>3.8.0</version>
+            <version>3.9.2</version>
         </dependency>
         <dependency>
             <groupId>su.nightexpress.gamepoints</groupId>
@@ -169,13 +152,6 @@
             <groupId>org.black_ixx</groupId>
             <artifactId>playerpoints</artifactId>
             <version>3.0.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.citizensnpcs</groupId>
-            <artifactId>citizens-main</artifactId>
-            <version>2.0.29-SNAPSHOT</version>
-            <type>jar</type>
             <scope>provided</scope>
         </dependency>
         <dependency>

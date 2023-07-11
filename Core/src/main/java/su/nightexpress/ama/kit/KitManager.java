@@ -1,13 +1,16 @@
 package su.nightexpress.ama.kit;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.AbstractListener;
 import su.nexmedia.engine.api.manager.AbstractManager;
+import su.nexmedia.engine.utils.StringUtil;
 import su.nexmedia.engine.utils.random.Rnd;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.api.event.ArenaPlayerJoinEvent;
@@ -44,6 +47,7 @@ public class KitManager extends AbstractManager<AMA> {
         for (JYML cfg2 : JYML.loadAll(plugin.getDataFolder() + "/kits/kits/", false)) {
             try {
                 Kit kit = new Kit(plugin, cfg2);
+                kit.load();
                 this.kits.put(kit.getId(), kit);
                 kit.updateHolograms();
             }
@@ -75,6 +79,37 @@ public class KitManager extends AbstractManager<AMA> {
             this.shopMenu.clear();
             this.shopMenu = null;
         }
+    }
+
+    public boolean createKit(@NotNull String id) {
+        id = StringUtil.lowerCaseUnderscore(id);
+        if (this.getKitById(id) != null) return false;
+
+        JYML cfg = new JYML(this.plugin.getDataFolder() + "/kits/kits/", id + ".yml");
+        Kit kit = new Kit(plugin, cfg);
+
+        kit.setName("&a" + StringUtil.capitalizeUnderscored(id));
+        kit.setDescription(Arrays.asList("&7A newly created kit.", "&7Edit me in &e/ama editor"));
+        kit.setIcon(new ItemStack(Material.GOLDEN_CHESTPLATE));
+        kit.setCurrency(this.plugin().getCurrencyManager().getCurrencyFirst());
+        kit.setCost(100);
+        kit.setPermissionRequired(false);
+
+        kit.setCommands(new ArrayList<>());
+        kit.setPotionEffects(new HashSet<>());
+        kit.setArmor(new ItemStack[4]);
+        kit.setExtras(new ItemStack[1]);
+
+        ItemStack[] inv = new ItemStack[36];
+        inv[0] = new ItemStack(Material.GOLDEN_SWORD);
+        inv[1] = new ItemStack(Material.COOKED_BEEF, 16);
+        inv[2] = new ItemStack(Material.GOLDEN_APPLE, 4);
+        kit.setItems(inv);
+
+        kit.save();
+        kit.load();
+        this.getKitsMap().put(kit.getId(), kit);
+        return true;
     }
 
     @NotNull

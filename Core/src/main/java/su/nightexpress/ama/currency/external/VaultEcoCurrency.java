@@ -2,9 +2,9 @@ package su.nightexpress.ama.currency.external;
 
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.hooks.external.VaultHook;
-import su.nightexpress.ama.currency.AbstractCurrency;
+import su.nexmedia.engine.integration.VaultHook;
 import su.nightexpress.ama.api.currency.ICurrencyConfig;
+import su.nightexpress.ama.currency.AbstractCurrency;
 
 public class VaultEcoCurrency extends AbstractCurrency {
 

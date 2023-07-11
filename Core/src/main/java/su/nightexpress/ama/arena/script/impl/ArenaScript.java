@@ -1,7 +1,6 @@
 package su.nightexpress.ama.arena.script.impl;
 
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.api.manager.ICleanable;
 import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
 import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
@@ -17,7 +16,7 @@ import su.nightexpress.ama.arena.script.condition.ScriptPreparedCondition;
 
 import java.util.*;
 
-public class ArenaScript implements ArenaChild, ICleanable {
+public class ArenaScript implements ArenaChild {
 
     private final ArenaConfig arenaConfig;
     private final String id;
@@ -89,7 +88,6 @@ public class ArenaScript implements ArenaChild, ICleanable {
         return map;
     }
 
-    @Override
     public void clear() {
         if (this.actionsEditor != null) {
             this.actionsEditor.clear();

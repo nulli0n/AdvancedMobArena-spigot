@@ -96,7 +96,7 @@ public class SignManager extends AbstractManager<AMA> {
             }
             case STATS -> {
                 String typeRaw = PDCUtil.getString(sign, Keys.SIGN_STAT_TYPE).orElse(null);
-                StatType statType = typeRaw != null ? CollectionsUtil.getEnum(typeRaw, StatType.class) : null;
+                StatType statType = typeRaw != null ? StringUtil.getEnum(typeRaw, StatType.class).orElse(null) : null;
                 if (statType == null) return;
 
                 int pos = PDCUtil.getInt(sign, Keys.SIGN_STAT_POSITION).orElse(-1);
@@ -145,7 +145,7 @@ public class SignManager extends AbstractManager<AMA> {
         String typeRaw = PDCUtil.getString(sign, Keys.SIGN_TYPE).orElse(null);
         if (typeRaw == null) return null;
 
-        return CollectionsUtil.getEnum(typeRaw, SignType.class);
+        return StringUtil.getEnum(typeRaw, SignType.class).orElse(null);
     }
 
     @Nullable
@@ -166,7 +166,7 @@ public class SignManager extends AbstractManager<AMA> {
         String header = lines[0];
         if (!header.equalsIgnoreCase(HEADER)) return false;
 
-        SignType signType = CollectionsUtil.getEnum(lines[1], SignType.class);
+        SignType signType = StringUtil.getEnum(lines[1], SignType.class).orElse(null);
         if (signType == null) return false;
 
         if (signType == SignType.ARENA_JOIN) {
@@ -186,7 +186,7 @@ public class SignManager extends AbstractManager<AMA> {
         else if (signType == SignType.STATS) {
             if (lines.length < 4) return false;
 
-            StatType type = CollectionsUtil.getEnum(lines[2], StatType.class);
+            StatType type = StringUtil.getEnum(lines[2], StatType.class).orElse(null);
             if (type == null) return false;
 
             String[] line3 = lines[3].split(":");

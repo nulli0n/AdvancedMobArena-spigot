@@ -5,7 +5,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.AbstractConfigHolder;
-import su.nexmedia.engine.api.manager.ICleanable;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.lang.LangManager;
@@ -42,7 +41,7 @@ import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHolder, ICleanable, Problematic, Placeholder {
+public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHolder, Problematic, Placeholder {
 
     private final Map<DayOfWeek, Set<LocalTime>>    autoOpenTimes;
     private final Map<DayOfWeek, Set<LocalTime>>    autoCloseTimes;
@@ -201,7 +200,6 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
         return this.placeholderMap;
     }
 
-    @Override
     public void clear() {
         this.removeHolograms();
         if (this.openScheduler != null) {

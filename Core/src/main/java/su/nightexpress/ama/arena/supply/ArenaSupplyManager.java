@@ -8,7 +8,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.AbstractConfigHolder;
-import su.nexmedia.engine.api.manager.ICleanable;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.arena.editor.supply.SupplyChestListEditor;
@@ -16,7 +15,7 @@ import su.nightexpress.ama.arena.impl.ArenaConfig;
 
 import java.util.*;
 
-public class ArenaSupplyManager extends AbstractConfigHolder<AMA> implements ArenaChild, ICleanable {
+public class ArenaSupplyManager extends AbstractConfigHolder<AMA> implements ArenaChild {
 
     public static final String CONFIG_NAME = "supply.yml";
 
@@ -65,7 +64,6 @@ public class ArenaSupplyManager extends AbstractConfigHolder<AMA> implements Are
         });
     }
 
-    @Override
     public void clear() {
         if (this.editor != null) {
             this.editor.clear();

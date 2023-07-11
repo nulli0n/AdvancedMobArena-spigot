@@ -21,17 +21,19 @@ import org.bukkit.event.world.ChunkUnloadEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.manager.AbstractListener;
-import su.nexmedia.engine.hooks.Hooks;
-import su.nexmedia.engine.hooks.external.MythicMobsHook;
+import su.nexmedia.engine.utils.EngineUtils;
+import su.nexmedia.engine.utils.EntityUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.arena.ArenaManager;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
+import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.arena.type.PlayerType;
 import su.nightexpress.ama.config.Config;
+import su.nightexpress.ama.hook.HookId;
+import su.nightexpress.ama.hook.external.MythicMobsHook;
 import su.nightexpress.ama.kit.Kit;
 import su.nightexpress.ama.mob.config.MobConfig;
 
@@ -128,7 +130,7 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onArenaMobSpawn(CreatureSpawnEvent e) {
         LivingEntity entity = e.getEntity();
-        if (entity instanceof Player || Hooks.isCitizensNPC(entity)) return;
+        if (entity instanceof Player || EntityUtil.isNPC(entity)) return;
 
         Location location = entity.getLocation();
         Arena arena = plugin.getArenaManager().getArenaAtLocation(location);
@@ -157,7 +159,7 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
 
         if (!this.plugin.getMobManager().isArenaEntity(agressor)) return;
         //if (MobManager.isOutsider(agressor)) return;
-        if (Hooks.hasMythicMobs() && MythicMobsHook.isMythicMob(agressor)) return;
+        if (EngineUtils.hasPlugin(HookId.MYTHIC_MOBS) && MythicMobsHook.isMythicMob(agressor)) return;
 
         if (this.plugin.getMobManager().isArenaEntity(target)) {
             e.setCancelled(true);
@@ -372,13 +374,14 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
 
         e.getRecipients().retainAll(arena.getPlayers(PlayerType.ALL).stream().map(ArenaPlayer::getPlayer).toList());
 
+        // TODO Do not use real chat I guess ?
         String format = Config.CHAT_FORMAT.get()
-            .replace(Placeholders.Player.NAME, "%1$s")
+            .replace(Placeholders.PLAYER_NAME, "%1$s")
             .replace(Placeholders.GENERIC_MESSAGE, "%2$s");
         format = arenaPlayer.replacePlaceholders().apply(format);
         format = arena.replacePlaceholders().apply(format);
 
-        if (Hooks.hasPlaceholderAPI()) {
+        if (EngineUtils.hasPlaceholderAPI()) {
             format = PlaceholderAPI.setPlaceholders(player, format);
         }
         e.setFormat(format);

@@ -4,104 +4,74 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import su.nexmedia.engine.api.editor.EditorButtonType;
-import su.nexmedia.engine.utils.CollectionsUtil;
 import su.nexmedia.engine.utils.Colorizer;
+import su.nexmedia.engine.utils.ItemUtil;
 import su.nexmedia.engine.utils.PDCUtil;
+import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.Keys;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
-public enum SetupItemType implements EditorButtonType {
+public enum SetupItemType {
 
-    REGION_CUBOID(Material.GOLDEN_AXE, "Region Cuboid Selector",
-        EditorButtonType.info("Sets the arena region corners."),
-        EditorButtonType.click("Left-Click to &fSet 1st\nRight-Click to &fSet 2nd")),
-    REGION_SPAWN(Material.FEATHER, "Region Spawn Tool",
-        EditorButtonType.info("Sets the region spawn location."),
-        EditorButtonType.warn("Location is set at your current location. Not of a clicked block!"),
-        EditorButtonType.click("Right-Click to &fSet")),
-    REGION_SPAWNER(Material.BLAZE_ROD, "Region Spawner Tool",
-        EditorButtonType.info("Sets the mob spawner on a clicked block."),
-        EditorButtonType.click("Left-Click to &fAdd Spawner\nRight-Click to &fRemove Spawner")),
-    REGION_SAVE(Material.EMERALD, "Save & Exit",
-        EditorButtonType.info("Saves the changes you made and exit the setup mode."),
-        EditorButtonType.click("Right-Click to &fSave")),
+    REGION_CUBOID(new ItemStack(Material.GOLDEN_AXE), "Region Cuboid Selector",
+        "Sets the arena region corners.",
+        "Left-Click to &fSet 1st\nRight-Click to &fSet 2nd"),
+    REGION_SPAWN(new ItemStack(Material.FEATHER), "Region Spawn Tool",
+        "Sets the region spawn location.",
+        "Location is set at your current location. Not of a clicked block!",
+        "Right-Click to &fSet"),
+    REGION_SPAWNER(new ItemStack(Material.BLAZE_ROD), "Region Spawner Tool",
+        "Sets the mob spawner on a clicked block.",
+        "Left-Click to &fAdd Spawner\nRight-Click to &fRemove Spawner"),
+    REGION_SAVE(new ItemStack(Material.EMERALD), "Save & Exit",
+        "Saves the changes you made and exit the setup mode.",
+        "Right-Click to &fSave"),
 
-    SPOT_CUBOID(Material.GOLDEN_AXE, "Spot Cuboid Selector",
-        EditorButtonType.info("Sets the arena spot corners."),
-        EditorButtonType.click("Left-Click to &fSet 1st\nRight-Click to &fSet 2nd")),
-    SPOT_STATE_PREVIEW(Material.ITEM_FRAME, "Spot State Preview",
-        EditorButtonType.info("Previews the current state."),
-        EditorButtonType.click("Right-Click to &fPreview")),
-    SPOT_STATE_EXIT(Material.BARRIER, "Exit",
-        EditorButtonType.info("Exit the setup mode."),
-        EditorButtonType.click("Right-Click to &fExit")),
-    SPOT_SAVE(Material.EMERALD, "Save & Exit",
-        EditorButtonType.info("Saves the changes you made and exit the setup mode."),
-        EditorButtonType.click("Right-Click to &fSave")),
+    SPOT_CUBOID(new ItemStack(Material.GOLDEN_AXE), "Spot Cuboid Selector",
+        "Sets the arena spot corners.",
+        "Left-Click to &fSet 1st\nRight-Click to &fSet 2nd"),
+    SPOT_STATE_PREVIEW(new ItemStack(Material.ITEM_FRAME), "Spot State Preview",
+        "Previews the current state.",
+        "Right-Click to &fPreview"),
+    SPOT_STATE_EXIT(new ItemStack(Material.BARRIER), "Exit",
+        "Exit the setup mode.",
+        "Right-Click to &fExit"),
+    SPOT_SAVE(new ItemStack(Material.EMERALD), "Save & Exit",
+        "Saves the changes you made and exit the setup mode.",
+        "Right-Click to &fSave"),
 
-    ARENA_LOCATION_LOBBY(Material.ENDER_PEARL, "Arena Lobby Location",
-        EditorButtonType.info("Sets the arena lobby location."),
-        EditorButtonType.warn("Location is set at your current location. Not of a clicked block!"),
-        EditorButtonType.click("Right-Click to &fSet")),
-    ARENA_LOCATION_SPECTATE(Material.ENDER_EYE, "Arena Spectate Location",
-        EditorButtonType.info("Sets the arena spectate location."),
-        EditorButtonType.warn("Location is set at your current location. Not of a clicked block!"),
-        EditorButtonType.click("Right-Click to &fSet")),
-    ARENA_LOCATION_LEAVE(Material.REDSTONE, "Arena Leave Location",
-        EditorButtonType.info("Sets the arena leave location."),
-        EditorButtonType.note("You may to not set this location. So, players will be teleported back to their original location."),
-        EditorButtonType.warn("Location is set at your current location. Not of a clicked block!"),
-        EditorButtonType.click("Right-Click to &fSet")),
-    ARENA_EXIT(Material.BARRIER, "Exit",
-        EditorButtonType.info("Exit the setup mode."),
-        EditorButtonType.click("Right-Click to &fExit")),
+    ARENA_LOCATION_LOBBY(new ItemStack(Material.ENDER_PEARL), "Arena Lobby Location",
+        "Sets the arena lobby location.",
+        "Location is set at your current location. Not of a clicked block!",
+        "Right-Click to &fSet"),
+    ARENA_LOCATION_SPECTATE(new ItemStack(Material.ENDER_EYE), "Arena Spectate Location",
+        "Sets the arena spectate location.",
+        "Location is set at your current location. Not of a clicked block!",
+        "Right-Click to &fSet"),
+    ARENA_LOCATION_LEAVE(new ItemStack(Material.REDSTONE), "Arena Leave Location",
+        "Sets the arena leave location.",
+        "You may to not set this location. So, players will be teleported back to their original location.",
+        "Location is set at your current location. Not of a clicked block!",
+        "Right-Click to &fSet"),
+    ARENA_EXIT(new ItemStack(Material.BARRIER), "Exit",
+        "Exit the setup mode.",
+        "Right-Click to &fExit"),
     ;
 
-    private final Material     material;
-    private       String       name;
-    private       List<String> lore;
+    private final ItemStack item;
 
-    SetupItemType() {
-        this(Material.AIR, "", "");
+    SetupItemType(@NotNull ItemStack item, @NotNull String name, @NotNull String... lore) {
+        this.item = item;
+        ItemUtil.mapMeta(this.item, meta -> {
+            meta.setDisplayName(Colorizer.apply(name));
+            meta.setLore(Colorizer.apply(Arrays.asList(lore)));
+        });
     }
 
-    SetupItemType(@NotNull Material material, @NotNull String name, @NotNull String... lores) {
-        this.material = material;
-        this.setName(name);
-        this.setLore(EditorButtonType.fineLore(lores));
-    }
-
-    @NotNull
-    @Override
-    public Material getMaterial() {
-        return material;
-    }
-
-    @NotNull
-    public String getName() {
-        return name;
-    }
-
-    public void setName(@NotNull String name) {
-        this.name = Colorizer.apply(name);
-    }
-
-    @NotNull
-    public List<String> getLore() {
-        return lore;
-    }
-
-    public void setLore(@NotNull List<String> lore) {
-        this.lore = Colorizer.apply(new ArrayList<>(lore));
-    }
-
-    @Override
     @NotNull
     public ItemStack getItem() {
-        ItemStack item = EditorButtonType.super.getItem();
+        ItemStack item = new ItemStack(this.item);
         PDCUtil.set(item, Keys.ITEM_SETUP_TYPE, this.name());
         return item;
     }
@@ -109,6 +79,6 @@ public enum SetupItemType implements EditorButtonType {
     @Nullable
     public static SetupItemType getType(@NotNull ItemStack item) {
         String raw = PDCUtil.getString(item, Keys.ITEM_SETUP_TYPE).orElse(null);
-        return raw == null ? null : CollectionsUtil.getEnum(raw, SetupItemType.class);
+        return raw == null ? null : StringUtil.getEnum(raw, SetupItemType.class).orElse(null);
     }
 }

@@ -7,8 +7,7 @@ import su.nexmedia.engine.Version;
 import su.nexmedia.engine.api.command.GeneralCommand;
 import su.nexmedia.engine.api.data.UserDataHolder;
 import su.nexmedia.engine.command.list.ReloadSubCommand;
-import su.nexmedia.engine.hooks.Hooks;
-import su.nexmedia.engine.hooks.external.citizens.CitizensHook;
+import su.nexmedia.engine.utils.EngineUtils;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
 import su.nightexpress.ama.api.arena.type.ArenaTargetType;
 import su.nightexpress.ama.api.hologram.HologramType;
@@ -16,7 +15,6 @@ import su.nightexpress.ama.api.hologram.IHologramHandler;
 import su.nightexpress.ama.arena.ArenaManager;
 import su.nightexpress.ama.arena.lock.LockState;
 import su.nightexpress.ama.arena.setup.ArenaSetupManager;
-import su.nightexpress.ama.arena.setup.SetupItemType;
 import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.command.*;
 import su.nightexpress.ama.command.currency.CurrencyMainCommand;
@@ -34,7 +32,6 @@ import su.nightexpress.ama.hologram.handler.HologramDisplaysHandler;
 import su.nightexpress.ama.hook.HookId;
 import su.nightexpress.ama.hook.external.McMMOHook;
 import su.nightexpress.ama.hook.external.PlaceholderHook;
-import su.nightexpress.ama.hook.external.traits.*;
 import su.nightexpress.ama.hook.level.PluginLevelProvider;
 import su.nightexpress.ama.hook.level.impl.MMOCorePlayerLevelProvider;
 import su.nightexpress.ama.hook.mob.PluginMobProvider;
@@ -47,8 +44,6 @@ import su.nightexpress.ama.mob.style.MobStyleType;
 import su.nightexpress.ama.nms.ArenaNMS;
 import su.nightexpress.ama.nms.v1_17_R1.V1_17_R1;
 import su.nightexpress.ama.nms.v1_18_R2.V1_18_R2;
-import su.nightexpress.ama.nms.v1_19_R1.V1_19_R1;
-import su.nightexpress.ama.nms.v1_19_R2.V1_19_R2;
 import su.nightexpress.ama.nms.v1_19_R3.V1_19_R3;
 import su.nightexpress.ama.nms.v1_20_R1.V1_20_R1;
 import su.nightexpress.ama.sign.SignManager;
@@ -82,11 +77,9 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
 
     @Override
     public void enable() {
-        switch (Version.CURRENT) {
+        switch (Version.getCurrent()) {
             case V1_17_R1 -> this.arenaNMS = new V1_17_R1();
             case V1_18_R2 -> this.arenaNMS = new V1_18_R2();
-            case V1_19_R1 -> this.arenaNMS = new V1_19_R1();
-            case V1_19_R2 -> this.arenaNMS = new V1_19_R2();
             case V1_19_R3 -> this.arenaNMS = new V1_19_R3();
             case V1_20_R1 -> this.arenaNMS = new V1_20_R1();
             default -> { }
@@ -107,10 +100,10 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
 
         if (Config.HOLOGRAMS_ENABLED.get()) {
             IHologramHandler<?> hologramHandler = null;
-            if (Hooks.hasPlugin(HookId.HOLOGRAPHIC_DISPLAYS)) {
+            if (EngineUtils.hasPlugin(HookId.HOLOGRAPHIC_DISPLAYS)) {
                 hologramHandler = new HologramDisplaysHandler();
             }
-            else if (Hooks.hasPlugin(HookId.DECENT_HOLOGRAMS)) {
+            else if (EngineUtils.hasPlugin(HookId.DECENT_HOLOGRAMS)) {
                 hologramHandler = new HologramDecentHandler();
             }
             if (hologramHandler != null) {
@@ -195,44 +188,36 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
     public void loadLang() {
         this.getLangManager().loadMissing(Lang.class);
         this.getLangManager().loadEditor(EditorLocales.class);
-        this.getLangManager().setupEnum(GameState.class);
-        this.getLangManager().setupEnum(LockState.class);
-        this.getLangManager().setupEnum(ArenaGameEventType.class);
-        this.getLangManager().setupEnum(ArenaTargetType.class);
-        this.getLangManager().setupEnum(StatType.class);
-        this.getLangManager().setupEnum(HologramType.class);
-        this.getLangManager().setupEnum(MobStyleType.class);
-        this.getLangManager().setupEditorEnum(SetupItemType.class);
+        this.getLangManager().loadEnum(GameState.class);
+        this.getLangManager().loadEnum(LockState.class);
+        this.getLangManager().loadEnum(ArenaGameEventType.class);
+        this.getLangManager().loadEnum(ArenaTargetType.class);
+        this.getLangManager().loadEnum(StatType.class);
+        this.getLangManager().loadEnum(HologramType.class);
+        this.getLangManager().loadEnum(MobStyleType.class);
+        // TODO this.getLangManager().setupEditorEnum(SetupItemType.class);
         this.getLang().saveChanges();
     }
 
     @Override
     public void registerHooks() {
-        if (Hooks.hasPlugin(HookId.MCMMO)) {
+        if (EngineUtils.hasPlugin(HookId.MCMMO)) {
             McMMOHook.setup();
         }
-        if (Hooks.hasPlaceholderAPI()) {
+        if (EngineUtils.hasPlaceholderAPI()) {
             PlaceholderHook.setup();
         }
-        if (Hooks.hasPlugin(HookId.MMOCORE)) {
+        if (EngineUtils.hasPlugin(HookId.MMOCORE)) {
             PluginLevelProvider.registerProvider(new MMOCorePlayerLevelProvider());
         }
-        if (Hooks.hasPlugin(Hooks.MYTHIC_MOBS)) {
+        if (EngineUtils.hasPlugin(HookId.MYTHIC_MOBS)) {
             PluginMobProvider.registerProvider(new MythicMobProvider());
         }
-        if (Hooks.hasPlugin(HookId.ELITE_MOBS)) {
+        if (EngineUtils.hasPlugin(HookId.ELITE_MOBS)) {
             PluginMobProvider.registerProvider(new EliteMobsProvider());
         }
-        if (Hooks.hasPlugin(HookId.BOSS_MANIA)) {
+        if (EngineUtils.hasPlugin(HookId.BOSS_MANIA)) {
             PluginMobProvider.registerProvider(new BossManiaProvider());
-        }
-
-        if (Hooks.hasCitizens()) {
-            CitizensHook.registerTrait(this, ArenasTrait.class);
-            CitizensHook.registerTrait(this, KitSelectorTrait.class);
-            CitizensHook.registerTrait(this, KitShopTrait.class);
-            CitizensHook.registerTrait(this, ShopTrait.class);
-            CitizensHook.registerTrait(this, StatsTrait.class);
         }
     }
 

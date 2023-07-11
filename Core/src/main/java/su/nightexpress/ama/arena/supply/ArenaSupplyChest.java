@@ -7,7 +7,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import su.nexmedia.engine.api.manager.ICleanable;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.lang.LangManager;
@@ -23,7 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class ArenaSupplyChest implements ArenaChild, Placeholder, ICleanable {
+public class ArenaSupplyChest implements ArenaChild, Placeholder {
 
     private final ArenaConfig arenaConfig;
     private final String      id;
@@ -76,7 +75,6 @@ public class ArenaSupplyChest implements ArenaChild, Placeholder, ICleanable {
         ;
     }
 
-    @Override
     public void clear() {
         if (this.editor != null) {
             this.editor.clear();

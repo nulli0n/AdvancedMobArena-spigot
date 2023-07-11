@@ -1,13 +1,13 @@
 package su.nightexpress.ama.arena.script.condition;
 
 import org.jetbrains.annotations.NotNull;
+import su.nexmedia.engine.utils.TriFunction;
 import su.nightexpress.ama.arena.lock.LockState;
 import su.nightexpress.ama.arena.region.ArenaRegion;
 import su.nightexpress.ama.arena.region.ArenaRegionManager;
 import su.nightexpress.ama.arena.shop.ShopManager;
 import su.nightexpress.ama.arena.shop.impl.ShopCategory;
 import su.nightexpress.ama.arena.shop.impl.ShopProduct;
-import su.nightexpress.ama.utils.TriFunction;
 
 public class ScriptConditionPrefabs {
 

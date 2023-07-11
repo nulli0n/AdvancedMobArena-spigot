@@ -3,14 +3,14 @@ package su.nightexpress.ama.hook.external;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.utils.CollectionsUtil;
 import su.nexmedia.engine.utils.NumberUtil;
+import su.nexmedia.engine.utils.StringUtil;
 import su.nexmedia.engine.utils.TimeUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.api.ArenaAPI;
-import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
+import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.arena.type.PlayerType;
 import su.nightexpress.ama.data.ArenaUser;
 import su.nightexpress.ama.stats.object.StatType;
@@ -68,7 +68,7 @@ public class PlaceholderHook {
             if (tmp.startsWith("stats_")) {
                 String typeRaw = tmp.replace("stats_", "");
 
-                StatType type = CollectionsUtil.getEnum(typeRaw, StatType.class);
+                StatType type = StringUtil.getEnum(typeRaw, StatType.class).orElse(null);
                 if (type == null) return "NaN";
 
                 ArenaUser user = plugin.getUserManager().getUserData(player);

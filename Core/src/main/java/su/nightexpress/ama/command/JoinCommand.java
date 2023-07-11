@@ -4,13 +4,13 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.command.AbstractCommand;
+import su.nexmedia.engine.api.command.CommandResult;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.config.Lang;
 
 import java.util.List;
-import java.util.Map;
 
 public class JoinCommand extends AbstractCommand<AMA> {
 
@@ -45,12 +45,12 @@ public class JoinCommand extends AbstractCommand<AMA> {
     }
 
     @Override
-    public void onExecute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args, @NotNull Map<String, String> flags) {
+    public void onExecute(@NotNull CommandSender sender, @NotNull CommandResult result) {
         Player player = (Player) sender;
         Arena arena;
 
-        if (args.length == 2) {
-            arena = plugin.getArenaManager().getArenaById(args[1]);
+        if (result.length() == 2) {
+            arena = plugin.getArenaManager().getArenaById(result.getArg(1));
             if (arena == null) {
                 plugin.getMessage(Lang.ARENA_ERROR_INVALID).send(sender);
                 return;

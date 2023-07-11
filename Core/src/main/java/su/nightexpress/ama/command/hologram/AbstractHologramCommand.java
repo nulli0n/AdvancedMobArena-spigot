@@ -5,19 +5,20 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.command.AbstractCommand;
+import su.nexmedia.engine.api.command.CommandResult;
 import su.nexmedia.engine.api.manager.ConfigHolder;
 import su.nexmedia.engine.utils.CollectionsUtil;
+import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.api.hologram.HologramHolder;
 import su.nightexpress.ama.api.hologram.HologramType;
-import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.ArenaStatsHologram;
+import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.region.ArenaRegion;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.stats.object.StatType;
 
 import java.util.List;
-import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -34,7 +35,7 @@ public abstract class AbstractHologramCommand extends AbstractCommand<AMA> {
             return Stream.of(HologramType.values()).filter(Predicate.not(HologramType::isDummy)).map(Enum::name).toList();
         }
         if (arg > 2) {
-            HologramType hologramType = CollectionsUtil.getEnum(args[2], HologramType.class);
+            HologramType hologramType = StringUtil.getEnum(args[2], HologramType.class).orElse(null);
             if (hologramType == null || hologramType.isDummy()) return super.getTab(player, arg, args);
 
             if (arg == 3) {
@@ -67,13 +68,13 @@ public abstract class AbstractHologramCommand extends AbstractCommand<AMA> {
     protected abstract void perform(@NotNull CommandSender sender, @NotNull HologramType type, @NotNull HologramHolder holder);
 
     @Override
-    protected void onExecute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args, @NotNull Map<String, String> flags) {
-        if (args.length < 4) {
+    public void onExecute(@NotNull CommandSender sender, @NotNull CommandResult result) {
+        if (result.length() < 4) {
             this.printUsage(sender);
             return;
         }
 
-        HologramType type = CollectionsUtil.getEnum(args[2], HologramType.class);
+        HologramType type = StringUtil.getEnum(result.getArg(2), HologramType.class).orElse(null);
         if (type == null) {
             this.printUsage(sender);
             return;
@@ -81,28 +82,28 @@ public abstract class AbstractHologramCommand extends AbstractCommand<AMA> {
 
         HologramHolder holder = switch (type) {
             case ARENA -> {
-                Arena arena = plugin.getArenaManager().getArenaById(args[3]);
+                Arena arena = plugin.getArenaManager().getArenaById(result.getArg(3));
                 if (arena == null) yield null;
 
                 yield arena.getConfig();
             }
             case DEFAULT -> null;
             case REGION_LOCKED, REGION_UNLOCKED -> {
-                if (args.length < 5) yield null;
+                if (result.length() < 5) yield null;
 
-                Arena arena = plugin.getArenaManager().getArenaById(args[3]);
+                Arena arena = plugin.getArenaManager().getArenaById(result.getArg(3));
                 if (arena == null) yield null;
 
-                yield arena.getConfig().getRegionManager().getRegion(args[4]);
+                yield arena.getConfig().getRegionManager().getRegion(result.getArg(4));
             }
-            case KIT -> plugin.getKitManager().getKitById(args[3]);
+            case KIT -> plugin.getKitManager().getKitById(result.getArg(3));
             case ARENA_STATS -> {
-                if (args.length < 5) yield null;
+                if (result.length() < 5) yield null;
 
-                Arena arena = plugin.getArenaManager().getArenaById(args[3]);
+                Arena arena = plugin.getArenaManager().getArenaById(result.getArg(3));
                 if (arena == null) yield null;
 
-                StatType statType = CollectionsUtil.getEnum(args[4], StatType.class);
+                StatType statType = StringUtil.getEnum(result.getArg(4), StatType.class).orElse(null);
                 if (statType == null) yield null;
 
                 yield arena.getConfig().getStatsHologram(statType);

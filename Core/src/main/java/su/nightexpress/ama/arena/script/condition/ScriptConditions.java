@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.StringUtil;
+import su.nexmedia.engine.utils.TriFunction;
 import su.nexmedia.engine.utils.random.Rnd;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.event.*;
@@ -13,7 +14,6 @@ import su.nightexpress.ama.arena.region.ArenaRegionManager;
 import su.nightexpress.ama.arena.shop.ShopManager;
 import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.arena.type.PlayerType;
-import su.nightexpress.ama.utils.TriFunction;
 
 import java.util.*;
 import java.util.function.Function;

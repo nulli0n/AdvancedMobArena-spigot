@@ -3,7 +3,7 @@ package su.nightexpress.ama.arena.script;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.ConfigHolder;
-import su.nexmedia.engine.api.manager.ILoadable;
+import su.nexmedia.engine.api.manager.Loadable;
 import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.arena.editor.script.ScriptsEditor;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
@@ -12,7 +12,7 @@ import su.nightexpress.ama.arena.script.impl.ScriptCategory;
 
 import java.util.*;
 
-public class ArenaScriptManager implements ArenaChild, ILoadable {
+public class ArenaScriptManager implements ArenaChild, Loadable {
 
     public static final String DIR_SCRIPTS = "/scripts/";
 

@@ -3,8 +3,8 @@ package su.nightexpress.ama.hook.mob.impl;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.hooks.external.MythicMobsHook;
 import su.nightexpress.ama.hook.HookId;
+import su.nightexpress.ama.hook.external.MythicMobsHook;
 import su.nightexpress.ama.hook.mob.MobProvider;
 
 import java.util.List;

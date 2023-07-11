@@ -9,8 +9,10 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.config.JYML;
-import su.nexmedia.engine.api.manager.*;
-import su.nexmedia.engine.api.server.JPermission;
+import su.nexmedia.engine.api.manager.AbstractConfigHolder;
+import su.nexmedia.engine.api.manager.ConfigHolder;
+import su.nexmedia.engine.api.placeholder.Placeholder;
+import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.lang.LangManager;
 import su.nexmedia.engine.utils.*;
 import su.nightexpress.ama.AMA;
@@ -29,10 +31,9 @@ import su.nightexpress.ama.kit.editor.KitMainEditor;
 import su.nightexpress.ama.kit.menu.KitPreviewMenu;
 
 import java.util.*;
-import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
-public class Kit extends AbstractLoadableItem<AMA> implements ConfigHolder, HologramHolder, ICleanable, IPlaceholder {
+public class Kit extends AbstractConfigHolder<AMA> implements ConfigHolder, HologramHolder, Placeholder {
 
     private boolean      isDefault;
     private String       name;
@@ -41,7 +42,6 @@ public class Kit extends AbstractLoadableItem<AMA> implements ConfigHolder, Holo
     private ICurrency    currency;
     private double       cost;
     private boolean      isPermissionRequired;
-    private JPermission  permission;
 
     private List<String>      commands;
     private Set<PotionEffect> potionEffects;
@@ -51,48 +51,40 @@ public class Kit extends AbstractLoadableItem<AMA> implements ConfigHolder, Holo
 
     private final Set<UUID>     hologramIds;
     private final Set<Location> hologramLocations;
+    private final PlaceholderMap placeholderMap;
 
     private KitPreviewMenu preview;
     private KitMainEditor  editor;
 
-    public Kit(@NotNull AMA plugin, @NotNull String path) {
-        super(plugin, path);
-
-        this.setName("&a" + StringUtil.capitalizeFully(getId().replace("_", " ")));
-        this.setDescription(Arrays.asList("&7A newly created kit.", "&7Edit me in &e/ama editor"));
-        this.setDefault(false);
-        this.setIcon(new ItemStack(Material.GOLDEN_CHESTPLATE));
-        this.setCurrency(this.plugin().getCurrencyManager().getCurrencyFirst());
-        this.setCost(100);
-        this.setPermissionRequired(false);
-        this.setPermission();
-
-        this.setCommands(new ArrayList<>());
-        this.setPotionEffects(new HashSet<>());
-        this.setArmor(new ItemStack[4]);
-        this.setExtras(new ItemStack[1]);
-
+    public Kit(@NotNull AMA plugin, @NotNull JYML cfg) {
+        super(plugin, cfg);
         this.hologramIds = new HashSet<>();
         this.hologramLocations = new HashSet<>();
 
-        ItemStack[] inv = new ItemStack[36];
-        inv[0] = new ItemStack(Material.GOLDEN_SWORD);
-        inv[1] = new ItemStack(Material.COOKED_BEEF, 16);
-        inv[2] = new ItemStack(Material.GOLDEN_APPLE, 4);
-        this.setItems(inv);
-
-        ItemUtil.replace(this.icon, this.replacePlaceholders());
+        this.placeholderMap = new PlaceholderMap()
+            .add(Placeholders.KIT_ID, this::getId)
+            .add(Placeholders.KIT_NAME, this::getName)
+            .add(Placeholders.KIT_DESCRIPTION, () -> String.join("\n", this.getDescription()))
+            .add(Placeholders.KIT_PERMISSION, this::getPermission)
+            .add(Placeholders.KIT_IS_DEFAULT, () -> LangManager.getBoolean(this.isDefault()))
+            .add(Placeholders.KIT_IS_PERMISSION, () -> LangManager.getBoolean(this.isPermissionRequired()))
+            .add(Placeholders.KIT_COMMANDS, () -> String.join("\n", this.getCommands()))
+            .add(Placeholders.KIT_POTION_EFFECTS, () -> String.join("\n", this.getPotionEffects()
+                .stream().map(effect -> effect.getType().getName() + " " + NumberUtil.toRoman(effect.getAmplifier() + 1)).toList()))
+            .add(Placeholders.KIT_COST, () -> this.getCurrency().format(this.getCost()))
+            .add(Placeholders.KIT_ICON_LORE, () -> String.join("\n", ItemUtil.getLore(this.getIcon())))
+            .add(Placeholders.KIT_ICON_MATERIAL, () -> this.getIcon().getType().name())
+            .add(Placeholders.KIT_CURRENCY, () -> this.getCurrency().getConfig().getName())
+        ;
     }
 
-    public Kit(@NotNull AMA plugin, @NotNull JYML cfg) {
-        super(plugin, cfg);
-
+    @Override
+    public boolean load() {
         this.setDefault(cfg.getBoolean("Default"));
         this.setName(cfg.getString("Name", this.getId()));
         this.setDescription(cfg.getStringList("Description"));
         this.setCost(cfg.getDouble("Cost"));
         this.setPermissionRequired(cfg.getBoolean("Permission_Required"));
-        this.setPermission();
 
         ICurrency currency = plugin.getCurrencyManager().getCurrency(cfg.getString("Currency", ""));
         if (currency == null) currency = plugin.getCurrencyManager().getCurrencyFirst();
@@ -121,12 +113,11 @@ public class Kit extends AbstractLoadableItem<AMA> implements ConfigHolder, Holo
         this.setItems(cfg.getItemsEncoded("Content.Inventory"));
         this.setExtras(cfg.getItemsEncoded("Content.Extras"));
 
-        this.hologramIds = new HashSet<>();
-        this.hologramLocations = new HashSet<>();
         this.hologramLocations.addAll(cfg.getStringSet("Hologram.Locations").stream().map(LocationUtil::deserialize)
             .filter(Objects::nonNull).toList());
 
         ItemUtil.replace(this.icon, this.replacePlaceholders());
+        return true;
     }
 
     @Override
@@ -151,7 +142,6 @@ public class Kit extends AbstractLoadableItem<AMA> implements ConfigHolder, Holo
         cfg.set("Hologram.Locations", this.getHologramLocations().stream().map(LocationUtil::serialize).toList());
     }
 
-    @Override
     public void clear() {
         if (this.preview != null) {
             this.preview.clear();
@@ -167,22 +157,8 @@ public class Kit extends AbstractLoadableItem<AMA> implements ConfigHolder, Holo
 
     @Override
     @NotNull
-    public UnaryOperator<String> replacePlaceholders() {
-        return str -> str
-            .replace(Placeholders.KIT_ID, this.getId())
-            .replace(Placeholders.KIT_NAME, this.getName())
-            .replace(Placeholders.KIT_DESCRIPTION, String.join("\n", this.getDescription()))
-            .replace(Placeholders.KIT_PERMISSION, this.getPermission().getName())
-            .replace(Placeholders.KIT_IS_DEFAULT, LangManager.getBoolean(this.isDefault()))
-            .replace(Placeholders.KIT_IS_PERMISSION, LangManager.getBoolean(this.isPermissionRequired()))
-            .replace(Placeholders.KIT_COMMANDS, String.join("\n", this.getCommands()))
-            .replace(Placeholders.KIT_POTION_EFFECTS, String.join("\n", this.getPotionEffects()
-                .stream().map(effect -> effect.getType().getName() + " " + NumberUtil.toRoman(effect.getAmplifier() + 1)).toList()))
-            .replace(Placeholders.KIT_COST, this.getCurrency().format(this.getCost()))
-            .replace(Placeholders.KIT_ICON_LORE, String.join("\n", ItemUtil.getLore(this.getIcon())))
-            .replace(Placeholders.KIT_ICON_MATERIAL, this.getIcon().getType().name())
-            .replace(Placeholders.KIT_CURRENCY, this.getCurrency().getConfig().getName())
-            ;
+    public PlaceholderMap getPlaceholders() {
+        return this.placeholderMap;
     }
 
     public boolean hasPermission(@NotNull Player player) {
@@ -284,17 +260,9 @@ public class Kit extends AbstractLoadableItem<AMA> implements ConfigHolder, Holo
         isPermissionRequired = permissionRequired;
     }
 
-    private void setPermission() {
-        this.permission = new JPermission(Perms.PREFIX_KIT + this.getId(), "Access to the " + getId() + " arena kit.");
-        Perms.KIT_ALL.addChildren(this.getPermission());
-        if (this.plugin.getPluginManager().getPermission(this.getPermission().getName()) == null) {
-            this.plugin.getPluginManager().addPermission(this.getPermission());
-        }
-    }
-
     @NotNull
-    public JPermission getPermission() {
-        return permission;
+    public String getPermission() {
+        return Perms.PREFIX_KIT + this.getId();
     }
 
     @NotNull

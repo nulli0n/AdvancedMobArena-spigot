@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.hooks.Hooks;
+import su.nexmedia.engine.utils.EngineUtils;
 import su.nexmedia.engine.utils.EntityUtil;
 import su.nightexpress.ama.api.arena.type.ArenaLocationType;
 import su.nightexpress.ama.arena.impl.Arena;
@@ -63,10 +63,10 @@ public class PlayerSnapshot {
         player.leaveVehicle();
         player.getActivePotionEffects().forEach(effect -> player.removePotionEffect(effect.getType()));
 
-        if (Hooks.hasPlugin(HookId.ESSENTIALS)) {
+        if (EngineUtils.hasPlugin(HookId.ESSENTIALS)) {
             EssentialsHook.disableGod(player);
         }
-        if (Hooks.hasPlugin(HookId.SUNLIGHT)) {
+        if (EngineUtils.hasPlugin(HookId.SUNLIGHT)) {
             SunLightHook.disableGod(player);
         }
     }

@@ -9,11 +9,11 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.manager.AbstractManager;
-import su.nexmedia.engine.api.manager.IListener;
+import su.nexmedia.engine.api.manager.EventListener;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.setup.SetupItemType;
 
-public abstract class AbstractSetupManager<T> extends AbstractManager<AMA> implements IListener {
+public abstract class AbstractSetupManager<T> extends AbstractManager<AMA> implements EventListener {
 
     protected Player player;
     protected T      object;

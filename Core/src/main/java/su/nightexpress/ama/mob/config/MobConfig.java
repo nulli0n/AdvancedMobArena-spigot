@@ -14,11 +14,14 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
-import su.nexmedia.engine.api.manager.AbstractLoadableItem;
-import su.nexmedia.engine.api.manager.ICleanable;
-import su.nexmedia.engine.api.manager.IPlaceholder;
+import su.nexmedia.engine.api.manager.AbstractConfigHolder;
+import su.nexmedia.engine.api.placeholder.Placeholder;
+import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.lang.LangManager;
-import su.nexmedia.engine.utils.*;
+import su.nexmedia.engine.utils.Colorizer;
+import su.nexmedia.engine.utils.EntityUtil;
+import su.nexmedia.engine.utils.NumberUtil;
+import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.arena.util.ArenaUtils;
@@ -27,11 +30,10 @@ import su.nightexpress.ama.mob.style.MobStyleType;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class MobConfig extends AbstractLoadableItem<AMA> implements IPlaceholder, ICleanable {
+public class MobConfig extends AbstractConfigHolder<AMA> implements Placeholder {
 
     private String     name;
     private boolean    nameVisible;
@@ -40,7 +42,7 @@ public class MobConfig extends AbstractLoadableItem<AMA> implements IPlaceholder
     private int levelMin;
     private int levelMax;
 
-    private Map<MobStyleType, String> styles;
+    private final Map<MobStyleType, String> styles;
 
     private boolean  barEnabled;
     private String   barTitle;
@@ -52,54 +54,34 @@ public class MobConfig extends AbstractLoadableItem<AMA> implements IPlaceholder
 
     private MobMainEditor editor;
 
-    @Override
-    @NotNull
-    public UnaryOperator<String> replacePlaceholders() {
-        return str -> str
-            .replace(Placeholders.MOB_ID, this.getId())
-            .replace(Placeholders.MOB_NAME, this.getName())
-            .replace(Placeholders.MOB_NAME_VISIBLE, LangManager.getBoolean(this.isNameVisible()))
-            .replace(Placeholders.MOB_ENTITY_TYPE, plugin.getLangManager().getEnum(this.getEntityType()))
-            .replace(Placeholders.MOB_LEVEL_MIN, String.valueOf(this.getLevelMin()))
-            .replace(Placeholders.MOB_LEVEL_MAX, String.valueOf(this.getLevelMax()))
-            .replace(Placeholders.MOB_BOSSBAR_ENABLED, LangManager.getBoolean(this.isBarEnabled()))
-            .replace(Placeholders.MOB_BOSSBAR_TITLE, this.getBarTitle())
-            .replace(Placeholders.MOB_BOSSBAR_COLOR, this.getBarColor().name())
-            .replace(Placeholders.MOB_BOSSBAR_STYLE, this.getBarStyle().name())
-            .replace(Placeholders.MOB_ATTRIBUTES_BASE, this.getAttributes().entrySet().stream()
-                .map(enrty -> enrty.getKey() + ": " + enrty.getValue()[0]).collect(Collectors.joining("\n")))
-            .replace(Placeholders.MOB_ATTRIBUTES_LEVEL, this.getAttributes().entrySet().stream()
-                .map(enrty -> enrty.getKey() + ": " + enrty.getValue()[1]).collect(Collectors.joining("\n")))
-            ;
-    }
-
-    // Creating new config
-    public MobConfig(@NotNull AMA plugin, @NotNull String path, @NotNull EntityType entityType) {
-        super(plugin, path);
-
-        this.setEntityType(entityType);
-        this.setName("&f" + StringUtil.capitalizeFully(getEntityType().name().toLowerCase().replace("_", " ")) + " &cLv. &6" + Placeholders.MOB_LEVEL);
-        this.setNameVisible(true);
-
-        this.setLevelMin(1);
-        this.setLevelMax(10);
-
-        this.setStyles(new HashMap<>());
-
-        this.setBarEnabled(false);
-        this.setBarTitle("&c&l" + Placeholders.MOB_NAME + " &7&l- &f&l" + Placeholders.MOB_HEALTH + "&7/&f&l" + Placeholders.MOB_HEALTH_MAX);
-        this.setBarStyle(BarStyle.SEGMENTED_12);
-        this.setBarColor(BarColor.RED);
-
-        this.equipment = new HashMap<>();
-
-        this.attributes = new HashMap<>();
-        this.attributes.put(Attribute.GENERIC_MAX_HEALTH, new double[]{20D, 1D});
-    }
+    private final PlaceholderMap placeholderMap;
 
     public MobConfig(@NotNull AMA plugin, @NotNull JYML cfg) {
         super(plugin, cfg);
+        this.styles = new HashMap<>();
+        this.attributes = new HashMap<>();
+        this.equipment = new HashMap<>();
 
+        this.placeholderMap = new PlaceholderMap()
+            .add(Placeholders.MOB_ID, this::getId)
+            .add(Placeholders.MOB_NAME, this::getName)
+            .add(Placeholders.MOB_NAME_VISIBLE, () -> LangManager.getBoolean(this.isNameVisible()))
+            .add(Placeholders.MOB_ENTITY_TYPE, () -> plugin.getLangManager().getEnum(this.getEntityType()))
+            .add(Placeholders.MOB_LEVEL_MIN, () -> String.valueOf(this.getLevelMin()))
+            .add(Placeholders.MOB_LEVEL_MAX, () -> String.valueOf(this.getLevelMax()))
+            .add(Placeholders.MOB_BOSSBAR_ENABLED, () -> LangManager.getBoolean(this.isBarEnabled()))
+            .add(Placeholders.MOB_BOSSBAR_TITLE, this::getBarTitle)
+            .add(Placeholders.MOB_BOSSBAR_COLOR, () -> this.getBarColor().name())
+            .add(Placeholders.MOB_BOSSBAR_STYLE, () -> this.getBarStyle().name())
+            .add(Placeholders.MOB_ATTRIBUTES_BASE, () -> this.getAttributes().entrySet().stream()
+                .map(enrty -> enrty.getKey() + ": " + enrty.getValue()[0]).collect(Collectors.joining("\n")))
+            .add(Placeholders.MOB_ATTRIBUTES_LEVEL, () -> this.getAttributes().entrySet().stream()
+                .map(enrty -> enrty.getKey() + ": " + enrty.getValue()[1]).collect(Collectors.joining("\n")))
+        ;
+    }
+
+    @Override
+    public boolean load() {
         this.setName(cfg.getString("Name", this.getId()));
         this.setNameVisible(cfg.getBoolean("Name_Visible"));
         EntityType type = cfg.getEnum("Entity_Type", EntityType.class);
@@ -111,9 +93,8 @@ public class MobConfig extends AbstractLoadableItem<AMA> implements IPlaceholder
         this.setLevelMin(cfg.getInt("Level.Minimum", 1));
         this.setLevelMax(cfg.getInt("Level.Maximum", 1));
 
-        this.setStyles(new HashMap<>());
         for (String sId : cfg.getSection("Styles")) {
-            MobStyleType styleType = CollectionsUtil.getEnum(sId, MobStyleType.class);
+            MobStyleType styleType = StringUtil.getEnum(sId, MobStyleType.class).orElse(null);
             if (styleType == null) continue;
 
             String value = cfg.getString("Styles." + sId, "");
@@ -127,14 +108,12 @@ public class MobConfig extends AbstractLoadableItem<AMA> implements IPlaceholder
         this.setBarColor(cfg.getEnum(path + "Color", BarColor.class, BarColor.RED));
         this.setBarStyle(cfg.getEnum(path + "Style", BarStyle.class, BarStyle.SOLID));
 
-        this.equipment = new HashMap<>();
         Stream.of(EquipmentSlot.values()).forEach(slot -> {
             this.setEquipment(slot, cfg.getItemEncoded("Equipment." + slot.name()));
         });
 
         // Attributes
         path = "Attributes.";
-        this.attributes = new HashMap<>();
         for (Attribute attribute : Attribute.values()) {
             double valueBase = cfg.getDouble(path + "Base." + attribute.name());
             double valueLevel = cfg.getDouble(path + "Per_Level." + attribute.name());
@@ -142,6 +121,7 @@ public class MobConfig extends AbstractLoadableItem<AMA> implements IPlaceholder
                 this.attributes.put(attribute, new double[]{valueBase, valueLevel});
             }
         }
+        return true;
     }
 
     @Override
@@ -185,13 +165,19 @@ public class MobConfig extends AbstractLoadableItem<AMA> implements IPlaceholder
         return editor;
     }
 
-    @Override
     public void clear() {
         if (this.editor != null) {
             this.editor.clear();
             this.editor = null;
         }
     }
+
+    @Override
+    @NotNull
+    public PlaceholderMap getPlaceholders() {
+        return this.placeholderMap;
+    }
+
     @NotNull
     public BossBar createOrUpdateBar(@NotNull LivingEntity entity) {
         String title = this.getBarTitle(entity);
@@ -298,10 +284,6 @@ public class MobConfig extends AbstractLoadableItem<AMA> implements IPlaceholder
     @NotNull
     public Map<MobStyleType, String> getStyles() {
         return styles;
-    }
-
-    public void setStyles(@NotNull Map<MobStyleType, String> styles) {
-        this.styles = styles;
     }
 
     @NotNull

@@ -13,7 +13,6 @@ import su.nexmedia.engine.api.menu.impl.MenuOptions;
 import su.nexmedia.engine.api.menu.impl.MenuViewer;
 import su.nexmedia.engine.editor.EditorManager;
 import su.nexmedia.engine.utils.ItemUtil;
-import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.editor.EditorHub;
@@ -39,15 +38,10 @@ public class MobListEditor extends EditorMenu<AMA, MobManager> implements AutoPa
 
         this.addCreation(EditorLocales.MOB_CREATE, 41).setClick((viewer, event) -> {
             this.handleInput(viewer, Lang.Editor_Mob_Enter_Create, wrapper -> {
-                String id = StringUtil.lowerCaseUnderscore(wrapper.getTextRaw());
-                if (mobManager.getMobById(id) != null) {
+                if (!mobManager.createMobConfig(wrapper.getTextRaw())) {
                     EditorManager.error(viewer.getPlayer(), plugin.getMessage(Lang.Editor_Mob_Error_Exist).getLocalized());
                     return false;
                 }
-
-                MobConfig mob = new MobConfig(plugin, plugin.getDataFolder() + "/mobs/" + id + ".yml", EntityType.ZOMBIE);
-                mob.save();
-                mobManager.getMobsMap().put(mob.getId(), mob);
                 return true;
             });
         });

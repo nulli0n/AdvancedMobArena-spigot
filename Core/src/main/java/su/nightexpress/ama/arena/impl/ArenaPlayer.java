@@ -7,8 +7,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
-import su.nexmedia.engine.hooks.Hooks;
 import su.nexmedia.engine.lang.LangManager;
+import su.nexmedia.engine.utils.EngineUtils;
 import su.nexmedia.engine.utils.EntityUtil;
 import su.nexmedia.engine.utils.TimeUtil;
 import su.nightexpress.ama.AMA;
@@ -344,7 +344,7 @@ public final class ArenaPlayer implements Placeholder {
         ArenaBoardConfig boardConfig = Config.SCOREBOARDS.get().get(this.getArena().getConfig().getGameplayManager().getScoreboardId());
         if (boardConfig == null) return;
 
-        if (Hooks.hasPlugin(HookId.SUNLIGHT)) {
+        if (EngineUtils.hasPlugin(HookId.SUNLIGHT)) {
             SunLightHook.disableBoard(this.getPlayer());
         }
 

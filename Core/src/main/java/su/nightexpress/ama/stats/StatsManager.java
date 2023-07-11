@@ -1,19 +1,11 @@
 package su.nightexpress.ama.stats;
 
-import net.citizensnpcs.api.CitizensAPI;
-import net.citizensnpcs.api.npc.NPC;
-import net.citizensnpcs.trait.SkinTrait;
-import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.AbstractManager;
 import su.nexmedia.engine.api.manager.ConfigHolder;
-import su.nexmedia.engine.api.task.AbstractTask;
-import su.nexmedia.engine.hooks.Hooks;
+import su.nexmedia.engine.api.server.AbstractTask;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.data.ArenaUser;
@@ -157,7 +149,7 @@ public class StatsManager extends AbstractManager<AMA> implements ConfigHolder {
     }
 
     public void setLeaderSkin(@NotNull Block block, @NotNull String name) {
-        if (!Hooks.hasPlugin(Hooks.CITIZENS)) return;
+        /*if (!Hooks.hasPlugin(Hooks.CITIZENS)) return;
 
         Location location = block.getLocation();
         World world = block.getWorld();
@@ -178,7 +170,7 @@ public class StatsManager extends AbstractManager<AMA> implements ConfigHolder {
             if (skinTrait != null && !name.equalsIgnoreCase(skinTrait.getSkinName())) {
                 skinTrait.setSkinName(name);
             }
-        }
+        }*/
     }
 
     class StatsTask extends AbstractTask<AMA> {

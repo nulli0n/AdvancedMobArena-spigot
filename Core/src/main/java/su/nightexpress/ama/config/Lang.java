@@ -21,7 +21,7 @@ public class Lang extends EngineLang {
     @Deprecated
     public static final LangKey Help_Score = new LangKey(
         "Help.Score", """
-        {message: ~prefix: false;}
+        <! prefix:"false" !>
         &a/ama score add <player> <amount> &7- Add score to a player.
         &a/ama score take <player> <amount> &7- Take score from a player.
         &a/ama score set <player> <amount> &7- Set score for a player.
@@ -129,7 +129,7 @@ public class Lang extends EngineLang {
     public static final LangKey ARENA_SCHEDULER_OPEN_ANNOUNCE = LangKey.of("Arena.Scheduler.Open.Announce", "&7Arena &a" + Placeholders.ARENA_NAME + "&7 is opened for play!");
     public static final LangKey ARENA_SCHEDULER_CLOSE_ANNOUNCE = LangKey.of("Arena.Scheduler.Close.Announce", "&7Arena &c" + Placeholders.ARENA_NAME + "&7 have been closed!");
 
-    public static final LangKey Arena_Game_Notify_Start  = new LangKey("Arena.Game.Notify.Start", "{message: ~type: TITLES; ~fadeIn: 10; ~stay: 40; ~fadeOut: 10; ~sound: ENTITY_ENDERMAN_TELEPORT;}&a&lYou have joined the arena! \n &2&lPickup your weapons and fight!");
+    public static final LangKey Arena_Game_Notify_Start  = new LangKey("Arena.Game.Notify.Start", "<! type:\"titles:10:50:10\" sound:\"" + Sound.ENTITY_ENDERMAN_TELEPORT.name() + "\" !>" + "&a&lYou have joined the arena! \n &2&lPickup your weapons and fight!");
     public static final LangKey ARENA_GAME_NOTIFY_REWARD = new LangKey("Arena.Game.Notify.Reward", "You recieved reward: &a" + Placeholders.REWARD_NAME);
 
     public static final LangKey Arena_Game_Announce_End   = new LangKey("Arena.Game.Announce.End", "Game on the arena &a%arena_name% &7has ended. Type &a/ama join &a%arena_id% &7to play!");
@@ -142,8 +142,8 @@ public class Lang extends EngineLang {
 
     public static final LangKey ARENA_GAME_LEAVE_INFO  = LangKey.of("Arena.Game.Leave.Info", "You has left the arena.");
 
-    public static final LangKey Arena_Game_Lobby_Enter       = new LangKey("Arena.Game.Lobby.Enter", "{message: ~type: TITLES; ~fadeIn: 10; ~stay: 40; ~fadeOut: 10;}&a&lWelcome to Mob Arena! \n &2&lPlease, choose your kit");
-    public static final LangKey Arena_Game_Lobby_Timer       = new LangKey("Arena.Game.Lobby.Timer", "{message: ~type: TITLES; ~fadeIn: 10; ~stay: 40; ~fadeOut: 10; ~sound: BLOCK_NOTE_BLOCK_PLING;}&e&lThe game will start in \n &a&l%time% seconds!");
+    public static final LangKey Arena_Game_Lobby_Enter       = new LangKey("Arena.Game.Lobby.Enter", "<! type:\"titles:10:50:10\" !>" + "&a&lWelcome to Mob Arena! \n &2&lPlease, choose your kit");
+    public static final LangKey Arena_Game_Lobby_Timer       = new LangKey("Arena.Game.Lobby.Timer", "<! type:\"titles:10:50:10\" sound:\"" + Sound.BLOCK_NOTE_BLOCK_PLING.name() + "\" !>" + "&e&lThe game will start in \n &a&l%time% seconds!");
     public static final LangKey Arena_Game_Lobby_MinPlayers  = new LangKey("Arena.Game.Lobby.MinPlayers", "Minimum players to start: &c%min%");
     public static final LangKey Arena_Game_Lobby_Joined      = new LangKey("Arena.Game.Lobby.Joined", "&a%player_name% &7has joined the arena.");
 
@@ -166,11 +166,11 @@ public class Lang extends EngineLang {
             "\n" + GRAY + "This is your " + RED + "last" + GRAY + " chance!");
 
     public static final LangKey ARENA_GAME_INFO_PLAYER_READY     = LangKey.of("Arena.Game.Info.Player.Ready",
-        GREEN + Placeholders.Player.NAME + GRAY + " is ready to play!");
+        GREEN + Placeholders.PLAYER_NAME + GRAY + " is ready to play!");
     public static final LangKey ARENA_GAME_INFO_PLAYER_NOT_READY = LangKey.of("Arena.Game.Info.Player.NotReady",
-        RED + Placeholders.Player.NAME + GRAY + " is not ready to play.");
+        RED + Placeholders.PLAYER_NAME + GRAY + " is not ready to play.");
     public static final LangKey ARENA_GAME_INFO_PLAYER_DEATH = LangKey.of("Arena.Game.Info.Player.Death",
-        RED + Placeholders.Player.NAME + " " + GRAY + "died!");
+        RED + Placeholders.PLAYER_NAME + " " + GRAY + "died!");
 
     public static final LangKey ARENA_GAME_END_ALL_DEAD = LangKey.of("Arena.Game.End.AllDead",
         "<! type:\"titles:10:100:10\" sound:\"" + Sound.ENTITY_BLAZE_DEATH.name() + "\" !>" +
@@ -201,10 +201,10 @@ public class Lang extends EngineLang {
     public static final LangKey ARENA_GAME_STATUS_ENDING = LangKey.of("Arena.Game.Status.Ending",
         "<! type:\"action_bar\" !>" + CYAN + "Game ends in " + GRAY + Placeholders.ARENA_END_COUNTDOWN + CYAN + " seconds.");
 
-    public static final LangKey Arena_Game_Wave_Start    = new LangKey("Arena.Game.Wave.Start", "{message: ~type: TITLES; ~fadeIn: 10; ~stay: 40; ~fadeOut: 10;}&6&lWave &e&l#%arena_wave_number% \n &4&lPrepare to fight!");
+    public static final LangKey Arena_Game_Wave_Start    = new LangKey("Arena.Game.Wave.Start", "<! type:\"titles:10:50:10\" !>" + "&6&lWave &e&l#%arena_wave_number% \n &4&lPrepare to fight!");
 
-    public static final LangKey ARENA_REGION_UNLOCKED_NOTIFY = new LangKey("Arena.Region.Unlocked.Notify", "{message: ~type: TITLES; ~fadeIn: 0; ~stay: 30; ~fadeOut: 10; ~sound: " + Sound.BLOCK_NOTE_BLOCK_BELL.name() + ";}&a&lRegion Unlocked!\n&f" + Placeholders.REGION_NAME);
-    public static final LangKey ARENA_REGION_LOCKED_NOTIFY   = new LangKey("Arena.Region.Locked.Notify", "{message: ~type: TITLES; ~fadeIn: 0; ~stay: 30; ~fadeOut: 10;}&c&lNew Region!\n&4&lFollow to the next arena region!");
+    public static final LangKey ARENA_REGION_UNLOCKED_NOTIFY = new LangKey("Arena.Region.Unlocked.Notify", "<! type:\"titles:0:30:10\" sound: " + Sound.BLOCK_NOTE_BLOCK_BELL.name() + "!>&a&lRegion Unlocked!\n&f" + Placeholders.REGION_NAME);
+    public static final LangKey ARENA_REGION_LOCKED_NOTIFY   = new LangKey("Arena.Region.Locked.Notify", "<! type:\"titles:0:30:10\" !>" + "&c&lNew Region!\n&4&lFollow to the next arena region!");
 
     public static final LangKey Kit_Buy_Error_NoMoney         = new LangKey("Kit.Buy.Error.NoMoney", "You can't afford &c%kit_name% &7kit!");
     public static final LangKey Kit_Buy_Success               = new LangKey("Kit.Buy.Success", "You successfully bought the &a%kit_name% &7kit for &a%kit_cost%&7!");

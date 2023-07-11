@@ -1,16 +1,17 @@
 package su.nightexpress.ama.kit.menu;
 
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
-import su.nexmedia.engine.api.menu.AbstractMenuAuto;
-import su.nexmedia.engine.api.menu.MenuClick;
-import su.nexmedia.engine.api.menu.MenuItem;
+import su.nexmedia.engine.api.menu.AutoPaged;
 import su.nexmedia.engine.api.menu.MenuItemType;
+import su.nexmedia.engine.api.menu.click.ClickHandler;
+import su.nexmedia.engine.api.menu.impl.ConfigMenu;
+import su.nexmedia.engine.api.menu.impl.MenuOptions;
+import su.nexmedia.engine.api.menu.impl.MenuViewer;
 import su.nexmedia.engine.lang.LangManager;
 import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.ItemUtil;
@@ -24,33 +25,31 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
-public abstract class AbstractKitListMenu extends AbstractMenuAuto<AMA, Kit> {
+public abstract class AbstractKitListMenu extends ConfigMenu<AMA> implements AutoPaged<Kit> {
 
     private final String       objectName;
     private final List<String> objectLore;
     private final int[]        objectSlots;
 
-    public AbstractKitListMenu(@NotNull AMA plugin, @NotNull JYML cfg, @NotNull String path) {
-        super(plugin, cfg, path);
+    public AbstractKitListMenu(@NotNull AMA plugin, @NotNull JYML cfg) {
+        super(plugin, cfg);
 
-        this.objectName = Colorizer.apply(cfg.getString(path + "Object.Name", Placeholders.KIT_NAME));
-        this.objectLore = Colorizer.apply(cfg.getStringList(path + "Object.Lore"));
-        this.objectSlots = cfg.getIntArray(path + "Object.Slots");
+        this.objectName = Colorizer.apply(cfg.getString("Object.Name", Placeholders.KIT_NAME));
+        this.objectLore = Colorizer.apply(cfg.getStringList("Object.Lore"));
+        this.objectSlots = cfg.getIntArray("Object.Slots");
 
-        MenuClick click = (player, type, e) -> {
-            if (type instanceof MenuItemType type2) {
-                this.onItemClickDefault(player, type2);
-            }
-        };
+        this.registerHandler(MenuItemType.class)
+            .addClick(MenuItemType.CLOSE, (viewer, event) -> plugin.runTask(task -> viewer.getPlayer().closeInventory()))
+            .addClick(MenuItemType.PAGE_NEXT, ClickHandler.forNextPage(this))
+            .addClick(MenuItemType.PAGE_PREVIOUS, ClickHandler.forPreviousPage(this));
 
-        for (String sId : cfg.getSection(path + "Content")) {
-            MenuItem guiItem = cfg.getMenuItem(path + "Content." + sId, MenuItemType.class);
+        this.load();
+    }
 
-            if (guiItem.getType() != null) {
-                guiItem.setClickHandler(click);
-            }
-            this.addItem(guiItem);
-        }
+    @Override
+    public void onPrepare(@NotNull MenuViewer viewer, @NotNull MenuOptions options) {
+        super.onPrepare(viewer, options);
+        this.getItemsForPage(viewer).forEach(this::addItem);
     }
 
     @NotNull
@@ -63,7 +62,7 @@ public abstract class AbstractKitListMenu extends AbstractMenuAuto<AMA, Kit> {
 
     @Override
     @NotNull
-    protected List<Kit> getObjects(@NotNull Player player) {
+    public List<Kit> getObjects(@NotNull Player player) {
         ArenaUser user = plugin.getUserManager().getUserData(player);
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
         if (arenaPlayer == null) return Collections.emptyList();
@@ -76,7 +75,7 @@ public abstract class AbstractKitListMenu extends AbstractMenuAuto<AMA, Kit> {
 
     @Override
     @NotNull
-    protected ItemStack getObjectStack(@NotNull Player player, @NotNull Kit kit) {
+    public ItemStack getObjectStack(@NotNull Player player, @NotNull Kit kit) {
         ItemStack item = new ItemStack(kit.getIcon());
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return item;
@@ -92,10 +91,5 @@ public abstract class AbstractKitListMenu extends AbstractMenuAuto<AMA, Kit> {
         ));
 
         return item;
-    }
-
-    @Override
-    public boolean cancelClick(@NotNull InventoryClickEvent e, @NotNull SlotType slotType) {
-        return true;
     }
 }

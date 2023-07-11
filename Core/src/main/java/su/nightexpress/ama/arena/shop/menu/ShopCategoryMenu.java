@@ -1,14 +1,16 @@
 package su.nightexpress.ama.arena.shop.menu;
 
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.config.JYML;
-import su.nexmedia.engine.api.menu.AbstractMenuAuto;
-import su.nexmedia.engine.api.menu.MenuClick;
-import su.nexmedia.engine.api.menu.MenuItem;
+import su.nexmedia.engine.api.menu.AutoPaged;
 import su.nexmedia.engine.api.menu.MenuItemType;
+import su.nexmedia.engine.api.menu.click.ClickHandler;
+import su.nexmedia.engine.api.menu.click.ItemClick;
+import su.nexmedia.engine.api.menu.impl.ConfigMenu;
+import su.nexmedia.engine.api.menu.impl.MenuOptions;
+import su.nexmedia.engine.api.menu.impl.MenuViewer;
 import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.ItemUtil;
 import su.nexmedia.engine.utils.StringUtil;
@@ -23,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ShopCategoryMenu extends AbstractMenuAuto<AMA, ShopProduct> {
+public class ShopCategoryMenu extends ConfigMenu<AMA> implements AutoPaged<ShopProduct> {
 
     private static final String PLACEHOLDER_KITS     = "%kits%";
     private static final String PLACEHOLDER_UNLOCKED = "%unlocked%";
@@ -39,7 +41,7 @@ public class ShopCategoryMenu extends AbstractMenuAuto<AMA, ShopProduct> {
     private final int[]        itemSlots;
 
     public ShopCategoryMenu(@NotNull ShopCategory shopCategory) {
-        super(shopCategory.plugin(), JYML.loadOrExtract(shopCategory.plugin(), "/menu/arena.shop.category.yml"), "");
+        super(shopCategory.plugin(), JYML.loadOrExtract(shopCategory.plugin(), "/menu/arena.shop.category.yml"));
         this.shopCategory = shopCategory;
 
         this.itemName = Colorizer.apply(cfg.getString("Product.Name", Placeholders.SHOP_PRODUCT_NAME));
@@ -49,26 +51,24 @@ public class ShopCategoryMenu extends AbstractMenuAuto<AMA, ShopProduct> {
         this.itemLoreLocked = Colorizer.apply(cfg.getStringList("Product.Lore.Locked"));
         this.itemSlots = cfg.getIntArray("Product.Slots");
 
-        MenuClick click = (player, type, e) -> {
-            if (type instanceof MenuItemType type2) {
-                if (type2 == MenuItemType.RETURN) {
-                    ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
-                    if (arenaPlayer != null) {
-                        this.shopCategory.open(arenaPlayer);
-                    }
+        this.registerHandler(MenuItemType.class)
+            .addClick(MenuItemType.CLOSE, (viewer, event) -> plugin.runTask(task -> viewer.getPlayer().closeInventory()))
+            .addClick(MenuItemType.RETURN, (viewer, event) -> {
+                ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(viewer.getPlayer());
+                if (arenaPlayer != null) {
+                    this.shopCategory.open(arenaPlayer);
                 }
-                this.onItemClickDefault(player, type2);
-            }
-        };
+            })
+            .addClick(MenuItemType.PAGE_NEXT, ClickHandler.forNextPage(this))
+            .addClick(MenuItemType.PAGE_PREVIOUS, ClickHandler.forPreviousPage(this));
 
-        for (String sId : cfg.getSection("Content")) {
-            MenuItem menuItem = cfg.getMenuItem("Content." + sId, MenuItemType.class);
+        this.load();
+    }
 
-            if (menuItem.getType() != null) {
-                menuItem.setClickHandler(click);
-            }
-            this.addItem(menuItem);
-        }
+    @Override
+    public void onPrepare(@NotNull MenuViewer viewer, @NotNull MenuOptions options) {
+        super.onPrepare(viewer, options);
+        this.getItemsForPage(viewer).forEach(this::addItem);
     }
 
     @Override
@@ -78,7 +78,7 @@ public class ShopCategoryMenu extends AbstractMenuAuto<AMA, ShopProduct> {
 
     @Override
     @NotNull
-    protected List<ShopProduct> getObjects(@NotNull Player player) {
+    public List<ShopProduct> getObjects(@NotNull Player player) {
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
         if (arenaPlayer == null || arenaPlayer.getArena().getState() != GameState.INGAME) return Collections.emptyList();
 
@@ -91,13 +91,13 @@ public class ShopCategoryMenu extends AbstractMenuAuto<AMA, ShopProduct> {
 
     @Override
     @NotNull
-    protected ItemStack getObjectStack(@NotNull Player player, @NotNull ShopProduct product) {
+    public ItemStack getObjectStack(@NotNull Player player, @NotNull ShopProduct product) {
         ItemStack item = product.getIcon();
         ItemUtil.mapMeta(item, meta -> {
             List<String> lore = new ArrayList<>(this.itemLoreDefault);
-            lore = StringUtil.replace(lore, PLACEHOLDER_KITS, false, product.getAllowedKits().isEmpty() ? Collections.emptyList() : this.itemLoreKits);
-            lore = StringUtil.replace(lore, PLACEHOLDER_LOCKED, false, product.isLocked() ? this.itemLoreLocked : Collections.emptyList());
-            lore = StringUtil.replace(lore, PLACEHOLDER_UNLOCKED, false, product.isUnlocked() ? this.itemLoreUnlocked : Collections.emptyList());
+            lore = StringUtil.replaceInList(lore, PLACEHOLDER_KITS, product.getAllowedKits().isEmpty() ? Collections.emptyList() : this.itemLoreKits);
+            lore = StringUtil.replaceInList(lore, PLACEHOLDER_LOCKED, product.isLocked() ? this.itemLoreLocked : Collections.emptyList());
+            lore = StringUtil.replaceInList(lore, PLACEHOLDER_UNLOCKED, product.isUnlocked() ? this.itemLoreUnlocked : Collections.emptyList());
 
             meta.setDisplayName(this.itemName);
             meta.setLore(lore);
@@ -108,19 +108,14 @@ public class ShopCategoryMenu extends AbstractMenuAuto<AMA, ShopProduct> {
 
     @Override
     @NotNull
-    protected MenuClick getObjectClick(@NotNull Player player, @NotNull ShopProduct shopProduct) {
-        return (player2, type, e) -> {
-            ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player2);
+    public ItemClick getObjectClick(@NotNull ShopProduct shopProduct) {
+        return (viewer, event) -> {
+            ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(viewer.getPlayer());
             if (arenaPlayer == null) {
-                player2.closeInventory();
+                viewer.getPlayer().closeInventory();
                 return;
             }
             shopProduct.purchase(arenaPlayer);
         };
-    }
-
-    @Override
-    public boolean cancelClick(@NotNull InventoryClickEvent e, @NotNull SlotType slotType) {
-        return true;
     }
 }

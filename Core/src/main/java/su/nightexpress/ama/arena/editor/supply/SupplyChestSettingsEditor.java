@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.editor.InputHandler;
 import su.nexmedia.engine.api.editor.InputWrapper;
-import su.nexmedia.engine.api.manager.IListener;
+import su.nexmedia.engine.api.manager.EventListener;
 import su.nexmedia.engine.api.menu.impl.EditorMenu;
 import su.nexmedia.engine.api.menu.impl.Menu;
 import su.nexmedia.engine.api.menu.impl.MenuViewer;
@@ -30,7 +30,7 @@ import su.nightexpress.ama.editor.EditorLocales;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-public class SupplyChestSettingsEditor extends EditorMenu<AMA, ArenaSupplyChest> implements IListener {
+public class SupplyChestSettingsEditor extends EditorMenu<AMA, ArenaSupplyChest> implements EventListener {
 
     public SupplyChestSettingsEditor(@NotNull ArenaSupplyChest container) {
         super(container.plugin(), container, EditorHub.TITLE_SUPPLY_EDITOR, 36);
@@ -65,6 +65,8 @@ public class SupplyChestSettingsEditor extends EditorMenu<AMA, ArenaSupplyChest>
         this.getItems().forEach(menuItem -> {
             menuItem.getOptions().addDisplayModifier((viewer, item) -> ItemUtil.replace(item, container.replacePlaceholders()));
         });
+
+        this.registerListeners();
     }
 
     @Override

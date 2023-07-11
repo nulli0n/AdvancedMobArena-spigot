@@ -3,7 +3,6 @@ package su.nightexpress.ama.arena.script.impl;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.AbstractConfigHolder;
-import su.nexmedia.engine.api.manager.ICleanable;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
@@ -14,7 +13,7 @@ import su.nightexpress.ama.arena.script.condition.ScriptPreparedCondition;
 
 import java.util.*;
 
-public class ScriptCategory extends AbstractConfigHolder<AMA> implements ArenaChild, ICleanable {
+public class ScriptCategory extends AbstractConfigHolder<AMA> implements ArenaChild {
 
     private final ArenaConfig arenaConfig;
     private final Map<String, ArenaScript> scripts;
@@ -79,7 +78,6 @@ public class ScriptCategory extends AbstractConfigHolder<AMA> implements ArenaCh
         });
     }
 
-    @Override
     public void clear() {
         if (this.editor != null) {
             this.editor.clear();

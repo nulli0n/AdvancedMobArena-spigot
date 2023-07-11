@@ -4,6 +4,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.command.AbstractCommand;
+import su.nexmedia.engine.api.command.CommandResult;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.arena.impl.Arena;
@@ -13,7 +14,6 @@ import su.nightexpress.ama.config.Lang;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 public class RegionCommand extends AbstractCommand<AMA> {
 
@@ -55,8 +55,8 @@ public class RegionCommand extends AbstractCommand<AMA> {
     }
 
     @Override
-    protected void onExecute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args, @NotNull Map<String, String> flags) {
-        if (args.length < 3) {
+    public void onExecute(@NotNull CommandSender sender, @NotNull CommandResult result) {
+        if (result.length() < 3) {
             this.printUsage(sender);
             return;
         }
@@ -69,14 +69,14 @@ public class RegionCommand extends AbstractCommand<AMA> {
         }
 
         Arena arena = arenaPlayer.getArena();
-        boolean lock = args[1].equalsIgnoreCase("lock");
-        boolean unlock = args[1].equalsIgnoreCase("unlock");
+        boolean lock = result.getArg(1).equalsIgnoreCase("lock");
+        boolean unlock = result.getArg(1).equalsIgnoreCase("unlock");
         if (!lock && !unlock) {
             this.printUsage(sender);
             return;
         }
 
-        String regId = args[2];
+        String regId = result.getArg(2);
         ArenaRegion region = arena.getConfig().getRegionManager().getRegion(regId);
         if (region == null) {
             plugin.getMessage(Lang.Command_Region_State_Error_InvalidRegion).send(sender);

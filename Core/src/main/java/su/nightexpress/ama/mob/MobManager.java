@@ -1,6 +1,9 @@
 package su.nightexpress.ama.mob;
 
 import org.bukkit.Location;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -8,15 +11,17 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.AbstractManager;
-import su.nexmedia.engine.hooks.Hooks;
-import su.nexmedia.engine.hooks.external.MythicMobsHook;
+import su.nexmedia.engine.utils.EngineUtils;
 import su.nexmedia.engine.utils.PDCUtil;
+import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Keys;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.util.ArenaUtils;
 import su.nightexpress.ama.hologram.HologramManager;
+import su.nightexpress.ama.hook.HookId;
+import su.nightexpress.ama.hook.external.MythicMobsHook;
 import su.nightexpress.ama.hook.mob.PluginMobProvider;
 import su.nightexpress.ama.hook.mob.impl.InternalMobProvider;
 import su.nightexpress.ama.mob.config.MobConfig;
@@ -49,6 +54,7 @@ public class MobManager extends AbstractManager<AMA> {
         for (JYML cfg : JYML.loadAll(plugin.getDataFolder() + "/mobs/", false)) {
             try {
                 MobConfig mob = new MobConfig(plugin, cfg);
+                mob.load();
                 this.mobs.put(mob.getId().toLowerCase(), mob);
             }
             catch (Exception ex) {
@@ -67,6 +73,30 @@ public class MobManager extends AbstractManager<AMA> {
     public void onShutdown() {
         this.mobs.values().forEach(MobConfig::clear);
         this.mobs.clear();
+    }
+
+    public boolean createMobConfig(@NotNull String id) {
+        id = StringUtil.lowerCaseUnderscore(id);
+        if (this.getMobById(id) != null) return false;
+
+        JYML cfg = new JYML(this.plugin.getDataFolder() + "/mobs/", id + ".yml");
+        MobConfig mobConfig = new MobConfig(plugin, cfg);
+
+        mobConfig.setEntityType(EntityType.ZOMBIE);
+        mobConfig.setName("&f" + StringUtil.capitalizeFully(mobConfig.getEntityType().name().toLowerCase().replace("_", " ")) + " &cLv. &6" + Placeholders.MOB_LEVEL);
+        mobConfig.setNameVisible(true);
+        mobConfig.setLevelMin(1);
+        mobConfig.setLevelMax(10);
+        mobConfig.setBarEnabled(false);
+        mobConfig.setBarTitle("&c&l" + Placeholders.MOB_NAME + " &7&l- &f&l" + Placeholders.MOB_HEALTH + "&7/&f&l" + Placeholders.MOB_HEALTH_MAX);
+        mobConfig.setBarStyle(BarStyle.SEGMENTED_12);
+        mobConfig.setBarColor(BarColor.RED);
+        mobConfig.getAttributes().put(Attribute.GENERIC_MAX_HEALTH, new double[]{20D, 1D});
+
+        mobConfig.save();
+        mobConfig.load();
+        this.getMobsMap().put(mobConfig.getId(), mobConfig);
+        return true;
     }
 
     @NotNull
@@ -178,7 +208,7 @@ public class MobManager extends AbstractManager<AMA> {
     @NotNull
     @Deprecated // TODO Use provider name & PDC
     public String getMobId(@NotNull LivingEntity entity) {
-        if (Hooks.hasMythicMobs() && MythicMobsHook.isMythicMob(entity)) {
+        if (EngineUtils.hasPlugin(HookId.MYTHIC_MOBS) && MythicMobsHook.isMythicMob(entity)) {
             return MythicMobsHook.getMobInternalName(entity).toLowerCase();
         }
         MobConfig customMob = this.getEntityMobConfig(entity);
@@ -246,7 +276,7 @@ public class MobManager extends AbstractManager<AMA> {
 
     @Deprecated // TODO Only PDC
     public int getEntityLevel(@NotNull Entity entity) {
-        if (Hooks.hasMythicMobs() && MythicMobsHook.isMythicMob(entity)) {
+        if (EngineUtils.hasPlugin(HookId.MYTHIC_MOBS) && MythicMobsHook.isMythicMob(entity)) {
             return (int) MythicMobsHook.getMobLevel(entity);
         }
         return PDCUtil.getInt(entity, Keys.ENTITY_MOB_LEVEL).orElse(0);

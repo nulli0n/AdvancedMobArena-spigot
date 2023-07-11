@@ -4,6 +4,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.command.AbstractCommand;
+import su.nexmedia.engine.api.command.CommandResult;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
@@ -14,7 +15,6 @@ import su.nightexpress.ama.config.Lang;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ScoreCmd extends AbstractCommand<AMA> {
@@ -62,14 +62,14 @@ public class ScoreCmd extends AbstractCommand<AMA> {
     }
 
     @Override
-    public void onExecute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args, @NotNull Map<String, String> flags) {
-        if (args.length != 4) {
+    public void onExecute(@NotNull CommandSender sender, @NotNull CommandResult result) {
+        if (result.length() != 4) {
             plugin.getMessage(Lang.Help_Score).send(sender);
             return;
         }
 
-        if (args[1].equalsIgnoreCase("add")) {
-            Player player = plugin.getServer().getPlayer(args[2]);
+        if (result.getArg(1).equalsIgnoreCase("add")) {
+            Player player = plugin.getServer().getPlayer(result.getArg(2));
             if (player == null) {
                 this.errorPlayer(sender);
                 return;
@@ -81,7 +81,7 @@ public class ScoreCmd extends AbstractCommand<AMA> {
                 return;
             }
 
-            int amount = StringUtil.getInteger(args[3], -1);
+            int amount = result.getInt(3, -1);
             if (amount < 0) return;
 
             arenaPlayer.addScore(amount);
@@ -91,8 +91,8 @@ public class ScoreCmd extends AbstractCommand<AMA> {
                 .replace("%points%", amount)
                 .send(sender);
         }
-        else if (args[1].equalsIgnoreCase("take")) {
-            Player player = plugin.getServer().getPlayer(args[2]);
+        else if (result.getArg(1).equalsIgnoreCase("take")) {
+            Player player = plugin.getServer().getPlayer(result.getArg(2));
             if (player == null) {
                 this.errorPlayer(sender);
                 return;
@@ -104,7 +104,7 @@ public class ScoreCmd extends AbstractCommand<AMA> {
                 return;
             }
 
-            int amount = StringUtil.getInteger(args[3], -1);
+            int amount = StringUtil.getInteger(result.getArg(3), -1);
             if (amount < 0) return;
 
             arenaPlayer.addScore(-amount);
@@ -114,8 +114,8 @@ public class ScoreCmd extends AbstractCommand<AMA> {
                 .replace("%points%", amount)
                 .send(sender);
         }
-        else if (args[1].equalsIgnoreCase("set")) {
-            Player player = plugin.getServer().getPlayer(args[2]);
+        else if (result.getArg(1).equalsIgnoreCase("set")) {
+            Player player = plugin.getServer().getPlayer(result.getArg(2));
             if (player == null) {
                 this.errorPlayer(sender);
                 return;
@@ -127,7 +127,7 @@ public class ScoreCmd extends AbstractCommand<AMA> {
                 return;
             }
 
-            int amount = StringUtil.getInteger(args[3], -1);
+            int amount = StringUtil.getInteger(result.getArg(3), -1);
             if (amount < 0) return;
 
             arenaPlayer.setScore(amount);

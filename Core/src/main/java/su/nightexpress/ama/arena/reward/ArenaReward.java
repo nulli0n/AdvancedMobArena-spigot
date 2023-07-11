@@ -3,7 +3,6 @@ package su.nightexpress.ama.arena.reward;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.api.manager.ICleanable;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.lang.LangManager;
@@ -22,7 +21,7 @@ import su.nightexpress.ama.config.Lang;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArenaReward implements ArenaChild, Placeholder, ICleanable {
+public class ArenaReward implements ArenaChild, Placeholder {
 
     private final String      id;
     private final ArenaConfig arenaConfig;
@@ -69,7 +68,6 @@ public class ArenaReward implements ArenaChild, Placeholder, ICleanable {
         return this.placeholderMap;
     }
 
-    @Override
     public void clear() {
         if (this.editor != null) {
             this.editor.clear();

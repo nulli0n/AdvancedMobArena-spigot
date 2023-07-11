@@ -5,7 +5,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.AbstractConfigHolder;
-import su.nexmedia.engine.api.manager.ICleanable;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.lang.LangManager;
@@ -29,7 +28,7 @@ import su.nightexpress.ama.arena.util.ArenaCuboid;
 
 import java.util.*;
 
-public class ArenaSpot extends AbstractConfigHolder<AMA> implements ArenaChild, ICleanable, Problematic, Placeholder {
+public class ArenaSpot extends AbstractConfigHolder<AMA> implements ArenaChild, Problematic, Placeholder {
 
     private final ArenaConfig arenaConfig;
     private final Map<String, ArenaSpotState> states;
@@ -142,7 +141,6 @@ public class ArenaSpot extends AbstractConfigHolder<AMA> implements ArenaChild, 
         return this.arenaConfig;
     }
 
-    @Override
     public void clear() {
         if (this.editor != null) {
             this.editor.clear();

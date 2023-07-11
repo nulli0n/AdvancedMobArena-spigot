@@ -2,13 +2,12 @@ package su.nightexpress.ama.command.currency;
 
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
+import su.nexmedia.engine.api.command.CommandResult;
 import su.nexmedia.engine.api.command.GeneralCommand;
 import su.nexmedia.engine.command.list.HelpSubCommand;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.config.Lang;
-
-import java.util.Map;
 
 public class CurrencyMainCommand extends GeneralCommand<AMA> {
 
@@ -38,7 +37,7 @@ public class CurrencyMainCommand extends GeneralCommand<AMA> {
     }
 
     @Override
-    protected void onExecute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args, @NotNull Map<String, String> flags) {
+    public void onExecute(@NotNull CommandSender sender, @NotNull CommandResult result) {
 
     }
 }

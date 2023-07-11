@@ -2,28 +2,29 @@ package su.nightexpress.ama.currency;
 
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.utils.ItemUtil;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.currency.ICurrency;
 import su.nightexpress.ama.api.currency.ICurrencyConfig;
 
-import java.util.function.UnaryOperator;
-
 public abstract class AbstractCurrency implements ICurrency {
 
     protected final ICurrencyConfig config;
+    protected final PlaceholderMap placeholderMap;
 
     public AbstractCurrency(@NotNull ICurrencyConfig config) {
         this.config = config;
+        this.placeholderMap = new PlaceholderMap()
+            .add(Placeholders.CURRENCY_NAME, () -> this.getConfig().getName())
+            .add(Placeholders.CURRENCY_ID, () -> this.getConfig().getId())
+        ;
     }
 
     @Override
     @NotNull
-    public UnaryOperator<String> replacePlaceholders() {
-        return str -> str
-            .replace(Placeholders.CURRENCY_NAME, this.getConfig().getName())
-            .replace(Placeholders.CURRENCY_ID, this.getConfig().getId())
-            ;
+    public PlaceholderMap getPlaceholders() {
+        return this.placeholderMap;
     }
 
     @NotNull

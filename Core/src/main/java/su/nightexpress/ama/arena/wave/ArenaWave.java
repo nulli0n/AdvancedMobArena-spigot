@@ -1,8 +1,8 @@
 package su.nightexpress.ama.arena.wave;
 
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.api.manager.ICleanable;
-import su.nexmedia.engine.api.manager.IPlaceholder;
+import su.nexmedia.engine.api.placeholder.Placeholder;
+import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.utils.random.Rnd;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
@@ -12,13 +12,13 @@ import su.nightexpress.ama.arena.impl.ArenaConfig;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.UnaryOperator;
 
-public class ArenaWave implements ArenaChild, ICleanable, IPlaceholder {
+public class ArenaWave implements ArenaChild, Placeholder {
 
     private final ArenaConfig arenaConfig;
     private final String      id;
     private final Set<ArenaWaveMob> mobs;
+    private final PlaceholderMap placeholderMap;
 
     private WaveMobsEditor editor;
 
@@ -30,9 +30,13 @@ public class ArenaWave implements ArenaChild, ICleanable, IPlaceholder {
         this.arenaConfig = arenaConfig;
         this.id = id.toLowerCase();
         this.mobs = new HashSet<>(mobs);
+
+        this.placeholderMap = new PlaceholderMap()
+            .add(Placeholders.ARENA_WAVE_ID, this::getId)
+            .add(Placeholders.ARENA_WAVE_MOBS, () -> String.join("\n", this.getMobs().stream().map(ArenaWaveMob::getMobId).toList()))
+        ;
     }
 
-    @Override
     public void clear() {
         if (this.editor != null) {
             this.editor.clear();
@@ -50,11 +54,8 @@ public class ArenaWave implements ArenaChild, ICleanable, IPlaceholder {
 
     @Override
     @NotNull
-    public UnaryOperator<String> replacePlaceholders() {
-        return str -> str
-            .replace(Placeholders.ARENA_WAVE_ID, this.getId())
-            .replace(Placeholders.ARENA_WAVE_MOBS, String.join(DELIMITER_DEFAULT, this.getMobs().stream().map(ArenaWaveMob::getMobId).toList()))
-            ;
+    public PlaceholderMap getPlaceholders() {
+        return this.placeholderMap;
     }
 
     @NotNull

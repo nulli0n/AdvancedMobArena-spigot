@@ -8,7 +8,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.AbstractConfigHolder;
-import su.nexmedia.engine.api.manager.ICleanable;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.lang.LangManager;
@@ -43,7 +42,7 @@ import su.nightexpress.ama.hologram.HologramManager;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ArenaRegion extends AbstractConfigHolder<AMA> implements ArenaChild, Lockable, HologramHolder, Problematic, Placeholder, ICleanable {
+public class ArenaRegion extends AbstractConfigHolder<AMA> implements ArenaChild, Lockable, HologramHolder, Problematic, Placeholder {
 
     private final ArenaConfig           arenaConfig;
     private final Map<String, Location> mobSpawners;
@@ -236,7 +235,6 @@ public class ArenaRegion extends AbstractConfigHolder<AMA> implements ArenaChild
         cfg.set("Hologram.Locations", this.getHologramLocations().stream().map(LocationUtil::serialize).toList());
     }
 
-    @Override
     public void clear() {
         if (this.editor != null) {
             this.editor.clear();

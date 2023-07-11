@@ -9,6 +9,8 @@ public interface ICurrencyConfig {
 
     boolean isEnabled();
 
+    boolean load();
+
     @NotNull
     String getId();
 

@@ -1,8 +1,8 @@
 package su.nightexpress.ama.arena.script.condition;
 
 import org.jetbrains.annotations.NotNull;
+import su.nexmedia.engine.utils.TriFunction;
 import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
-import su.nightexpress.ama.utils.TriFunction;
 
 import java.util.Optional;
 import java.util.function.Function;

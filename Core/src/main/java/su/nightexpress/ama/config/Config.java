@@ -26,7 +26,7 @@ public class Config {
 
     public static final JOption<Boolean> CHAT_ENABLED = JOption.create("Chat.Enabled", false, "When enabled, players in arenas will have their own chat.");
     public static final JOption<String>  CHAT_FORMAT  = JOption.create("Chat.Format",
-        "&7(&6" + Placeholders.PLAYER_KIT_NAME + "&7) &a" + Placeholders.Player.NAME + ": &f" + Placeholders.GENERIC_MESSAGE,
+        "&7(&6" + Placeholders.PLAYER_KIT_NAME + "&7) &a" + Placeholders.PLAYER_NAME + ": &f" + Placeholders.GENERIC_MESSAGE,
         "Sets the chat format.",
         "You can use 'Arena', 'Arena Player' placeholders: https://github.com/nulli0n/AdvancedMobArena-spigot/wiki/Internal-Placeholders",
         "Default Placeholders:",

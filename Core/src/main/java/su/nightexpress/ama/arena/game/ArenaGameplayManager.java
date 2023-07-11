@@ -6,12 +6,12 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.ConfigHolder;
-import su.nexmedia.engine.api.manager.ILoadable;
+import su.nexmedia.engine.api.manager.Loadable;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.command.CommandRegister;
-import su.nexmedia.engine.hooks.Hooks;
 import su.nexmedia.engine.lang.LangManager;
+import su.nexmedia.engine.utils.EngineUtils;
 import su.nexmedia.engine.utils.NumberUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.Placeholders;
@@ -33,7 +33,7 @@ import su.nightexpress.ama.kit.Kit;
 
 import java.util.*;
 
-public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable, Problematic, Placeholder {
+public class ArenaGameplayManager implements ArenaChild, ConfigHolder, Loadable, Problematic, Placeholder {
 
     private final ArenaConfig arenaConfig;
     private final JYML        config;
@@ -343,7 +343,7 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, ILoadable
     }
 
     public void setScoreboardEnabled(boolean isScoreboardEnabled) {
-        this.scoreboardEnabled = isScoreboardEnabled && Hooks.hasPlugin(HookId.PROTOCOL_LIB);
+        this.scoreboardEnabled = isScoreboardEnabled && EngineUtils.hasPlugin(HookId.PROTOCOL_LIB);
     }
 
     @NotNull

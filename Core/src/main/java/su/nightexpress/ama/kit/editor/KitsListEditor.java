@@ -37,14 +37,10 @@ public class KitsListEditor extends EditorMenu<AMA, KitManager> implements AutoP
         this.addCreation(EditorLocales.KIT_CREATE, 41).setClick((viewer, event) -> {
             this.handleInput(viewer, Lang.EDITOR_KIT_ENTER_ID, wrapper -> {
                 String id = StringUtil.lowerCaseUnderscore(wrapper.getTextRaw());
-                if (kitManager.getKitById(id) != null) {
+                if (!kitManager.createKit(id)) {
                     EditorManager.error(viewer.getPlayer(), plugin.getMessage(Lang.Editor_Kit_Error_Exist).getLocalized());
                     return false;
                 }
-
-                Kit kit = new Kit(plugin, plugin.getDataFolder() + "/kits/kits/" + id + ".yml");
-                kit.save();
-                kitManager.getKitsMap().put(kit.getId(), kit);
                 return true;
             });
         });

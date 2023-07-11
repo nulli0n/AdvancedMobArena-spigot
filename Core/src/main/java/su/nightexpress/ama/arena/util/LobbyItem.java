@@ -8,9 +8,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
-import su.nexmedia.engine.utils.CollectionsUtil;
 import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.PDCUtil;
+import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.Keys;
 import su.nightexpress.ama.api.ArenaAPI;
 import su.nightexpress.ama.arena.impl.Arena;
@@ -82,7 +82,7 @@ public class LobbyItem {
     @Nullable
     public static Type getType(@NotNull ItemStack item) {
         String raw = PDCUtil.getString(item, Keys.ITEM_LOBBY_TYPE).orElse(null);
-        return raw == null ? null : CollectionsUtil.getEnum(raw, Type.class);
+        return raw == null ? null : StringUtil.getEnum(raw, Type.class).orElse(null);
     }
 
     public static void give(@NotNull Type type, @NotNull Player player) {

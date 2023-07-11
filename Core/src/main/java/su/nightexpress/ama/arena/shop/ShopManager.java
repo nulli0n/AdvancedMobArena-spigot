@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.ConfigHolder;
-import su.nexmedia.engine.api.manager.ILoadable;
+import su.nexmedia.engine.api.manager.Loadable;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.lang.LangManager;
@@ -37,7 +37,7 @@ import su.nightexpress.ama.config.Lang;
 
 import java.util.*;
 
-public class ShopManager implements ConfigHolder, ArenaChild, Lockable, ILoadable, Problematic, Placeholder {
+public class ShopManager implements ConfigHolder, ArenaChild, Lockable, Loadable, Problematic, Placeholder {
 
     private static final String CONFIG_NAME = "shop.yml";
 

@@ -4,7 +4,7 @@ import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
-import su.nexmedia.engine.api.manager.ILoadable;
+import su.nexmedia.engine.api.manager.Loadable;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.utils.StringUtil;
@@ -16,7 +16,7 @@ import su.nightexpress.ama.arena.impl.ArenaConfig;
 
 import java.util.*;
 
-public class ArenaSpotManager implements ArenaChild, ILoadable, Problematic, Placeholder {
+public class ArenaSpotManager implements ArenaChild, Loadable, Problematic, Placeholder {
 
     public static final String DIR_SPOTS = "/spots/";
 

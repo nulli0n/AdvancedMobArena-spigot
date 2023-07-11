@@ -2,7 +2,7 @@ package su.nightexpress.ama.mob.style;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import su.nexmedia.engine.utils.CollectionsUtil;
+import su.nexmedia.engine.utils.StringUtil;
 
 public interface MobStyleWriter<E, T> {
 
@@ -39,7 +39,7 @@ public interface MobStyleWriter<E, T> {
         @Nullable
         @Override
         default T parse(@NotNull String value) {
-            return CollectionsUtil.getEnum(value, this.getEnumClass());
+            return StringUtil.getEnum(value, this.getEnumClass()).orElse(null);
         }
 
         @NotNull

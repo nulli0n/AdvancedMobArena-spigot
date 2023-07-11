@@ -23,12 +23,7 @@ public class ArenaSetupUtils {
 
     public static void addVisualText(@NotNull Player player, @NotNull String name, @NotNull Location location) {
         List<Integer> list = VISUALS_MAP.computeIfAbsent(player, k -> new ArrayList<>());
-
-        Location clone = new Location(location.getWorld(), location.getX(), location.getY(), location.getZ());
-        clone = LocationUtil.getFirstGroundBlock(clone);
-        clone = LocationUtil.getCenter(clone, false);
-
-        int id = ArenaAPI.getArenaNMS().visualEntityAdd(player, name, clone);
+        int id = ArenaAPI.getArenaNMS().visualEntityAdd(player, name, LocationUtil.getCenter(location.clone().add(0, 0.5, 0), false));
         list.add(id);
     }
 

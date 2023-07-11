@@ -4,16 +4,16 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.AbstractManager;
-import su.nexmedia.engine.hooks.Hooks;
-import su.nexmedia.engine.hooks.external.VaultHook;
+import su.nexmedia.engine.integration.VaultHook;
+import su.nexmedia.engine.utils.EngineUtils;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.api.currency.ICurrency;
 import su.nightexpress.ama.command.currency.BalanceCommand;
 import su.nightexpress.ama.currency.config.CurrencyConfig;
 import su.nightexpress.ama.currency.external.GamePointsCurrency;
 import su.nightexpress.ama.currency.external.PlayerPointsCurrency;
-import su.nightexpress.ama.currency.internal.ArenaCoinsCurrency;
 import su.nightexpress.ama.currency.external.VaultEcoCurrency;
+import su.nightexpress.ama.currency.internal.ArenaCoinsCurrency;
 import su.nightexpress.ama.hook.HookId;
 
 import java.util.*;
@@ -40,13 +40,14 @@ public class CurrencyManager extends AbstractManager<AMA> {
     private void loadDefault() {
         Stream.of(CurrencyId.values()).forEach(currencyId -> {
             CurrencyConfig config = this.loadConfigDefault(currencyId);
+            config.load();
             config.save();
 
             ICurrency currency = switch (currencyId) {
                 case CurrencyId.COINS -> new ArenaCoinsCurrency(config);
-                case CurrencyId.VAULT -> !Hooks.hasVault() || !VaultHook.hasEconomy() ? null : new VaultEcoCurrency(config);
-                case CurrencyId.GAME_POINTS -> !Hooks.hasPlugin(HookId.GAME_POINTS) ? null : new GamePointsCurrency(config);
-                case CurrencyId.PLAYER_POINTS -> !Hooks.hasPlugin(HookId.PLAYER_POINTS) ? null : new PlayerPointsCurrency(config);
+                case CurrencyId.VAULT -> !EngineUtils.hasVault() || !VaultHook.hasEconomy() ? null : new VaultEcoCurrency(config);
+                case CurrencyId.GAME_POINTS -> !EngineUtils.hasPlugin(HookId.GAME_POINTS) ? null : new GamePointsCurrency(config);
+                case CurrencyId.PLAYER_POINTS -> !EngineUtils.hasPlugin(HookId.PLAYER_POINTS) ? null : new PlayerPointsCurrency(config);
                 default -> null;
             };
             if (currency == null) return;
@@ -70,6 +71,12 @@ public class CurrencyManager extends AbstractManager<AMA> {
     }
 
     public boolean registerCurrency(@NotNull ICurrency currency) {
+        /*if (currency instanceof ICurrencyConfig currencyConfig) {
+            if (!currencyConfig.load()) {
+                this.plugin.warn("Currency not loaded: " + currency.getId());
+                return false;
+            }
+        }*/
         if (currency.getConfig().isEnabled()) {
             if (currency instanceof ArenaCoinsCurrency coinsCurrency) {
                 this.plugin.getCommandManager().getMainCommand().addChildren(new BalanceCommand(this.plugin, coinsCurrency));

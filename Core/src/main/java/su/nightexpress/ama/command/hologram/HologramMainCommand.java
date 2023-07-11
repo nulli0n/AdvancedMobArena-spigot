@@ -2,13 +2,12 @@ package su.nightexpress.ama.command.hologram;
 
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
+import su.nexmedia.engine.api.command.CommandResult;
 import su.nexmedia.engine.api.command.GeneralCommand;
 import su.nexmedia.engine.command.list.HelpSubCommand;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.config.Lang;
-
-import java.util.Map;
 
 public class HologramMainCommand extends GeneralCommand<AMA> {
 
@@ -39,7 +38,7 @@ public class HologramMainCommand extends GeneralCommand<AMA> {
     }
 
     @Override
-    protected void onExecute(@NotNull CommandSender commandSender, @NotNull String s, @NotNull String[] strings, @NotNull Map<String, String> map) {
+    public void onExecute(@NotNull CommandSender sender, @NotNull CommandResult result) {
 
     }
 }

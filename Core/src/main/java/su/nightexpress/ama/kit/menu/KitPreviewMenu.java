@@ -2,19 +2,17 @@ package su.nightexpress.ama.kit.menu;
 
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.api.menu.AbstractMenu;
-import su.nexmedia.engine.api.menu.MenuClick;
-import su.nexmedia.engine.api.menu.MenuItem;
 import su.nexmedia.engine.api.menu.MenuItemType;
+import su.nexmedia.engine.api.menu.impl.ConfigMenu;
+import su.nexmedia.engine.api.menu.impl.MenuViewer;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.data.ArenaUser;
 import su.nightexpress.ama.kit.Kit;
 
-public class KitPreviewMenu extends AbstractMenu<AMA> {
+public class KitPreviewMenu extends ConfigMenu<AMA> {
 
     private final Kit kit;
 
@@ -22,7 +20,7 @@ public class KitPreviewMenu extends AbstractMenu<AMA> {
     public static int[] armorSlots;
 
     public KitPreviewMenu(@NotNull Kit kit) {
-        super(kit.plugin(), kit.plugin().getKitManager().getConfigPreview(), "");
+        super(kit.plugin(), kit.plugin().getKitManager().getConfigPreview());
         this.kit = kit;
 
         if (itemSlots == null || armorSlots == null) {
@@ -30,38 +28,24 @@ public class KitPreviewMenu extends AbstractMenu<AMA> {
             armorSlots = cfg.getIntArray("Armor_Slots");
         }
 
-        MenuClick click = (player, type, e) -> {
-            if (type == null) return;
-
-            if (type instanceof MenuItemType type2) {
-                if (type2 == MenuItemType.CLOSE) {
-                    player.closeInventory();
-                    return;
+        this.registerHandler(MenuItemType.class)
+            .addClick(MenuItemType.CLOSE, (viewer, event) -> plugin.runTask(task -> viewer.getPlayer().closeInventory()))
+            .addClick(MenuItemType.RETURN, (viewer, event) -> {
+                Player player = viewer.getPlayer();
+                ArenaUser user = plugin.getUserManager().getUserData(player);
+                if (user.hasKit(kit)) {
+                    plugin.getKitManager().getSelectMenu().openNextTick(player, 1);
                 }
-                if (type2 == MenuItemType.RETURN) {
-                    ArenaUser user = plugin.getUserManager().getUserData(player);
-                    if (user.hasKit(kit)) {
-                        plugin.getKitManager().getSelectMenu().open(player, 1);
-                    }
-                    else {
-                        plugin.getKitManager().getShopMenu().open(player, 1);
-                    }
+                else {
+                    plugin.getKitManager().getShopMenu().openNextTick(player, 1);
                 }
-            }
-        };
+            });
 
-        for (String sId : cfg.getSection("Content")) {
-            MenuItem menuItem = cfg.getMenuItem("Content." + sId, MenuItemType.class);
-
-            if (menuItem.getType() != null) {
-                menuItem.setClickHandler(click);
-            }
-            this.addItem(menuItem);
-        }
+        this.load();
     }
 
     @Override
-    public boolean onPrepare(@NotNull Player player, @NotNull Inventory inventory) {
+    public void onReady(@NotNull MenuViewer viewer, @NotNull Inventory inventory) {
         ItemStack[] items = kit.getItems();
         ItemStack[] armor = kit.getArmor();
 
@@ -83,12 +67,7 @@ public class KitPreviewMenu extends AbstractMenu<AMA> {
             inventory.setItem(armorSlots[slot], item);
         }
 
+        Player player = viewer.getPlayer();
         player.playSound(player.getLocation(), Sound.BLOCK_CHEST_OPEN, 1.0f, 1.0f);
-        return true;
-    }
-
-    @Override
-    public boolean cancelClick(@NotNull InventoryClickEvent e, @NotNull SlotType slotType) {
-        return true;
     }
 }

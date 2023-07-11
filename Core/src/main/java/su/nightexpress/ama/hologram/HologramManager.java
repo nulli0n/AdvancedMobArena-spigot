@@ -3,7 +3,7 @@ package su.nightexpress.ama.hologram;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.manager.AbstractManager;
-import su.nexmedia.engine.api.task.AbstractTask;
+import su.nexmedia.engine.api.server.AbstractTask;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.api.hologram.HologramType;
 import su.nightexpress.ama.api.hologram.IHologramClick;

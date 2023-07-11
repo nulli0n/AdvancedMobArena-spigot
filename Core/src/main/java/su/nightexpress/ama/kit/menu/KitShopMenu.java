@@ -4,7 +4,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
-import su.nexmedia.engine.api.menu.MenuClick;
+import su.nexmedia.engine.api.menu.click.ItemClick;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.data.ArenaUser;
@@ -15,7 +15,7 @@ import java.util.function.Predicate;
 public class KitShopMenu extends AbstractKitListMenu {
 
     public KitShopMenu(@NotNull AMA plugin, @NotNull JYML cfg) {
-        super(plugin, cfg, "");
+        super(plugin, cfg);
     }
 
     @Override
@@ -26,18 +26,19 @@ public class KitShopMenu extends AbstractKitListMenu {
 
     @Override
     @NotNull
-    public MenuClick getObjectClick(@NotNull Player player, @NotNull Kit kit) {
-        return (player1, type, e) -> {
-            ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player1);
+    public ItemClick getObjectClick(@NotNull Kit kit) {
+        return (viewer, event) -> {
+            Player player = viewer.getPlayer();
+            ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
             if (arenaPlayer == null) return;
 
-            if (e.isLeftClick()) {
+            if (event.isLeftClick()) {
                 if (kit.buy(arenaPlayer)) {
-                    this.open(player1, this.getPage(player1));
+                    this.openNextTick(player, viewer.getPage());
                 }
             }
-            else if (e.isRightClick()) {
-                kit.getPreview().open(player1, 1);
+            else if (event.isRightClick()) {
+                kit.getPreview().openNextTick(player, 1);
             }
         };
     }

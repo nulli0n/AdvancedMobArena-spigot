@@ -5,7 +5,6 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import su.nexmedia.engine.api.manager.ICleanable;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.utils.Colorizer;
@@ -31,7 +30,7 @@ import su.nightexpress.ama.kit.Kit;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ShopCategory implements ArenaChild, Lockable, Placeholder, ICleanable {
+public class ShopCategory implements ArenaChild, Lockable, Placeholder {
 
     private final ArenaConfig              arenaConfig;
     private final String                   id;
@@ -99,7 +98,6 @@ public class ShopCategory implements ArenaChild, Lockable, Placeholder, ICleanab
         return this.editor;
     }
 
-    @Override
     public void clear() {
         this.getProducts().forEach(ShopProduct::clear);
         this.getProducts().clear();

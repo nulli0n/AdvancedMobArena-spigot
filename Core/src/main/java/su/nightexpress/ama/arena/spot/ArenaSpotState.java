@@ -4,7 +4,8 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.api.manager.IPlaceholder;
+import su.nexmedia.engine.api.placeholder.Placeholder;
+import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.utils.LocationUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
@@ -16,15 +17,15 @@ import su.nightexpress.ama.arena.impl.ArenaConfig;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.UnaryOperator;
 
-public class ArenaSpotState implements ArenaChild, IPlaceholder {
+public class ArenaSpotState implements ArenaChild, Placeholder {
 
     private final ArenaSpot spot;
 
     private final String                        id;
     private       List<String>                  schemeRaw;
     private final Map<Location, BlockData>      scheme;
+    private final PlaceholderMap placeholderMap;
 
     public ArenaSpotState(
         @NotNull ArenaSpot spot,
@@ -35,14 +36,16 @@ public class ArenaSpotState implements ArenaChild, IPlaceholder {
         this.id = id.toLowerCase();
         this.scheme = new HashMap<>();
         this.setSchemeRaw(schemeRaw);
+
+        this.placeholderMap = new PlaceholderMap()
+            .add(Placeholders.SPOT_STATE_ID, this::getId)
+        ;
     }
 
     @Override
     @NotNull
-    public UnaryOperator<String> replacePlaceholders() {
-        return str -> str
-            .replace(Placeholders.SPOT_STATE_ID, this.getId())
-            ;
+    public PlaceholderMap getPlaceholders() {
+        return this.placeholderMap;
     }
 
     @NotNull

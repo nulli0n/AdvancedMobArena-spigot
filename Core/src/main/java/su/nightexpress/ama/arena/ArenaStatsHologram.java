@@ -2,7 +2,6 @@ package su.nightexpress.ama.arena;
 
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
-import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.hologram.HologramHolder;

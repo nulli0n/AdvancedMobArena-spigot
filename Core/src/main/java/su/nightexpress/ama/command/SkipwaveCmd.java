@@ -5,15 +5,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.command.AbstractCommand;
+import su.nexmedia.engine.api.command.CommandResult;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
-import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
+import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.config.Lang;
-
-import java.util.Map;
 
 public class SkipwaveCmd extends AbstractCommand<AMA> {
 
@@ -39,7 +38,7 @@ public class SkipwaveCmd extends AbstractCommand<AMA> {
     }
 
     @Override
-    public void onExecute(@NotNull CommandSender sender, @NotNull String labe, @NotNull String[] args, @NotNull Map<String, String> flags) {
+    public void onExecute(@NotNull CommandSender sender, @NotNull CommandResult result) {
         Player player = (Player) sender;
 
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
@@ -48,7 +47,7 @@ public class SkipwaveCmd extends AbstractCommand<AMA> {
             return;
         }
 
-        int amount = args.length >= 2 ? StringUtil.getInteger(args[1], 1) : 1;
+        int amount = result.length() >= 2 ? StringUtil.getInteger(result.getArg(1), 1) : 1;
         Arena arena = arenaPlayer.getArena();
 
         new BukkitRunnable() {

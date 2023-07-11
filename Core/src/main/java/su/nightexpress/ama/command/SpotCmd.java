@@ -4,6 +4,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.command.AbstractCommand;
+import su.nexmedia.engine.api.command.CommandResult;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
@@ -14,7 +15,6 @@ import su.nightexpress.ama.config.Lang;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class SpotCmd extends AbstractCommand<AMA> {
@@ -67,14 +67,14 @@ public class SpotCmd extends AbstractCommand<AMA> {
     }
 
     @Override
-    protected void onExecute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args, @NotNull Map<String, String> flags) {
-        if (args.length < 2) {
+    public void onExecute(@NotNull CommandSender sender, @NotNull CommandResult result) {
+        if (result.length() < 2) {
             this.printUsage(sender);
             return;
         }
 
-        if (args[1].equalsIgnoreCase("state")) {
-            if (args.length != 4) {
+        if (result.getArg(1).equalsIgnoreCase("state")) {
+            if (result.length() != 4) {
                 this.printUsage(sender);
                 return;
             }
@@ -86,14 +86,14 @@ public class SpotCmd extends AbstractCommand<AMA> {
                 return;
             }
 
-            String spotId = args[2];
+            String spotId = result.getArg(2);
             ArenaSpot spot = arenaPlayer.getArena().getConfig().getSpotManager().getSpot(spotId);
             if (spot == null) {
                 plugin.getMessage(Lang.Command_Spot_State_Error_InvalidSpot).send(sender);
                 return;
             }
 
-            String stateId = args[3];
+            String stateId = result.getArg(3);
             ArenaSpotState state = spot.getState(stateId);
             if (state == null) {
                 plugin.getMessage(Lang.Command_Spot_State_Error_InvalidState).send(sender);

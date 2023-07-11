@@ -1,14 +1,16 @@
 package su.nightexpress.ama.arena.shop.menu;
 
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.config.JYML;
-import su.nexmedia.engine.api.menu.AbstractMenuAuto;
-import su.nexmedia.engine.api.menu.MenuClick;
-import su.nexmedia.engine.api.menu.MenuItem;
+import su.nexmedia.engine.api.menu.AutoPaged;
 import su.nexmedia.engine.api.menu.MenuItemType;
+import su.nexmedia.engine.api.menu.click.ClickHandler;
+import su.nexmedia.engine.api.menu.click.ItemClick;
+import su.nexmedia.engine.api.menu.impl.ConfigMenu;
+import su.nexmedia.engine.api.menu.impl.MenuOptions;
+import su.nexmedia.engine.api.menu.impl.MenuViewer;
 import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.ItemUtil;
 import su.nexmedia.engine.utils.StringUtil;
@@ -22,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ShopMainMenu extends AbstractMenuAuto<AMA, ShopCategory> {
+public class ShopMainMenu extends ConfigMenu<AMA> implements AutoPaged<ShopCategory> {
 
     private static final String PLACEHOLDER_KITS     = "%kits%";
     private static final String PLACEHOLDER_UNLOCKED = "%unlocked%";
@@ -38,7 +40,7 @@ public class ShopMainMenu extends AbstractMenuAuto<AMA, ShopCategory> {
     private final int[]        categorySlots;
 
     public ShopMainMenu(@NotNull ShopManager shopManager) {
-        super(shopManager.plugin(), JYML.loadOrExtract(shopManager.plugin(), "/menu/arena.shop.main.yml"), "");
+        super(shopManager.plugin(), JYML.loadOrExtract(shopManager.plugin(), "/menu/arena.shop.main.yml"));
         this.shopManager = shopManager;
 
         this.categoryName = Colorizer.apply(cfg.getString("Category.Name", Placeholders.SHOP_CATEGORY_NAME));
@@ -48,20 +50,18 @@ public class ShopMainMenu extends AbstractMenuAuto<AMA, ShopCategory> {
         this.categoryLoreLocked = Colorizer.apply(cfg.getStringList("Category.Lore.Locked"));
         this.categorySlots = cfg.getIntArray("Category.Slots");
 
-        MenuClick click = (player, type, e) -> {
-            if (type instanceof MenuItemType type2) {
-                this.onItemClickDefault(player, type2);
-            }
-        };
+        this.registerHandler(MenuItemType.class)
+            .addClick(MenuItemType.CLOSE, (viewer, event) -> plugin.runTask(task -> viewer.getPlayer().closeInventory()))
+            .addClick(MenuItemType.PAGE_NEXT, ClickHandler.forNextPage(this))
+            .addClick(MenuItemType.PAGE_PREVIOUS, ClickHandler.forPreviousPage(this));
 
-        for (String sId : cfg.getSection("Content")) {
-            MenuItem menuItem = cfg.getMenuItem("Content." + sId, MenuItemType.class);
+        this.load();
+    }
 
-            if (menuItem.getType() != null) {
-                menuItem.setClickHandler(click);
-            }
-            this.addItem(menuItem);
-        }
+    @Override
+    public void onPrepare(@NotNull MenuViewer viewer, @NotNull MenuOptions options) {
+        super.onPrepare(viewer, options);
+        this.getItemsForPage(viewer).forEach(this::addItem);
     }
 
     @Override
@@ -71,19 +71,19 @@ public class ShopMainMenu extends AbstractMenuAuto<AMA, ShopCategory> {
 
     @Override
     @NotNull
-    protected List<ShopCategory> getObjects(@NotNull Player player) {
+    public List<ShopCategory> getObjects(@NotNull Player player) {
         return new ArrayList<>(this.shopManager.getCategories());
     }
 
     @Override
     @NotNull
-    protected ItemStack getObjectStack(@NotNull Player player, @NotNull ShopCategory category) {
+    public ItemStack getObjectStack(@NotNull Player player, @NotNull ShopCategory category) {
         ItemStack item = category.getIcon();
         ItemUtil.mapMeta(item, meta -> {
             List<String> lore = new ArrayList<>(this.categoryLoreDefault);
-            lore = StringUtil.replace(lore, PLACEHOLDER_KITS, false, category.getAllowedKits().isEmpty() ? Collections.emptyList() : this.categoryLoreKits);
-            lore = StringUtil.replace(lore, PLACEHOLDER_LOCKED, false, category.isLocked() ? this.categoryLoreLocked : Collections.emptyList());
-            lore = StringUtil.replace(lore, PLACEHOLDER_UNLOCKED, false, category.isUnlocked() ? this.categoryLoreUnlocked : Collections.emptyList());
+            lore = StringUtil.replaceInList(lore, PLACEHOLDER_KITS, category.getAllowedKits().isEmpty() ? Collections.emptyList() : this.categoryLoreKits);
+            lore = StringUtil.replaceInList(lore, PLACEHOLDER_LOCKED, category.isLocked() ? this.categoryLoreLocked : Collections.emptyList());
+            lore = StringUtil.replaceInList(lore, PLACEHOLDER_UNLOCKED, category.isUnlocked() ? this.categoryLoreUnlocked : Collections.emptyList());
 
             meta.setDisplayName(this.categoryName);
             meta.setLore(lore);
@@ -94,17 +94,12 @@ public class ShopMainMenu extends AbstractMenuAuto<AMA, ShopCategory> {
 
     @Override
     @NotNull
-    protected MenuClick getObjectClick(@NotNull Player player, @NotNull ShopCategory shopCategory) {
-        return (player2, type, e) -> {
-            ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player2);
+    public ItemClick getObjectClick(@NotNull ShopCategory shopCategory) {
+        return (viewer, event) -> {
+            ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(viewer.getPlayer());
             if (arenaPlayer != null) {
                 shopCategory.open(arenaPlayer);
             }
         };
-    }
-
-    @Override
-    public boolean cancelClick(@NotNull InventoryClickEvent e, @NotNull SlotType slotType) {
-        return true;
     }
 }

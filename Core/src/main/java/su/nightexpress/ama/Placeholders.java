@@ -168,8 +168,8 @@ public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
     public static final String KIT_POTION_EFFECTS = "%kit_potion_effects%";
     public static final String KIT_COST           = "%kit_cost%";
     public static final String KIT_IS_AVAILABLE   = "%kit_is_available%";
-    public static final String KIT_ICON_LORE      = "%kit_icon_lore%";
-    public static final String KIT_ICON_MATERIAL  = "%kit_icon_material%";
+    @Deprecated public static final String KIT_ICON_LORE      = "%kit_icon_lore%";
+    @Deprecated public static final String KIT_ICON_MATERIAL  = "%kit_icon_material%";
     public static final String KIT_CURRENCY       = "%kit_currency%";
 
     public static final String STATS_SCORE_POSITION = "%score_position%";
