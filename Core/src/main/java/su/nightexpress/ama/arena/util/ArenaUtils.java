@@ -10,8 +10,9 @@ import org.jetbrains.annotations.Nullable;
 import su.nightexpress.ama.api.ArenaAPI;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
-import su.nightexpress.ama.arena.type.PlayerType;
+import su.nightexpress.ama.api.type.PlayerType;
 
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -19,7 +20,8 @@ import java.util.UUID;
 
 public class ArenaUtils {
 
-    private static final Map<UUID, BossBar> MOB_BARS = new HashMap<>();
+    public static final  DateTimeFormatter  TIME_FORMATTER = DateTimeFormatter.ISO_LOCAL_TIME;
+    private static final Map<UUID, BossBar> MOB_BARS       = new HashMap<>();
 
     @NotNull
     public static Optional<Team> getHighlightTeam(@NotNull Arena arena, boolean create) {

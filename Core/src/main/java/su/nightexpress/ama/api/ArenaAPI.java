@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.ArenaManager;
 import su.nightexpress.ama.currency.CurrencyManager;
-import su.nightexpress.ama.data.ArenaUserManager;
+import su.nightexpress.ama.data.UserManager;
 import su.nightexpress.ama.kit.KitManager;
 import su.nightexpress.ama.nms.ArenaNMS;
 import su.nightexpress.ama.stats.StatsManager;
@@ -19,7 +19,7 @@ public class ArenaAPI {
     }
 
     @NotNull
-    public static ArenaUserManager getUserManager() {
+    public static UserManager getUserManager() {
         return PLUGIN.getUserManager();
     }
 

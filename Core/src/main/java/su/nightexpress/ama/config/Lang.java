@@ -4,19 +4,10 @@ import org.bukkit.Sound;
 import su.nexmedia.engine.api.lang.LangKey;
 import su.nexmedia.engine.lang.EngineLang;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.currency.CurrencyId;
+import su.nightexpress.ama.currency.CurrencyManager;
 import su.nightexpress.ama.hook.HookId;
 
 public class Lang extends EngineLang {
-
-    private static final String DARK_GRAY = "#6c6c62";
-    private static final String LIME = "#b3ff5d";
-    private static final String GRAY = "#d4d9d8";
-    private static final String GREEN = "#aefd5e";
-    private static final String YELLOW = "#fdf35e";
-    private static final String ORANGE = "#feb54f";
-    private static final String RED = "#ff4141";
-    private static final String CYAN = "#5eeafd";
 
     @Deprecated
     public static final LangKey Help_Score = new LangKey(
@@ -27,31 +18,37 @@ public class Lang extends EngineLang {
         &a/ama score set <player> <amount> &7- Set score for a player.
         """);
 
-    public static final LangKey COMMAND_BALANCE_DESC        = LangKey.of("Command.Balance.Desc", "View your or other player's balance.");
-    public static final LangKey COMMAND_BALANCE_USAGE       = LangKey.of("Command.Balance.Usage", "[player]");
-    public static final LangKey COMMAND_BALANCE_DONE_SELF   = LangKey.of("Command.Balance.Done.Self", "Your balance: &a%amount%&7.");
-    public static final LangKey COMMAND_BALANCE_DONE_OTHERS = LangKey.of("Command.Balance.Done.Others", "&a%player_name%&7's balance: &a%amount%&7.");
+    public static final LangKey COMMAND_COINS_DESC  = LangKey.of("Command.Coins.Desc", "Arena coins management.");
+    public static final LangKey COMMAND_COINS_USAGE = LangKey.of("Command.Coins.Usage", "[help]");
 
-    public static final LangKey COMMAND_CURRENCY_DESC  = LangKey.of("Command.Currency.Desc", "Manage plugin currencies.");
-    public static final LangKey COMMAND_CURRENCY_USAGE = LangKey.of("Command.Currency.Usage", "[help]");
+    public static final LangKey COMMAND_COINS_BALANCE_DESC        = LangKey.of("Command.Coins.Balance.Desc", "View [player's] coins balance.");
+    public static final LangKey COMMAND_COINS_BALANCE_USAGE       = LangKey.of("Command.Coins.Balance.Usage", "[player]");
+    public static final LangKey COMMAND_COINS_BALANCE_DONE_SELF   = LangKey.of("Command.Coins.Balance.Done.Self", LIGHT_YELLOW + "Your have: " + ORANGE + Placeholders.GENERIC_AMOUNT + LIGHT_YELLOW + ".");
+    public static final LangKey COMMAND_COINS_BALANCE_DONE_OTHERS = LangKey.of("Command.Coins.Balance.Done.Others", ORANGE + Placeholders.PLAYER_NAME + LIGHT_YELLOW + "'s balance: " + ORANGE + Placeholders.GENERIC_AMOUNT + LIGHT_YELLOW + ".");
 
-    public static final LangKey COMMAND_CURRENCY_GIVE_DESC  = LangKey.of("Command.Currency.Give.Desc", "Give specified currency to a player.");
-    public static final LangKey COMMAND_CURRENCY_GIVE_USAGE = LangKey.of("Command.Currency.Give.Usage", "<currency> <player> <amount>");
-    public static final LangKey COMMAND_CURRENCY_GIVE_DONE  = LangKey.of("Command.Currency.Give.Done", "Given &ax%amount% %currency_name%&7 to &a%player_name%&7.");
+    public static final LangKey COMMAND_COINS_ADD_DESC       = LangKey.of("Command.Coins.Add.Desc", "Add coins to a player.");
+    public static final LangKey COMMAND_COINS_ADD_GIVE_USAGE = LangKey.of("Command.Coins.Add.Usage", "<player> <amount>");
+    public static final LangKey COMMAND_COINS_ADD_GIVE_DONE  = LangKey.of("Command.Coins.Add.Done", LIGHT_YELLOW + "Added " + GREEN + Placeholders.GENERIC_AMOUNT + " " + LIGHT_YELLOW + " to " + GREEN + Placeholders.PLAYER_NAME + LIGHT_YELLOW + "'s balance.");
 
-    public static final LangKey COMMAND_CURRENCY_TAKE_DESC  = LangKey.of("Command.Currency.Take.Desc", "Take specified currency from a player.");
-    public static final LangKey COMMAND_CURRENCY_TAKE_USAGE = LangKey.of("Command.Currency.Take.Usage", "<currency> <player> <amount>");
-    public static final LangKey COMMAND_CURRENCY_TAKE_DONE  = LangKey.of("Command.Currency.Take.Done", "Took &ax%amount% %currency_name%&7 from &a%player_name%&7.");
+    public static final LangKey COMMAND_COINS_REMOVE_DESC  = LangKey.of("Command.Coins.Remove.Desc", "Remove coins off a player.");
+    public static final LangKey COMMAND_COINS_REMOVE_USAGE = LangKey.of("Command.Coins.Remove.Usage", "<player> <amount>");
+    public static final LangKey COMMAND_COINS_REMOVE_DONE  = LangKey.of("Command.Coins.Remove.Done", LIGHT_YELLOW + "Removed " + RED + Placeholders.GENERIC_AMOUNT + " " + LIGHT_YELLOW + " from " + RED + Placeholders.PLAYER_NAME + LIGHT_YELLOW + "'s balance.");
 
-    public static final LangKey COMMAND_FORCE_START_DESC            = new LangKey("Command.ForceStart.Desc", "Force starts the specified arena.");
-    public static final LangKey COMMAND_FORCE_START_USAGE           = new LangKey("Command.ForceStart.Usage", "<arenaId>");
-    public static final LangKey COMMAND_FORCE_START_DONE            = new LangKey("Command.ForceStart.Done", "Force started arena &a%arena_id%&7!");
-    public static final LangKey COMMAND_FORCE_START_ERROR_NOT_READY = new LangKey("Command.ForceStart.Error.NotReady", "Arena &c%arena_id%&7 is not ready to start or already in-game");
+    public static final LangKey COMMAND_COINS_SET_DESC  = LangKey.of("Command.Coins.Set.Desc", "Set player's coins amount.");
+    public static final LangKey COMMAND_COINS_SET_USAGE = LangKey.of("Command.Coins.Set.Usage", "<player> <amount>");
+    public static final LangKey COMMAND_COINS_SET_DONE  = LangKey.of("Command.Coins.Set.Done", LIGHT_YELLOW + "Set " + ORANGE + Placeholders.PLAYER_NAME + LIGHT_YELLOW + "'s coins balance to " + ORANGE + Placeholders.GENERIC_AMOUNT + LIGHT_YELLOW + ".");
 
-    public static final LangKey COMMAND_FORCE_END_DESC              = new LangKey("Command.ForceEnd.Desc", "Force stops the specified arena.");
-    public static final LangKey COMMAND_FORCE_END_USAGE             = new LangKey("Command.ForceEnd.Usage", "<arenaId> [reason]");
-    public static final LangKey COMMAND_FORCE_END_DONE              = new LangKey("Command.ForceEnd.Done", "Force ended arena &a%arena_id%&7!");
-    public static final LangKey COMMAND_FORCE_END_ERROR_NOT_IN_GAME = new LangKey("Command.ForceEnd.Error.NotInGame", "Arena &c%arena_id% &7is not in game.");
+    public static final LangKey COMMAND_EDITOR_DESC = LangKey.of("Command.Editor.Desc", "Open AMA Editor");
+
+    public static final LangKey COMMAND_FORCE_END_DESC              = LangKey.of("Command.ForceEnd.Desc", "Force stop an arena.");
+    public static final LangKey COMMAND_FORCE_END_USAGE             = LangKey.of("Command.ForceEnd.Usage", "<arena>");
+    public static final LangKey COMMAND_FORCE_END_DONE              = LangKey.of("Command.ForceEnd.Done", LIGHT_YELLOW + "Forced arena " + RED + Placeholders.ARENA_NAME + LIGHT_YELLOW + " to end.");
+    public static final LangKey COMMAND_FORCE_END_ERROR_NOT_IN_GAME = LangKey.of("Command.ForceEnd.Error.NotInGame", LIGHT_YELLOW + "There is no activity in the " + RED + Placeholders.ARENA_NAME + LIGHT_YELLOW + " arena.");
+
+    public static final LangKey COMMAND_FORCE_START_DESC            = LangKey.of("Command.ForceStart.Desc", "Force start an arena.");
+    public static final LangKey COMMAND_FORCE_START_USAGE           = LangKey.of("Command.ForceStart.Usage", "<arena>");
+    public static final LangKey COMMAND_FORCE_START_DONE            = LangKey.of("Command.ForceStart.Done", LIGHT_YELLOW + "Forced arena " + GREEN + Placeholders.ARENA_NAME + LIGHT_YELLOW + " to start.");
+    public static final LangKey COMMAND_FORCE_START_ERROR_NOT_READY = LangKey.of("Command.ForceStart.Error.NotReady", LIGHT_YELLOW + "Arena " + RED + Placeholders.ARENA_NAME + LIGHT_YELLOW + " currently can not be forced to start.");
 
     public static final LangKey COMMAND_HOLOGRAM_DESC         = new LangKey("Command.Hologram.Desc", "Arena hologram management.");
     public static final LangKey COMMAND_HOLOGRAM_USAGE        = new LangKey("Command.Hologram.Usage", "[help]");
@@ -63,9 +60,9 @@ public class Lang extends EngineLang {
     public static final LangKey COMMAND_HOLOGRAM_ADD_DONE     = new LangKey("Command.Hologram.Add.Done", "&7Successfully created &a%type%&7 hologram!");
     public static final LangKey COMMAND_HOLOGRAM_ERROR        = new LangKey("Command.Hologram.Error", "&cCould not perform operation! (Invalid arguments)");
 
-    public static final LangKey COMMAND_JOIN_DESC    = new LangKey("Command.Join.Desc", "Join the specified (or random) arena.");
-    public static final LangKey COMMAND_JOIN_USAGE   = new LangKey("Command.Join.Usage", "[arena]");
-    public static final LangKey COMMAND_JOIN_NOTHING = new LangKey("Command.Join.Nothing", "&cNo available arenas to join.");
+    public static final LangKey COMMAND_JOIN_DESC    = LangKey.of("Command.Join.Desc", "Join the arena.");
+    public static final LangKey COMMAND_JOIN_USAGE   = LangKey.of("Command.Join.Usage", "[arena]");
+    public static final LangKey COMMAND_JOIN_NOTHING = LangKey.of("Command.Join.Nothing", RED + "There is no available arenas to join right now.");
 
     public static final LangKey Command_Region_Desc                      = new LangKey("Command.Region.Desc", "Manage in-game arena regions.");
     public static final LangKey Command_Region_Usage                     = new LangKey("Command.Region.Usage", "<lock|unlock>");
@@ -74,7 +71,7 @@ public class Lang extends EngineLang {
     public static final LangKey Command_Region_State_Error_InvalidRegion = new LangKey("Command.Region.State.Error.InvalidRegion", "&cInvalid region id!");
 
     public static final LangKey COMMAND_SETACTIVE_DESC              = new LangKey("Command.SetActive.Desc", "Set arena active state.");
-    public static final LangKey COMMAND_SETACTIVE_USAGE             = new LangKey("Command.SetActive.Usage", "<arenaId> <true/false>");
+    public static final LangKey COMMAND_SETACTIVE_USAGE             = new LangKey("Command.SetActive.Usage", "<arena> <true/false>");
     public static final LangKey COMMAND_SETACTIVE_DONE              = new LangKey("Command.SetActive.Done", "Arena &a%arena_id%&7 active state: &f%state%&7.");
 
     public static final LangKey Command_Score_Desc            = new LangKey("Command.Score.Desc", "Manage player's game score.");
@@ -94,23 +91,25 @@ public class Lang extends EngineLang {
     public static final LangKey Command_Spot_State_Error_InvalidSpot  = new LangKey("Command.Spot.State.Error.InvalidSpot", "&cInvalid spot id!");
     public static final LangKey Command_Spot_State_Error_InvalidState = new LangKey("Command.Spot.State.Error.InvalidState", "&cInvalid spot state id!");
 
-    public static final LangKey COMMAND_LEAVE_DESC = new LangKey("Command.Leave.Desc", "Leave the current arena.");
+    public static final LangKey COMMAND_LEAVE_DESC = LangKey.of("Command.Leave.Desc", "Leave the arena.");
 
     public static final LangKey Command_List_Desc = new LangKey("Command.List.Desc", "Shows arenas list.");
 
-    public static final LangKey Command_Skipwave_Desc  = new LangKey("Command.Skipwave.Desc", "Skips current arena wave.");
-    public static final LangKey Command_Skipwave_Usage = new LangKey("Command.Skipwave.Usage", "[amount]");
+    public static final LangKey COMMAND_SKIP_ROUND_DESC  = LangKey.of("Command.SkipRound.Desc", "Skips arena round(s).");
+    public static final LangKey COMMAND_SKIP_ROUND_USAGE = LangKey.of("Command.SkipRound.Usage", "[arena] [amount]");
+    public static final LangKey COMMAND_SKIP_ROUND_DONE = LangKey.of("Command.SkipRound.Done", LIGHT_YELLOW + "Set " + ORANGE + Placeholders.GENERIC_AMOUNT + LIGHT_YELLOW + " rounds to skip for " + ORANGE + Placeholders.ARENA_NAME + LIGHT_YELLOW + ".");
+    public static final LangKey COMMAND_SKIP_ROUND_ERROR_NOT_IN_GAME = LangKey.of("Command.SkipRound.Error.NotInGame", RED + "Can not skip rounds: " + LIGHT_YELLOW + "Arena is not in game or is about to end.");
 
-    public static final LangKey Command_Spectate_Desc  = new LangKey("Command.Spectate.Desc", "Join as spectator on specified arena.");
-    public static final LangKey Command_Spectate_Usage = new LangKey("Command.Spectate.Usage", "<arena>");
+    public static final LangKey COMMAND_SPECTATE_DESC  = LangKey.of("Command.Spectate.Desc", "Spectate an arena.");
+    public static final LangKey COMMAND_SPECTATE_USAGE = LangKey.of("Command.Spectate.Usage", "<arena>");
 
-    public static final LangKey COMMAND_SHOP_DESC  = new LangKey("Command.Shop.Desc", "Open arena shop.");
+    public static final LangKey COMMAND_SHOP_DESC  = LangKey.of("Command.Shop.Desc", "Open arena shop.");
     public static final LangKey COMMAND_STATS_DESC = new LangKey("Command.Stats.Desc", "View your current stats.");
 
     public static final LangKey ERROR_CURRENCY_INVALID = LangKey.of("Error.Currency.Invalid", "&cInvalid currency!");
 
     public static final LangKey ARENA_ERROR_DISABLED = new LangKey("Arena.Error.Disabled", "Arena &c%arena_name% &7is disabled.");
-    public static final LangKey ARENA_ERROR_INVALID  = new LangKey("Arena.Error.Invalid", "Arena does not exists.");
+    public static final LangKey ARENA_ERROR_INVALID  = LangKey.of("Arena.Error.Invalid", RED + "Arena does not exists.");
 
     public static final LangKey ARENA_JOIN_ERROR_PERMISSION = new LangKey("Arena.Join.Error.Permission", "&cYou don't have permission to join this arena!");
     public static final LangKey ARENA_JOIN_ERROR_PAYMENT    = new LangKey("Arena.Join.Error.Payment", "&cYou must have &e%arena_requirement_payment% &cto join the arena!");
@@ -234,7 +233,7 @@ public class Lang extends EngineLang {
 
     public static final LangKey EDITOR_ARENA_ENTER_ID             = LangKey.of("Editor.Arena.Enter.Id", "&7Enter &a[Arena Identifier]");
     public static final LangKey EDITOR_ARENA_ENTER_SCHEDULER_TIME = LangKey.of("Editor.Arena.Enter.SchedulerTime", "&7Enter &a[Day] [Time] &7| &aMonday 15:30");
-    public static final LangKey EDITOR_ARENA_ENTER_JOIN_PAYMENT   = LangKey.of("Editor.Arena.Enter.JoinPayment", "&7Enter &a[Currency] [Amount] &7| &a" + CurrencyId.VAULT + " 500");
+    public static final LangKey EDITOR_ARENA_ENTER_JOIN_PAYMENT   = LangKey.of("Editor.Arena.Enter.JoinPayment", "&7Enter &a[Currency] [Amount] &7| &a" + CurrencyManager.COINS + " 500");
     public static final LangKey EDITOR_ARENA_ENTER_JOIN_LEVEL     = LangKey.of("Editor.Arena.Enter.JoinLevel", "&7Enter &a[Plugin] [Value] &7| &a" + HookId.MMOCORE + " 10");
     public static final LangKey EDITOR_ARENA_ERROR_EXISTS         = LangKey.of("Editor.Arena.Error.Exists", "&cArena is already exists!");
     public static final LangKey EDITOR_ARENA_ERROR_LEVEL_PROVIDER = LangKey.of("Editor.Arena.Error.Level_Provider", "&cSuch plugin is not supported!");

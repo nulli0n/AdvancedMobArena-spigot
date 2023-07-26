@@ -20,18 +20,19 @@ public class Perms {
     public static final JPermission BYPASS_ARENA               = new JPermission(PREFIX + "bypass.arena", "Bypass all arena restrictions.");
     public static final JPermission BYPASS_KIT                 = new JPermission(PREFIX + "bypass.kit", "Bypass all kit restrictions.");
     public static final JPermission BYPASS_ARENA_JOIN_INGAME   = new JPermission(PREFIX + "bypass.arena.join.ingame", "Allows to join the arena during the game.");
-    public static final JPermission BYPASS_ARENA_JOIN_PAYMENT   = new JPermission(PREFIX + "bypass.arena.join.payment", "Bypasses arena join payments.");
-    public static final JPermission BYPASS_ARENA_JOIN_LEVEL   = new JPermission(PREFIX + "bypass.arena.join.level", "Bypasses arena level requirements.");
+    public static final JPermission BYPASS_ARENA_JOIN_PAYMENT  = new JPermission(PREFIX + "bypass.arena.join.payment", "Bypasses arena join payments.");
+    public static final JPermission BYPASS_ARENA_JOIN_LEVEL    = new JPermission(PREFIX + "bypass.arena.join.level", "Bypasses arena level requirements.");
     public static final JPermission BYPASS_ARENA_GAME_COMMANDS = new JPermission(PREFIX + "bypass.arena.game.commands", "Allows to use non-arena commands in game.");
     public static final JPermission BYPASS_KIT_COST            = new JPermission(PREFIX + "bypass.kit.cost", "Allows to purchase kits from kit shop for free.");
 
     public static final JPermission COMMAND_EDITOR          = new JPermission(PREFIX + "command.editor", "Allows to use '/ama editor' command.");
     public static final JPermission COMMAND_RELOAD          = new JPermission(PREFIX + "command.reload", "Allows to use '/ama reload' command.");
-    public static final JPermission COMMAND_BALANCE         = new JPermission(PREFIX + "command.balance", "Allows to use '/ama balance' command.");
-    public static final JPermission COMMAND_BALANCE_OTHERS  = new JPermission(PREFIX + "command.balance.others", "Allows to use '/ama balance' command for other players.");
-    public static final JPermission COMMAND_CURRENCY        = new JPermission(PREFIX + "command.currency", "Allows to use '/ama currency' command (without of sub-commands).");
-    public static final JPermission COMMAND_CURRENCY_GIVE   = new JPermission(PREFIX + "command.currency.give", "Allows to use '/ama currency give' sub-command.");
-    public static final JPermission COMMAND_CURRENCY_TAKE   = new JPermission(PREFIX + "command.currency.take", "Allows to use '/ama currency take' sub-command.");
+    public static final JPermission COMMAND_BALANCE         = new JPermission(PREFIX + "command.balance", "Allows to use '/ama coins balance' command.");
+    public static final JPermission COMMAND_BALANCE_OTHERS  = new JPermission(PREFIX + "command.balance.others", "Allows to use '/ama coins balance' command for other players.");
+    public static final JPermission COMMAND_COINS           = new JPermission(PREFIX + "command.coins", "Allows to use '/ama coins' command (without sub-commands).");
+    public static final JPermission COMMAND_COINS_GIVE      = new JPermission(PREFIX + "command.coins.give", "Allows to use '/ama coins add' sub-command.");
+    public static final JPermission COMMAND_COINS_TAKE      = new JPermission(PREFIX + "command.coins.take", "Allows to use '/ama coins remove' sub-command.");
+    public static final JPermission COMMAND_COINS_SET       = new JPermission(PREFIX + "command.coins.set", "Allows to use '/ama coins set' sub-command.");
     public static final JPermission COMMAND_FORCEEND        = new JPermission(PREFIX + "command.forceend", "Allows to use '/ama forceend' command.");
     public static final JPermission COMMAND_FORCESTART      = new JPermission(PREFIX + "command.forcestart", "Allows to use '/ama forcestart' command.");
     public static final JPermission COMMAND_JOIN            = new JPermission(PREFIX + "command.join", "Allows to use '/ama join' command.");
@@ -44,7 +45,7 @@ public class Perms {
     public static final JPermission COMMAND_SET_ACTIVE      = new JPermission(PREFIX + "command.setactive", "Allows to use '/ama setactive' command.");
     public static final JPermission COMMAND_SCORE           = new JPermission(PREFIX + "command.score", "Allows to use '/ama score' command.");
     public static final JPermission COMMAND_SHOP            = new JPermission(PREFIX + "command.shop", "Allows to use '/ama shop' command.");
-    public static final JPermission COMMAND_SKIPWAVE        = new JPermission(PREFIX + "command.skipwave", "Allows to use '/ama skipwave' command.");
+    public static final JPermission COMMAND_SKIPROUND       = new JPermission(PREFIX + "command.skipround", "Allows to use '/ama skipround' command.");
     public static final JPermission COMMAND_SPECTATE        = new JPermission(PREFIX + "command.spectate", "Allows to use '/ama spectate' command.");
     public static final JPermission COMMAND_SPOT            = new JPermission(PREFIX + "command.spot", "Allows to use '/ama spot' command.");
     public static final JPermission COMMAND_STATS           = new JPermission(PREFIX + "command.stats", "Allows to use '/ama stats' command.");
@@ -53,9 +54,9 @@ public class Perms {
         PLUGIN.addChildren(PLUGIN_COMMAND, PLUGIN_BYPASS, CREATOR, ARENA_ALL, KIT_ALL);
         PLUGIN_BYPASS.addChildren(BYPASS_ARENA, BYPASS_KIT);
         PLUGIN_COMMAND.addChildren(COMMAND_EDITOR, COMMAND_RELOAD, COMMAND_BALANCE, COMMAND_BALANCE_OTHERS,
-            COMMAND_CURRENCY, COMMAND_HOLOGRAM, COMMAND_FORCEEND, COMMAND_FORCESTART,
+            COMMAND_COINS, COMMAND_HOLOGRAM, COMMAND_FORCEEND, COMMAND_FORCESTART,
             COMMAND_JOIN, COMMAND_LEAVE, COMMAND_LIST, COMMAND_REGION, COMMAND_SET_ACTIVE,
-            COMMAND_SCORE, COMMAND_SHOP, COMMAND_SKIPWAVE,
+            COMMAND_SCORE, COMMAND_SHOP, COMMAND_SKIPROUND,
             COMMAND_SPECTATE, COMMAND_SPOT, COMMAND_STATS);
 
         BYPASS_ARENA.addChildren(
@@ -63,7 +64,7 @@ public class Perms {
             BYPASS_ARENA_JOIN_LEVEL, BYPASS_ARENA_JOIN_PAYMENT);
         BYPASS_KIT.addChildren(BYPASS_KIT_COST);
 
-        COMMAND_CURRENCY.addChildren(COMMAND_CURRENCY_GIVE, COMMAND_CURRENCY_TAKE);
+        COMMAND_COINS.addChildren(COMMAND_COINS_GIVE, COMMAND_COINS_TAKE);
         COMMAND_HOLOGRAM.addChildren(COMMAND_HOLOGRAM_ADD, COMMAND_HOLOGRAM_REMOVE);
     }
 }

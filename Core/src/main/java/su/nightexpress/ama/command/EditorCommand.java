@@ -7,28 +7,14 @@ import su.nexmedia.engine.api.command.AbstractCommand;
 import su.nexmedia.engine.api.command.CommandResult;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
+import su.nightexpress.ama.config.Lang;
 
 public class EditorCommand extends AbstractCommand<AMA> {
 
     public EditorCommand(@NotNull AMA plugin) {
         super(plugin, new String[]{"editor"}, Perms.CREATOR);
-    }
-
-    @Override
-    @NotNull
-    public String getUsage() {
-        return "";
-    }
-
-    @Override
-    @NotNull
-    public String getDescription() {
-        return "Open editor.";
-    }
-
-    @Override
-    public boolean isPlayerOnly() {
-        return true;
+        this.setDescription(plugin.getMessage(Lang.COMMAND_EDITOR_DESC));
+        this.setPlayerOnly(true);
     }
 
     @Override

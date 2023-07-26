@@ -12,7 +12,8 @@ public class HookId {
     public static final String SUNLIGHT             = "SunLight";
     public static final String PROTOCOL_LIB         = "ProtocolLib";
     public static final String MCMMO                = "mcMMO";
-    public static final String PLAYER_POINTS        = "PlayerPoints";
-    public static final String GAME_POINTS          = "GamePoints";
+    //public static final String PLAYER_POINTS        = "PlayerPoints";
+    //public static final String GAME_POINTS          = "GamePoints";
+    public static final String COINS_ENGINE = "CoinsEngine";
     public static final String MMOCORE              = "MMOCore";
 }

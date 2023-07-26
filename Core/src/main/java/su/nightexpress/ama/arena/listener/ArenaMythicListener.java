@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.manager.AbstractListener;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.impl.Arena;
-import su.nightexpress.ama.arena.type.GameState;
+import su.nightexpress.ama.api.type.GameState;
 import su.nightexpress.ama.mob.config.MobsConfig;
 
 public class ArenaMythicListener extends AbstractListener<AMA> {
@@ -28,10 +28,10 @@ public class ArenaMythicListener extends AbstractListener<AMA> {
 
         if (arena.getState() == GameState.INGAME && !arena.isAboutToEnd()) {
             if (MobsConfig.ALLY_MYTHIC_MOBS.get().contains(e.getMobType().getInternalName())) {
-                if (arena.getMobs().remove(entity)) {
-                    arena.setWaveMobsTotalAmount(arena.getWaveMobsTotalAmount() - 1);
+                if (arena.getMobs().getEnemies().remove(entity)) {
+                    arena.setRoundTotalMobsAmount(arena.getRoundTotalMobsAmount() - 1);
                 }
-                arena.getAllyMobs().add(entity);
+                arena.getMobs().getAllies().add(entity);
             }
         }
         else {

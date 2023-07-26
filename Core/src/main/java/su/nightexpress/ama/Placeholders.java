@@ -2,6 +2,9 @@ package su.nightexpress.ama;
 
 public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
 
+    public static final String WIKI_AMA = "https://github.com/nulli0n/AdvancedMobArena-spigot/wiki/";
+    public static final String WIKI_AMA_PLACEHOLDERS = WIKI_AMA + "Internal-Placeholders";
+
     public static final String GENERIC_TIME     = "%time%";
     public static final String GENERIC_VALUE    = "%value%";
     public static final String GENERIC_PRICE    = "%price%";
@@ -150,7 +153,7 @@ public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
     public static final String MOB_LEVEL_MIN        = "%mob_level_min%";
     public static final String MOB_LEVEL_MAX        = "%mob_level_max%";
     public static final String MOB_BOSSBAR_ENABLED  = "%mob_bossbar_enabled%";
-    public static final String MOB_BOSSBAR_TITLE    = "%mob_bossbar_title%";
+    @Deprecated public static final String MOB_BOSSBAR_TITLE    = "%mob_bossbar_title%";
     public static final String MOB_BOSSBAR_COLOR    = "%mob_bossbar_color%";
     public static final String MOB_BOSSBAR_STYLE    = "%mob_bossbar_style%";
     public static final String MOB_ATTRIBUTES_BASE  = "%mob_attributes_base%";

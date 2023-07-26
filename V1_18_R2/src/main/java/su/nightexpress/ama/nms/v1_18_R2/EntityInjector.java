@@ -3,11 +3,11 @@ package su.nightexpress.ama.nms.v1_18_R2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_18_R2.CraftWorld;
 import org.bukkit.entity.EntityType;
-import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -107,7 +107,8 @@ public class EntityInjector {
         if (bukkitWorld == null) return null;
 
         ServerLevel world = ((CraftWorld) bukkitWorld).getHandle();
-        Entity entity = typez.spawn(world,
+
+        /*Entity entity = typez.spawn(world,
             null,
             null,
             null,
@@ -118,6 +119,16 @@ public class EntityInjector {
         //world.addFreshEntity(entity, CreatureSpawnEvent.SpawnReason.CUSTOM);
         entity.getBukkitEntity().teleport(location);
 
-        return entity;
+        return entity;*/
+
+        BlockPos blockPos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+        MobSpawnType spawnType = MobSpawnType.COMMAND;
+        //CreatureSpawnEvent.SpawnReason spawnReason = CreatureSpawnEvent.SpawnReason.CUSTOM;
+
+        Mob mob = (Mob) typez.create(world, null, null, null, blockPos, spawnType, false, false);
+        if (mob != null) {
+            world.addFreshEntity(mob, null);
+        }
+        return mob;
     }
 }

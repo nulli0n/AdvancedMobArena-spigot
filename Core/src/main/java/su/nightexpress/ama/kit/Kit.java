@@ -18,14 +18,14 @@ import su.nexmedia.engine.utils.*;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.api.currency.ICurrency;
+import su.nightexpress.ama.api.currency.Currency;
 import su.nightexpress.ama.api.hologram.HologramHolder;
 import su.nightexpress.ama.api.hologram.HologramType;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
-import su.nightexpress.ama.arena.type.PlayerType;
+import su.nightexpress.ama.api.type.PlayerType;
 import su.nightexpress.ama.config.Lang;
-import su.nightexpress.ama.data.ArenaUser;
+import su.nightexpress.ama.data.impl.ArenaUser;
 import su.nightexpress.ama.hologram.HologramManager;
 import su.nightexpress.ama.kit.editor.KitMainEditor;
 import su.nightexpress.ama.kit.menu.KitPreviewMenu;
@@ -38,9 +38,9 @@ public class Kit extends AbstractConfigHolder<AMA> implements ConfigHolder, Holo
     private boolean      isDefault;
     private String       name;
     private List<String> description;
-    private ItemStack    icon;
-    private ICurrency    currency;
-    private double       cost;
+    private ItemStack icon;
+    private Currency  currency;
+    private double    cost;
     private boolean      isPermissionRequired;
 
     private List<String>      commands;
@@ -74,7 +74,7 @@ public class Kit extends AbstractConfigHolder<AMA> implements ConfigHolder, Holo
             .add(Placeholders.KIT_COST, () -> this.getCurrency().format(this.getCost()))
             .add(Placeholders.KIT_ICON_LORE, () -> String.join("\n", ItemUtil.getLore(this.getIcon())))
             .add(Placeholders.KIT_ICON_MATERIAL, () -> this.getIcon().getType().name())
-            .add(Placeholders.KIT_CURRENCY, () -> this.getCurrency().getConfig().getName())
+            .add(Placeholders.KIT_CURRENCY, () -> this.getCurrency().getName())
         ;
     }
 
@@ -86,8 +86,8 @@ public class Kit extends AbstractConfigHolder<AMA> implements ConfigHolder, Holo
         this.setCost(cfg.getDouble("Cost"));
         this.setPermissionRequired(cfg.getBoolean("Permission_Required"));
 
-        ICurrency currency = plugin.getCurrencyManager().getCurrency(cfg.getString("Currency", ""));
-        if (currency == null) currency = plugin.getCurrencyManager().getCurrencyFirst();
+        Currency currency = plugin.getCurrencyManager().getCurrency(cfg.getString("Currency", ""));
+        if (currency == null) currency = plugin.getCurrencyManager().getAny();
         this.setCurrency(currency);
 
         ItemStack icon = cfg.getItem("Icon");
@@ -236,11 +236,11 @@ public class Kit extends AbstractConfigHolder<AMA> implements ConfigHolder, Holo
     }
 
     @NotNull
-    public ICurrency getCurrency() {
+    public Currency getCurrency() {
         return currency;
     }
 
-    public void setCurrency(@NotNull ICurrency currency) {
+    public void setCurrency(@NotNull Currency currency) {
         this.currency = currency;
     }
 
@@ -377,7 +377,7 @@ public class Kit extends AbstractConfigHolder<AMA> implements ConfigHolder, Holo
             return true;
         }
 
-        double balance = this.getCurrency().getBalance(player);
+        double balance = this.getCurrency().getHandler().getBalance(player);
         double cost = player.hasPermission(Perms.BYPASS_KIT_COST) ? 0 : this.getCost();
 
         if (cost > 0D) {
@@ -386,7 +386,7 @@ public class Kit extends AbstractConfigHolder<AMA> implements ConfigHolder, Holo
                 player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_HURT, 1.0f, 1.0f); // TODO In msg
                 return false;
             }
-            this.getCurrency().take(player, cost);
+            this.getCurrency().getHandler().take(player, cost);
         }
 
         plugin.getMessage(Lang.Kit_Buy_Success).replace(this.replacePlaceholders()).send(player);

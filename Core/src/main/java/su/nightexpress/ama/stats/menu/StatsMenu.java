@@ -8,10 +8,11 @@ import su.nexmedia.engine.api.menu.MenuItemType;
 import su.nexmedia.engine.api.menu.click.ClickHandler;
 import su.nexmedia.engine.api.menu.impl.ConfigMenu;
 import su.nexmedia.engine.api.menu.item.MenuItem;
+import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.arena.impl.Arena;
-import su.nightexpress.ama.data.ArenaUser;
+import su.nightexpress.ama.data.impl.ArenaUser;
 import su.nightexpress.ama.stats.object.StatType;
 
 import java.util.ArrayList;
@@ -45,6 +46,9 @@ public class StatsMenu extends ConfigMenu<AMA> {
         this.load();
 
         for (String sId : cfg.getSection("Stat_Icons")) {
+            StatType statType = StringUtil.getEnum(sId, StatType.class).orElse(null);
+            if (statType == null) continue;
+
             MenuItem menuItem = this.readItem("Stat_Icons." + sId);
 
             menuItem.getOptions().addDisplayModifier((viewer, item) -> {
@@ -53,7 +57,6 @@ public class StatsMenu extends ConfigMenu<AMA> {
 
                 List<String> lore = meta.getLore();
                 if (lore == null) return;
-                if (!(menuItem.getType() instanceof StatType statType)) return;
 
                 ArenaUser user = plugin.getUserManager().getUserData(viewer.getPlayer());
 

@@ -7,7 +7,7 @@ import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.menu.click.ItemClick;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
-import su.nightexpress.ama.data.ArenaUser;
+import su.nightexpress.ama.data.impl.ArenaUser;
 import su.nightexpress.ama.kit.Kit;
 
 import java.util.function.Predicate;

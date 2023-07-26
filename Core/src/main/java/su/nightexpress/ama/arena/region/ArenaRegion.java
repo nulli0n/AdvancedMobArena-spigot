@@ -34,8 +34,8 @@ import su.nightexpress.ama.arena.script.action.ScriptPreparedAction;
 import su.nightexpress.ama.arena.script.condition.ScriptPreparedCondition;
 import su.nightexpress.ama.arena.script.impl.ArenaScript;
 import su.nightexpress.ama.arena.supply.ArenaSupplyChest;
-import su.nightexpress.ama.arena.type.GameState;
-import su.nightexpress.ama.arena.type.PlayerType;
+import su.nightexpress.ama.api.type.GameState;
+import su.nightexpress.ama.api.type.PlayerType;
 import su.nightexpress.ama.arena.util.ArenaCuboid;
 import su.nightexpress.ama.hologram.HologramManager;
 

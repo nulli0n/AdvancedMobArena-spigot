@@ -8,7 +8,7 @@ import su.nexmedia.engine.api.command.CommandResult;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.arena.impl.Arena;
-import su.nightexpress.ama.arena.type.GameState;
+import su.nightexpress.ama.api.type.GameState;
 import su.nightexpress.ama.config.Lang;
 
 import java.util.List;
@@ -17,23 +17,8 @@ public class ForceEndCommand extends AbstractCommand<AMA> {
 
     public ForceEndCommand(@NotNull AMA plugin) {
         super(plugin, new String[]{"forceend"}, Perms.COMMAND_FORCEEND);
-    }
-
-    @Override
-    @NotNull
-    public String getDescription() {
-        return plugin.getMessage(Lang.COMMAND_FORCE_END_DESC).getLocalized();
-    }
-
-    @Override
-    @NotNull
-    public String getUsage() {
-        return plugin.getMessage(Lang.COMMAND_FORCE_END_USAGE).getLocalized();
-    }
-
-    @Override
-    public boolean isPlayerOnly() {
-        return false;
+        this.setDescription(plugin.getMessage(Lang.COMMAND_FORCE_END_DESC));
+        this.setUsage(plugin.getMessage(Lang.COMMAND_FORCE_END_USAGE));
     }
 
     @Override
@@ -64,8 +49,7 @@ public class ForceEndCommand extends AbstractCommand<AMA> {
             return;
         }
 
-        arena.stop();
-
         plugin.getMessage(Lang.COMMAND_FORCE_END_DONE).replace(arena.replacePlaceholders()).send(sender);
+        arena.stop();
     }
 }

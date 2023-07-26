@@ -14,23 +14,8 @@ public class LeaveCommand extends AbstractCommand<AMA> {
 
     public LeaveCommand(@NotNull AMA plugin) {
         super(plugin, new String[]{"leave"}, Perms.COMMAND_LEAVE);
-    }
-
-    @Override
-    @NotNull
-    public String getDescription() {
-        return plugin.getMessage(Lang.COMMAND_LEAVE_DESC).getLocalized();
-    }
-
-    @Override
-    @NotNull
-    public String getUsage() {
-        return "";
-    }
-
-    @Override
-    public boolean isPlayerOnly() {
-        return true;
+        this.setDescription(plugin.getMessage(Lang.COMMAND_LEAVE_DESC));
+        this.setPlayerOnly(true);
     }
 
     @Override

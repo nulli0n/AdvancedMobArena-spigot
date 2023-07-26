@@ -12,6 +12,7 @@ import su.nexmedia.engine.utils.EntityUtil;
 import su.nightexpress.ama.api.arena.type.ArenaLocationType;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
+import su.nightexpress.ama.config.Config;
 import su.nightexpress.ama.hook.HookId;
 import su.nightexpress.ama.hook.external.EssentialsHook;
 import su.nightexpress.ama.hook.external.SunLightHook;
@@ -61,8 +62,9 @@ public class PlayerSnapshot {
         player.setHealth(EntityUtil.getAttribute(player, Attribute.GENERIC_MAX_HEALTH));
         player.setFireTicks(0);
         player.leaveVehicle();
-        player.getActivePotionEffects().forEach(effect -> player.removePotionEffect(effect.getType()));
-
+        if (Config.ARENA_CLEAR_POTION_EFFECTS.get()) {
+            player.getActivePotionEffects().forEach(effect -> player.removePotionEffect(effect.getType()));
+        }
         if (EngineUtils.hasPlugin(HookId.ESSENTIALS)) {
             EssentialsHook.disableGod(player);
         }
@@ -90,9 +92,10 @@ public class PlayerSnapshot {
             player.setAllowFlight(true);
             player.setFlying(true);
         }
-
-        player.getActivePotionEffects().stream().map(PotionEffect::getType).forEach(player::removePotionEffect);
-        player.addPotionEffects(snapshot.getPotionEffects());
+        if (Config.ARENA_CLEAR_POTION_EFFECTS.get()) {
+            player.getActivePotionEffects().stream().map(PotionEffect::getType).forEach(player::removePotionEffect);
+            player.addPotionEffects(snapshot.getPotionEffects());
+        }
 
         // Return player inventory before the game
         if (arena.getConfig().getGameplayManager().isKitsEnabled()) {

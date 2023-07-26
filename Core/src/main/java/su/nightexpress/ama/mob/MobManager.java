@@ -11,17 +11,17 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.AbstractManager;
-import su.nexmedia.engine.utils.EngineUtils;
+import su.nexmedia.engine.utils.NumberUtil;
 import su.nexmedia.engine.utils.PDCUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Keys;
 import su.nightexpress.ama.Placeholders;
+import su.nightexpress.ama.api.type.MobFaction;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.util.ArenaUtils;
 import su.nightexpress.ama.hologram.HologramManager;
-import su.nightexpress.ama.hook.HookId;
-import su.nightexpress.ama.hook.external.MythicMobsHook;
+import su.nightexpress.ama.hook.mob.MobProvider;
 import su.nightexpress.ama.hook.mob.PluginMobProvider;
 import su.nightexpress.ama.hook.mob.impl.InternalMobProvider;
 import su.nightexpress.ama.mob.config.MobConfig;
@@ -33,7 +33,9 @@ import java.util.*;
 
 public class MobManager extends AbstractManager<AMA> {
 
-    private Map<String, MobConfig> mobs;
+    public static final String DIR_MOBS = "/mobs/";
+
+    private Map<String, MobConfig> mobConfigMap;
 
     public MobManager(@NotNull AMA plugin) {
         super(plugin);
@@ -41,161 +43,115 @@ public class MobManager extends AbstractManager<AMA> {
 
     @Override
     public void onLoad() {
-        this.mobs = new HashMap<>();
-        this.plugin.getConfigManager().extractResources("/mobs/");
+        this.mobConfigMap = new HashMap<>();
+        this.plugin.getConfigManager().extractResources(DIR_MOBS);
 
-		/*for (EntityType entityType : EntityType.values()) {
-			if (!entityType.isAlive() || !entityType.isSpawnable()) continue;
-
-			ArenaCustomMob mob = new ArenaCustomMob(plugin, plugin.getDataFolder() + "/mobs/" + entityType.name().toLowerCase() + ".yml", entityType);
-			mob.save();
-		}*/
-
-        for (JYML cfg : JYML.loadAll(plugin.getDataFolder() + "/mobs/", false)) {
-            try {
-                MobConfig mob = new MobConfig(plugin, cfg);
-                mob.load();
-                this.mobs.put(mob.getId().toLowerCase(), mob);
+        for (JYML cfg : JYML.loadAll(plugin.getDataFolder() + DIR_MOBS, false)) {
+            MobConfig mob = new MobConfig(plugin, cfg);
+            if (mob.load()) {
+                this.mobConfigMap.put(mob.getId().toLowerCase(), mob);
             }
-            catch (Exception ex) {
-                plugin.error("Could not load mob: " + cfg.getFile().getName());
-                ex.printStackTrace();
-            }
+            else this.plugin.warn("AMA mob not loaded: '" + cfg.getFile().getName() + "'!");
         }
-        plugin.info("Mobs Loaded: " + mobs.size());
+        plugin.info("Mobs Loaded: " + mobConfigMap.size());
         plugin.getConfig().initializeOptions(MobsConfig.class);
 
-        // TODO Config option to not use internal mobs provider
         PluginMobProvider.registerProvider(new InternalMobProvider(this.plugin));
     }
 
     @Override
     public void onShutdown() {
-        this.mobs.values().forEach(MobConfig::clear);
-        this.mobs.clear();
+        this.mobConfigMap.values().forEach(MobConfig::clear);
+        this.mobConfigMap.clear();
     }
+
+    /*private void lazyGen() {
+        Set<EntityType> available = new HashSet<>();
+        available.addAll(EntityInjector.BASIC.keySet());
+        available.addAll(EntityInjector.BRAINED.keySet());
+
+        for (EntityType entityType : available) {
+            JYML cfg = new JYML(plugin.getDataFolder() + "/mobs/", entityType.name().toLowerCase() + ".yml");
+            cfg.set("Name", StringUtil.capitalizeUnderscored(entityType.name().toLowerCase()));
+            cfg.set("Name_Visible", true);
+            cfg.set("Entity_Type", entityType.name());
+            cfg.set("Level.Minimum", 1);
+            cfg.set("Level.Maximum", 10);
+            cfg.set("Attributes.Base.GENERIC_MAX_HEALTH", 20D);
+            cfg.set("Attributes.Per_Level.GENERIC_MAX_HEALTH", 1D);
+            cfg.saveChanges();
+        }
+    }*/
 
     public boolean createMobConfig(@NotNull String id) {
         id = StringUtil.lowerCaseUnderscore(id);
-        if (this.getMobById(id) != null) return false;
+        if (this.getMobConfigById(id) != null) return false;
 
         JYML cfg = new JYML(this.plugin.getDataFolder() + "/mobs/", id + ".yml");
         MobConfig mobConfig = new MobConfig(plugin, cfg);
 
         mobConfig.setEntityType(EntityType.ZOMBIE);
-        mobConfig.setName("&f" + StringUtil.capitalizeFully(mobConfig.getEntityType().name().toLowerCase().replace("_", " ")) + " &cLv. &6" + Placeholders.MOB_LEVEL);
+        mobConfig.setName(StringUtil.capitalizeUnderscored(mobConfig.getEntityType().name().toLowerCase()));
         mobConfig.setNameVisible(true);
         mobConfig.setLevelMin(1);
         mobConfig.setLevelMax(10);
         mobConfig.setBarEnabled(false);
-        mobConfig.setBarTitle("&c&l" + Placeholders.MOB_NAME + " &7&l- &f&l" + Placeholders.MOB_HEALTH + "&7/&f&l" + Placeholders.MOB_HEALTH_MAX);
+        //mobConfig.setBarTitle("&c&l" + Placeholders.MOB_NAME + " &7&l- &f&l" + Placeholders.MOB_HEALTH + "&7/&f&l" + Placeholders.MOB_HEALTH_MAX);
         mobConfig.setBarStyle(BarStyle.SEGMENTED_12);
         mobConfig.setBarColor(BarColor.RED);
         mobConfig.getAttributes().put(Attribute.GENERIC_MAX_HEALTH, new double[]{20D, 1D});
 
         mobConfig.save();
         mobConfig.load();
-        this.getMobsMap().put(mobConfig.getId(), mobConfig);
+        this.getMobConfigMap().put(mobConfig.getId(), mobConfig);
         return true;
     }
 
     @NotNull
     public List<String> getMobIds() {
-        return new ArrayList<>(this.mobs.keySet());
+        return new ArrayList<>(this.mobConfigMap.keySet());
     }
 
     @NotNull
-    public Map<String, MobConfig> getMobsMap() {
-        return this.mobs;
+    public Map<String, MobConfig> getMobConfigMap() {
+        return this.mobConfigMap;
     }
 
     @NotNull
-    public Collection<MobConfig> getMobs() {
-        return this.mobs.values();
+    public Collection<MobConfig> getMobConfigs() {
+        return this.mobConfigMap.values();
     }
 
     @Nullable
-    public MobConfig getMobById(@NotNull String id) {
-        return this.mobs.get(id.toLowerCase());
+    public MobConfig getMobConfigById(@NotNull String id) {
+        return this.mobConfigMap.get(id.toLowerCase());
     }
 
     @Nullable
-    public LivingEntity spawnMob(@NotNull String mobId, @NotNull Location location, int level) {
-        MobConfig customMob = this.getMobById(mobId);
+    public LivingEntity spawnMob(@NotNull Arena arena, @NotNull MobFaction faction, @NotNull String mobId, @NotNull Location location, int level) {
+        MobConfig customMob = this.getMobConfigById(mobId);
         if (customMob == null) return null;
 
         EntityType type = customMob.getEntityType();
-        LivingEntity entity = plugin.getArenaNMS().spawnMob(type, location);
+        LivingEntity entity = plugin.getArenaNMS().spawnMob(arena, faction, type, location);
         if (entity == null) return null;
 
         customMob.applySettings(entity, level);
         customMob.applyAttributes(entity, level);
         if (customMob.isBarEnabled()) {
-            Arena arena = this.plugin.getArenaManager().getArenaAtLocation(location);
-            if (arena != null) {
-                ArenaUtils.addMobBossBar(arena, entity, customMob.createOrUpdateBar(entity));
-            }
+            ArenaUtils.addMobBossBar(arena, entity, customMob.createOrUpdateBar(entity));
         }
         this.setMobConfig(entity, customMob);
         return entity;
     }
 
-    /*@Nullable
-    @Deprecated
-    public LivingEntity spawnMob(@NotNull Arena arena, @NotNull ArenaWaveMob waveMob, @NotNull Location loc2) {
-        String mobId = waveMob.getMobId();
-        Location loc = loc2.clone().add(0, 1, 0); // Fix block position
-        MobConfig customMob = this.getMobById(mobId);
-        int level = waveMob.getLevel();
-
-        LivingEntity entity;
-
-        if (Hooks.hasMythicMobs() && MythicMobsHook.getMobConfig(mobId) != null) {
-            entity = (LivingEntity) MythicMobsHook.spawnMythicMob(mobId, loc, level);
-            if (entity == null) return null;
-        }
-        else if (customMob != null) {
-            EntityType type = customMob.getEntityType();
-            entity = plugin.getArenaNMS().spawnMob(type, loc);
-
-            if (entity == null) {
-                World world = loc.getWorld();
-                if (world == null) return null;
-
-                Entity e = world.spawnEntity(loc, type);
-                if (!(e instanceof LivingEntity)) {
-                    e.remove();
-                    return null;
-                }
-
-                entity = (LivingEntity) e;
-            }
-            customMob.applySettings(entity, level);
-            customMob.applyAttributes(entity, level);
-            if (customMob.isBarEnabled()) {
-                ArenaUtils.addMobBossBar(arena, entity, customMob.createOrUpdateBar(entity));
-            }
-            this.setMobConfig(entity, customMob);
-        }
-        else return null;
-
-        this.setArena(entity, arena); // Add Arena meta
-        this.setLevel(entity, level);
-
-        arena.getMobs().add(entity);
-        //arena.updateMobTarget(entity, true);
-
-        entity.setRemoveWhenFarAway(false);
-        return entity;
-    }*/
-
     public static void setArena(@NotNull LivingEntity entity, @NotNull Arena arena) {
         PDCUtil.set(entity, Keys.ENTITY_ARENA_ID, arena.getId());
     }
 
-	/*public static void setOutsider(@NotNull LivingEntity entity) {
-		PDCUtil.setData(entity, Keys.ENTITY_OUTSIDER, true);
-	}*/
+    public static void setProvider(@NotNull LivingEntity entity, @NotNull MobProvider provider, @NotNull String name) {
+        PDCUtil.set(entity, Keys.ENTITY_MOB_ID, (provider.getName() + ":" + name).toLowerCase());
+    }
 
     private void setMobConfig(@NotNull LivingEntity entity, @NotNull MobConfig customMob) {
         PDCUtil.set(entity, Keys.ENTITY_MOB_ID, customMob.getId());
@@ -206,22 +162,28 @@ public class MobManager extends AbstractManager<AMA> {
     }
 
     @NotNull
-    @Deprecated // TODO Use provider name & PDC
-    public String getMobId(@NotNull LivingEntity entity) {
-        if (EngineUtils.hasPlugin(HookId.MYTHIC_MOBS) && MythicMobsHook.isMythicMob(entity)) {
-            return MythicMobsHook.getMobInternalName(entity).toLowerCase();
-        }
-        MobConfig customMob = this.getEntityMobConfig(entity);
-        if (customMob != null) {
-            return customMob.getId();
-        }
-        return entity.getType().name().toLowerCase();
+    public static String getMobIdProvider(@NotNull LivingEntity entity) {
+        return PDCUtil.getString(entity, Keys.ENTITY_MOB_ID).orElse("");
+    }
+
+    @NotNull
+    public static String getMobId(@NotNull LivingEntity entity) {
+        String[] split = getMobIdProvider(entity).split(":");
+        return split.length == 2 ? split[1] : "";
+    }
+
+    @NotNull
+    public static String getMobProvider(@NotNull LivingEntity entity) {
+        String[] split = getMobIdProvider(entity).split(":");
+        return split[0];
     }
 
     @Nullable
-    public MobKillReward getMobKillReward(@NotNull LivingEntity entity) {
+    public static MobKillReward getMobKillReward(@NotNull LivingEntity entity) {
         if (!MobsConfig.KILL_REWARD_ENABLED.get()) return null;
-        return MobsConfig.KILL_REWARD_VALUES.get().getOrDefault(this.getMobId(entity), MobsConfig.KILL_REWARD_VALUES.get().get(Placeholders.DEFAULT));
+
+        var map = MobsConfig.KILL_REWARD_VALUES.get();
+        return map.getOrDefault(getMobIdProvider(entity), map.get(Placeholders.DEFAULT));
     }
 
     @Nullable
@@ -240,11 +202,11 @@ public class MobManager extends AbstractManager<AMA> {
         if (lifetime <= 0) return;
 
         List<String> text = new ArrayList<>();
-        reward.payment().forEach(((currency, amount) -> {
+        reward.getPayment().forEach(((currency, amount) -> {
             text.add(MobsConfig.KILL_REWARD_HOLOGRAM_FORMAT_PAYMENT.get().replace(Placeholders.GENERIC_AMOUNT, currency.format(amount)));
         }));
-        if (reward.score() > 0) {
-            text.add(MobsConfig.KILL_REWARD_HOLOGRAM_FORMAT_SCORE.get().replace(Placeholders.GENERIC_AMOUNT, String.valueOf(reward.score())));
+        if (reward.getScore() > 0) {
+            text.add(MobsConfig.KILL_REWARD_HOLOGRAM_FORMAT_SCORE.get().replace(Placeholders.GENERIC_AMOUNT, NumberUtil.format(reward.getScore())));
         }
 
         hologramManager.create(entity.getEyeLocation(), text, lifetime);
@@ -254,14 +216,6 @@ public class MobManager extends AbstractManager<AMA> {
         return this.getEntityArena(entity) != null;
     }
 
-	/*public static boolean isOutsider(@NotNull Entity entity) {
-		return PDCUtil.getBooleanData(entity, Keys.ENTITY_OUTSIDER);
-	}*/
-
-    public boolean isCustomEntity(@NotNull Entity entity) {
-        return this.getEntityMobConfig(entity) != null;
-    }
-
     @Nullable
     public Arena getEntityArena(@NotNull Entity entity) {
         String id = PDCUtil.getString(entity, Keys.ENTITY_ARENA_ID).orElse(null);
@@ -269,16 +223,11 @@ public class MobManager extends AbstractManager<AMA> {
     }
 
     @Nullable
-    public MobConfig getEntityMobConfig(@NotNull Entity entity) {
-        String id = PDCUtil.getString(entity, Keys.ENTITY_MOB_ID).orElse(null);
-        return id == null ? null : this.getMobById(id);
+    public MobConfig getEntityMobConfig(@NotNull LivingEntity entity) {
+        return this.getMobConfigById(getMobId(entity));
     }
 
-    @Deprecated // TODO Only PDC
-    public int getEntityLevel(@NotNull Entity entity) {
-        if (EngineUtils.hasPlugin(HookId.MYTHIC_MOBS) && MythicMobsHook.isMythicMob(entity)) {
-            return (int) MythicMobsHook.getMobLevel(entity);
-        }
+    public static int getEntityLevel(@NotNull LivingEntity entity) {
         return PDCUtil.getInt(entity, Keys.ENTITY_MOB_LEVEL).orElse(0);
     }
 }

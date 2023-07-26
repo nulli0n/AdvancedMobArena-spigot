@@ -14,14 +14,13 @@ import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_18_R2.CraftWorld;
-import org.bukkit.craftbukkit.v1_18_R2.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_18_R2.entity.CraftPlayer;
 import org.bukkit.entity.*;
-import org.bukkit.event.entity.EntityTargetEvent;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.Reflex;
+import su.nightexpress.ama.api.IArena;
+import su.nightexpress.ama.api.type.MobFaction;
 import su.nightexpress.ama.nms.ArenaNMS;
 
 import java.util.HashMap;
@@ -34,8 +33,8 @@ public class V1_18_R2 implements ArenaNMS {
     }
 
     @Override
-    public LivingEntity spawnMob(@NotNull EntityType type, @NotNull Location loc) {
-        net.minecraft.world.entity.Mob eIns = (net.minecraft.world.entity.Mob) EntityInjector.spawnEntity(type, loc);
+    public LivingEntity spawnMob(@NotNull IArena arena, @NotNull MobFaction faction, @NotNull EntityType type, @NotNull Location location) {
+        net.minecraft.world.entity.Mob eIns = (net.minecraft.world.entity.Mob) EntityInjector.spawnEntity(type, location);
         if (eIns == null) return null;
 
         Entity bukkitEntity = eIns.getBukkitEntity();
@@ -97,27 +96,6 @@ public class V1_18_R2 implements ArenaNMS {
             return;
         }
         instance.setBaseValue(value);
-    }
-
-    @Override
-    public void setTarget(@NotNull LivingEntity entity, @Nullable LivingEntity target) {
-        CraftLivingEntity craftLiving = (CraftLivingEntity) entity;
-        if (!(craftLiving.getHandle() instanceof net.minecraft.world.entity.Mob insentient)) return;
-
-        if (target == null) {
-            insentient.setTarget(null);
-            return;
-        }
-        insentient.setTarget(((CraftLivingEntity) target).getHandle(), EntityTargetEvent.TargetReason.CUSTOM, true);
-    }
-
-    @Override
-    public LivingEntity getTarget(@Nullable LivingEntity entity) {
-        CraftLivingEntity craftLiving = (CraftLivingEntity) entity;
-        if (craftLiving == null || !(craftLiving.getHandle() instanceof net.minecraft.world.entity.Mob insentient)) return null;
-
-        net.minecraft.world.entity.LivingEntity target = insentient.getTarget();
-        return target == null ? null : (LivingEntity) target.getBukkitEntity();
     }
 
     @Override

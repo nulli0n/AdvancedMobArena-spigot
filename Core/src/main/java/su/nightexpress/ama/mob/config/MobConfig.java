@@ -35,6 +35,8 @@ import java.util.stream.Stream;
 
 public class MobConfig extends AbstractConfigHolder<AMA> implements Placeholder {
 
+    private MobMainEditor editor;
+
     private String     name;
     private boolean    nameVisible;
     private EntityType entityType;
@@ -45,15 +47,12 @@ public class MobConfig extends AbstractConfigHolder<AMA> implements Placeholder 
     private final Map<MobStyleType, String> styles;
 
     private boolean  barEnabled;
-    private String   barTitle;
+    //private String   barTitle;
     private BarStyle barStyle;
     private BarColor barColor;
 
     private final Map<EquipmentSlot, ItemStack> equipment;
     private final Map<Attribute, double[]>      attributes; // [0] Base, [1] Per Level
-
-    private MobMainEditor editor;
-
     private final PlaceholderMap placeholderMap;
 
     public MobConfig(@NotNull AMA plugin, @NotNull JYML cfg) {
@@ -70,7 +69,7 @@ public class MobConfig extends AbstractConfigHolder<AMA> implements Placeholder 
             .add(Placeholders.MOB_LEVEL_MIN, () -> String.valueOf(this.getLevelMin()))
             .add(Placeholders.MOB_LEVEL_MAX, () -> String.valueOf(this.getLevelMax()))
             .add(Placeholders.MOB_BOSSBAR_ENABLED, () -> LangManager.getBoolean(this.isBarEnabled()))
-            .add(Placeholders.MOB_BOSSBAR_TITLE, this::getBarTitle)
+            .add(Placeholders.MOB_BOSSBAR_TITLE, () -> "-")
             .add(Placeholders.MOB_BOSSBAR_COLOR, () -> this.getBarColor().name())
             .add(Placeholders.MOB_BOSSBAR_STYLE, () -> this.getBarStyle().name())
             .add(Placeholders.MOB_ATTRIBUTES_BASE, () -> this.getAttributes().entrySet().stream()
@@ -104,7 +103,7 @@ public class MobConfig extends AbstractConfigHolder<AMA> implements Placeholder 
         // Boss Bar
         String path = "Boss_Bar.";
         this.setBarEnabled(cfg.getBoolean(path + "Enabled"));
-        this.setBarTitle(cfg.getString(path + "Title", Placeholders.MOB_NAME));
+        //this.setBarTitle(cfg.getString(path + "Title", Placeholders.MOB_NAME));
         this.setBarColor(cfg.getEnum(path + "Color", BarColor.class, BarColor.RED));
         this.setBarStyle(cfg.getEnum(path + "Style", BarStyle.class, BarStyle.SOLID));
 
@@ -145,7 +144,7 @@ public class MobConfig extends AbstractConfigHolder<AMA> implements Placeholder 
 
         String path = "Boss_Bar.";
         cfg.set(path + "Enabled", this.isBarEnabled());
-        cfg.set(path + "Title", this.getBarTitle());
+        //cfg.set(path + "Title", this.getBarTitle());
         cfg.set(path + "Style", this.getBarStyle().name());
         cfg.set(path + "Color", this.getBarColor().name());
 
@@ -244,23 +243,21 @@ public class MobConfig extends AbstractConfigHolder<AMA> implements Placeholder 
         this.barEnabled = barEnabled;
     }
 
-    public void setBarTitle(@NotNull String barTitle) {
+    /*public void setBarTitle(@NotNull String barTitle) {
         this.barTitle = Colorizer.apply(barTitle);
     }
 
     @NotNull
     public String getBarTitle() {
         return this.barTitle;
-    }
+    }*/
 
     @NotNull
     private String getBarTitle(@NotNull LivingEntity entity) {
         double maxHealth = EntityUtil.getAttribute(entity, Attribute.GENERIC_MAX_HEALTH);
-        return this.getBarTitle()
+        return this.replacePlaceholders().apply(MobsConfig.BOSS_BAR_FORMAT.get())
             .replace(Placeholders.MOB_HEALTH, NumberUtil.format(entity.getHealth()))
-            .replace(Placeholders.MOB_HEALTH_MAX, NumberUtil.format(maxHealth))
-            .replace(Placeholders.MOB_NAME, entity.getCustomName() != null ? entity.getCustomName() : entity.getName())
-            ;
+            .replace(Placeholders.MOB_HEALTH_MAX, NumberUtil.format(maxHealth));
     }
 
     @NotNull
@@ -313,7 +310,7 @@ public class MobConfig extends AbstractConfigHolder<AMA> implements Placeholder 
 
     public void setEquipment(@NotNull EquipmentSlot slot, @Nullable ItemStack item) {
         if (item == null) item = new ItemStack(Material.AIR);
-        this.equipment.put(slot, item);
+        this.getEquipment().put(slot, item);
     }
 
     /**
@@ -325,7 +322,7 @@ public class MobConfig extends AbstractConfigHolder<AMA> implements Placeholder 
     }
 
     public void applySettings(@NotNull LivingEntity entity, int level) {
-        entity.setCustomName(this.getName().replace(Placeholders.MOB_LEVEL, String.valueOf(level)));
+        entity.setCustomName(this.replacePlaceholders().apply(MobsConfig.NAME_FORMAT.get()).replace(Placeholders.MOB_LEVEL, NumberUtil.format(level)));
         entity.setCustomNameVisible(this.isNameVisible());
 
         EntityEquipment armor = entity.getEquipment();

@@ -14,7 +14,7 @@ import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
-import su.nightexpress.ama.api.currency.ICurrency;
+import su.nightexpress.ama.api.currency.Currency;
 import su.nightexpress.ama.api.event.ArenaShopProductEvent;
 import su.nightexpress.ama.arena.editor.shop.ShopProductSettingsEditor;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
@@ -36,9 +36,9 @@ public class ShopProduct implements ArenaChild, Lockable, Placeholder {
 
     private String          name;
     private List<String>    description;
-    private LockState       lockState;
-    private ICurrency       currency;
-    private double          price;
+    private LockState lockState;
+    private Currency  currency;
+    private double    price;
     private Set<String>     allowedKits;
     private ItemStack       icon;
     private List<String>    commands;
@@ -46,7 +46,7 @@ public class ShopProduct implements ArenaChild, Lockable, Placeholder {
 
     private ShopProductSettingsEditor editor;
 
-    public ShopProduct(@NotNull ShopCategory shopCategory, @NotNull String id, @NotNull ICurrency currency) {
+    public ShopProduct(@NotNull ShopCategory shopCategory, @NotNull String id, @NotNull Currency currency) {
         this(shopCategory, id,
             StringUtil.capitalizeUnderscored(id),
             new ArrayList<>(),
@@ -63,7 +63,7 @@ public class ShopProduct implements ArenaChild, Lockable, Placeholder {
         @NotNull String id,
         @NotNull String name,
         @NotNull List<String> description,
-        @NotNull ICurrency currency,
+        @NotNull Currency currency,
         double price,
         @NotNull Set<String> applicableKits,
         @NotNull ItemStack icon,
@@ -88,7 +88,7 @@ public class ShopProduct implements ArenaChild, Lockable, Placeholder {
             .add(Placeholders.SHOP_PRODUCT_NAME, this::getName)
             .add(Placeholders.SHOP_PRODUCT_DESCRIPTION, () -> String.join("\n", this.getDescription()))
             .add(Placeholders.SHOP_PRODUCT_PRICE, () -> this.getCurrency().format(this.getPrice()))
-            .add(Placeholders.SHOP_PRODUCT_CURRENCY, () -> this.getCurrency().getConfig().getName())
+            .add(Placeholders.SHOP_PRODUCT_CURRENCY, () -> this.getCurrency().getName())
             .add(Placeholders.SHOP_PRODUCT_ALLOWED_KITS, () -> this.getAllowedKits().stream()
                 .map(kidId -> plugin().getKitManager().getKitById(kidId)).filter(Objects::nonNull)
                 .map(Kit::getName).map(Colorizer::strip).collect(Collectors.joining(", ")))
@@ -117,13 +117,13 @@ public class ShopProduct implements ArenaChild, Lockable, Placeholder {
         }
 
         double price = this.getPrice();
-        double balance = this.getCurrency().getBalance(player);
+        double balance = this.getCurrency().getHandler().getBalance(player);
         if (balance < price) {
             plugin().getMessage(Lang.SHOP_PRODUCT_ERROR_NOT_ENOUGH_FUNDS).replace(this.replacePlaceholders()).send(player);
             return false;
         }
 
-        this.getCurrency().take(player, price);
+        this.getCurrency().getHandler().take(player, price);
         this.give(player);
 
         arenaPlayer.addStats(StatType.COINS_SPENT, (int) price);
@@ -215,11 +215,11 @@ public class ShopProduct implements ArenaChild, Lockable, Placeholder {
     }
 
     @NotNull
-    public ICurrency getCurrency() {
+    public Currency getCurrency() {
         return currency;
     }
 
-    public void setCurrency(@NotNull ICurrency currency) {
+    public void setCurrency(@NotNull Currency currency) {
         this.currency = currency;
     }
 

@@ -15,7 +15,7 @@ import su.nightexpress.ama.api.arena.type.ArenaTargetType;
 import su.nightexpress.ama.arena.editor.reward.RewardSettingsEditor;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
-import su.nightexpress.ama.arena.type.PlayerType;
+import su.nightexpress.ama.api.type.PlayerType;
 import su.nightexpress.ama.config.Lang;
 
 import java.util.ArrayList;

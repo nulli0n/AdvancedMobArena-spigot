@@ -8,7 +8,7 @@ import su.nexmedia.engine.api.manager.ConfigHolder;
 import su.nexmedia.engine.api.server.AbstractTask;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.impl.Arena;
-import su.nightexpress.ama.data.ArenaUser;
+import su.nightexpress.ama.data.impl.ArenaUser;
 import su.nightexpress.ama.sign.SignManager;
 import su.nightexpress.ama.sign.type.SignType;
 import su.nightexpress.ama.stats.command.StatsCommand;

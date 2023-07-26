@@ -172,6 +172,30 @@ public class MobStyleWrapper<E, T> {
         }
     });
 
+    public static final MobStyleWrapper<Phantom, Integer> PHANTOM_SIZE = new MobStyleWrapper<>(Phantom.class, new MobStyleWriter<>() {
+        @NotNull
+        @Override
+        public Integer parse(@NotNull String value) {
+            return StringUtil.getInteger(value, 1, false);
+        }
+
+        @NotNull
+        @Override
+        public Integer[] values() {
+            return IntStream.range(1, 16).boxed().toArray(Integer[]::new);
+        }
+
+        @Override
+        public void apply(@NotNull Phantom entity, @NotNull Integer value) {
+            entity.setSize(value);
+        }
+
+        @Override
+        public boolean alreadyHas(@NotNull Phantom entity, @NotNull Integer value) {
+            return entity.getSize() == value;
+        }
+    });
+
     public static final MobStyleWrapper<Llama, Llama.Color> LLAMA_COLOR = new MobStyleWrapper<>(Llama.class, new MobStyleWriter.WriterEnum<Llama, Llama.Color>() {
         @NotNull
         @Override

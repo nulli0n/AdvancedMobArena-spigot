@@ -19,15 +19,18 @@ import su.nexmedia.engine.utils.random.Rnd;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.Placeholders;
+import su.nightexpress.ama.api.IArena;
+import su.nightexpress.ama.api.MobList;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
 import su.nightexpress.ama.api.arena.type.ArenaLocationType;
 import su.nightexpress.ama.api.arena.type.ArenaTargetType;
 import su.nightexpress.ama.api.event.*;
+import su.nightexpress.ama.api.type.MobFaction;
 import su.nightexpress.ama.arena.region.ArenaRegion;
 import su.nightexpress.ama.arena.region.ArenaRegionManager;
-import su.nightexpress.ama.arena.type.GameResult;
-import su.nightexpress.ama.arena.type.GameState;
-import su.nightexpress.ama.arena.type.PlayerType;
+import su.nightexpress.ama.api.type.GameResult;
+import su.nightexpress.ama.api.type.GameState;
+import su.nightexpress.ama.api.type.PlayerType;
 import su.nightexpress.ama.arena.util.ArenaUtils;
 import su.nightexpress.ama.arena.util.LobbyItem;
 import su.nightexpress.ama.arena.util.PlayerSnapshot;
@@ -35,7 +38,7 @@ import su.nightexpress.ama.arena.wave.ArenaWaveManager;
 import su.nightexpress.ama.arena.wave.ArenaWaveMob;
 import su.nightexpress.ama.config.Config;
 import su.nightexpress.ama.config.Lang;
-import su.nightexpress.ama.data.ArenaUser;
+import su.nightexpress.ama.data.impl.ArenaUser;
 import su.nightexpress.ama.hook.mob.MobProvider;
 import su.nightexpress.ama.kit.Kit;
 import su.nightexpress.ama.kit.KitManager;
@@ -44,19 +47,22 @@ import su.nightexpress.ama.sign.SignManager;
 import su.nightexpress.ama.sign.type.SignType;
 import su.nightexpress.ama.stats.object.StatType;
 
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Arena implements Placeholder {
+public class Arena implements IArena, Placeholder {
 
     private final AMA         plugin;
     private final ArenaConfig config;
     private final Set<ArenaPlayer>  players;
-    private final Set<LivingEntity> mobs;
-    private final Set<LivingEntity> allyMobs;
+    private final MobList mobs;
     private final Set<Item>              groundItems;
     private final Set<ArenaUpcomingWave> waveUpcoming;
     private final Map<String, double[]>  waveAmplificatorValues; // [Amount, Level]
@@ -75,9 +81,10 @@ public class Arena implements Placeholder {
     private int gradualMobsPrepare;
     private int gradualMobsKilled;
 
-    private int waveNumber;
-    private int waveNextTimeleft;
-    private int waveMobsTotalAmount;
+    private int roundNumber;
+    private int nextRoundCountdown;
+    private int skipRounds;
+    private int roundTotalMobsAmount;
 
     private static final DateTimeFormatter FORMAT_TIMELEFT = DateTimeFormatter.ofPattern("HH:mm:ss");
     // TODO Final Arena Stats Most Damager, Killer, etc
@@ -86,8 +93,8 @@ public class Arena implements Placeholder {
         this.plugin = config.plugin();
         this.config = config;
         this.players = new HashSet<>();
-        this.mobs = new HashSet<>();
-        this.allyMobs = new HashSet<>();
+        this.mobs = new MobList();
+        //this.allyMobs = new HashSet<>();
         this.groundItems = new HashSet<>();
         this.waveUpcoming = new HashSet<>();
         this.waveAmplificatorValues = new HashMap<>();
@@ -100,11 +107,11 @@ public class Arena implements Placeholder {
             .add(Placeholders.ARENA_DEAD_PLAYERS, () -> String.valueOf(this.getDeadPlayers().size()))
             .add(Placeholders.ARENA_ALIVE_PLAYERS, () -> String.valueOf(this.getAlivePlayers().size()))
             .add(Placeholders.ARENA_PLAYERS_MAX, () -> String.valueOf(this.getConfig().getGameplayManager().getPlayerMaxAmount()))
-            .add(Placeholders.ARENA_MOBS_ALIVE, () -> String.valueOf(this.getMobs().size()))
+            .add(Placeholders.ARENA_MOBS_ALIVE, () -> String.valueOf(this.getMobs().getEnemies().size()))
             .add(Placeholders.ARENA_MOBS_LEFT, () -> String.valueOf(this.getMobsAwaitingSpawn()))
-            .add(Placeholders.ARENA_MOBS_TOTAL, () -> String.valueOf(this.getWaveMobsTotalAmount()))
-            .add(Placeholders.ARENA_WAVE_NUMBER, () -> String.valueOf(this.getWaveNumber()))
-            .add(Placeholders.ARENA_WAVE_NEXT_IN, () -> String.valueOf(this.getWaveNextTimeleft()))
+            .add(Placeholders.ARENA_MOBS_TOTAL, () -> String.valueOf(this.getRoundTotalMobsAmount()))
+            .add(Placeholders.ARENA_WAVE_NUMBER, () -> String.valueOf(this.getRoundNumber()))
+            .add(Placeholders.ARENA_WAVE_NEXT_IN, () -> String.valueOf(this.getNextRoundCountdown()))
             .add(Placeholders.ARENA_END_COUNTDOWN, () -> String.valueOf(this.getEndCountdown()))
             .add(Placeholders.ARENA_TIMELEFT, () -> {
                 if (this.getConfig().getGameplayManager().hasTimeleft()) {
@@ -200,44 +207,42 @@ public class Arena implements Placeholder {
         return this.waveAmplificatorValues;
     }
 
-    public int getWaveMobsTotalAmount() {
-        return this.waveMobsTotalAmount;
+    public int getRoundTotalMobsAmount() {
+        return this.roundTotalMobsAmount;
     }
 
-    public void setWaveMobsTotalAmount(int mobsTotalAmount) {
-        this.waveMobsTotalAmount = mobsTotalAmount;
+    public void setRoundTotalMobsAmount(int mobsTotalAmount) {
+        this.roundTotalMobsAmount = mobsTotalAmount;
     }
 
-    public int getWaveNumber() {
-        return this.waveNumber;
+    public int getRoundNumber() {
+        return this.roundNumber;
     }
 
-    private void setWaveNumber(int waveNumber) {
-        this.waveNumber = waveNumber;
+    private void setRoundNumber(int roundNumber) {
+        this.roundNumber = roundNumber;
     }
 
-    public int getWaveNextTimeleft() {
-        return this.waveNextTimeleft;
+    public int getNextRoundCountdown() {
+        return this.nextRoundCountdown;
     }
 
-    public void setWaveNextTimeleft(int waveNextTimeleft) {
-        this.waveNextTimeleft = Math.max(0, waveNextTimeleft);
+    public void setNextRoundCountdown(int nextRoundCountdown) {
+        this.nextRoundCountdown = Math.max(0, nextRoundCountdown);
     }
 
-    /*@NotNull
-    @Deprecated
-    public Set<ArenaPlayer> getPlayers() {
-        return new HashSet<>(this.players);
-    }*/
+    public int getSkipRounds() {
+        return skipRounds;
+    }
+
+    public void setSkipRounds(int skipRounds) {
+        this.skipRounds = Math.max(0, skipRounds);
+    }
 
     @NotNull
-    public Set<LivingEntity> getMobs() {
+    @Override
+    public MobList getMobs() {
         return this.mobs;
-    }
-
-    @NotNull
-    public Set<LivingEntity> getAllyMobs() {
-        return allyMobs;
     }
 
     @NotNull
@@ -246,7 +251,7 @@ public class Arena implements Placeholder {
     }
 
     void reset() {
-        this.killMobs(true);
+        this.killMobs();
         this.killGroundItems();
 
         int gameTimeleft = this.getConfig().getGameplayManager().getTimeleft();
@@ -256,11 +261,12 @@ public class Arena implements Placeholder {
         this.setGameTimeleft(gameTimeleft > 0 ? gameTimeleft * 1000L * 60L : -1);
         this.setGameScore(0);
 
-        this.setWaveNumber(0);
-        this.setWaveNextTimeleft(this.getConfig().getWaveManager().getFirstRoundCountdown());
+        this.setRoundNumber(0);
+        this.setSkipRounds(0);
+        this.setNextRoundCountdown(this.getConfig().getWaveManager().getFirstRoundCountdown());
         this.getUpcomingWaves().clear();
         this.getWaveAmplificatorValues().clear();
-        this.setWaveMobsTotalAmount(0);
+        this.setRoundTotalMobsAmount(0);
 
         this.gradualMobsTimer = 0;
         this.setGradualMobsKilled(0);
@@ -294,7 +300,7 @@ public class Arena implements Placeholder {
                 arenaPlayer.addStats(StatType.GAMES_WON, 1);
             }
 
-            if (this.getWaveNumber() > 0) {
+            if (this.getRoundNumber() > 0) {
                 arenaPlayer.addStats(StatType.GAMES_PLAYED, 1);
             }
 
@@ -320,21 +326,9 @@ public class Arena implements Placeholder {
         int totalScore = this.getPlayers(GameState.INGAME, PlayerType.REAL).stream().mapToInt(ArenaPlayer::getScore).sum();
         this.setGameScore(totalScore);
 
-        //ArenaGameEventType eventType = this.getGameScore() > oldScore ? ArenaGameEventType.SCORE_INCREASED : ArenaGameEventType.SCORE_DECREASED;
         ArenaScoreChangeEvent event = new ArenaScoreChangeEvent(this, oldScore, this.getGameScore());
         plugin.getPluginManager().callEvent(event);
     }
-
-    /*@Deprecated
-    // For arena internal mobs - we should use our own mob's goals.
-    // For external plugin mobs - they should have their own target goals.
-    public void updateMobTarget(@NotNull LivingEntity entity, boolean force) {
-        LivingEntity target = plugin.getArenaNMS().getTarget(entity);
-        if (target instanceof Player || (!force && target != null)) return;
-
-        ArenaPlayer arenaPlayer = this.getPlayerRandom();
-        plugin.getArenaNMS().setTarget(entity, arenaPlayer == null ? null : arenaPlayer.getPlayer());
-    }*/
 
     public void emptySupplyChests() {
         this.getConfig().getSupplyManager().emptyChests();
@@ -348,16 +342,20 @@ public class Arena implements Placeholder {
         return this.mobsAboutToSpawn;
     }
 
+    public boolean isAboutToSkipRound() {
+        return this.getSkipRounds() > 0;
+    }
+
     public boolean isAboutToEnd() {
         return this.getEndCountdown() >= 0;
     }
 
     public boolean isAwaitingNewRound() {
-        return this.getWaveNumber() < 1 || (this.getMobs().isEmpty() && this.getUpcomingWaves().isEmpty());
+        return this.getRoundNumber() < 1 || (!this.getMobs().hasAliveEnemies() && this.getUpcomingWaves().isEmpty());
     }
 
     public boolean isLatestWave() {
-        return this.getWaveNumber() == this.getConfig().getWaveManager().getFinalRound();
+        return this.getRoundNumber() == this.getConfig().getWaveManager().getFinalRound();
     }
 
     // TODO Add another stat type = InGameStatType
@@ -385,8 +383,8 @@ public class Arena implements Placeholder {
     @NotNull
     public Set<ArenaPlayer> getPlayers(@NotNull ArenaTargetType targetType, @NotNull PlayerType playerType) {
         if (targetType == ArenaTargetType.PLAYER_ALL) return this.getPlayers(GameState.INGAME, playerType);
-        if (targetType == ArenaTargetType.PLAYER_RANDOM)
-            return Stream.of(Rnd.get(this.getPlayers(GameState.INGAME, playerType))).filter(Objects::nonNull).collect(Collectors.toSet());
+        if (targetType == ArenaTargetType.PLAYER_RANDOM && !this.getPlayers(GameState.INGAME, playerType).isEmpty())
+            return Stream.of(Rnd.get(this.getPlayers(GameState.INGAME, playerType))).collect(Collectors.toSet());
         return Collections.emptySet();
     }
 
@@ -417,6 +415,12 @@ public class Arena implements Placeholder {
         return this.getPlayers(GameState.INGAME, PlayerType.REAL).stream().filter(Predicate.not(ArenaPlayer::isDead)).collect(Collectors.toSet());
     }
 
+    @Override
+    @NotNull
+    public Set<Player> getAliveGamePlayers() {
+        return this.getAlivePlayers().stream().map(ArenaPlayer::getPlayer).collect(Collectors.toSet());
+    }
+
     @Nullable
     public ArenaPlayer getPlayerRandom() {
         Set<ArenaPlayer> alive = this.getAlivePlayers();
@@ -426,12 +430,6 @@ public class Arena implements Placeholder {
     public int getMobsAwaitingSpawn() {
         return this.getUpcomingWaves().stream()
             .filter(Predicate.not(ArenaUpcomingWave::isAllMobsSpawned)).mapToInt(ArenaUpcomingWave::getMobsAmount).sum();
-    }
-
-    @Nullable
-    public LivingEntity getMobRandom() {
-        List<LivingEntity> list = new ArrayList<>(this.getMobs());
-        return list.isEmpty() ? null : Rnd.get(list);
     }
 
     public double[] getWaveAmplificatorValues(@NotNull String waveId) {
@@ -489,6 +487,38 @@ public class Arena implements Placeholder {
     public final void tick() {
         this.tickLobby();
         this.tickGame();
+    }
+
+    public void tickOpenCloseTimes() {
+        if (this.getConfig().hasProblems()) return;
+
+        if (this.tickTimes(this.getConfig().getAutoOpenTimes())) {
+            this.getConfig().setActive(true);
+        }
+        else if (this.tickTimes(this.getConfig().getAutoCloseTimes())) {
+            this.getConfig().setActive(false);
+        }
+        else return;
+
+        this.getConfig().save();
+        this.plugin.getMessage(this.getConfig().isActive() ? Lang.ARENA_SCHEDULER_OPEN_ANNOUNCE : Lang.ARENA_SCHEDULER_CLOSE_ANNOUNCE)
+            .replace(this.getConfig().replacePlaceholders())
+            .broadcast();
+    }
+
+    private boolean tickTimes(@NotNull Map<DayOfWeek, Set<LocalTime>> map) {
+        if (map.isEmpty()) return false;
+
+        LocalDateTime closest = LocalDateTime.now();
+        while (!map.containsKey(closest.getDayOfWeek())) {
+            closest = closest.plusDays(1);
+        }
+
+        Set<LocalTime> times = map.get(closest.getDayOfWeek());
+        if (times == null || times.isEmpty()) return false;
+
+        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+        return now.equals(closest.truncatedTo(ChronoUnit.MINUTES));
     }
 
     public void tickLobby() {
@@ -580,8 +610,8 @@ public class Arena implements Placeholder {
             this.burnGroundItems();
         }
 
-        if (this.getWaveNextTimeleft() == 0) {
-            this.newWave();
+        if (this.getNextRoundCountdown() == 0) {
+            this.newRound();
 
             // Stop game if no regions are available.
             ArenaRegion playRegion = this.getConfig().getRegionManager().getFirstUnlocked();
@@ -592,8 +622,13 @@ public class Arena implements Placeholder {
             return;
         }
 
+        if (this.isAboutToSkipRound()) {
+            this.getUpcomingWaves().clear();
+            this.killMobs(MobFaction.ENEMY);
+        }
+
         if (this.isAwaitingNewRound()) {
-            if (this.getWaveNextTimeleft() == this.getConfig().getWaveManager().getRoundCountdown()) {
+            if (this.getNextRoundCountdown() == this.getConfig().getWaveManager().getRoundCountdown()) {
 
                 ArenaWaveCompleteEvent event = new ArenaWaveCompleteEvent(this);
                 plugin.getPluginManager().callEvent(event);
@@ -608,17 +643,15 @@ public class Arena implements Placeholder {
                     return;
                 }
             }
-            this.setWaveNextTimeleft(this.getWaveNextTimeleft() - 1);
+            if (this.isAboutToSkipRound()) {
+                this.setNextRoundCountdown(1);
+                this.setSkipRounds(this.getSkipRounds() - 1);
+            }
+            this.setNextRoundCountdown(this.getNextRoundCountdown() - 1);
         }
     }
 
     private boolean tickPlayers() {
-        // No players left, stop the game.
-        /*if (this.getPlayers(GameState.INGAME, PlayerType.REAL).isEmpty()) {
-            this.stop();
-            return false;
-        }*/
-
         if (this.getAlivePlayers().isEmpty() && this.getDeadPlayers().stream().noneMatch(ArenaPlayer::isAutoRevive)) {
             this.setEndCountdown(Config.ARENA_END_COUNTDOWN_DEFEAT.get(), GameResult.DEFEAT);
             this.broadcast(plugin.getMessage(Lang.ARENA_GAME_END_ALL_DEAD).replace(this.replacePlaceholders()));
@@ -653,27 +686,18 @@ public class Arena implements Placeholder {
             }
         }
 
-        this.getMobs().removeIf(mob -> {
+        this.getMobs().getEnemies().removeIf(mob -> {
             if (!mob.isValid() || mob.isDead()) {
                 this.countGradual();
                 return true;
             }
             return false;
         });
-        this.getMobs().forEach(mob -> {
-            if (plugin.getArenaNMS().getTarget(mob) == null) {
-                ArenaPlayer arenaPlayer = this.getPlayerRandom();
-                if (arenaPlayer != null) {
-                    plugin.getArenaNMS().setTarget(mob, arenaPlayer.getPlayer());
-                }
-            }
-        });
-        //this.getMobs().forEach(mob -> this.updateMobTarget(mob, false));
 
         // Mobs Highlight feature.
         if (this.getConfig().getGameplayManager().isMobHighlightEnabled()) {
-            double mobsLeft = this.getMobs().size();
-            double mobsTotal = this.getWaveMobsTotalAmount();
+            double mobsLeft = this.getMobs().getEnemies().size();
+            double mobsTotal = this.getRoundTotalMobsAmount();
             double mobsPercent = (mobsLeft / mobsTotal) * 100D;
             this.highlightMobs(mobsPercent <= this.getConfig().getGameplayManager().getMobHighlightAmount());
         }
@@ -700,7 +724,7 @@ public class Arena implements Placeholder {
         if (config.isPermissionRequired() && !this.hasPermission(player)) return false;
 
         if (!config.getJoinPaymentRequirements().entrySet().stream().allMatch(entry -> {
-            return entry.getKey().getBalance(player) >= entry.getValue();
+            return entry.getKey().getHandler().getBalance(player) >= entry.getValue();
         })) return false;
 
         if (!config.getJoinLevelRequirements().entrySet().stream().allMatch(entry -> {
@@ -711,7 +735,7 @@ public class Arena implements Placeholder {
     }
 
     public void payJoinRequirements(@NotNull Arena arena, @NotNull Player player) {
-        this.getConfig().getJoinPaymentRequirements().forEach((currency, amount) -> currency.take(player, amount));
+        this.getConfig().getJoinPaymentRequirements().forEach((currency, amount) -> currency.getHandler().take(player, amount));
     }
 
     public boolean canJoin(@NotNull Player player, boolean notify) {
@@ -747,7 +771,7 @@ public class Arena implements Placeholder {
         }
 
         if (!player.hasPermission(Perms.BYPASS_ARENA_JOIN_PAYMENT)) {
-            if (!this.getConfig().getJoinPaymentRequirements().entrySet().stream().allMatch(entry -> entry.getKey().getBalance(player) >= entry.getValue())) {
+            if (!this.getConfig().getJoinPaymentRequirements().entrySet().stream().allMatch(entry -> entry.getKey().getHandler().getBalance(player) >= entry.getValue())) {
                 if (notify) plugin.getMessage(Lang.ARENA_JOIN_ERROR_PAYMENT).replace(this.replacePlaceholders()).send(player);
                 return false;
             }
@@ -867,7 +891,7 @@ public class Arena implements Placeholder {
         }
 
         ArenaRegionManager reg = this.getConfig().getRegionManager();
-        ArenaRegion regionDefault = this.getWaveNumber() > 0 ? reg.getFirstUnlocked() : reg.getDefaultRegion();
+        ArenaRegion regionDefault = this.getRoundNumber() > 0 ? reg.getFirstUnlocked() : reg.getDefaultRegion();
 
         // Check for valid arena's region.
         if (regionDefault == null) {
@@ -1031,43 +1055,27 @@ public class Arena implements Placeholder {
 
     public void highlightMobs(boolean state) {
         ArenaUtils.getHighlightTeam(this, true).ifPresent(team -> {
-            this.getMobs().stream().map(mob -> mob.getUniqueId().toString()).forEach(id -> {
+            this.getMobs().getEnemies().stream().map(mob -> mob.getUniqueId().toString()).forEach(id -> {
                 if (state) team.addEntry(id);
                 else team.removeEntry(id);
             });
-            this.getMobs().forEach(entity -> entity.setGlowing(state));
+            this.getMobs().getEnemies().forEach(entity -> entity.setGlowing(state));
         });
     }
 
-    public void killMobs(boolean withAlly) {
-        Set<LivingEntity> mobs = new HashSet<>(this.getMobs());
-        if (withAlly) mobs.addAll(this.getAllyMobs());
-
-        mobs.forEach(mob -> {
-            mob.getLocation();
-            mob.setRemoveWhenFarAway(true);
-            mob.remove();
-        });
-        this.getMobs().clear();
-        if (withAlly) this.getAllyMobs().clear();
+    public void killMobs() {
+        for (MobFaction faction : MobFaction.values()) {
+            this.killMobs(faction);
+        }
     }
 
-    public void skipWave() {
-        this.getUpcomingWaves().clear();
-        this.killMobs(false);
-
-        // Call an event that will call arena region and spot triggers.
-        ArenaWaveCompleteEvent event = new ArenaWaveCompleteEvent(this);
-        this.plugin.getPluginManager().callEvent(event);
-
-        this.setWaveNextTimeleft(1);
+    public void killMobs(@NotNull MobFaction faction) {
+        this.getMobs().removeAll(faction);
     }
 
-    @Deprecated
     public void injectWave(@NotNull ArenaUpcomingWave wave) {
-        // TODO prepared mob class
         this.getUpcomingWaves().add(wave);
-        this.setWaveMobsTotalAmount(this.getWaveMobsTotalAmount() + wave.getMobsAmount());
+        this.setRoundTotalMobsAmount(this.getRoundTotalMobsAmount() + wave.getMobsAmount());
 
         ArenaWaveManager waveManager = this.getConfig().getWaveManager();
         if (!this.getConfig().getWaveManager().isGradualSpawnEnabled()) {
@@ -1075,18 +1083,20 @@ public class Arena implements Placeholder {
         }
     }
 
-    public void newWave() {
+    public void newRound() {
         this.getUpcomingWaves().clear();
         this.gradualMobsTimer = 0;
-        this.killMobs(this.isLatestWave());
+        if (this.isLatestWave()) {
+            this.killMobs();
+        }
+        else this.killMobs(MobFaction.ENEMY);
 
         if (this.isLatestWave()) {
-            //this.stop(ArenaEndType.FINISH);
             return;
         }
 
-        this.setWaveNumber(this.getWaveNumber() + 1);
-        this.setWaveMobsTotalAmount(0);
+        this.setRoundNumber(this.getRoundNumber() + 1);
+        this.setRoundTotalMobsAmount(0);
 
         // Move all players that are outside of the active region to the first active one.
         ArenaRegion regionActive = this.getConfig().getRegionManager().getFirstUnlocked();
@@ -1103,7 +1113,7 @@ public class Arena implements Placeholder {
         this.plugin.getPluginManager().callEvent(event);
 
         // Set time until next wave
-        this.setWaveNextTimeleft(this.getConfig().getWaveManager().getRoundCountdown());
+        this.setNextRoundCountdown(this.getConfig().getWaveManager().getRoundCountdown());
 
         //this.setSpawnedMobsAmount(0);
         this.setGradualMobsKilled(0);
@@ -1121,16 +1131,6 @@ public class Arena implements Placeholder {
         //ArenaWaveManager waveManager = this.getConfig().getWaveManager();
         //this.spawnMobs(waveManager.isGradualSpawnEnabled() ? waveManager.getGradualSpawnPercentFirst() : 100D);
 
-        // TODO
-        // Quick fix for Piglings target, due to PiglinAi class with a lot of shit
-        this.getMobs().forEach(mob -> {
-            if (mob instanceof PiglinAbstract piglinAbstract) {
-                ArenaPlayer arenaPlayer = this.getPlayerRandom();
-                if (arenaPlayer == null) return;
-                this.plugin.getArenaNMS().setTarget(piglinAbstract, arenaPlayer.getPlayer());
-            }
-        });
-
         this.updateHolograms();
 
         this.getPlayers(PlayerType.ALL).stream().map(ArenaPlayer::getPlayer).forEach(player -> {
@@ -1145,7 +1145,7 @@ public class Arena implements Placeholder {
         Location spawn = location.getBlock().getRelative(BlockFace.UP).getLocation();
 
         MobProvider provider = waveMob.getProvider();
-        LivingEntity mob = provider.spawn(waveMob.getMobId(), spawn, level).orElse(null);
+        LivingEntity mob = provider.spawn(this, waveMob.getMobId(), spawn, level).orElse(null);
         if (mob == null) {
             this.plugin.warn("Could not spawn '" + mobId + "' from the '" + waveMob.getArenaWave().getId() + "' arena wave in '" + this.getId() + "' arena!");
             return null;
@@ -1153,9 +1153,20 @@ public class Arena implements Placeholder {
 
         mob.setRemoveWhenFarAway(false);
         MobManager.setArena(mob, this);
+        MobManager.setProvider(mob, provider, mobId);
         MobManager.setLevel(mob, level);
-        this.getMobs().add(mob);
+        this.getMobs().getEnemies().add(mob);
         return mob;
+    }
+
+    @Nullable
+    public LivingEntity spawnAllyMob(@NotNull EntityType type, @NotNull Location location) {
+        LivingEntity ally = this.plugin.getArenaNMS().spawnMob(this, MobFaction.ALLY, type, location);
+        if (ally != null) {
+            MobManager.setArena(ally, this);
+            this.getMobs().getAllies().add(ally);
+        }
+        return ally;
     }
 
     public void spawnMobs(double spawnPercent) {
@@ -1173,7 +1184,7 @@ public class Arena implements Placeholder {
         int[] mobsSpawnPerWave = new int[upcomings.size()];
 
         // Спавним как минимум одного моба всегда.
-        int mobsPlannedTotal = (int) Math.max(1D, (double) this.getWaveMobsTotalAmount() * spawnPercent);
+        int mobsPlannedTotal = (int) Math.max(1D, (double) this.getRoundTotalMobsAmount() * spawnPercent);
 
         // Спавним "поровну" мобов от каждой волны.
         // Например: При 30% спавна от 100 мобов (х30) и 3-х волнах с кол-вом мобов [5,15,30] (x50) = [3,10,17]
@@ -1185,7 +1196,7 @@ public class Arena implements Placeholder {
             double mobsWaveTotal = wave.getPreparedMobs().stream().mapToInt(ArenaWaveMob::getAmount).sum();
             //double mobsWaveSpawned = wave.getMobsSpawnedAmount().values().stream().mapToInt(i -> i).sum();
             if (Config.DEBUG_MOB_SPAWN.get())
-                System.out.println("[Spawn Processor] 2. Total Mobs for Wave #" + getWaveNumber() + ": " + mobsWaveTotal);
+                System.out.println("[Spawn Processor] 2. Total Mobs for Wave #" + getRoundNumber() + ": " + mobsWaveTotal);
             //System.out.println(wave.getRegionWave().getId() + " mobs have spawned: " + mobsWaveSpawned);
 
             //mobsWaveTotal -= mobsWaveSpawned;
@@ -1242,7 +1253,7 @@ public class Arena implements Placeholder {
 
             int[] mobsPerSpawner = NumberUtil.splitIntoParts(mobsWave, spawners.size());
             if (Config.DEBUG_MOB_SPAWN.get())
-                System.out.println("[Spawn Processor] 7. Mobs Per Region Spawner for '" + waveUpcoming.toString() + "': " + Arrays.toString(mobsPerSpawner));
+                System.out.println("[Spawn Processor] 7. Mobs Per Region Spawner for '" + waveUpcoming + "': " + Arrays.toString(mobsPerSpawner));
 
             for (int counterSpawner = 0; counterSpawner < mobsPerSpawner.length; counterSpawner++) {
                 int mobsSpawner = mobsPerSpawner[counterSpawner];
@@ -1279,7 +1290,7 @@ public class Arena implements Placeholder {
             boolean allSpawned = this.getUpcomingWaves().stream().allMatch(ArenaUpcomingWave::isAllMobsSpawned);
             if (allSpawned) return;
 
-            double lastSpawned = this.getWaveMobsTotalAmount();
+            double lastSpawned = this.getRoundTotalMobsAmount();
             double killedNextPc = this.getConfig().getWaveManager().getGradualSpawnNextKillPercent();
             int killedRaw = this.getGradualMobsKilled();
             int killedNeedRaw = (int) Math.max(1D, lastSpawned * killedNextPc / 100D);
@@ -1290,7 +1301,7 @@ public class Arena implements Placeholder {
                 System.out.println("[Gradual] Killed (Raw): " + killedRaw);
                 System.out.println("[Gradual] Need Killed (Raw): " + killedNeedRaw);
             }
-            boolean isEmpty = this.getMobs().isEmpty() && this.gradualMobsPrepare == 0;
+            boolean isEmpty = !this.getMobs().hasAliveEnemies() && this.gradualMobsPrepare == 0;
 
             if (killedRaw >= killedNeedRaw || isEmpty) {
                 this.gradualMobsPrepare++;
@@ -1299,6 +1310,4 @@ public class Arena implements Placeholder {
             }
         }
     }
-
-
 }

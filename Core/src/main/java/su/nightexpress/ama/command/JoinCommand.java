@@ -16,23 +16,9 @@ public class JoinCommand extends AbstractCommand<AMA> {
 
     public JoinCommand(@NotNull AMA plugin) {
         super(plugin, new String[]{"join"}, Perms.COMMAND_JOIN);
-    }
-
-    @Override
-    @NotNull
-    public String getDescription() {
-        return plugin.getMessage(Lang.COMMAND_JOIN_DESC).getLocalized();
-    }
-
-    @Override
-    @NotNull
-    public String getUsage() {
-        return plugin.getMessage(Lang.COMMAND_JOIN_USAGE).getLocalized();
-    }
-
-    @Override
-    public boolean isPlayerOnly() {
-        return true;
+        this.setDescription(plugin.getMessage(Lang.COMMAND_JOIN_DESC));
+        this.setUsage(plugin.getMessage(Lang.COMMAND_JOIN_USAGE));
+        this.setPlayerOnly(true);
     }
 
     @Override

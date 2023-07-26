@@ -15,7 +15,7 @@ import su.nightexpress.ama.Keys;
 import su.nightexpress.ama.api.ArenaAPI;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
-import su.nightexpress.ama.arena.type.GameState;
+import su.nightexpress.ama.api.type.GameState;
 import su.nightexpress.ama.config.Config;
 
 import java.util.ArrayList;

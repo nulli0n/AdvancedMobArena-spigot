@@ -10,9 +10,9 @@ import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.api.ArenaAPI;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
-import su.nightexpress.ama.arena.type.GameState;
-import su.nightexpress.ama.arena.type.PlayerType;
-import su.nightexpress.ama.data.ArenaUser;
+import su.nightexpress.ama.api.type.GameState;
+import su.nightexpress.ama.api.type.PlayerType;
+import su.nightexpress.ama.data.impl.ArenaUser;
 import su.nightexpress.ama.stats.object.StatType;
 
 import java.time.LocalTime;
@@ -107,7 +107,7 @@ public class PlaceholderHook {
                 }
 
                 if (var.equalsIgnoreCase("mobs")) { // TODO mobs/ total mobs
-                    return String.valueOf(arena.getMobs().size());
+                    return String.valueOf(arena.getMobs().getEnemies().size());
                 }
                 if (var.equalsIgnoreCase("name")) {
                     return arena.getConfig().getName();
@@ -117,13 +117,13 @@ public class PlaceholderHook {
                     return TimeUtil.getLocalTimeOf(arena.getGameTimeleft()).format(FORMAT_TIMELEFT);
                 }
                 if (var.equalsIgnoreCase("wave")) {
-                    return String.valueOf(arena.getWaveNumber());
+                    return String.valueOf(arena.getRoundNumber());
                 }
                 if (var.equalsIgnoreCase("players")) {
                     return String.valueOf(arena.getPlayers(GameState.INGAME, PlayerType.REAL).size());
                 }
                 if (var.equalsIgnoreCase("next_wave")) {
-                    return String.valueOf(arena.getWaveNextTimeleft());
+                    return String.valueOf(arena.getNextRoundCountdown());
                 }
                 if (var.equalsIgnoreCase("score")) {
                     return String.valueOf(arenaPlayer != null ? arenaPlayer.getScore() : arena.getGameScore());

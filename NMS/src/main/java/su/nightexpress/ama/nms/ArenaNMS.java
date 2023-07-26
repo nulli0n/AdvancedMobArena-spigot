@@ -6,14 +6,12 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import su.nightexpress.ama.api.IArena;
+import su.nightexpress.ama.api.type.MobFaction;
 
 public interface ArenaNMS {
 
-    LivingEntity spawnMob(@NotNull EntityType type, @NotNull Location loc);
-
-    @Deprecated void setTarget(@NotNull LivingEntity mob, @Nullable LivingEntity target);
-
-    LivingEntity getTarget(@NotNull LivingEntity entity);
+    @Nullable LivingEntity spawnMob(@NotNull IArena arena, @NotNull MobFaction faction, @NotNull EntityType type, @NotNull Location location);
 
     int visualEntityAdd(@NotNull Player player, @NotNull String name, @NotNull Location loc);
 

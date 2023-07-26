@@ -16,7 +16,7 @@ import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.Problematic;
 import su.nightexpress.ama.api.arena.type.ArenaLocationType;
-import su.nightexpress.ama.api.currency.ICurrency;
+import su.nightexpress.ama.api.currency.Currency;
 import su.nightexpress.ama.api.hologram.HologramHolder;
 import su.nightexpress.ama.api.hologram.HologramType;
 import su.nightexpress.ama.arena.ArenaStatsHologram;
@@ -28,8 +28,8 @@ import su.nightexpress.ama.arena.script.ArenaScriptManager;
 import su.nightexpress.ama.arena.shop.ShopManager;
 import su.nightexpress.ama.arena.spot.ArenaSpotManager;
 import su.nightexpress.ama.arena.supply.ArenaSupplyManager;
-import su.nightexpress.ama.arena.type.GameState;
-import su.nightexpress.ama.arena.util.ArenaStateScheduler;
+import su.nightexpress.ama.api.type.GameState;
+import su.nightexpress.ama.arena.util.ArenaUtils;
 import su.nightexpress.ama.arena.wave.ArenaWaveManager;
 import su.nightexpress.ama.hologram.HologramManager;
 import su.nightexpress.ama.hook.level.PlayerLevelProvider;
@@ -49,28 +49,25 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
     private final Map<StatType, ArenaStatsHologram> statsHolograms;
     private final Set<UUID>                         hologramIds;
     private final Set<Location>                     hologramLocations;
-    private final Map<ICurrency, Double>            joinPaymentRequirements;
+    private final Map<Currency, Double>            joinPaymentRequirements;
     private final Map<PlayerLevelProvider, Integer> joinLevelRequirements;
 
-    private final Arena arena;
+    private final Arena                arena;
     private final ArenaWaveManager     waveManager;
     private final ArenaRegionManager   regionManager;
     private final ArenaGameplayManager gameplayManager;
-    private final ArenaSupplyManager supplyManager;
+    private final ArenaSupplyManager   supplyManager;
     private final ArenaSpotManager     spotManager;
-    private final ArenaRewardManager rewardManager;
-    private final ShopManager        shopManager;
-    private final ArenaScriptManager scriptManager;
-    private final PlaceholderMap placeholderMap;
+    private final ArenaRewardManager   rewardManager;
+    private final ShopManager          shopManager;
+    private final ArenaScriptManager   scriptManager;
+    private final PlaceholderMap       placeholderMap;
 
     private boolean isActive;
     private String  name;
     private boolean isPermissionRequired;
 
     private ArenaMainEditor editorMain;
-
-    private ArenaStateScheduler openScheduler;
-    private ArenaStateScheduler closeScheduler;
 
     public ArenaConfig(@NotNull AMA plugin, @NotNull JYML cfg, @NotNull String id) {
         super(plugin, cfg, id);
@@ -101,13 +98,13 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
             .add(Placeholders.ARENA_NAME, this::getName)
             .add(Placeholders.ARENA_PERMISSION, this::getPermission)
             .add(Placeholders.ARENA_AUTO_STATE_OPEN_TIMES, () -> {
-                return this.openScheduler.getTimes().entrySet().stream().map(entry -> {
-                    return entry.getKey().name() + ": " + entry.getValue().stream().map(time -> time.format(ArenaStateScheduler.TIME_FORMATTER)).collect(Collectors.joining(", "));
+                return this.getAutoOpenTimes().entrySet().stream().map(entry -> {
+                    return entry.getKey().name() + ": " + entry.getValue().stream().map(time -> time.format(ArenaUtils.TIME_FORMATTER)).collect(Collectors.joining(", "));
                 }).collect(Collectors.joining("\n"));
             })
             .add(Placeholders.ARENA_AUTO_STATE_CLOSE_TIMES, () -> {
-                return this.closeScheduler.getTimes().entrySet().stream().map(entry -> {
-                    return entry.getKey().name() + ": " + entry.getValue().stream().map(time -> time.format(ArenaStateScheduler.TIME_FORMATTER)).collect(Collectors.joining(", "));
+                return this.getAutoCloseTimes().entrySet().stream().map(entry -> {
+                    return entry.getKey().name() + ": " + entry.getValue().stream().map(time -> time.format(ArenaUtils.TIME_FORMATTER)).collect(Collectors.joining(", "));
                 }).collect(Collectors.joining("\n"));
             })
             .add(Placeholders.ARENA_REQUIREMENT_PERMISSION, () -> LangManager.getBoolean(this.isPermissionRequired()))
@@ -137,14 +134,14 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
 
                 (type.equalsIgnoreCase("open") ? this.autoOpenTimes : this.autoCloseTimes)
                     .put(day, cfg.getStringList("Auto_State_Schedulers." + type + "." + dayName)
-                        .stream().map(timeRaw -> LocalTime.parse(timeRaw, ArenaStateScheduler.TIME_FORMATTER)).collect(Collectors.toSet()));
+                        .stream().map(timeRaw -> LocalTime.parse(timeRaw, ArenaUtils.TIME_FORMATTER)).collect(Collectors.toSet()));
             }
         }
 
         this.setPermissionRequired(cfg.getBoolean("Join_Requirements.Permission"));
 
         for (String sId : cfg.getSection("Join_Requirements.Payment")) {
-            ICurrency currency = this.plugin().getCurrencyManager().getCurrency(sId);
+            Currency currency = this.plugin().getCurrencyManager().getCurrency(sId);
             if (currency == null) continue;
 
             double amount = cfg.getDouble("Join_Requirements.Payment." + sId, 0D);
@@ -188,7 +185,6 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
         this.scriptManager.setup();
         this.getConfig().saveChanges();
 
-        this.updateSchedulers();
         this.getArena().reset();
         this.createHolograms();
         return true;
@@ -202,14 +198,6 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
 
     public void clear() {
         this.removeHolograms();
-        if (this.openScheduler != null) {
-            this.openScheduler.stopScheduler();
-            this.openScheduler = null;
-        }
-        if (this.closeScheduler != null) {
-            this.closeScheduler.stopScheduler();
-            this.closeScheduler = null;
-        }
         this.statsHolograms.values().forEach(HologramHolder::removeHolograms);
         this.statsHolograms.clear();
         if (this.editorMain != null) {
@@ -230,8 +218,8 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
     public void onSave() {
         cfg.set("Active", this.isActive());
         cfg.set("Name", this.getName());
-        this.autoOpenTimes.forEach((day, times) -> cfg.set("Auto_State_Schedulers.Open." + day.name(), times.stream().map(time -> time.format(ArenaStateScheduler.TIME_FORMATTER)).toList()));
-        this.autoCloseTimes.forEach((day, times) -> cfg.set("Auto_State_Schedulers.Close." + day.name(), times.stream().map(time -> time.format(ArenaStateScheduler.TIME_FORMATTER)).toList()));
+        this.autoOpenTimes.forEach((day, times) -> cfg.set("Auto_State_Schedulers.Open." + day.name(), times.stream().map(time -> time.format(ArenaUtils.TIME_FORMATTER)).toList()));
+        this.autoCloseTimes.forEach((day, times) -> cfg.set("Auto_State_Schedulers.Close." + day.name(), times.stream().map(time -> time.format(ArenaUtils.TIME_FORMATTER)).toList()));
 
         String path = "Join_Requirements.";
         cfg.set(path + "Permission", this.isPermissionRequired());
@@ -293,22 +281,6 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
         return list;
     }
 
-    public void updateSchedulers() {
-        if (this.openScheduler != null) {
-            this.openScheduler.stopScheduler();
-
-        }
-        if (this.closeScheduler != null) {
-            this.closeScheduler.stopScheduler();
-        }
-
-        this.openScheduler = new ArenaStateScheduler(this, this.autoOpenTimes, true);
-        this.openScheduler.startScheduler();
-
-        this.closeScheduler = new ArenaStateScheduler(this, this.autoCloseTimes, false);
-        this.closeScheduler.startScheduler();
-    }
-
     @NotNull
     public ArenaMainEditor getEditor() {
         if (this.editorMain == null) {
@@ -363,7 +335,7 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
     }
 
     @NotNull
-    public Map<ICurrency, Double> getJoinPaymentRequirements() {
+    public Map<Currency, Double> getJoinPaymentRequirements() {
         return joinPaymentRequirements;
     }
 

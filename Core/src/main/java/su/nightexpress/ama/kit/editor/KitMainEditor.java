@@ -18,7 +18,7 @@ import su.nexmedia.engine.utils.ItemUtil;
 import su.nexmedia.engine.utils.PlayerUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
-import su.nightexpress.ama.api.currency.ICurrency;
+import su.nightexpress.ama.api.currency.Currency;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.editor.EditorHub;
 import su.nightexpress.ama.editor.EditorLocales;
@@ -53,7 +53,7 @@ public class KitMainEditor extends EditorMenu<AMA, Kit> {
         this.addItem(Material.EMERALD, EditorLocales.KIT_CURRENCY, 6).setClick((viewer, event) -> {
             EditorManager.suggestValues(viewer.getPlayer(), plugin.getCurrencyManager().getCurrencyIds(), true);
             this.handleInput(viewer, Lang.EDITOR_GENERIC_ENTER_CURRENCY, wrapper -> {
-                ICurrency currency = plugin.getCurrencyManager().getCurrency(wrapper.getTextRaw());
+                Currency currency = plugin.getCurrencyManager().getCurrency(wrapper.getTextRaw());
                 if (currency == null) {
                     EditorManager.error(viewer.getPlayer(), plugin.getMessage(Lang.ERROR_CURRENCY_INVALID).getLocalized());
                     return false;

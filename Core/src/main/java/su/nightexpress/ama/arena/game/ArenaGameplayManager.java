@@ -75,8 +75,8 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, Loadable,
     private Set<String>          kitsAllowed;
     private Map<String, Integer> kitsLimits;
 
-    private boolean isExternalPetsEnabled;
-    private boolean isExternalMcmmoEnabled;
+    private boolean petsAllowed;
+    private boolean mcmmoAllowed;
 
     private final PlaceholderMap placeholderMap;
 
@@ -122,8 +122,8 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, Loadable,
             .add(Placeholders.GAMEPLAY_KITS_ENABLED, () -> LangManager.getBoolean(this.isKitsEnabled()))
             .add(Placeholders.GAMEPLAY_KITS_ALLOWED, () -> String.join("\n", this.getKitsAllowed()))
             .add(Placeholders.GAMEPLAY_KITS_LIMITS, () -> String.join("\n", this.getKitsLimits().entrySet().stream().map(e -> e.getKey() + " " + e.getValue()).toList()))
-            .add(Placeholders.GAMEPLAY_PETS_ALLOWED, () -> LangManager.getBoolean(this.isExternalPetsEnabled()))
-            .add(Placeholders.GAMEPLAY_MCMMO_ALLOWED, () -> LangManager.getBoolean(this.isExternalMcmmoEnabled()));
+            .add(Placeholders.GAMEPLAY_PETS_ALLOWED, () -> LangManager.getBoolean(this.isPetsAllowed()))
+            .add(Placeholders.GAMEPLAY_MCMMO_ALLOWED, () -> LangManager.getBoolean(this.isMcmmoAllowed()));
     }
 
     @Override
@@ -209,8 +209,8 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, Loadable,
         this.setKitsLimits(kitLimitsMap);
 
         path = "Compatibility.";
-        this.setExternalPetsEnabled(config.getBoolean(path + "Pets_Enabled"));
-        this.setExternalMcmmoEnabled(config.getBoolean(path + "Mcmmo_Enabled"));
+        this.setPetsAllowed(config.getBoolean(path + "Pets_Enabled"));
+        this.setMcmmoAllowed(config.getBoolean(path + "Mcmmo_Enabled"));
 
         config.saveChanges();
     }
@@ -270,8 +270,8 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, Loadable,
         });
 
         path = "Compatibility.";
-        config.set(path + "Pets_Enabled", this.isExternalPetsEnabled());
-        config.set(path + "Mcmmo_Enabled", this.isExternalMcmmoEnabled());
+        config.set(path + "Pets_Enabled", this.isPetsAllowed());
+        config.set(path + "Mcmmo_Enabled", this.isMcmmoAllowed());
     }
 
     @Override
@@ -562,19 +562,19 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, Loadable,
         return this.getKitsLimits().getOrDefault(id, -1);
     }
 
-    public boolean isExternalPetsEnabled() {
-        return isExternalPetsEnabled;
+    public boolean isPetsAllowed() {
+        return petsAllowed;
     }
 
-    public void setExternalPetsEnabled(boolean externalPetsEnabled) {
-        isExternalPetsEnabled = externalPetsEnabled;
+    public void setPetsAllowed(boolean petsAllowed) {
+        this.petsAllowed = petsAllowed;
     }
 
-    public boolean isExternalMcmmoEnabled() {
-        return isExternalMcmmoEnabled;
+    public boolean isMcmmoAllowed() {
+        return mcmmoAllowed;
     }
 
-    public void setExternalMcmmoEnabled(boolean externalMcmmoEnabled) {
-        isExternalMcmmoEnabled = externalMcmmoEnabled;
+    public void setMcmmoAllowed(boolean mcmmoAllowed) {
+        this.mcmmoAllowed = mcmmoAllowed;
     }
 }

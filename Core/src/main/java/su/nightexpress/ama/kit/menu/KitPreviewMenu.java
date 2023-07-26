@@ -9,7 +9,7 @@ import su.nexmedia.engine.api.menu.MenuItemType;
 import su.nexmedia.engine.api.menu.impl.ConfigMenu;
 import su.nexmedia.engine.api.menu.impl.MenuViewer;
 import su.nightexpress.ama.AMA;
-import su.nightexpress.ama.data.ArenaUser;
+import su.nightexpress.ama.data.impl.ArenaUser;
 import su.nightexpress.ama.kit.Kit;
 
 public class KitPreviewMenu extends ConfigMenu<AMA> {

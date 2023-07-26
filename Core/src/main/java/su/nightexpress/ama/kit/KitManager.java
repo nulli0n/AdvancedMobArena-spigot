@@ -14,7 +14,8 @@ import su.nexmedia.engine.utils.StringUtil;
 import su.nexmedia.engine.utils.random.Rnd;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.api.event.ArenaPlayerJoinEvent;
-import su.nightexpress.ama.data.ArenaUser;
+import su.nightexpress.ama.currency.CurrencyManager;
+import su.nightexpress.ama.data.impl.ArenaUser;
 import su.nightexpress.ama.kit.menu.KitSelectMenu;
 import su.nightexpress.ama.kit.menu.KitShopMenu;
 
@@ -91,7 +92,7 @@ public class KitManager extends AbstractManager<AMA> {
         kit.setName("&a" + StringUtil.capitalizeUnderscored(id));
         kit.setDescription(Arrays.asList("&7A newly created kit.", "&7Edit me in &e/ama editor"));
         kit.setIcon(new ItemStack(Material.GOLDEN_CHESTPLATE));
-        kit.setCurrency(this.plugin().getCurrencyManager().getCurrencyFirst());
+        kit.setCurrency(this.plugin().getCurrencyManager().getOrAny(CurrencyManager.COINS));
         kit.setCost(100);
         kit.setPermissionRequired(false);
 

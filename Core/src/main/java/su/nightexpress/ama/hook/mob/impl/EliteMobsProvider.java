@@ -13,6 +13,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.utils.StringUtil;
+import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.hook.HookId;
 import su.nightexpress.ama.hook.mob.MobProvider;
 
@@ -30,7 +31,7 @@ public class EliteMobsProvider implements MobProvider {
 
     @NotNull
     @Override
-    public Optional<LivingEntity> spawn(@NotNull String mobId, @NotNull Location location, int level) {
+    public Optional<LivingEntity> spawn(@NotNull Arena arena, @NotNull String mobId, @NotNull Location location, int level) {
         CustomBossesConfigFields bossFields = CustomBossesConfig.getCustomBoss(mobId);
         if (bossFields != null) {
             CustomBossEntity bossEntity = new CustomBossEntity(bossFields);

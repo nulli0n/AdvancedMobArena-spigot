@@ -268,12 +268,12 @@ public class GameplayEditor extends EditorMenu<AMA, ArenaGameplayManager> {
         });
 
         this.addItem(Material.BONE, EditorLocales.GAMEPLAY_PETS, 27).setClick((viewer, event) -> {
-            game.setExternalPetsEnabled(!game.isExternalPetsEnabled());
+            game.setPetsAllowed(!game.isPetsAllowed());
             this.save(viewer);
         });
 
         this.addItem(Material.DIAMOND_SWORD, EditorLocales.GAMEPLAY_MCMMO, 28).setClick((viewer, event) -> {
-            game.setExternalMcmmoEnabled(!game.isExternalMcmmoEnabled());
+            game.setMcmmoAllowed(!game.isMcmmoAllowed());
             this.save(viewer);
         });
 

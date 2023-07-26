@@ -1,6 +1,5 @@
 Plugin:
   Command_Aliases: advancedmobarena,ama
-  Language: en
 
 Database:
   Table_Prefix: 'advancedmobarena'

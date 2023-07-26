@@ -96,11 +96,11 @@ public class MobMainEditor extends EditorMenu<AMA, MobConfig> {
                     mob.setBarEnabled(!mob.isBarEnabled());
                 }
                 else if (event.isRightClick()) {
-                    this.handleInput(viewer, Lang.Editor_Mob_Enter_BossBar_Title, wrapper -> {
+                    /*this.handleInput(viewer, Lang.Editor_Mob_Enter_BossBar_Title, wrapper -> {
                         mob.setBarTitle(wrapper.getText());
                         mob.save();
                         return true;
-                    });
+                    });*/
                     return;
                 }
             }

@@ -9,9 +9,9 @@ import su.nexmedia.engine.utils.CollectionsUtil;
 import su.nexmedia.engine.utils.ItemUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
-import su.nightexpress.ama.api.currency.ICurrency;
+import su.nightexpress.ama.api.currency.Currency;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
-import su.nightexpress.ama.arena.util.ArenaStateScheduler;
+import su.nightexpress.ama.arena.util.ArenaUtils;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.editor.EditorHub;
 import su.nightexpress.ama.editor.EditorLocales;
@@ -57,7 +57,6 @@ public class ArenaMainEditor extends EditorMenu<AMA, ArenaConfig> {
                 else {
                     config.getAutoCloseTimes().clear();
                 }
-                config.updateSchedulers();
                 this.save(viewer);
                 return;
             }
@@ -72,7 +71,7 @@ public class ArenaMainEditor extends EditorMenu<AMA, ArenaConfig> {
 
                 LocalTime time;
                 try {
-                    time = LocalTime.parse(split[1], ArenaStateScheduler.TIME_FORMATTER);
+                    time = LocalTime.parse(split[1], ArenaUtils.TIME_FORMATTER);
                 }
                 catch (DateTimeParseException exception) {
                     return false;
@@ -85,7 +84,6 @@ public class ArenaMainEditor extends EditorMenu<AMA, ArenaConfig> {
                 else map = config.getAutoCloseTimes();
 
                 map.computeIfAbsent(day, k -> new HashSet<>()).add(time);
-                config.updateSchedulers();
                 config.save();
                 return true;
             });
@@ -113,7 +111,7 @@ public class ArenaMainEditor extends EditorMenu<AMA, ArenaConfig> {
                 String[] split = wrapper.getTextRaw().split(" ");
                 if (split.length < 2) return false;
 
-                ICurrency currency = plugin.getCurrencyManager().getCurrency(split[0]);
+                Currency currency = plugin.getCurrencyManager().getCurrency(split[0]);
                 if (currency == null) {
                     EditorManager.error(viewer.getPlayer(), plugin.getMessage(Lang.ERROR_CURRENCY_INVALID).getLocalized());
                     return false;

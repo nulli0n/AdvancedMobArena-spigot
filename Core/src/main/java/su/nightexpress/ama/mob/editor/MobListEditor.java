@@ -61,7 +61,7 @@ public class MobListEditor extends EditorMenu<AMA, MobManager> implements AutoPa
     @Override
     @NotNull
     public List<MobConfig> getObjects(@NotNull Player player) {
-        return new ArrayList<>(plugin.getMobManager().getMobs().stream().sorted(Comparator.comparing(MobConfig::getId)).toList());
+        return new ArrayList<>(plugin.getMobManager().getMobConfigs().stream().sorted(Comparator.comparing(MobConfig::getId)).toList());
     }
 
     @Override
@@ -88,7 +88,7 @@ public class MobListEditor extends EditorMenu<AMA, MobManager> implements AutoPa
             if (event.isShiftClick()) {
                 if (mob.getFile().delete()) {
                     mob.clear();
-                    this.object.getMobsMap().remove(mob.getId());
+                    this.object.getMobConfigMap().remove(mob.getId());
                     this.openNextTick(viewer, viewer.getPage());
                 }
                 return;

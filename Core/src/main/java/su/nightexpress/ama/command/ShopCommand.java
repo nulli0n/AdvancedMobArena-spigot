@@ -14,23 +14,8 @@ public class ShopCommand extends AbstractCommand<AMA> {
 
     public ShopCommand(@NotNull AMA plugin) {
         super(plugin, new String[]{"shop"}, Perms.COMMAND_SHOP);
-    }
-
-    @Override
-    @NotNull
-    public String getUsage() {
-        return "";
-    }
-
-    @Override
-    @NotNull
-    public String getDescription() {
-        return plugin.getMessage(Lang.COMMAND_SHOP_DESC).getLocalized();
-    }
-
-    @Override
-    public boolean isPlayerOnly() {
-        return true;
+        this.setDescription(plugin.getMessage(Lang.COMMAND_SHOP_DESC));
+        this.setPlayerOnly(true);
     }
 
     @Override

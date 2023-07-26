@@ -907,14 +907,14 @@ public class EditorLocales extends su.nexmedia.engine.api.editor.EditorLocales {
         .text("Mob health bossbar settings.").breakLine()
         .currentHeader()
         .current("Enabled", Placeholders.MOB_BOSSBAR_ENABLED)
-        .current("Title", Placeholders.MOB_BOSSBAR_TITLE)
+        //.current("Title", Placeholders.MOB_BOSSBAR_TITLE)
         .current("Color", Placeholders.MOB_BOSSBAR_COLOR)
         .current("Style", Placeholders.MOB_BOSSBAR_STYLE).breakLine()
         .actionsHeader()
         .action("Left-Click", "Toggle")
-        .action("Right-Click", "Edit Title")
-        .action("Shift-Left", "Toggle Color")
-        .action("Shift-Right", "Toggle Style")
+        //.action("Right-Click", "Edit Title")
+        .action("Shift-Left", "Change Color")
+        .action("Shift-Right", "Change Style")
         .build();
 
     public static final EditorLocale MOB_ATTRIBUTES = builder(PREFIX_OLD + "MOB_CHANGE_ATTRIBUTES")

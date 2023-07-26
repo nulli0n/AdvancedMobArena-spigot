@@ -15,15 +15,14 @@ import su.nightexpress.ama.api.hologram.IHologramHandler;
 import su.nightexpress.ama.arena.ArenaManager;
 import su.nightexpress.ama.arena.lock.LockState;
 import su.nightexpress.ama.arena.setup.ArenaSetupManager;
-import su.nightexpress.ama.arena.type.GameState;
+import su.nightexpress.ama.api.type.GameState;
 import su.nightexpress.ama.command.*;
-import su.nightexpress.ama.command.currency.CurrencyMainCommand;
 import su.nightexpress.ama.config.Config;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.currency.CurrencyManager;
-import su.nightexpress.ama.data.ArenaDataHandler;
-import su.nightexpress.ama.data.ArenaUser;
-import su.nightexpress.ama.data.ArenaUserManager;
+import su.nightexpress.ama.data.DataHandler;
+import su.nightexpress.ama.data.impl.ArenaUser;
+import su.nightexpress.ama.data.UserManager;
 import su.nightexpress.ama.editor.EditorHub;
 import su.nightexpress.ama.editor.EditorLocales;
 import su.nightexpress.ama.hologram.HologramManager;
@@ -42,7 +41,6 @@ import su.nightexpress.ama.kit.KitManager;
 import su.nightexpress.ama.mob.MobManager;
 import su.nightexpress.ama.mob.style.MobStyleType;
 import su.nightexpress.ama.nms.ArenaNMS;
-import su.nightexpress.ama.nms.v1_17_R1.V1_17_R1;
 import su.nightexpress.ama.nms.v1_18_R2.V1_18_R2;
 import su.nightexpress.ama.nms.v1_19_R3.V1_19_R3;
 import su.nightexpress.ama.nms.v1_20_R1.V1_20_R1;
@@ -54,8 +52,8 @@ import java.sql.SQLException;
 
 public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser> {
 
-    private ArenaDataHandler userData;
-    private ArenaUserManager userManager;
+    private DataHandler userData;
+    private UserManager userManager;
 
     private CurrencyManager   currencyManager;
     private ArenaManager      arenaManager;
@@ -78,7 +76,6 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
     @Override
     public void enable() {
         switch (Version.getCurrent()) {
-            case V1_17_R1 -> this.arenaNMS = new V1_17_R1();
             case V1_18_R2 -> this.arenaNMS = new V1_18_R2();
             case V1_19_R3 -> this.arenaNMS = new V1_19_R3();
             case V1_20_R1 -> this.arenaNMS = new V1_20_R1();
@@ -93,9 +90,7 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
         this.currencyManager = new CurrencyManager(this);
         this.currencyManager.setup();
         if (!this.getCurrencyManager().hasCurrency()) {
-            this.error("No currencies are enabled/available! Plugin will be disabled.");
-            this.getPluginManager().disablePlugin(this);
-            return;
+            this.warn("No currencies are enabled/available! Cost features will not work.");
         }
 
         if (Config.HOLOGRAMS_ENABLED.get()) {
@@ -223,7 +218,6 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
 
     @Override
     public void registerCommands(@NotNull GeneralCommand<AMA> mainCommand) {
-        mainCommand.addChildren(new CurrencyMainCommand(this));
         mainCommand.addChildren(new EditorCommand(this));
         mainCommand.addChildren(new ReloadSubCommand<>(this, Perms.COMMAND_RELOAD));
         mainCommand.addChildren(new ForceEndCommand(this));
@@ -235,9 +229,9 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
         mainCommand.addChildren(new SetActiveCommand(this));
         mainCommand.addChildren(new ScoreCmd(this));
         mainCommand.addChildren(new ShopCommand(this));
-        mainCommand.addChildren(new SkipwaveCmd(this));
-        mainCommand.addChildren(new SpectateCmd(this));
-        mainCommand.addChildren(new SpotCmd(this));
+        mainCommand.addChildren(new SkipRoundCommand(this));
+        mainCommand.addChildren(new SpectateCommand(this));
+        mainCommand.addChildren(new SpotCommand(this));
     }
 
     @Override
@@ -248,7 +242,7 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
     @Override
     public boolean setupDataHandlers() {
         try {
-            this.userData = ArenaDataHandler.getInstance(this);
+            this.userData = DataHandler.getInstance(this);
             this.userData.setup();
         }
         catch (SQLException e) {
@@ -257,7 +251,7 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
             return false;
         }
 
-        this.userManager = new ArenaUserManager(this);
+        this.userManager = new UserManager(this);
         this.userManager.setup();
 
         return true;
@@ -265,13 +259,13 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
 
     @Override
     @NotNull
-    public ArenaDataHandler getData() {
+    public DataHandler getData() {
         return this.userData;
     }
 
     @NotNull
     @Override
-    public ArenaUserManager getUserManager() {
+    public UserManager getUserManager() {
         return userManager;
     }
 

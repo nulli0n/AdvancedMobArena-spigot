@@ -22,20 +22,19 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.manager.AbstractListener;
 import su.nexmedia.engine.utils.EngineUtils;
-import su.nexmedia.engine.utils.EntityUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.Placeholders;
+import su.nightexpress.ama.api.type.GameState;
+import su.nightexpress.ama.api.type.PlayerType;
 import su.nightexpress.ama.arena.ArenaManager;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
-import su.nightexpress.ama.arena.type.GameState;
-import su.nightexpress.ama.arena.type.PlayerType;
 import su.nightexpress.ama.config.Config;
-import su.nightexpress.ama.hook.HookId;
-import su.nightexpress.ama.hook.external.MythicMobsHook;
 import su.nightexpress.ama.kit.Kit;
+import su.nightexpress.ama.mob.MobManager;
 import su.nightexpress.ama.mob.config.MobConfig;
+import su.nightexpress.ama.mob.config.MobsConfig;
 
 public class ArenaGenericListener extends AbstractListener<AMA> {
 
@@ -63,11 +62,11 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onArenaDamageGeneric(EntityDamageEvent e) {
-        Entity entity = e.getEntity();
+        if (!(e.getEntity() instanceof LivingEntity entity)) return;
 
         MobConfig mob = this.plugin.getMobManager().getEntityMobConfig(entity);
         if (mob != null && mob.isBarEnabled()) {
-            this.plugin.runTask(task -> mob.createOrUpdateBar((LivingEntity) entity));
+            this.plugin.runTask(task -> mob.createOrUpdateBar(entity));
             return;
         }
 
@@ -84,16 +83,19 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onArenaDamageFriendly(EntityDamageByEntityEvent e) {
-        Entity eVictim = e.getEntity();
-        Entity eDamager = e.getDamager();
+        if (!(e.getEntity() instanceof LivingEntity victim)) return;
 
-        if (!(eVictim instanceof LivingEntity victim)) return;
+        Entity eDamager = e.getDamager();
         if (eDamager instanceof Projectile projectile && projectile.getShooter() instanceof LivingEntity living) {
             eDamager = living;
         }
 
-        if (plugin.getMobManager().isArenaEntity(eDamager) && plugin.getMobManager().isArenaEntity(victim)) {
-            e.setCancelled(true);
+        Arena arenaDamager = this.plugin.getMobManager().getEntityArena(eDamager);
+        Arena arenaVictim = this.plugin.getMobManager().getEntityArena(victim);
+        if (arenaDamager == arenaVictim && arenaDamager != null) {
+            if (arenaDamager.getMobs().getFaction((LivingEntity) eDamager) == arenaDamager.getMobs().getFaction(victim)) {
+                e.setCancelled(true);
+            }
         }
         else if (eDamager instanceof Player pDamager && victim instanceof Player pVictim) {
             if (pDamager == pVictim) return;
@@ -130,20 +132,22 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onArenaMobSpawn(CreatureSpawnEvent e) {
         LivingEntity entity = e.getEntity();
-        if (entity instanceof Player || EntityUtil.isNPC(entity)) return;
-
         Location location = entity.getLocation();
         Arena arena = plugin.getArenaManager().getArenaAtLocation(location);
         if (arena == null/* || !arena.getConfig().isActive()*/) return;
 
         if (arena.getState() == GameState.INGAME && !arena.isAboutToEnd()) {
             CreatureSpawnEvent.SpawnReason reason = e.getSpawnReason();
+            if (reason == CreatureSpawnEvent.SpawnReason.SPAWNER_EGG && MobsConfig.ALLY_FROM_EGGS.get().contains(entity.getType())) {
+                arena.spawnAllyMob(entity.getType(), location);
+                e.setCancelled(true);
+                return;
+            }
             if (reason == CreatureSpawnEvent.SpawnReason.CUSTOM || arena.getConfig().getGameplayManager().isAllowedSpawnReason(reason)) {
                 if (!arena.isAboutToSpawnMobs()) {
-                    this.plugin.getMobManager().setArena(entity, arena); // Add Arena tag to entity
-                    //MobManager.setOutsider(entity);
-                    arena.getMobs().add(entity);
-                    arena.setWaveMobsTotalAmount(arena.getWaveMobsTotalAmount() + 1);
+                    MobManager.setArena(entity, arena);
+                    arena.getMobs().getEnemies().add(entity);
+                    arena.setRoundTotalMobsAmount(arena.getRoundTotalMobsAmount() + 1);
                 }
                 return;
             }
@@ -152,25 +156,25 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
         e.setCancelled(true);
     }
 
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
-    public void onArenaMobTarget(EntityTargetEvent e) {
-        if (!(e.getEntity() instanceof LivingEntity agressor)) return;
-        if (!(e.getTarget() instanceof LivingEntity target)) return;
-
+    /*@EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void onArenaMobTarget(EntityTargetLivingEntityEvent event) {
+        if (!(event.getEntity() instanceof LivingEntity agressor)) return;
         if (!this.plugin.getMobManager().isArenaEntity(agressor)) return;
-        //if (MobManager.isOutsider(agressor)) return;
         if (EngineUtils.hasPlugin(HookId.MYTHIC_MOBS) && MythicMobsHook.isMythicMob(agressor)) return;
 
+        LivingEntity target = event.getTarget();
+        if (target == null) return;
+
         if (this.plugin.getMobManager().isArenaEntity(target)) {
-            e.setCancelled(true);
+            event.setCancelled(true);
             return;
         }
         if (target instanceof Player player) {
             if (!ArenaPlayer.isPlaying(player)) {
-                e.setCancelled(true);
+                event.setCancelled(true);
             }
         }
-    }
+    }*/
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onArenaMobTeleport(EntityTeleportEvent e) {

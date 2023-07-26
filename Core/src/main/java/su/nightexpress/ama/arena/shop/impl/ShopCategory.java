@@ -13,7 +13,7 @@ import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
-import su.nightexpress.ama.api.currency.ICurrency;
+import su.nightexpress.ama.api.currency.Currency;
 import su.nightexpress.ama.api.event.ArenaShopCategoryEvent;
 import su.nightexpress.ama.arena.editor.shop.ShopCategorySettingsEditor;
 import su.nightexpress.ama.arena.impl.Arena;
@@ -23,8 +23,9 @@ import su.nightexpress.ama.arena.lock.LockState;
 import su.nightexpress.ama.arena.lock.Lockable;
 import su.nightexpress.ama.arena.shop.ShopManager;
 import su.nightexpress.ama.arena.shop.menu.ShopCategoryMenu;
-import su.nightexpress.ama.arena.type.GameState;
+import su.nightexpress.ama.api.type.GameState;
 import su.nightexpress.ama.config.Lang;
+import su.nightexpress.ama.currency.CurrencyManager;
 import su.nightexpress.ama.kit.Kit;
 
 import java.util.*;
@@ -122,7 +123,7 @@ public class ShopCategory implements ArenaChild, Lockable, Placeholder {
     public boolean createProduct(@NotNull String id) {
         if (this.getProduct(id) != null) return false;
 
-        ICurrency currency = plugin().getCurrencyManager().getCurrencyFirst();
+        Currency currency = plugin().getCurrencyManager().getOrAny(CurrencyManager.COINS);
         ShopProduct product = new ShopProduct(this, id, currency);
         this.getProductsMap().put(product.getId(), product);
         return true;

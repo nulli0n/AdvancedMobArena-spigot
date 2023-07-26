@@ -19,7 +19,7 @@ import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.arena.shop.impl.ShopCategory;
 import su.nightexpress.ama.arena.shop.impl.ShopProduct;
-import su.nightexpress.ama.arena.type.GameState;
+import su.nightexpress.ama.api.type.GameState;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -24,11 +24,11 @@ import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
 import su.nightexpress.ama.api.event.ArenaMobDeathEvent;
 import su.nightexpress.ama.api.event.ArenaPlayerDeathEvent;
+import su.nightexpress.ama.api.type.GameState;
 import su.nightexpress.ama.arena.ArenaManager;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.arena.region.ArenaRegion;
-import su.nightexpress.ama.arena.type.GameState;
 import su.nightexpress.ama.arena.util.ArenaUtils;
 import su.nightexpress.ama.arena.util.LobbyItem;
 import su.nightexpress.ama.config.Lang;
@@ -209,12 +209,11 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
             e.setDroppedExp(0);
         }
 
-        String mobId = this.plugin.getMobManager().getMobId(entity);
+        String mobId = MobManager.getMobId(entity);
         MobConfig customMob = this.plugin.getMobManager().getEntityMobConfig(entity);
         if (customMob != null && customMob.isBarEnabled()) {
             ArenaUtils.removeMobBossBar(entity);
         }
-        //arena.getMobs().remove(entity);
 
         ArenaMobDeathEvent mobDeathEvent = new ArenaMobDeathEvent(arena, entity, mobId);
 
@@ -225,15 +224,11 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
 
             int streak = arenaPlayer.getKillStreak() + 1;
 
-            MobKillReward killReward = this.plugin.getMobManager().getMobKillReward(entity);
+            MobKillReward killReward = MobManager.getMobKillReward(entity);
             MobKillStreak killStreak = MobManager.getMobKillStreak(streak);
 
             if (killStreak != null) {
-                if (killReward != null) {
-                    killReward = killReward.multiply(killStreak);
-                }
-                killStreak.getMessage().send(killer);
-                killStreak.executeCommands(killer);
+                killStreak.execute(killer);
             }
             arenaPlayer.setKillStreak(streak);
             if (streak > 0) {

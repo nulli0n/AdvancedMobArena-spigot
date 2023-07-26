@@ -24,16 +24,22 @@ public class Config {
         "Then send debug logs from the console to the developer."
     );
 
-    public static final JOption<Boolean> CHAT_ENABLED = JOption.create("Chat.Enabled", false, "When enabled, players in arenas will have their own chat.");
+    public static final JOption<Boolean> CHAT_ENABLED = JOption.create("Chat.Enabled",
+        false,
+        "When enabled, players in arenas will have their own chat.");
+
     public static final JOption<String>  CHAT_FORMAT  = JOption.create("Chat.Format",
         "&7(&6" + Placeholders.PLAYER_KIT_NAME + "&7) &a" + Placeholders.PLAYER_NAME + ": &f" + Placeholders.GENERIC_MESSAGE,
         "Sets the chat format.",
-        "You can use 'Arena', 'Arena Player' placeholders: https://github.com/nulli0n/AdvancedMobArena-spigot/wiki/Internal-Placeholders",
+        "You can use 'Arena', 'Arena Player' placeholders: " + Placeholders.WIKI_AMA_PLACEHOLDERS,
         "Default Placeholders:",
         "- %player_name% - Player name.",
         "- %message% - Message text.",
         "PlaceholderAPI is also supported."
-    );
+    ).mapReader(Colorizer::apply);
+
+    public static final JOption<Boolean> ARENA_CLEAR_POTION_EFFECTS = JOption.create("Arena.Clear_Potion_Effects", true,
+        "Sets whether or not player's potion effects should be removed when join/leave arena.");
 
     public static final JOption<Integer> ARENA_END_COUNTDOWN_DEFEAT = JOption.create("Arena.End_Countdown.Defeat", 10,
         "Sets how soon (in seconds) game on the arena will be stopped in case of defeat?");
@@ -67,7 +73,7 @@ public class Config {
         "Lobby items settings.",
         "Disabled items won't be given to players and will have no effect.",
         "Slot is where lobby item will be added in player's inventory.",
-        "For 'Item' option, please check: https://github.com/nulli0n/NexEngine-spigot/wiki/Configuration-Tips#item-sections"
+        "For 'Item' option, please check: " + Placeholders.WIKI_ITEMS_URL
     ).setWriter((cfg, path, map) -> map.forEach((type, lobbyItem) -> LobbyItem.write(lobbyItem, cfg, path + "." + type.name())));
 
     public static final JOption<Boolean>                     SIGNS_ENABLED = JOption.create("Signs.Enabled", true, "Enables/Disables usable signs feature.");
@@ -80,7 +86,7 @@ public class Config {
             return Stream.of(SignType.values()).collect(Collectors.toMap(k -> k, SignType::getDefaultText));
         },
         "Text to dispay on arena signs.",
-        "Depends on a Sign Type, you can use different placeholders: https://github.com/nulli0n/AdvancedMobArena-spigot/wiki/Internal-Placeholders"
+        "Depends on a Sign Type, you can use different placeholders: " + Placeholders.WIKI_AMA_PLACEHOLDERS
     ).setWriter((cfg, path, map) -> map.forEach((type, list) -> cfg.set(path + "." + type.name(), list)));
 
     public static final JOption<Boolean> HOLOGRAMS_ENABLED = JOption.create("Holograms.Enabled", true,
@@ -91,7 +97,7 @@ public class Config {
         (cfg, path, def) -> Stream.of(HologramType.values()).collect(Collectors.toMap(k -> k, v -> Colorizer.apply(cfg.getStringList(path + "." + v.name())))),
         () -> Stream.of(HologramType.values()).collect(Collectors.toMap(k -> k, HologramType::getDefaultFormat)),
         "Text to dispay on arena holograms.",
-        "Depends on a Hologram Type, you can use different placeholders: https://github.com/nulli0n/AdvancedMobArena-spigot/wiki/Internal-Placeholders"
+        "Depends on a Hologram Type, you can use different placeholders: " + Placeholders.WIKI_AMA_PLACEHOLDERS
     ).setWriter((cfg, path, map) -> map.forEach((type, list) -> cfg.set(path + "." + type.name(), list)));
 
     public static final JOption<Map<String, ArenaBoardConfig>> SCOREBOARDS = new JOption<Map<String, ArenaBoardConfig>>("Scoreboard",
@@ -101,7 +107,7 @@ public class Config {
             ArenaBoardConfig boardConfig = new ArenaBoardConfig(Placeholders.DEFAULT, "&c&lMOB ARENA", Arrays.asList(
                 "&c▸ &7Arena: &c" + Placeholders.ARENA_NAME, "&c▸ &7Current wave: &c" + Placeholders.ARENA_WAVE_NUMBER,
                 "&c▸ &7Mobs: &a" + Placeholders.ARENA_MOBS_ALIVE + "&7/&e" + Placeholders.ARENA_MOBS_LEFT + "&7/&c" + Placeholders.ARENA_MOBS_TOTAL,
-                "&c▸ &7Players: &c" + Placeholders.ARENA_PLAYERS + "&7/&c" + Placeholders.ARENA_PLAYERS_MAX,
+                "&c▸ &7Players: &c" + Placeholders.ARENA_ALIVE_PLAYERS + "&7/&c" + Placeholders.ARENA_PLAYERS_MAX,
                 "&c▸ &7Timeleft: &c" + Placeholders.ARENA_TIMELEFT,
                 "&c▸ &7Next wave in: &c" + Placeholders.ARENA_WAVE_NEXT_IN + " sec.",
                 "&7       &e&lYOUR STATS     &7",
@@ -115,7 +121,7 @@ public class Config {
         },
         "Here you can create your own scoreboard format(s) for different arenas.",
         "To set the scoreboard format per arena, use in-game editor.",
-        "You can use 'Arena', 'Arena Player' placeholders: https://github.com/nulli0n/AdvancedMobArena-spigot/wiki/Internal-Placeholders",
+        "You can use 'Arena', 'Arena Player' placeholders: " + Placeholders.WIKI_AMA_PLACEHOLDERS,
         "PlaceholderAPI is also supported here."
     ).setWriter((cfg, path, map) -> map.forEach((id, board) -> ArenaBoardConfig.write(board, cfg, path + "." + id)));
 }

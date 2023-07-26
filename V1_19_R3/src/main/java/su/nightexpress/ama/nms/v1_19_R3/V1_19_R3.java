@@ -1,6 +1,5 @@
 package su.nightexpress.ama.nms.v1_19_R3;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
@@ -15,25 +14,19 @@ import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.ZombieAttackGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.pathfinder.Node;
-import net.minecraft.world.level.pathfinder.Path;
 import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
 import org.bukkit.entity.*;
-import org.bukkit.event.entity.EntityTargetEvent;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.Reflex;
+import su.nightexpress.ama.api.IArena;
+import su.nightexpress.ama.api.type.MobFaction;
 import su.nightexpress.ama.nms.ArenaNMS;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class V1_19_R3 implements ArenaNMS {
 
@@ -41,51 +34,9 @@ public class V1_19_R3 implements ArenaNMS {
         EntityInjector.setup();
     }
 
-    class Nax extends GroundPathNavigation {
-
-        public Nax(net.minecraft.world.entity.Mob var0, Level var1) {
-            super(var0, var1);
-        }
-
-        @Override
-        protected boolean canUpdatePath() {
-            return true;
-        }
-    }
-
-    class Zom extends net.minecraft.world.entity.monster.Zombie {
-
-        public Zom(Level world) {
-            super(world);
-            this.navigation = new Nax(this, world);
-        }
-    }
-
-    public Set<Block> createPath(@NotNull Block start, @NotNull Block end) {
-        Location locStart = start.getLocation();
-        Location locEnd = end.getLocation();
-        World world = locStart.getWorld();
-        ServerLevel level = ((CraftWorld) world).getHandle();
-
-        BlockPos pos = new BlockPos(locEnd.getBlockX(), locEnd.getBlockY(), locEnd.getBlockZ());
-
-        net.minecraft.world.entity.monster.Zombie zombie = new Zom(level);
-        zombie.setPos(start.getX(), start.getY(), start.getZ());
-        Path path = zombie.getNavigation().createPath(pos, 0);
-        if (path == null) return Collections.emptySet();
-
-        Set<Block> blocks = new HashSet<>();
-        for (int index = 0; index < path.getNodeCount(); index++) {
-            Node node = path.getNode(index);
-            blocks.add(world.getBlockAt(node.x, node.y, node.z));
-        }
-
-        return blocks;
-    }
-
     @Override
-    public LivingEntity spawnMob(@NotNull EntityType type, @NotNull Location loc) {
-        net.minecraft.world.entity.Mob eIns = (net.minecraft.world.entity.Mob) EntityInjector.spawnEntity(type, loc);
+    public LivingEntity spawnMob(@NotNull IArena arena, @NotNull MobFaction faction, @NotNull EntityType type, @NotNull Location location) {
+        net.minecraft.world.entity.Mob eIns = (net.minecraft.world.entity.Mob) EntityInjector.spawnEntity(type, location);
         if (eIns == null) return null;
 
         Entity bukkitEntity = eIns.getBukkitEntity();
@@ -152,27 +103,6 @@ public class V1_19_R3 implements ArenaNMS {
             return;
         }
         instance.setBaseValue(value);
-    }
-
-    @Override
-    public void setTarget(@NotNull LivingEntity entity, @Nullable LivingEntity target) {
-        CraftLivingEntity craftLiving = (CraftLivingEntity) entity;
-        if (!(craftLiving.getHandle() instanceof net.minecraft.world.entity.Mob insentient)) return;
-
-        if (target == null) {
-            insentient.setTarget(null);
-            return;
-        }
-        insentient.setTarget(((CraftLivingEntity) target).getHandle(), EntityTargetEvent.TargetReason.CUSTOM, true);
-    }
-
-    @Override
-    public LivingEntity getTarget(@Nullable LivingEntity entity) {
-        CraftLivingEntity craftLiving = (CraftLivingEntity) entity;
-        if (craftLiving == null || !(craftLiving.getHandle() instanceof net.minecraft.world.entity.Mob insentient)) return null;
-
-        net.minecraft.world.entity.LivingEntity target = insentient.getTarget();
-        return target == null ? null : (LivingEntity) target.getBukkitEntity();
     }
 
     @Override

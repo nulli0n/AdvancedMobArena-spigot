@@ -16,6 +16,7 @@ import su.nightexpress.ama.arena.listener.ArenaGameplayListener;
 import su.nightexpress.ama.arena.listener.ArenaGenericListener;
 import su.nightexpress.ama.arena.listener.ArenaMythicListener;
 import su.nightexpress.ama.arena.menu.ArenaListMenu;
+import su.nightexpress.ama.arena.task.ArenaOpenTask;
 import su.nightexpress.ama.arena.task.ArenaTickTask;
 import su.nightexpress.ama.hook.HookId;
 
@@ -31,6 +32,7 @@ public class ArenaManager extends AbstractManager<AMA> {
 
     private ArenaListMenu arenaListMenu;
     private ArenaTickTask arenaTickTask;
+    private ArenaOpenTask arenaOpenTask;
 
     public ArenaManager(@NotNull AMA plugin) {
         super(plugin);
@@ -74,14 +76,15 @@ public class ArenaManager extends AbstractManager<AMA> {
 
         this.arenaTickTask = new ArenaTickTask(this);
         this.arenaTickTask.start();
+
+        this.arenaOpenTask = new ArenaOpenTask(this);
+        this.arenaOpenTask.start();
     }
 
     @Override
     protected void onShutdown() {
-        if (this.arenaTickTask != null) {
-            this.arenaTickTask.stop();
-            this.arenaTickTask = null;
-        }
+        if (this.arenaOpenTask != null) this.arenaOpenTask.stop();
+        if (this.arenaTickTask != null) this.arenaTickTask.stop();
 
         this.arenas.values().forEach(arena -> {
             arena.stop();

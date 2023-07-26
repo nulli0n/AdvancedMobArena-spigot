@@ -18,7 +18,7 @@ import su.nexmedia.engine.utils.ItemUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
-import su.nightexpress.ama.data.ArenaUser;
+import su.nightexpress.ama.data.impl.ArenaUser;
 import su.nightexpress.ama.kit.Kit;
 
 import java.util.Collections;

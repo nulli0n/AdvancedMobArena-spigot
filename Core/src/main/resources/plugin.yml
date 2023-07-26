@@ -9,14 +9,12 @@ softdepend:
   - EliteMobs
   - BossMania
   - mcMMO
+  - MMOCore
   - HolographicDisplays
   - DecentHolograms
-  - Citizens
   - PlaceholderAPI
   - SunLight
   - Essentials
-  - GamePoints
-  - PlayerPoints
-loadbefore: [ Magic ]
-description: An advanced mob arena with many cool features for your server. Enjoy!
-api-version: 1.17
+  - CoinsEngine
+description: Advanced mob arena with many cool features for your server. Enjoy!
+api-version: 1.18

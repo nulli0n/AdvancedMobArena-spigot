@@ -15,7 +15,7 @@ import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.Problematic;
 import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
-import su.nightexpress.ama.api.currency.ICurrency;
+import su.nightexpress.ama.api.currency.Currency;
 import su.nightexpress.ama.api.event.ArenaShopEvent;
 import su.nightexpress.ama.arena.editor.shop.ShopManagerEditor;
 import su.nightexpress.ama.arena.impl.Arena;
@@ -32,7 +32,7 @@ import su.nightexpress.ama.arena.script.impl.ArenaScript;
 import su.nightexpress.ama.arena.shop.impl.ShopCategory;
 import su.nightexpress.ama.arena.shop.impl.ShopProduct;
 import su.nightexpress.ama.arena.shop.menu.ShopMainMenu;
-import su.nightexpress.ama.arena.type.GameState;
+import su.nightexpress.ama.api.type.GameState;
 import su.nightexpress.ama.config.Lang;
 
 import java.util.*;
@@ -129,13 +129,15 @@ public class ShopManager implements ConfigHolder, ArenaChild, Lockable, Loadable
             ShopCategory category = new ShopCategory(arenaConfig, catId, catName, catDesc, catIcon, catAllowedKits, catProducts);
 
             for (String prId : config.getSection(path + "Products")) {
+                if (!plugin().getCurrencyManager().hasCurrency()) continue;
+
                 String path2 = path + "Products." + prId + ".";
 
                 String prName = config.getString(path2 + "Name", prId);
                 List<String> prDesc = config.getStringList(path2 + "Description");
 
-                ICurrency prCurrency = plugin().getCurrencyManager().getCurrency(config.getString(path2 + "Currency", ""));
-                if (prCurrency == null) prCurrency = plugin().getCurrencyManager().getCurrencyFirst();
+                Currency prCurrency = plugin().getCurrencyManager().getCurrency(config.getString(path2 + "Currency", ""));
+                if (prCurrency == null) prCurrency = plugin().getCurrencyManager().getAny();
 
                 double prPrice = config.getDouble(path2 + "Price");
 

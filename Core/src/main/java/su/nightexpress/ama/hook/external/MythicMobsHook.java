@@ -15,15 +15,15 @@ import java.util.List;
 
 public class MythicMobsHook {
 
-    static MythicBukkit mythicMobs = MythicBukkit.inst();
+    private static final MythicBukkit MYTHIC_MOBS = MythicBukkit.inst();
 
     public static boolean isMythicMob(@NotNull Entity entity) {
-        return mythicMobs.getAPIHelper().isMythicMob(entity);
+        return MYTHIC_MOBS.getAPIHelper().isMythicMob(entity);
     }
 
     @Nullable
     public static ActiveMob getMobInstance(@NotNull Entity entity) {
-        return mythicMobs.getAPIHelper().getMythicMobInstance(entity);
+        return MYTHIC_MOBS.getAPIHelper().getMythicMobInstance(entity);
     }
 
     @Nullable
@@ -34,7 +34,7 @@ public class MythicMobsHook {
 
     @Nullable
     public static MythicMob getMobConfig(@NotNull String mobId) {
-        return mythicMobs.getAPIHelper().getMythicMob(mobId);
+        return MYTHIC_MOBS.getAPIHelper().getMythicMob(mobId);
     }
 
     @NotNull
@@ -57,7 +57,7 @@ public class MythicMobsHook {
 
     @NotNull
     public static List<String> getMobConfigIds() {
-        return new ArrayList<>(mythicMobs.getMobManager().getMobNames());
+        return new ArrayList<>(MYTHIC_MOBS.getMobManager().getMobNames());
     }
 
     public static void killMob(@NotNull Entity entity) {
@@ -82,7 +82,7 @@ public class MythicMobsHook {
     public static Entity spawnMob(@NotNull String mobId, @NotNull Location location, int level) {
         try {
             MythicMob mythicMob = getMobConfig(mobId);
-            return mythicMobs.getAPIHelper().spawnMythicMob(mythicMob, location, level);
+            return MYTHIC_MOBS.getAPIHelper().spawnMythicMob(mythicMob, location, level);
         }
         catch (InvalidMobTypeException e) {
             e.printStackTrace();
