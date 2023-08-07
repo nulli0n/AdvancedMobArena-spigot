@@ -14,7 +14,7 @@ import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.Problematic;
-import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
+import su.nightexpress.ama.api.type.GameEventType;
 import su.nightexpress.ama.arena.editor.spot.SpotSettingsEditor;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
@@ -69,7 +69,7 @@ public class ArenaSpot extends AbstractConfigHolder<AMA> implements ArenaChild, 
 
             // ----------- CONVERT SCRIPTS START -----------
             for (String eventRaw : cfg.getSection(path2 + "Triggers")) {
-                ArenaGameEventType eventType = StringUtil.getEnum(eventRaw, ArenaGameEventType.class).orElse(null);
+                GameEventType eventType = StringUtil.getEnum(eventRaw, GameEventType.class).orElse(null);
                 if (eventType == null) continue;
 
                 String sName = "spot_change_" + this.getId() + "_to_" + stateId;

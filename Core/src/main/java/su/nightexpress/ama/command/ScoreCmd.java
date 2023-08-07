@@ -49,7 +49,7 @@ public class ScoreCmd extends AbstractCommand<AMA> {
         if (i == 2) {
             List<String> names = new ArrayList<>();
             plugin.getArenaManager().getArenas().forEach(arena -> {
-                names.addAll(arena.getPlayers(PlayerType.REAL).stream()
+                names.addAll(arena.getPlayers().select(PlayerType.REAL).stream()
                     .map(ap -> ap.getPlayer().getName()).collect(Collectors.toList()));
             });
 

@@ -12,7 +12,7 @@ import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.Problematic;
-import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
+import su.nightexpress.ama.api.type.GameEventType;
 import su.nightexpress.ama.api.arena.type.ArenaTargetType;
 import su.nightexpress.ama.arena.editor.reward.RewardListEditor;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
@@ -71,7 +71,7 @@ public class ArenaRewardManager implements ArenaChild, ConfigHolder, Loadable, P
 
             // ----------- CONVERT SCRIPTS START -----------
             for (String eventRaw : config.getSection(path2 + "Triggers")) {
-                ArenaGameEventType eventType = StringUtil.getEnum(eventRaw, ArenaGameEventType.class).orElse(null);
+                GameEventType eventType = StringUtil.getEnum(eventRaw, GameEventType.class).orElse(null);
                 if (eventType == null) continue;
 
                 String sName = "reward_" + sId;

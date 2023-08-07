@@ -25,7 +25,7 @@ public class ScriptConditions {
     public static final ScriptCondition<Number, Number> CHANCE            = numeric("chance", event -> Rnd.get(true));
     public static final ScriptCondition<Number, Number> WAVE_NUMBER       = numeric("wave_number", event -> event.getArena().getRoundNumber());
     public static final ScriptCondition<Number[], Number> ROUND_NUMBER    = numerics("round_number", event -> event.getArena().getRoundNumber());
-    public static final ScriptCondition<Number, Number> PLAYERS_AMOUNT    = numeric("players_amount", event -> event.getArena().getPlayers(GameState.INGAME, PlayerType.REAL).size());
+    public static final ScriptCondition<Number, Number> PLAYERS_AMOUNT    = numeric("players_amount", event -> event.getArena().getPlayers().select(GameState.INGAME, PlayerType.REAL).size());
     public static final ScriptCondition<Number, Number> ENEMY_MOBS_AMOUNT = numeric("enemy_mobs_amount", event -> event.getArena().getMobs().getEnemies().size());
     public static final ScriptCondition<Number, Number> ALLY_MOBS_AMOUNT  = numeric("ally_mobs_amount", event -> event.getArena().getMobs().getAllies().size());
     public static final ScriptCondition<Number, Number> GAME_SCORE        = numeric("game_score", event -> event.getArena().getGameScore());

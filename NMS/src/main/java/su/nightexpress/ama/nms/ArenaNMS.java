@@ -6,7 +6,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import su.nightexpress.ama.api.IArena;
+import su.nightexpress.ama.api.arena.IArena;
 import su.nightexpress.ama.api.type.MobFaction;
 
 public interface ArenaNMS {

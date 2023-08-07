@@ -13,6 +13,7 @@ import su.nexmedia.engine.utils.EntityUtil;
 import su.nexmedia.engine.utils.TimeUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
+import su.nightexpress.ama.api.arena.IArenaPlayer;
 import su.nightexpress.ama.api.event.ArenaPlayerReadyEvent;
 import su.nightexpress.ama.arena.board.ArenaBoard;
 import su.nightexpress.ama.arena.board.ArenaBoardConfig;
@@ -24,17 +25,17 @@ import su.nightexpress.ama.config.Config;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.data.impl.ArenaUser;
 import su.nightexpress.ama.hook.HookId;
-import su.nightexpress.ama.hook.external.SunLightHook;
+import su.nightexpress.ama.hook.impl.SunLightHook;
 import su.nightexpress.ama.kit.Kit;
 import su.nightexpress.ama.stats.object.StatType;
 
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-public final class ArenaPlayer implements Placeholder {
+public final class ArenaPlayer implements IArenaPlayer, Placeholder {
 
     private static final Map<UUID, ArenaPlayer> PLAYER_MAP    = new HashMap<>();
-    private static final DateTimeFormatter      FORMAT_STREAK = DateTimeFormatter.ofPattern("ss");
+    public static final DateTimeFormatter      FORMAT_STREAK = DateTimeFormatter.ofPattern("ss");
 
     private final AMA plugin;
     private final Player player;
@@ -184,7 +185,7 @@ public final class ArenaPlayer implements Placeholder {
             if (!this.getArena().getConfig().getRewardManager().isRetainOnDeath()) {
                 this.getRewards().clear();
             }
-            if (!this.getArena().getAlivePlayers().isEmpty()) {
+            if (this.getArena().getPlayers().hasAlive()) {
                 this.plugin.getMessage(Lang.ARENA_GAME_DEATH_NO_LIFES).replace(this.replacePlaceholders()).send(this.getPlayer());
             }
             this.setGhost();
@@ -195,7 +196,7 @@ public final class ArenaPlayer implements Placeholder {
         }
         else {
             this.setReviveTime(this.getArena().getConfig().getGameplayManager().getPlayerReviveTime());
-            if (!this.getArena().getAlivePlayers().isEmpty()) {
+            if (this.getArena().getPlayers().hasAlive()) {
                 this.plugin.getMessage(Lang.ARENA_GAME_DEATH_WITH_LIFES).replace(this.replacePlaceholders()).send(this.getPlayer());
             }
         }

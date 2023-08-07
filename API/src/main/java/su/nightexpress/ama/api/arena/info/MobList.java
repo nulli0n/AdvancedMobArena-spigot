@@ -1,4 +1,4 @@
-package su.nightexpress.ama.api;
+package su.nightexpress.ama.api.arena.info;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;

@@ -1,4 +1,4 @@
-package su.nightexpress.ama.hook.external;
+package su.nightexpress.ama.hook.impl;
 
 import com.gmail.nossr50.events.experience.McMMOPlayerXpGainEvent;
 import com.gmail.nossr50.events.skills.abilities.McMMOPlayerAbilityActivateEvent;

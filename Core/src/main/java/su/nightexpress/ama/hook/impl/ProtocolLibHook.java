@@ -1,4 +1,4 @@
-package su.nightexpress.ama.hook.external;
+package su.nightexpress.ama.hook.impl;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;

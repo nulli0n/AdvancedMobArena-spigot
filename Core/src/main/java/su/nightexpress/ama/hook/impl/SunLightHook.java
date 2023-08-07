@@ -1,4 +1,4 @@
-package su.nightexpress.ama.hook.external;
+package su.nightexpress.ama.hook.impl;
 
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;

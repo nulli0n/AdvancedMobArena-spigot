@@ -2,7 +2,7 @@ package su.nightexpress.ama.arena.script.impl;
 
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.ama.api.arena.ArenaChild;
-import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
+import su.nightexpress.ama.api.type.GameEventType;
 import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
 import su.nightexpress.ama.arena.editor.script.ScriptActionsEditor;
 import su.nightexpress.ama.arena.editor.script.ScriptConditionsEditor;
@@ -19,15 +19,15 @@ import java.util.*;
 public class ArenaScript implements ArenaChild {
 
     private final ArenaConfig arenaConfig;
-    private final String id;
-    private ArenaGameEventType                               eventType;
+    private final String                                     id;
+    private       GameEventType                              eventType;
     private final Map<String, List<ScriptPreparedCondition>> conditions;
     private final List<ScriptPreparedAction>                 actions;
 
     private ScriptActionsEditor actionsEditor;
     private ScriptConditionsEditor conditionsEditor;
 
-    public ArenaScript(@NotNull ArenaConfig arenaConfig, @NotNull String id, @NotNull ArenaGameEventType eventType) {
+    public ArenaScript(@NotNull ArenaConfig arenaConfig, @NotNull String id, @NotNull GameEventType eventType) {
         this.arenaConfig = arenaConfig;
         this.id = id.toLowerCase();
         this.setEventType(eventType);
@@ -36,7 +36,7 @@ public class ArenaScript implements ArenaChild {
     }
 
     @NotNull
-    public static Map<String, List<ScriptPreparedCondition>> ofGameTrigger(@NotNull ArenaGameEventType eventType, @NotNull String values) {
+    public static Map<String, List<ScriptPreparedCondition>> ofGameTrigger(@NotNull GameEventType eventType, @NotNull String values) {
         Map<String, List<ScriptPreparedCondition>> map = new HashMap<>();
 
         //for (String eventName : cfg.getSection(path)) {
@@ -127,11 +127,11 @@ public class ArenaScript implements ArenaChild {
     }
 
     @NotNull
-    public ArenaGameEventType getEventType() {
+    public GameEventType getEventType() {
         return eventType;
     }
 
-    public void setEventType(@NotNull ArenaGameEventType eventType) {
+    public void setEventType(@NotNull GameEventType eventType) {
         this.eventType = eventType;
     }
 

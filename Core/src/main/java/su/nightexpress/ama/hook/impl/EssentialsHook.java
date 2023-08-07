@@ -1,4 +1,4 @@
-package su.nightexpress.ama.hook.external;
+package su.nightexpress.ama.hook.impl;
 
 import com.earth2me.essentials.Essentials;
 import org.bukkit.Bukkit;

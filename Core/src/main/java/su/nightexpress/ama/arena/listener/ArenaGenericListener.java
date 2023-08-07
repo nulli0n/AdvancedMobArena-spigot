@@ -26,7 +26,6 @@ import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.type.GameState;
-import su.nightexpress.ama.api.type.PlayerType;
 import su.nightexpress.ama.arena.ArenaManager;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
@@ -132,6 +131,8 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onArenaMobSpawn(CreatureSpawnEvent e) {
         LivingEntity entity = e.getEntity();
+        if (entity.getType() == EntityType.ARMOR_STAND && MobsConfig.IGNORE_ARMOR_STANDS.get()) return;
+
         Location location = entity.getLocation();
         Arena arena = plugin.getArenaManager().getArenaAtLocation(location);
         if (arena == null/* || !arena.getConfig().isActive()*/) return;
@@ -376,7 +377,7 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
 
         // TODO option for ghosts and dead speak
 
-        e.getRecipients().retainAll(arena.getPlayers(PlayerType.ALL).stream().map(ArenaPlayer::getPlayer).toList());
+        e.getRecipients().retainAll(arena.getPlayers().all().stream().map(ArenaPlayer::getPlayer).toList());
 
         // TODO Do not use real chat I guess ?
         String format = Config.CHAT_FORMAT.get()

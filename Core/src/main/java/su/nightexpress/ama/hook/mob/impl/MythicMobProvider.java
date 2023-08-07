@@ -5,7 +5,7 @@ import org.bukkit.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.hook.HookId;
-import su.nightexpress.ama.hook.external.MythicMobsHook;
+import su.nightexpress.ama.hook.impl.MythicMobsHook;
 import su.nightexpress.ama.hook.mob.MobProvider;
 
 import java.util.List;

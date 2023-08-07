@@ -14,7 +14,7 @@ import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.Problematic;
-import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
+import su.nightexpress.ama.api.type.GameEventType;
 import su.nightexpress.ama.api.currency.Currency;
 import su.nightexpress.ama.api.event.ArenaShopEvent;
 import su.nightexpress.ama.arena.editor.shop.ShopManagerEditor;
@@ -74,7 +74,7 @@ public class ShopManager implements ConfigHolder, ArenaChild, Lockable, Loadable
         for (LockState lockState : LockState.values()) {
             // ----------- CONVERT SCRIPTS START -----------
             for (String eventRaw : config.getSection("Settings.State." + lockState.name() + ".Triggers")) {
-                ArenaGameEventType eventType = StringUtil.getEnum(eventRaw, ArenaGameEventType.class).orElse(null);
+                GameEventType eventType = StringUtil.getEnum(eventRaw, GameEventType.class).orElse(null);
                 if (eventType == null) continue;
 
                 String name = "shop_" + lockState.name().toLowerCase();
@@ -104,7 +104,7 @@ public class ShopManager implements ConfigHolder, ArenaChild, Lockable, Loadable
             for (LockState lockState : LockState.values()) {
                 // ----------- CONVERT SCRIPTS START -----------
                 for (String eventRaw : config.getSection(path + "State." + lockState.name() + ".Triggers")) {
-                    ArenaGameEventType eventType = StringUtil.getEnum(eventRaw, ArenaGameEventType.class).orElse(null);
+                    GameEventType eventType = StringUtil.getEnum(eventRaw, GameEventType.class).orElse(null);
                     if (eventType == null) continue;
 
                     String name = "shop_category_" + catId + "_" + lockState.name().toLowerCase();
@@ -144,7 +144,7 @@ public class ShopManager implements ConfigHolder, ArenaChild, Lockable, Loadable
                 for (LockState lockState : LockState.values()) {
                     // ----------- CONVERT SCRIPTS START -----------
                     for (String eventRaw : config.getSection(path2 + "State." + lockState.name() + ".Triggers")) {
-                        ArenaGameEventType eventType = StringUtil.getEnum(eventRaw, ArenaGameEventType.class).orElse(null);
+                        GameEventType eventType = StringUtil.getEnum(eventRaw, GameEventType.class).orElse(null);
                         if (eventType == null) continue;
 
                         String name = "shop_product_" + catId + "_" + prId + "_" + lockState.name().toLowerCase();
@@ -285,7 +285,7 @@ public class ShopManager implements ConfigHolder, ArenaChild, Lockable, Loadable
     public void setLockState(@NotNull LockState lockState) {
         this.lockState = lockState;
 
-        ArenaGameEventType eventType = this.isLocked() ? ArenaGameEventType.SHOP_LOCKED : ArenaGameEventType.SHOP_UNLOCKED;
+        GameEventType eventType = this.isLocked() ? GameEventType.SHOP_LOCKED : GameEventType.SHOP_UNLOCKED;
         ArenaShopEvent event = new ArenaShopEvent(this.getArena(), eventType);
         this.plugin().getPluginManager().callEvent(event);
     }

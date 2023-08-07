@@ -47,7 +47,7 @@ public abstract class ManageCommand extends AbstractCommand<AMA> {
 
     @Override
     public void onExecute(@NotNull CommandSender sender, @NotNull CommandResult result) {
-        if (result.length() < 5) {
+        if (result.length() < 4) {
             this.printUsage(sender);
             return;
         }

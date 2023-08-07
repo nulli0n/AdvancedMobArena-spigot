@@ -19,18 +19,15 @@ import su.nexmedia.engine.utils.random.Rnd;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.api.IArena;
-import su.nightexpress.ama.api.MobList;
-import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
+import su.nightexpress.ama.api.arena.IArena;
+import su.nightexpress.ama.api.arena.info.MobList;
+import su.nightexpress.ama.api.arena.info.PlayerList;
 import su.nightexpress.ama.api.arena.type.ArenaLocationType;
 import su.nightexpress.ama.api.arena.type.ArenaTargetType;
 import su.nightexpress.ama.api.event.*;
-import su.nightexpress.ama.api.type.MobFaction;
+import su.nightexpress.ama.api.type.*;
 import su.nightexpress.ama.arena.region.ArenaRegion;
 import su.nightexpress.ama.arena.region.ArenaRegionManager;
-import su.nightexpress.ama.api.type.GameResult;
-import su.nightexpress.ama.api.type.GameState;
-import su.nightexpress.ama.api.type.PlayerType;
 import su.nightexpress.ama.arena.util.ArenaUtils;
 import su.nightexpress.ama.arena.util.LobbyItem;
 import su.nightexpress.ama.arena.util.PlayerSnapshot;
@@ -54,19 +51,17 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Arena implements IArena, Placeholder {
 
-    private final AMA         plugin;
-    private final ArenaConfig config;
-    private final Set<ArenaPlayer>  players;
-    private final MobList mobs;
-    private final Set<Item>              groundItems;
-    private final Set<ArenaUpcomingWave> waveUpcoming;
-    private final Map<String, double[]>  waveAmplificatorValues; // [Amount, Level]
-    private final PlaceholderMap placeholderMap;
+    private final AMA                     plugin;
+    private final ArenaConfig             config;
+    private final MobList                 mobList;
+    private final PlayerList<ArenaPlayer> playerList;
+    private final Set<Item>               groundItems;
+    private final Set<ArenaUpcomingWave>  waveUpcoming;
+    private final Map<String, double[]>   waveAmplificatorValues; // [Amount, Level]
+    private final PlaceholderMap          placeholderMap;
 
     private GameState  state;
     private GameResult gameResult;
@@ -86,26 +81,25 @@ public class Arena implements IArena, Placeholder {
     private int skipRounds;
     private int roundTotalMobsAmount;
 
-    private static final DateTimeFormatter FORMAT_TIMELEFT = DateTimeFormatter.ofPattern("HH:mm:ss");
+    public static final DateTimeFormatter FORMAT_TIMELEFT = DateTimeFormatter.ofPattern("HH:mm:ss");
     // TODO Final Arena Stats Most Damager, Killer, etc
 
     public Arena(@NotNull ArenaConfig config) {
         this.plugin = config.plugin();
         this.config = config;
-        this.players = new HashSet<>();
-        this.mobs = new MobList();
-        //this.allyMobs = new HashSet<>();
+        this.mobList = new MobList();
+        this.playerList = new PlayerList<>();
         this.groundItems = new HashSet<>();
         this.waveUpcoming = new HashSet<>();
         this.waveAmplificatorValues = new HashMap<>();
 
         this.placeholderMap = new PlaceholderMap()
             .add(Placeholders.ARENA_STATE, () -> plugin().getLangManager().getEnum(this.getState()))
-            .add(Placeholders.ARENA_PLAYERS, () -> String.valueOf(this.getPlayers(PlayerType.REAL).size()))
-            .add(Placeholders.ARENA_REAL_PLAYERS, () -> String.valueOf(this.getPlayers(PlayerType.REAL).size()))
-            .add(Placeholders.ARENA_GHOST_PLAYERS, () -> String.valueOf(this.getPlayers(PlayerType.GHOST).size()))
-            .add(Placeholders.ARENA_DEAD_PLAYERS, () -> String.valueOf(this.getDeadPlayers().size()))
-            .add(Placeholders.ARENA_ALIVE_PLAYERS, () -> String.valueOf(this.getAlivePlayers().size()))
+            .add(Placeholders.ARENA_PLAYERS, () -> String.valueOf(this.getPlayers().select(PlayerType.REAL).size()))
+            .add(Placeholders.ARENA_REAL_PLAYERS, () -> String.valueOf(this.getPlayers().select(PlayerType.REAL).size()))
+            .add(Placeholders.ARENA_GHOST_PLAYERS, () -> String.valueOf(this.getPlayers().select(PlayerType.GHOST).size()))
+            .add(Placeholders.ARENA_DEAD_PLAYERS, () -> String.valueOf(this.getPlayers().getDead().size()))
+            .add(Placeholders.ARENA_ALIVE_PLAYERS, () -> String.valueOf(this.getPlayers().getAlive().size()))
             .add(Placeholders.ARENA_PLAYERS_MAX, () -> String.valueOf(this.getConfig().getGameplayManager().getPlayerMaxAmount()))
             .add(Placeholders.ARENA_MOBS_ALIVE, () -> String.valueOf(this.getMobs().getEnemies().size()))
             .add(Placeholders.ARENA_MOBS_LEFT, () -> String.valueOf(this.getMobsAwaitingSpawn()))
@@ -242,7 +236,7 @@ public class Arena implements IArena, Placeholder {
     @NotNull
     @Override
     public MobList getMobs() {
-        return this.mobs;
+        return this.mobList;
     }
 
     @NotNull
@@ -295,7 +289,7 @@ public class Arena implements IArena, Placeholder {
             }
         }
 
-        this.getPlayers(PlayerType.ALL).forEach(arenaPlayer -> {
+        this.getPlayers().all().forEach(arenaPlayer -> {
             if (!arenaPlayer.isGhost() && this.gameResult == GameResult.VICTORY) {
                 arenaPlayer.addStats(StatType.GAMES_WON, 1);
             }
@@ -323,7 +317,7 @@ public class Arena implements IArena, Placeholder {
 
     public void updateGameScore() {
         int oldScore = this.getGameScore();
-        int totalScore = this.getPlayers(GameState.INGAME, PlayerType.REAL).stream().mapToInt(ArenaPlayer::getScore).sum();
+        int totalScore = this.getPlayers().select(GameState.INGAME, PlayerType.REAL).stream().mapToInt(ArenaPlayer::getScore).sum();
         this.setGameScore(totalScore);
 
         ArenaScoreChangeEvent event = new ArenaScoreChangeEvent(this, oldScore, this.getGameScore());
@@ -366,7 +360,7 @@ public class Arena implements IArena, Placeholder {
         pos = Math.max(0, pos - 1);
 
         Map<ArenaPlayer, Integer> map = new HashMap<>();
-        for (ArenaPlayer arenaPlayer : this.getPlayers(GameState.INGAME, PlayerType.ALL)) {
+        for (ArenaPlayer arenaPlayer : this.getPlayers().select(GameState.INGAME)) {
             map.put(arenaPlayer, arenaPlayer.getScore());
         }
 
@@ -377,54 +371,12 @@ public class Arena implements IArena, Placeholder {
             }
         }
 
-        return new ArrayList<>(this.getPlayers(GameState.INGAME, PlayerType.ALL)).get(0);
+        return new ArrayList<>(this.getPlayers().select(GameState.INGAME)).get(0);
     }
 
     @NotNull
-    public Set<ArenaPlayer> getPlayers(@NotNull ArenaTargetType targetType, @NotNull PlayerType playerType) {
-        if (targetType == ArenaTargetType.PLAYER_ALL) return this.getPlayers(GameState.INGAME, playerType);
-        if (targetType == ArenaTargetType.PLAYER_RANDOM && !this.getPlayers(GameState.INGAME, playerType).isEmpty())
-            return Stream.of(Rnd.get(this.getPlayers(GameState.INGAME, playerType))).collect(Collectors.toSet());
-        return Collections.emptySet();
-    }
-
-    @NotNull
-    public Set<ArenaPlayer> getPlayers(@NotNull PlayerType playerType) {
-        Set<ArenaPlayer> players = new HashSet<>(this.players);
-        if (playerType == PlayerType.GHOST) {
-            players.removeIf(ArenaPlayer::isReal);
-        }
-        else if (playerType == PlayerType.REAL) {
-            players.removeIf(ArenaPlayer::isGhost);
-        }
-        return players;
-    }
-
-    @NotNull
-    public Set<ArenaPlayer> getPlayers(@NotNull GameState state, @NotNull PlayerType playerType) {
-        return this.getPlayers(playerType).stream().filter(arenaPlayer -> arenaPlayer.getState() == state).collect(Collectors.toSet());
-    }
-
-    @NotNull
-    public Set<ArenaPlayer> getDeadPlayers() {
-        return this.getPlayers(GameState.INGAME, PlayerType.REAL).stream().filter(ArenaPlayer::isDead).collect(Collectors.toSet());
-    }
-
-    @NotNull
-    public Set<ArenaPlayer> getAlivePlayers() {
-        return this.getPlayers(GameState.INGAME, PlayerType.REAL).stream().filter(Predicate.not(ArenaPlayer::isDead)).collect(Collectors.toSet());
-    }
-
-    @Override
-    @NotNull
-    public Set<Player> getAliveGamePlayers() {
-        return this.getAlivePlayers().stream().map(ArenaPlayer::getPlayer).collect(Collectors.toSet());
-    }
-
-    @Nullable
-    public ArenaPlayer getPlayerRandom() {
-        Set<ArenaPlayer> alive = this.getAlivePlayers();
-        return alive.isEmpty() ? null : Rnd.get(new ArrayList<>(alive));
+    public PlayerList<ArenaPlayer> getPlayers() {
+        return playerList;
     }
 
     public int getMobsAwaitingSpawn() {
@@ -459,22 +411,22 @@ public class Arena implements IArena, Placeholder {
             });
         }
 
-        ArenaGameEventType eventType = gameEvent.getEventType();
-        if (eventType == ArenaGameEventType.GAME_END_LOSE || eventType == ArenaGameEventType.GAME_END_TIME
-            || eventType == ArenaGameEventType.GAME_END_WIN || eventType == ArenaGameEventType.GAME_START
-            || eventType == ArenaGameEventType.PLAYER_JOIN || eventType == ArenaGameEventType.PLAYER_LEAVE) {
+        GameEventType eventType = gameEvent.getEventType();
+        if (eventType == GameEventType.GAME_END_LOSE || eventType == GameEventType.GAME_END_TIME
+            || eventType == GameEventType.GAME_END_WIN || eventType == GameEventType.GAME_START
+            || eventType == GameEventType.PLAYER_JOIN || eventType == GameEventType.PLAYER_LEAVE) {
             this.updateSigns();
             this.updateHolograms();
         }
 
-        if (gameEvent.getEventType() == ArenaGameEventType.REGION_UNLOCKED) {
+        if (gameEvent.getEventType() == GameEventType.REGION_UNLOCKED) {
             ArenaRegionEvent regionEvent = (ArenaRegionEvent) gameEvent;
             this.broadcast(ArenaTargetType.PLAYER_ALL, plugin.getMessage(Lang.ARENA_REGION_UNLOCKED_NOTIFY)
                 .replace(regionEvent.getArenaRegion().replacePlaceholders()));
             return;
         }
 
-        if (gameEvent.getEventType() == ArenaGameEventType.MOB_KILLED) {
+        if (gameEvent.getEventType() == GameEventType.MOB_KILLED) {
 
             if (gameEvent instanceof ArenaMobDeathEvent mobDeathEvent) {
                 this.getMobs().remove(mobDeathEvent.getEntity());
@@ -525,7 +477,7 @@ public class Arena implements IArena, Placeholder {
         if (this.getState() == GameState.INGAME) return;
 
         if (this.getState() == GameState.WAITING) {
-            if (this.getPlayers(PlayerType.REAL).size() >= this.getConfig().getGameplayManager().getPlayerMinAmount()) {
+            if (this.getPlayers().select(PlayerType.REAL).size() >= this.getConfig().getGameplayManager().getPlayerMinAmount()) {
                 this.setState(GameState.READY);
 
                 if (this.getConfig().getGameplayManager().isAnnouncesEnabled()) {
@@ -539,7 +491,7 @@ public class Arena implements IArena, Placeholder {
 
         if (this.getState() != GameState.READY) return;
 
-        if (this.getPlayers(PlayerType.REAL).size() < this.getConfig().getGameplayManager().getPlayerMinAmount()) {
+        if (this.getPlayers().select(PlayerType.REAL).size() < this.getConfig().getGameplayManager().getPlayerMinAmount()) {
             this.setState(GameState.WAITING);
             this.setLobbyCountdown(this.getConfig().getGameplayManager().getLobbyTime());
             this.updateSigns();
@@ -547,7 +499,7 @@ public class Arena implements IArena, Placeholder {
         }
 
         int lobbyCountdown = this.getLobbyCountdown();
-        boolean allReady = this.getPlayers(PlayerType.REAL).stream().allMatch(ArenaPlayer::isReady);
+        boolean allReady = this.getPlayers().select(PlayerType.REAL).stream().allMatch(ArenaPlayer::isReady);
         if (Config.LOBBY_READY_DROP_TIMER.get() > 0) {
             if (allReady) {
                 if (lobbyCountdown > Config.LOBBY_READY_DROP_TIMER.get()) {
@@ -563,7 +515,7 @@ public class Arena implements IArena, Placeholder {
         }
 
         if (lobbyCountdown <= 0) {
-            this.getPlayers(PlayerType.REAL).forEach(this::joinGame);
+            this.getPlayers().select(PlayerType.REAL).forEach(this::joinGame);
             this.setState(GameState.INGAME);
 
             ArenaGameStartEvent event = new ArenaGameStartEvent(this);
@@ -572,7 +524,7 @@ public class Arena implements IArena, Placeholder {
         }
 
         if (lobbyCountdown % 15 == 0 || lobbyCountdown % 10 == 0 || lobbyCountdown <= 10) {
-            for (ArenaPlayer arenaPlayer : this.getPlayers(PlayerType.ALL)) {
+            for (ArenaPlayer arenaPlayer : this.getPlayers().all()) {
                 plugin().getMessage(Lang.Arena_Game_Lobby_Timer).replace(Placeholders.GENERIC_TIME, lobbyCountdown).send(arenaPlayer.getPlayer());
             }
         }
@@ -634,8 +586,8 @@ public class Arena implements IArena, Placeholder {
                 plugin.getPluginManager().callEvent(event);
 
                 // Join all late joined players at the start of the new round and revive dead ones.
-                this.getDeadPlayers().forEach(ArenaPlayer::revive);
-                this.getPlayers(GameState.READY, PlayerType.REAL).forEach(this::joinGame);
+                this.getPlayers().getDead().forEach(ArenaPlayer::revive);
+                this.getPlayers().select(GameState.READY, PlayerType.REAL).forEach(this::joinGame);
 
                 if (this.isLatestWave()) {
                     this.setEndCountdown(Config.ARENA_END_COUNTDOWN_VICTORY.get(), GameResult.VICTORY);
@@ -652,13 +604,13 @@ public class Arena implements IArena, Placeholder {
     }
 
     private boolean tickPlayers() {
-        if (this.getAlivePlayers().isEmpty() && this.getDeadPlayers().stream().noneMatch(ArenaPlayer::isAutoRevive)) {
+        if (!this.getPlayers().hasAlive() && this.getPlayers().getDead().stream().noneMatch(ArenaPlayer::isAutoRevive)) {
             this.setEndCountdown(Config.ARENA_END_COUNTDOWN_DEFEAT.get(), GameResult.DEFEAT);
             this.broadcast(plugin.getMessage(Lang.ARENA_GAME_END_ALL_DEAD).replace(this.replacePlaceholders()));
             return false;
         }
 
-        for (ArenaPlayer arenaPlayer : this.getPlayers(GameState.INGAME, PlayerType.ALL)) {
+        for (ArenaPlayer arenaPlayer : this.getPlayers().select(GameState.INGAME)) {
             arenaPlayer.tick();
 
             // Notify if player region is inactive anymore.
@@ -716,7 +668,7 @@ public class Arena implements IArena, Placeholder {
         else {
             message = plugin.getMessage(Lang.ARENA_GAME_STATUS_ROUND_ACTIVE).replace(this.replacePlaceholders());
         }
-        this.getAlivePlayers().forEach(arenaPlayer -> message.send(arenaPlayer.getPlayer()));
+        this.getPlayers().getAlive().forEach(arenaPlayer -> message.send(arenaPlayer.getPlayer()));
     }
 
     public boolean checkJoinRequirements(@NotNull Arena arena, @NotNull Player player) {
@@ -739,7 +691,6 @@ public class Arena implements IArena, Placeholder {
     }
 
     public boolean canJoin(@NotNull Player player, boolean notify) {
-        // Check if arena is enabled.
         ArenaConfig config = this.getConfig();
         if (!config.isActive() || config.hasProblems()) {
             if (notify) plugin.getMessage(Lang.ARENA_ERROR_DISABLED).replace(this.replacePlaceholders()).send(player);
@@ -751,20 +702,17 @@ public class Arena implements IArena, Placeholder {
             return false;
         }
 
-        // Check if arena is in-game.
         if (this.getState() == GameState.INGAME && !player.hasPermission(Perms.BYPASS_ARENA_JOIN_INGAME)) {
             if (notify) plugin.getMessage(Lang.ARENA_JOIN_ERROR_STARTED).replace(this.replacePlaceholders()).send(player);
             return false;
         }
 
-        // Check for max. players.
         int playerMax = config.getGameplayManager().getPlayerMaxAmount();
-        if (playerMax > 0 && this.getPlayers(PlayerType.REAL).size() >= playerMax) {
+        if (playerMax > 0 && this.getPlayers().select(PlayerType.REAL).size() >= playerMax) {
             if (notify) plugin.getMessage(Lang.ARENA_JOIN_ERROR_MAXIMUM).send(player);
             return false;
         }
 
-        // Check for permission.
         if (this.getConfig().isPermissionRequired() && !this.hasPermission(player)) {
             if (notify) plugin.getMessage(Lang.ARENA_JOIN_ERROR_PERMISSION).send(player);
             return false;
@@ -831,11 +779,11 @@ public class Arena implements IArena, Placeholder {
         // Send messages
         plugin().getMessage(Lang.Arena_Game_Lobby_Enter).replace(this.replacePlaceholders()).send(player);
 
-        this.getPlayers(PlayerType.ALL).forEach(lobbyPlayer -> {
+        this.getPlayers().all().forEach(lobbyPlayer -> {
             plugin().getMessage(Lang.Arena_Game_Lobby_Joined).replace(arenaPlayer.replacePlaceholders()).send(lobbyPlayer.getPlayer());
         });
 
-        this.players.add(arenaPlayer);
+        this.getPlayers().add(arenaPlayer);
         this.payJoinRequirements(this, player);
         this.updateSigns();
 
@@ -843,13 +791,13 @@ public class Arena implements IArena, Placeholder {
         if (this.getState() == GameState.INGAME) return true;
 
         int minPlayers = this.getConfig().getGameplayManager().getPlayerMinAmount();
-        int players = this.getPlayers(PlayerType.REAL).size();
+        int players = this.getPlayers().select(PlayerType.REAL).size();
 
         if (players == 1) {
             this.setLobbyCountdown(this.getConfig().getGameplayManager().getLobbyTime());
         }
         if (players < minPlayers) {
-            this.getPlayers(PlayerType.ALL).forEach(lobbyPlayer -> {
+            this.getPlayers().all().forEach(lobbyPlayer -> {
                 plugin().getMessage(Lang.Arena_Game_Lobby_MinPlayers).replace("%min%", minPlayers).send(lobbyPlayer.getPlayer());
             });
         }
@@ -957,7 +905,7 @@ public class Arena implements IArena, Placeholder {
 
         player.teleport(this.getConfig().getLocation(ArenaLocationType.SPECTATE));
         this.plugin.getMessage(Lang.ARENA_JOIN_SPECTATE_SUCCESS).replace(this.replacePlaceholders()).send(player);
-        this.players.add(arenaPlayer);
+        this.getPlayers().add(arenaPlayer);
 
         PlayerSnapshot.clear(player);
         player.setGameMode(GameMode.SPECTATOR);
@@ -971,12 +919,11 @@ public class Arena implements IArena, Placeholder {
         }
 
         Player player = arenaPlayer.getPlayer();
-        player.closeInventory();                // In case if player have opened any arena GUIs.
-
+        player.closeInventory();
         arenaPlayer.setTransfer(true);
-        arenaPlayer.removeBoard();                // Remove scoreboard.
+        arenaPlayer.removeBoard();
         ArenaUtils.removeMobBossBars(player);
-        this.players.remove(arenaPlayer);        // Remove player from the arena.
+        this.getPlayers().remove(arenaPlayer);
 
         if (!this.isAboutToEnd() && !this.getConfig().getRewardManager().isRetainOnLeave()) {
             arenaPlayer.getRewards().clear();
@@ -998,23 +945,25 @@ public class Arena implements IArena, Placeholder {
     }
 
     public void broadcast(@NotNull LangMessage message) {
-        this.broadcast(PlayerType.ALL, message);
+        this.getPlayers().all().forEach(arenaPlayer -> {
+            message.send(arenaPlayer.getPlayer());
+        });
     }
 
     public void broadcast(@NotNull PlayerType playerType, @NotNull LangMessage message) {
-        this.getPlayers(playerType).forEach(arenaPlayer -> {
+        this.getPlayers().select(playerType).forEach(arenaPlayer -> {
             message.send(arenaPlayer.getPlayer());
         });
     }
 
     public void broadcast(@NotNull ArenaTargetType targetType, @NotNull LangMessage message) {
-        this.getPlayers(targetType, PlayerType.ALL).forEach(arenaPlayer -> {
+        this.getPlayers().select(targetType).forEach(arenaPlayer -> {
             message.send(arenaPlayer.getPlayer());
         });
     }
 
     public void broadcast(@NotNull ArenaTargetType targetType, @NotNull String message) {
-        this.getPlayers(targetType, PlayerType.ALL).forEach(arenaPlayer -> {
+        this.getPlayers().select(targetType).forEach(arenaPlayer -> {
             arenaPlayer.getPlayer().sendMessage(message);
         });
     }
@@ -1025,7 +974,7 @@ public class Arena implements IArena, Placeholder {
             return;
         }
 
-        this.getPlayers(targetType, PlayerType.REAL).forEach(arenaPlayer -> {
+        this.getPlayers().select(targetType, PlayerType.REAL).forEach(arenaPlayer -> {
             PlayerUtil.dispatchCommand(arenaPlayer.getPlayer(), command);
         });
     }
@@ -1071,6 +1020,9 @@ public class Arena implements IArena, Placeholder {
 
     public void killMobs(@NotNull MobFaction faction) {
         this.getMobs().removeAll(faction);
+        if (faction == MobFaction.ENEMY) {
+            this.getPlayers().all().forEach(arenaPlayer -> ArenaUtils.removeMobBossBars(arenaPlayer.getPlayer()));
+        }
     }
 
     public void injectWave(@NotNull ArenaUpcomingWave wave) {
@@ -1100,7 +1052,7 @@ public class Arena implements IArena, Placeholder {
 
         // Move all players that are outside of the active region to the first active one.
         ArenaRegion regionActive = this.getConfig().getRegionManager().getFirstUnlocked();
-        this.getPlayers(GameState.INGAME, PlayerType.REAL).forEach(arenaPlayer -> {
+        this.getPlayers().select(GameState.INGAME, PlayerType.REAL).forEach(arenaPlayer -> {
             arenaPlayer.addStats(StatType.WAVES_PASSED, 1);
 
             ArenaRegion regionPlayer = arenaPlayer.getRegion();
@@ -1133,7 +1085,7 @@ public class Arena implements IArena, Placeholder {
 
         this.updateHolograms();
 
-        this.getPlayers(PlayerType.ALL).stream().map(ArenaPlayer::getPlayer).forEach(player -> {
+        this.getPlayers().all().stream().map(ArenaPlayer::getPlayer).forEach(player -> {
             plugin().getMessage(Lang.Arena_Game_Wave_Start).replace(this.replacePlaceholders()).send(player);
         });
     }

@@ -52,7 +52,7 @@ public class ArenaUtils {
     }
 
     public static void addMobBossBar(@NotNull Arena arena, @NotNull LivingEntity mob, @NotNull BossBar bossBar) {
-        arena.getPlayers(PlayerType.REAL).stream().map(ArenaPlayer::getPlayer).forEach(bossBar::addPlayer);
+        arena.getPlayers().select(PlayerType.REAL).stream().map(ArenaPlayer::getPlayer).forEach(bossBar::addPlayer);
         MOB_BARS.put(mob.getUniqueId(), bossBar);
     }
 

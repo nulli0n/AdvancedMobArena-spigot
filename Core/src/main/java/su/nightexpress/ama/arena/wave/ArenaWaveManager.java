@@ -13,7 +13,7 @@ import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.Problematic;
-import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
+import su.nightexpress.ama.api.type.GameEventType;
 import su.nightexpress.ama.arena.editor.wave.WaveManagerEditor;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.arena.script.action.ParameterResult;
@@ -88,7 +88,7 @@ public class ArenaWaveManager implements ArenaChild, ConfigHolder, Loadable, Pro
 
             // ----------- CONVERT SCRIPTS START -----------
             for (String eventRaw : config.getSection(path2 + "Triggers")) {
-                ArenaGameEventType eventType = StringUtil.getEnum(eventRaw, ArenaGameEventType.class).orElse(null);
+                GameEventType eventType = StringUtil.getEnum(eventRaw, GameEventType.class).orElse(null);
                 if (eventType == null) continue;
 
                 String sName = "amplifier_" + ampId;

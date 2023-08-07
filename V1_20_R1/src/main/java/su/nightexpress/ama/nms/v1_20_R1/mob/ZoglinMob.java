@@ -14,7 +14,7 @@ import net.minecraft.world.entity.monster.Zoglin;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.schedule.Activity;
 import org.jetbrains.annotations.NotNull;
-import su.nightexpress.ama.api.IArena;
+import su.nightexpress.ama.api.arena.IArena;
 import su.nightexpress.ama.api.type.MobFaction;
 import su.nightexpress.ama.nms.ArenaMob;
 import su.nightexpress.ama.nms.v1_20_R1.brain.MobAI;

@@ -1,7 +1,7 @@
 package su.nightexpress.ama.api.event;
 
 import org.jetbrains.annotations.NotNull;
-import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
+import su.nightexpress.ama.api.type.GameEventType;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.region.ArenaRegion;
 
@@ -11,7 +11,7 @@ public class ArenaRegionEvent extends ArenaGameGenericEvent {
 
     public ArenaRegionEvent(
         @NotNull Arena arena,
-        @NotNull ArenaGameEventType eventType,
+        @NotNull GameEventType eventType,
         @NotNull ArenaRegion arenaRegion
     ) {
         super(arena, eventType);

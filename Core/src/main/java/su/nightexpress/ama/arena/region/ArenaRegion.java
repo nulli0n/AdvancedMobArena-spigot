@@ -18,7 +18,7 @@ import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.Problematic;
-import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
+import su.nightexpress.ama.api.type.GameEventType;
 import su.nightexpress.ama.api.event.ArenaRegionEvent;
 import su.nightexpress.ama.api.hologram.HologramHolder;
 import su.nightexpress.ama.api.hologram.HologramType;
@@ -105,7 +105,7 @@ public class ArenaRegion extends AbstractConfigHolder<AMA> implements ArenaChild
         for (LockState lockState : LockState.values()) {
             // ----------- CONVERT SCRIPTS START -----------
             for (String eventRaw : cfg.getSection(path + lockState.name() + ".Triggers")) {
-                ArenaGameEventType eventType = StringUtil.getEnum(eventRaw, ArenaGameEventType.class).orElse(null);
+                GameEventType eventType = StringUtil.getEnum(eventRaw, GameEventType.class).orElse(null);
                 if (eventType == null) continue;
 
                 String name = "region_" + this.getId() + "_" + lockState.name().toLowerCase();
@@ -140,7 +140,7 @@ public class ArenaRegion extends AbstractConfigHolder<AMA> implements ArenaChild
 
             // ----------- CONVERT SCRIPTS START -----------
             for (String eventRaw : cfg.getSection(path2 + "Triggers")) {
-                ArenaGameEventType eventType = StringUtil.getEnum(eventRaw, ArenaGameEventType.class).orElse(null);
+                GameEventType eventType = StringUtil.getEnum(eventRaw, GameEventType.class).orElse(null);
                 if (eventType == null) continue;
 
                 String name = "region_" + this.getId() + "_spawn_wave_" + sId;
@@ -176,7 +176,7 @@ public class ArenaRegion extends AbstractConfigHolder<AMA> implements ArenaChild
 
             // ----------- CONVERT SCRIPTS START -----------
             for (String eventRaw : cfg.getSection(path2 + "Refill.Triggers")) {
-                ArenaGameEventType eventType = StringUtil.getEnum(eventRaw, ArenaGameEventType.class).orElse(null);
+                GameEventType eventType = StringUtil.getEnum(eventRaw, GameEventType.class).orElse(null);
                 if (eventType == null) continue;
 
                 String name = "refill_supply_chest_" + sId;
@@ -267,7 +267,7 @@ public class ArenaRegion extends AbstractConfigHolder<AMA> implements ArenaChild
 
     @NotNull
     public Set<ArenaPlayer> getPlayers() {
-        return this.getArena().getPlayers(GameState.INGAME, PlayerType.REAL).stream().filter(arenaPlayer -> {
+        return this.getArena().getPlayers().select(GameState.INGAME, PlayerType.REAL).stream().filter(arenaPlayer -> {
             return this.equals(arenaPlayer.getRegion());
         }).collect(Collectors.toSet());
     }
@@ -298,7 +298,7 @@ public class ArenaRegion extends AbstractConfigHolder<AMA> implements ArenaChild
 
         this.lockState = lockState;
 
-        ArenaGameEventType eventType = this.isLocked() ? ArenaGameEventType.REGION_LOCKED : ArenaGameEventType.REGION_UNLOCKED;
+        GameEventType eventType = this.isLocked() ? GameEventType.REGION_LOCKED : GameEventType.REGION_UNLOCKED;
         ArenaRegionEvent regionEvent = new ArenaRegionEvent(this.getArena(), eventType, this);
         this.plugin.getPluginManager().callEvent(regionEvent);
 

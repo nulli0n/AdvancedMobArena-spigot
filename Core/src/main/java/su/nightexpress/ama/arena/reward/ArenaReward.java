@@ -84,7 +84,7 @@ public class ArenaReward implements ArenaChild, Placeholder {
     }
 
     public void give(@NotNull Arena arena, ArenaTargetType targetType) {
-        arena.getPlayers(targetType, PlayerType.REAL).forEach(arenaPlayer -> {
+        arena.getPlayers().select(targetType, PlayerType.REAL).forEach(arenaPlayer -> {
             if (this.isLate()) {
                 arenaPlayer.getRewards().add(this);
             }

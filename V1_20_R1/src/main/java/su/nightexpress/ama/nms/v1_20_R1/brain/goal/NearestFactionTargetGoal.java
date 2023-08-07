@@ -9,7 +9,7 @@ import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.utils.random.Rnd;
-import su.nightexpress.ama.api.IArena;
+import su.nightexpress.ama.api.arena.IArena;
 import su.nightexpress.ama.api.type.MobFaction;
 
 import javax.annotation.Nullable;
@@ -45,8 +45,8 @@ public class NearestFactionTargetGoal<T extends LivingEntity> extends TargetGoal
     protected void findTarget() {
         Set<LivingEntity> targetList = new HashSet<>();
         if (this.faction == MobFaction.ENEMY) {
-            targetList.addAll(this.arena.getAliveGamePlayers().stream()
-                .map(player -> ((CraftPlayer)player).getHandle()).collect(Collectors.toSet()));
+            targetList.addAll(this.arena.getPlayers().getAlive().stream()
+                .map(player -> ((CraftPlayer)player.getPlayer()).getHandle()).collect(Collectors.toSet()));
             targetList.addAll(this.arena.getMobs().getAllies().stream()
                 .map(entity -> ((CraftLivingEntity)entity).getHandle()).collect(Collectors.toSet()));
         }

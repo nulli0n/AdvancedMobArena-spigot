@@ -13,11 +13,10 @@ import net.minecraft.world.item.ProjectileWeaponItem;
 import org.bukkit.craftbukkit.v1_20_R1.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory;
-import org.bukkit.entity.Entity;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.utils.random.Rnd;
-import su.nightexpress.ama.api.IArena;
+import su.nightexpress.ama.api.arena.IArena;
 import su.nightexpress.ama.api.type.MobFaction;
 import su.nightexpress.ama.nms.ArenaMob;
 import su.nightexpress.ama.nms.v1_20_R1.brain.MobAI;
@@ -48,8 +47,8 @@ public class MobFightBehaviors {
                         MobFaction faction = arenaMob.getFaction();
                         Set<LivingEntity> targetList = new HashSet<>();
                         if (faction == MobFaction.ENEMY) {
-                            targetList.addAll(arena.getAliveGamePlayers().stream()
-                                .map(player -> ((CraftPlayer)player).getHandle()).collect(Collectors.toSet()));
+                            targetList.addAll(arena.getPlayers().getAlive().stream()
+                                .map(player -> ((CraftPlayer)player.getPlayer()).getHandle()).collect(Collectors.toSet()));
                             targetList.addAll(arena.getMobs().getAllies().stream()
                                 .map(entity -> ((CraftLivingEntity)entity).getHandle()).collect(Collectors.toSet()));
                         }
@@ -124,7 +123,7 @@ public class MobFightBehaviors {
                     if (!(mob instanceof ArenaMob arenaMob)) return true;
 
                     LivingEntity target = instance.get(attackTarget);
-                    Set<UUID> players = arenaMob.getArena().getAliveGamePlayers().stream().map(Entity::getUniqueId).collect(Collectors.toSet());
+                    Set<UUID> players = arenaMob.getArena().getPlayers().getAlive().stream().map(p -> p.getPlayer().getUniqueId()).collect(Collectors.toSet());
                     if (!players.contains(target.getUUID())) {
                         MobAI.setAvoidTargetAndDontHuntForAWhile(pet, target);
                         return true;

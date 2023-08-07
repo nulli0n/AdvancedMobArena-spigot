@@ -29,6 +29,9 @@ public class MobsConfig {
         "Placeholders: " + Placeholders.MOB_NAME + ", " + Placeholders.MOB_LEVEL + ", " + Placeholders.MOB_HEALTH + ", " + Placeholders.MOB_HEALTH_MAX
     ).mapReader(Colorizer::apply);
 
+    public static final JOption<Boolean> IGNORE_ARMOR_STANDS = JOption.create("Mobs.Ignore_Armor_Stands", false,
+        "When enabled, completely ignores Armor Stands in entity spawn events, so they not restricted not counted as a part of arenas.");
+
     public static final JOption<Set<EntityType>> ALLY_FROM_EGGS = JOption.forSet("Mobs.Ally_From_Eggs",
         (raw) -> StringUtil.getEnum(raw, EntityType.class).orElse(null),
         Set.of(EntityType.SNOWMAN, EntityType.IRON_GOLEM, EntityType.WOLF),

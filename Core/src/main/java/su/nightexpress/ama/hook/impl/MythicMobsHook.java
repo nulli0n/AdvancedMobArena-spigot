@@ -1,4 +1,4 @@
-package su.nightexpress.ama.hook.external;
+package su.nightexpress.ama.hook.impl;
 
 import io.lumine.mythic.api.exceptions.InvalidMobTypeException;
 import io.lumine.mythic.api.mobs.MythicMob;

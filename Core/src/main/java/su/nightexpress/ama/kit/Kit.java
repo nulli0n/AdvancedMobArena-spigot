@@ -426,7 +426,7 @@ public class Kit extends AbstractConfigHolder<AMA> implements ConfigHolder, Holo
         // Check for limit
         int limitMax = arena.getConfig().getGameplayManager().getKitLimit(this.getId());
         if (limitMax >= 0) {
-            int limitHas = (int) arena.getPlayers(PlayerType.REAL).stream()
+            int limitHas = (int) arena.getPlayers().select(PlayerType.REAL).stream()
                 .filter(arenaPlayer1 -> arenaPlayer1.getKit() != null && arenaPlayer1.getKit().equals(this)).count();
             if (limitHas >= limitMax) {
                 if (isMsg) plugin.getMessage(Lang.Kit_Select_Error_Limit).send(player);

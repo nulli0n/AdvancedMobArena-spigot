@@ -5,7 +5,7 @@ import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.AbstractConfigHolder;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.api.arena.ArenaChild;
-import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
+import su.nightexpress.ama.api.type.GameEventType;
 import su.nightexpress.ama.arena.editor.script.ScriptsCategoryEditor;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.arena.script.action.ScriptPreparedAction;
@@ -30,7 +30,7 @@ public class ScriptCategory extends AbstractConfigHolder<AMA> implements ArenaCh
     public boolean load() {
         for (String scriptId : cfg.getSection("")) {
             String path2 = scriptId + ".";
-            ArenaGameEventType eventType = cfg.getEnum(path2 + "Event", ArenaGameEventType.class);
+            GameEventType eventType = cfg.getEnum(path2 + "Event", GameEventType.class);
             if (eventType == null) {
                 this.plugin().warn("Invalid event type in '" + scriptId + "' arena script.");
                 continue;
@@ -119,7 +119,7 @@ public class ScriptCategory extends AbstractConfigHolder<AMA> implements ArenaCh
     public boolean createScript(@NotNull String id) {
         if (this.getScript(id).isPresent()) return false;
 
-        ArenaScript script = new ArenaScript(this.getArenaConfig(), id, ArenaGameEventType.WAVE_START);
+        ArenaScript script = new ArenaScript(this.getArenaConfig(), id, GameEventType.WAVE_START);
         this.getScriptsMap().put(script.getId(), script);
         return true;
     }

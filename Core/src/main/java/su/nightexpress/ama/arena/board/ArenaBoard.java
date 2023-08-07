@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.utils.EngineUtils;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
-import su.nightexpress.ama.hook.external.ProtocolLibHook;
+import su.nightexpress.ama.hook.impl.ProtocolLibHook;
 
 import java.util.*;
 

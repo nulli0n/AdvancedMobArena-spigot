@@ -1,6 +1,6 @@
-package su.nightexpress.ama.api.arena.type;
+package su.nightexpress.ama.api.type;
 
-public enum ArenaGameEventType {
+public enum GameEventType {
     GAME_START, GAME_END_WIN, GAME_END_LOSE, GAME_END_TIME,
     WAVE_START, WAVE_END,
     SHOP_LOCKED, SHOP_UNLOCKED,

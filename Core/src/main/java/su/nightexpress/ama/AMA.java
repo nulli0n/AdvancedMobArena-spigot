@@ -8,7 +8,7 @@ import su.nexmedia.engine.api.command.GeneralCommand;
 import su.nexmedia.engine.api.data.UserDataHolder;
 import su.nexmedia.engine.command.list.ReloadSubCommand;
 import su.nexmedia.engine.utils.EngineUtils;
-import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
+import su.nightexpress.ama.api.type.GameEventType;
 import su.nightexpress.ama.api.arena.type.ArenaTargetType;
 import su.nightexpress.ama.api.hologram.HologramType;
 import su.nightexpress.ama.api.hologram.IHologramHandler;
@@ -29,8 +29,8 @@ import su.nightexpress.ama.hologram.HologramManager;
 import su.nightexpress.ama.hologram.handler.HologramDecentHandler;
 import su.nightexpress.ama.hologram.handler.HologramDisplaysHandler;
 import su.nightexpress.ama.hook.HookId;
-import su.nightexpress.ama.hook.external.McMMOHook;
-import su.nightexpress.ama.hook.external.PlaceholderHook;
+import su.nightexpress.ama.hook.impl.McMMOHook;
+import su.nightexpress.ama.hook.impl.PlaceholderHook;
 import su.nightexpress.ama.hook.level.PluginLevelProvider;
 import su.nightexpress.ama.hook.level.impl.MMOCorePlayerLevelProvider;
 import su.nightexpress.ama.hook.mob.PluginMobProvider;
@@ -60,9 +60,9 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
     private ArenaSetupManager arenaSetupManager;
     private MobManager        mobManager;
     private KitManager        kitManager;
-    private StatsManager statsManager;
-    private EditorHub    editorHub;
-    private SignManager  signManager;
+    private StatsManager      statsManager;
+    private EditorHub         editorHub;
+    private SignManager       signManager;
     private HologramManager   hologramManager;
 
     private ArenaNMS arenaNMS;
@@ -185,7 +185,7 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
         this.getLangManager().loadEditor(EditorLocales.class);
         this.getLangManager().loadEnum(GameState.class);
         this.getLangManager().loadEnum(LockState.class);
-        this.getLangManager().loadEnum(ArenaGameEventType.class);
+        this.getLangManager().loadEnum(GameEventType.class);
         this.getLangManager().loadEnum(ArenaTargetType.class);
         this.getLangManager().loadEnum(StatType.class);
         this.getLangManager().loadEnum(HologramType.class);
@@ -200,7 +200,7 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
             McMMOHook.setup();
         }
         if (EngineUtils.hasPlaceholderAPI()) {
-            PlaceholderHook.setup();
+            PlaceholderHook.setup(this);
         }
         if (EngineUtils.hasPlugin(HookId.MMOCORE)) {
             PluginLevelProvider.registerProvider(new MMOCorePlayerLevelProvider());

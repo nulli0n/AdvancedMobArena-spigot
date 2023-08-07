@@ -14,8 +14,8 @@ import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.config.Config;
 import su.nightexpress.ama.hook.HookId;
-import su.nightexpress.ama.hook.external.EssentialsHook;
-import su.nightexpress.ama.hook.external.SunLightHook;
+import su.nightexpress.ama.hook.impl.EssentialsHook;
+import su.nightexpress.ama.hook.impl.SunLightHook;
 
 import java.util.Collection;
 import java.util.HashMap;

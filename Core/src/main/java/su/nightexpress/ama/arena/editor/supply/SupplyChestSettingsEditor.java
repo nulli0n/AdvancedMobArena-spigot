@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -54,7 +55,7 @@ public class SupplyChestSettingsEditor extends EditorMenu<AMA, ArenaSupplyChest>
 
         this.addItem(Material.COMPASS, EditorLocales.SUPPLY_CHEST_LOCATION, 13).setClick((viewer, event) -> {
             this.handleInput(viewer, Lang.EDITOR_SUPPLY_CHEST_SET_CONTAINER, wrapper -> {
-                return wrapper.asInt() == 13;
+                return wrapper.getTextRaw().equalsIgnoreCase(container.getId());
             });
         });
 
@@ -82,6 +83,8 @@ public class SupplyChestSettingsEditor extends EditorMenu<AMA, ArenaSupplyChest>
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onBlockClick(PlayerInteractEvent e) {
+        if (e.getAction() != Action.LEFT_CLICK_BLOCK) return;
+
         Player player = e.getPlayer();
 
         InputHandler handler = EditorManager.getInputHandler(player);
@@ -90,7 +93,7 @@ public class SupplyChestSettingsEditor extends EditorMenu<AMA, ArenaSupplyChest>
         Block block = e.getClickedBlock();
         if (block == null) return;
 
-        if (handler.handle(new InputWrapper("13"))) {
+        if (handler.handle(new InputWrapper(this.object.getId()))) {
             e.setUseInteractedBlock(Event.Result.DENY);
             e.setUseItemInHand(Event.Result.DENY);
 

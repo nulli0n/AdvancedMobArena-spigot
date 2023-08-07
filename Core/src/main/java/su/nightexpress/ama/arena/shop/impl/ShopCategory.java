@@ -12,7 +12,7 @@ import su.nexmedia.engine.utils.ItemUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
-import su.nightexpress.ama.api.arena.type.ArenaGameEventType;
+import su.nightexpress.ama.api.type.GameEventType;
 import su.nightexpress.ama.api.currency.Currency;
 import su.nightexpress.ama.api.event.ArenaShopCategoryEvent;
 import su.nightexpress.ama.arena.editor.shop.ShopCategorySettingsEditor;
@@ -186,7 +186,7 @@ public class ShopCategory implements ArenaChild, Lockable, Placeholder {
     public void setLockState(@NotNull LockState lockState) {
         this.lockState = lockState;
 
-        ArenaGameEventType eventType = this.isLocked() ? ArenaGameEventType.SHOP_CATEGORY_LOCKED : ArenaGameEventType.SHOP_CATEGORY_UNLOCKED;
+        GameEventType eventType = this.isLocked() ? GameEventType.SHOP_CATEGORY_LOCKED : GameEventType.SHOP_CATEGORY_UNLOCKED;
         ArenaShopCategoryEvent event = new ArenaShopCategoryEvent(this.getArena(), this, eventType);
         this.plugin().getPluginManager().callEvent(event);
     }
