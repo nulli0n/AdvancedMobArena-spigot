@@ -37,6 +37,10 @@ import su.nightexpress.ama.hook.mob.PluginMobProvider;
 import su.nightexpress.ama.hook.mob.impl.BossManiaProvider;
 import su.nightexpress.ama.hook.mob.impl.EliteMobsProvider;
 import su.nightexpress.ama.hook.mob.impl.MythicMobProvider;
+import su.nightexpress.ama.hook.pet.PluginPetProvider;
+import su.nightexpress.ama.hook.pet.impl.AdvancedPetsProvider;
+import su.nightexpress.ama.hook.pet.impl.CombatPetsProvider;
+import su.nightexpress.ama.hook.pet.impl.MCPetsProvider;
 import su.nightexpress.ama.kit.KitManager;
 import su.nightexpress.ama.mob.MobManager;
 import su.nightexpress.ama.mob.style.MobStyleType;
@@ -213,6 +217,15 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
         }
         if (EngineUtils.hasPlugin(HookId.BOSS_MANIA)) {
             PluginMobProvider.registerProvider(new BossManiaProvider());
+        }
+        if (EngineUtils.hasPlugin(HookId.ADVANCED_PETS)) {
+            PluginPetProvider.registerProvider(new AdvancedPetsProvider());
+        }
+        if (EngineUtils.hasPlugin(HookId.MC_PETS)) {
+            PluginPetProvider.registerProvider(new MCPetsProvider());
+        }
+        if (EngineUtils.hasPlugin(HookId.COMBAT_PETS)) {
+            PluginPetProvider.registerProvider(new CombatPetsProvider());
         }
     }
 

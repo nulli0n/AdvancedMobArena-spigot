@@ -11,6 +11,7 @@ import su.nightexpress.ama.api.ArenaAPI;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.api.type.PlayerType;
+import su.nightexpress.ama.hook.pet.PluginPetProvider;
 
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -70,5 +71,9 @@ public class ArenaUtils {
 
         bossBar.removeAll();
         MOB_BARS.remove(id);
+    }
+
+    public static boolean isPet(@NotNull LivingEntity entity) {
+        return PluginPetProvider.getProviders().stream().anyMatch(provider -> provider.isPet(entity));
     }
 }

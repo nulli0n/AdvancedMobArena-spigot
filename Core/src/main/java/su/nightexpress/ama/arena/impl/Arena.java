@@ -444,10 +444,10 @@ public class Arena implements IArena, Placeholder {
     public void tickOpenCloseTimes() {
         if (this.getConfig().hasProblems()) return;
 
-        if (this.tickTimes(this.getConfig().getAutoOpenTimes())) {
+        if (!this.getConfig().isActive() && this.tickTimes(this.getConfig().getAutoOpenTimes())) {
             this.getConfig().setActive(true);
         }
-        else if (this.tickTimes(this.getConfig().getAutoCloseTimes())) {
+        else if (this.getConfig().isActive() && this.tickTimes(this.getConfig().getAutoCloseTimes())) {
             this.getConfig().setActive(false);
         }
         else return;

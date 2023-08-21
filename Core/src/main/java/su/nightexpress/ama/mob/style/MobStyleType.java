@@ -14,6 +14,7 @@ public enum MobStyleType {
     FOX_TYPE(MobStyleWrapper.FOX_TYPE),
     CREEPER_CHARGE(MobStyleWrapper.CREEPER_CHARGE),
     SLIME_SIZE(MobStyleWrapper.SLIME_SIZE),
+    PHANTOM_SIZE(MobStyleWrapper.PHANTOM_SIZE),
     LLAMA_COLOR(MobStyleWrapper.LLAMA_COLOR),
     PARROT_VARIANT(MobStyleWrapper.PARROT_VARIANT),
     RABBIT_TYPE(MobStyleWrapper.RABBIT_TYPE),

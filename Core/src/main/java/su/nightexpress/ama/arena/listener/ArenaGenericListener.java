@@ -29,6 +29,7 @@ import su.nightexpress.ama.api.type.GameState;
 import su.nightexpress.ama.arena.ArenaManager;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
+import su.nightexpress.ama.arena.util.ArenaUtils;
 import su.nightexpress.ama.config.Config;
 import su.nightexpress.ama.kit.Kit;
 import su.nightexpress.ama.mob.MobManager;
@@ -129,19 +130,19 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onArenaMobSpawn(CreatureSpawnEvent e) {
-        LivingEntity entity = e.getEntity();
+    public void onArenaMobSpawn(CreatureSpawnEvent event) {
+        LivingEntity entity = event.getEntity();
         if (entity.getType() == EntityType.ARMOR_STAND && MobsConfig.IGNORE_ARMOR_STANDS.get()) return;
 
         Location location = entity.getLocation();
         Arena arena = plugin.getArenaManager().getArenaAtLocation(location);
-        if (arena == null/* || !arena.getConfig().isActive()*/) return;
+        if (arena == null) return;
 
         if (arena.getState() == GameState.INGAME && !arena.isAboutToEnd()) {
-            CreatureSpawnEvent.SpawnReason reason = e.getSpawnReason();
+            CreatureSpawnEvent.SpawnReason reason = event.getSpawnReason();
             if (reason == CreatureSpawnEvent.SpawnReason.SPAWNER_EGG && MobsConfig.ALLY_FROM_EGGS.get().contains(entity.getType())) {
                 arena.spawnAllyMob(entity.getType(), location);
-                e.setCancelled(true);
+                event.setCancelled(true);
                 return;
             }
             if (reason == CreatureSpawnEvent.SpawnReason.CUSTOM || arena.getConfig().getGameplayManager().isAllowedSpawnReason(reason)) {
@@ -150,11 +151,20 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
                     arena.getMobs().getEnemies().add(entity);
                     arena.setRoundTotalMobsAmount(arena.getRoundTotalMobsAmount() + 1);
                 }
+                this.plugin.runTask(task -> {
+                    if (ArenaUtils.isPet(entity)) {
+                        if (arena.getConfig().getGameplayManager().isPetsAllowed()) {
+                            arena.getMobs().remove(entity);
+                            arena.setRoundTotalMobsAmount(arena.getRoundTotalMobsAmount() - 1);
+                        }
+                        else entity.remove();
+                    }
+                });
                 return;
             }
         }
 
-        e.setCancelled(true);
+        event.setCancelled(true);
     }
 
     /*@EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)

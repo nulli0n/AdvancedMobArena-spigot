@@ -48,7 +48,7 @@ public class Parameters {
 
     @NotNull
     public static Parameter<Integer> asInt(@NotNull String name) {
-        Function<String, Integer> parser = str -> StringUtil.getInteger(str, 0);
+        Function<String, Integer> parser = str -> StringUtil.getInteger(str, 0, true);
         return register(name, parser);
     }
 

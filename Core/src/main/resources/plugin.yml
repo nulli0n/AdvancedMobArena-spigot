@@ -16,5 +16,8 @@ softdepend:
   - SunLight
   - Essentials
   - CoinsEngine
+  - MCPets
+  - AdvancedPets
+  - CombatPets
 description: Advanced mob arena with many cool features for your server. Enjoy!
 api-version: 1.18
