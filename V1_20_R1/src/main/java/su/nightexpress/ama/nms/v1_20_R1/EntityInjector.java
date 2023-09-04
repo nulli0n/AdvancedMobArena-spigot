@@ -30,6 +30,7 @@ public class EntityInjector {
         BRAINED.put(EntityType.GOAT, GoatMob.class);
         BRAINED.put(EntityType.FROG, FrogMob.class);
         BRAINED.put(EntityType.ALLAY, AllayMob.class);
+        BRAINED.put(EntityType.WARDEN, WardenMob.class);
 
         BASIC.put(EntityType.BEE, net.minecraft.world.entity.EntityType.BEE);
         BASIC.put(EntityType.BLAZE, net.minecraft.world.entity.EntityType.BLAZE);

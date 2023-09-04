@@ -116,7 +116,7 @@ public class PlaceholderHook {
             if (params.startsWith("arena_")) { // ama_arena_tutorial_name
                 String raw = params.substring("arena_".length()); // tutorial_name_something
                 int index = raw.indexOf("_");
-                if (index < 0) return "-";
+                if (index < 0) return null;
 
                 String arenaId = raw.substring(0, index); // tutorial
                 String var = raw.substring(index + 1); // name_something

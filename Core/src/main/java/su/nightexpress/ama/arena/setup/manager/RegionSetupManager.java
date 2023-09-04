@@ -91,7 +91,7 @@ public class RegionSetupManager extends AbstractSetupManager<ArenaRegion> {
     private void updateVisualParticles(@NotNull Player player) {
         if (cuboidCache[0] != null && cuboidCache[1] != null) {
             //ArenaSetupUtils.playCuboid(this.cuboidCache);
-            new ArenaCuboid.Visualizer(cuboidCache[0], cuboidCache[1]).draw(player);
+            //new ArenaCuboid.Visualizer(cuboidCache[0], cuboidCache[1]).draw(player);
         }
     }
 

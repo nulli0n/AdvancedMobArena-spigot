@@ -80,8 +80,8 @@ public class MobsConfig {
             Map<String, MobKillReward> map = new HashMap<>();
             Map<Currency, Double> payment = new HashMap<>();
             ArenaAPI.getCurrencyManager().getCurrencies().forEach(currency -> payment.put(currency, 1D));
-            map.put(Placeholders.DEFAULT, new MobKillReward(Placeholders.DEFAULT, payment, 1));
-            map.put("ama:" + EntityType.ZOMBIE.name(), new MobKillReward("ama:zombie", payment, 3));
+            map.put(Placeholders.DEFAULT, new MobKillReward(Placeholders.DEFAULT, payment, new ArrayList<>(), 1));
+            map.put("ama:" + EntityType.ZOMBIE.name(), new MobKillReward("ama:zombie", payment, Arrays.asList("give " + Placeholders.PLAYER_NAME + " apple 1"), 3));
             return map;
         },
         "Here you can create custom rewards for mob kills on the arena.",
@@ -91,7 +91,8 @@ public class MobsConfig {
         "* MythicMobs Example: 'mythicmobs:skeletonking' - will give reward(s) for MythicMobs SkeletonKing mob.",
         "Also, you can use the '" + Placeholders.DEFAULT + "' keyword for all other mobs not listed here.",
         "===== =====",
-        "All available currency names you can see in plugin startup log or here: " + Placeholders.WIKI_AMA
+        "All available currency names you can see in plugin startup log or here: " + Placeholders.WIKI_AMA,
+        "For commands, use '" + Placeholders.PLAYER_NAME + "' placehodler for a player name."
     ).setWriter((cfg, path, map) -> map.forEach((id, reward) -> reward.write(cfg, path + "." + id)));
 
     public static final JOption<Boolean> KILL_STREAK_ENABLED = JOption.create("Mobs.Kill_Streaks.Enabled",
