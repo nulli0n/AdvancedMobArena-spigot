@@ -21,6 +21,7 @@ public class EntityInjector {
 
     public static final Map<EntityType, net.minecraft.world.entity.EntityType<? extends Mob>> BASIC   = new HashMap<>();
     public static final Map<EntityType, Class<? extends Mob>>                                 BRAINED = new HashMap<>();
+    public static final Map<EntityType, Class<? extends Mob>>                                 CUSTOM  = new HashMap<>();
 
     public static void setup() {
         BRAINED.put(EntityType.PIGLIN, PiglinMob.class);
@@ -31,6 +32,10 @@ public class EntityInjector {
         BRAINED.put(EntityType.FROG, FrogMob.class);
         BRAINED.put(EntityType.ALLAY, AllayMob.class);
         BRAINED.put(EntityType.WARDEN, WardenMob.class);
+
+        CUSTOM.put(EntityType.SLIME, SlimeMob.class);
+        CUSTOM.put(EntityType.MAGMA_CUBE, MagmaCubeMob.class);
+        CUSTOM.put(EntityType.IRON_GOLEM, IronGolemMob.class);
 
         BASIC.put(EntityType.BEE, net.minecraft.world.entity.EntityType.BEE);
         BASIC.put(EntityType.BLAZE, net.minecraft.world.entity.EntityType.BLAZE);
@@ -52,9 +57,9 @@ public class EntityInjector {
         BASIC.put(EntityType.HORSE, net.minecraft.world.entity.EntityType.HORSE);
         BASIC.put(EntityType.HUSK, net.minecraft.world.entity.EntityType.HUSK);
         BASIC.put(EntityType.ILLUSIONER, net.minecraft.world.entity.EntityType.ILLUSIONER);
-        BASIC.put(EntityType.IRON_GOLEM, net.minecraft.world.entity.EntityType.IRON_GOLEM);
+        //BASIC.put(EntityType.IRON_GOLEM, net.minecraft.world.entity.EntityType.IRON_GOLEM);
         BASIC.put(EntityType.LLAMA, net.minecraft.world.entity.EntityType.LLAMA);
-        BASIC.put(EntityType.MAGMA_CUBE, net.minecraft.world.entity.EntityType.MAGMA_CUBE);
+        //BASIC.put(EntityType.MAGMA_CUBE, net.minecraft.world.entity.EntityType.MAGMA_CUBE);
         BASIC.put(EntityType.MULE, net.minecraft.world.entity.EntityType.MULE);
         BASIC.put(EntityType.MUSHROOM_COW, net.minecraft.world.entity.EntityType.MOOSHROOM);
         BASIC.put(EntityType.OCELOT, net.minecraft.world.entity.EntityType.OCELOT);
@@ -68,7 +73,7 @@ public class EntityInjector {
         BASIC.put(EntityType.SHEEP, net.minecraft.world.entity.EntityType.SHEEP);
         BASIC.put(EntityType.SHULKER, net.minecraft.world.entity.EntityType.SHULKER);
         BASIC.put(EntityType.SILVERFISH, net.minecraft.world.entity.EntityType.SILVERFISH);
-        BASIC.put(EntityType.SLIME, net.minecraft.world.entity.EntityType.SLIME);
+        //BASIC.put(EntityType.SLIME, net.minecraft.world.entity.EntityType.SLIME);
         BASIC.put(EntityType.STRAY, net.minecraft.world.entity.EntityType.STRAY);
         BASIC.put(EntityType.SKELETON, net.minecraft.world.entity.EntityType.SKELETON);
         BASIC.put(EntityType.SKELETON_HORSE, net.minecraft.world.entity.EntityType.SKELETON_HORSE);
@@ -96,14 +101,14 @@ public class EntityInjector {
         if (world == null) return null;
 
         ServerLevel level = ((CraftWorld) world).getHandle();
-        return createBrained(arena, faction, type, level, location);
+        return createBrainedOrCustom(arena, faction, type, level, location);
     }
 
     @Nullable
-    private static Mob createBrained(@NotNull IArena arena, @NotNull MobFaction faction, @NotNull EntityType type,
-                                              @NotNull ServerLevel level, @NotNull Location location) {
-        Class<? extends Mob> clazz = BRAINED.get(type);
-        if (clazz == null) return createBasic(arena, type, level, location);
+    private static Mob createBrainedOrCustom(@NotNull IArena arena, @NotNull MobFaction faction, @NotNull EntityType type,
+                                             @NotNull ServerLevel level, @NotNull Location location) {
+        Class<? extends Mob> clazz = BRAINED.getOrDefault(type, CUSTOM.get(type));
+        if (clazz == null) return createBasic(arena, faction, type, level, location);
 
         try {
             Mob entity = clazz.getConstructor(ServerLevel.class, IArena.class, MobFaction.class).newInstance(level, arena, faction);
@@ -117,7 +122,7 @@ public class EntityInjector {
     }
 
     @Nullable
-    private static Mob createBasic(@NotNull IArena arena, @NotNull EntityType type,
+    private static Mob createBasic(@NotNull IArena arena, @NotNull MobFaction faction, @NotNull EntityType type,
                                             @NotNull ServerLevel level, @NotNull Location location) {
         net.minecraft.world.entity.EntityType<? extends Mob> typez = BASIC.get(type);
         if (typez == null) return null;

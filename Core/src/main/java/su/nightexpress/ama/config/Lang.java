@@ -61,7 +61,7 @@ public class Lang extends EngineLang {
     public static final LangKey COMMAND_HOLOGRAM_ERROR        = new LangKey("Command.Hologram.Error", "&cCould not perform operation! (Invalid arguments)");
 
     public static final LangKey COMMAND_JOIN_DESC    = LangKey.of("Command.Join.Desc", "Join the arena.");
-    public static final LangKey COMMAND_JOIN_USAGE   = LangKey.of("Command.Join.Usage", "[arena]");
+    public static final LangKey COMMAND_JOIN_USAGE   = LangKey.of("Command.Join.Usage", "[arena] [player]");
     public static final LangKey COMMAND_JOIN_NOTHING = LangKey.of("Command.Join.Nothing", RED + "There is no available arenas to join right now.");
 
     public static final LangKey Command_Region_Desc                      = new LangKey("Command.Region.Desc", "Manage in-game arena regions.");

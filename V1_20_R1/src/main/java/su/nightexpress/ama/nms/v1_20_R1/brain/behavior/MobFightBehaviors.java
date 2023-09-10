@@ -60,11 +60,14 @@ public class MobFightBehaviors {
                             target = Rnd.get(targetList);
                         }
                     }
-                    if (target == null) return false;
-
-                    if (!mob.canAttack(target)) {
+                    if (target == null) {
+                        MobAI.eraseTarget(mob);
                         return false;
                     }
+
+                    /*if (!mob.canAttack(target)) {
+                        return false;
+                    }*/
 
                     EntityTargetEvent event = CraftEventFactory.callEntityTargetLivingEvent(mob, target, EntityTargetEvent.TargetReason.CLOSEST_PLAYER);
                     if (event.isCancelled()) {
@@ -73,6 +76,7 @@ public class MobFightBehaviors {
 
                     if (event.getTarget() == null) {
                         memAttackTarget.erase();
+                        MobAI.eraseTarget(mob);
                         return true;
                     }
 
@@ -125,7 +129,7 @@ public class MobFightBehaviors {
                     LivingEntity target = instance.get(attackTarget);
                     Set<UUID> players = arenaMob.getArena().getPlayers().getAlive().stream().map(p -> p.getPlayer().getUniqueId()).collect(Collectors.toSet());
                     if (!players.contains(target.getUUID())) {
-                        MobAI.setAvoidTargetAndDontHuntForAWhile(pet, target);
+                        MobAI.eraseTarget(pet);
                         return true;
                     }
                     return false;

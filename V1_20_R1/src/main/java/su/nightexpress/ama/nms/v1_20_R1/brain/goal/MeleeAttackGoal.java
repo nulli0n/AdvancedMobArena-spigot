@@ -8,10 +8,15 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.pathfinder.Path;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.utils.random.Rnd;
+import su.nightexpress.ama.api.arena.IArena;
+import su.nightexpress.ama.api.type.MobFaction;
 
 import java.util.EnumSet;
 
 public class MeleeAttackGoal extends Goal {
+
+    private final IArena arena;
+    private final MobFaction faction;
 
     protected     PathfinderMob entity;
     protected     int           atkCooldown;
@@ -22,7 +27,9 @@ public class MeleeAttackGoal extends Goal {
     private       double        pathY;
     private       double        pathZ;
 
-    public MeleeAttackGoal(@NotNull PathfinderMob entity) {
+    public MeleeAttackGoal(@NotNull PathfinderMob entity, @NotNull IArena arena, @NotNull MobFaction faction) {
+        this.arena = arena;
+        this.faction = faction;
         this.entity = entity;
         this.speed = 1D;
         this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
@@ -59,6 +66,9 @@ public class MeleeAttackGoal extends Goal {
     public boolean canContinueToUse() {
         LivingEntity target = this.entity.getTarget();
         if (target == null || !target.isAlive()) {
+            return false;
+        }
+        if (this.arena.getMobs().getFaction((org.bukkit.entity.LivingEntity) target.getBukkitEntity()) == this.faction) {
             return false;
         }
         return this.entity.isWithinRestriction(new BlockPos(target.getBlockX(), target.getBlockY(), target.getBlockZ()));

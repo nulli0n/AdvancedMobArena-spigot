@@ -36,6 +36,7 @@ public class Perms {
     public static final JPermission COMMAND_FORCEEND        = new JPermission(PREFIX + "command.forceend", "Allows to use '/ama forceend' command.");
     public static final JPermission COMMAND_FORCESTART      = new JPermission(PREFIX + "command.forcestart", "Allows to use '/ama forcestart' command.");
     public static final JPermission COMMAND_JOIN            = new JPermission(PREFIX + "command.join", "Allows to use '/ama join' command.");
+    public static final JPermission COMMAND_JOIN_OTHERS            = new JPermission(PREFIX + "command.join.others", "Allows to use '/ama join' command on other players.");
     public static final JPermission COMMAND_HOLOGRAM        = new JPermission(PREFIX + "command.hologram", "Allows to use '/ama hologram' command (without of sub-commands).");
     public static final JPermission COMMAND_HOLOGRAM_ADD    = new JPermission(PREFIX + "command.hologram.add", "Allows to use '/ama hologram add' command.");
     public static final JPermission COMMAND_HOLOGRAM_REMOVE = new JPermission(PREFIX + "command.hologram.remove", "Allows to use '/ama hologram remove' command.");
@@ -55,7 +56,7 @@ public class Perms {
         PLUGIN_BYPASS.addChildren(BYPASS_ARENA, BYPASS_KIT);
         PLUGIN_COMMAND.addChildren(COMMAND_EDITOR, COMMAND_RELOAD, COMMAND_BALANCE, COMMAND_BALANCE_OTHERS,
             COMMAND_COINS, COMMAND_HOLOGRAM, COMMAND_FORCEEND, COMMAND_FORCESTART,
-            COMMAND_JOIN, COMMAND_LEAVE, COMMAND_LIST, COMMAND_REGION, COMMAND_SET_ACTIVE,
+            COMMAND_JOIN, COMMAND_JOIN_OTHERS, COMMAND_LEAVE, COMMAND_LIST, COMMAND_REGION, COMMAND_SET_ACTIVE,
             COMMAND_SCORE, COMMAND_SHOP, COMMAND_SKIPROUND,
             COMMAND_SPECTATE, COMMAND_SPOT, COMMAND_STATS);
 

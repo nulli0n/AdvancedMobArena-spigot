@@ -34,7 +34,7 @@ public class NearestFactionTargetGoal<T extends LivingEntity> extends TargetGoal
 
         this.arena = arena;
         this.faction = faction;
-        this.targetConditions = TargetingConditions.forCombat().ignoreLineOfSight().range(this.getFollowDistance());
+        this.targetConditions = TargetingConditions.forCombat().ignoreLineOfSight();
     }
 
     public boolean canUse() {

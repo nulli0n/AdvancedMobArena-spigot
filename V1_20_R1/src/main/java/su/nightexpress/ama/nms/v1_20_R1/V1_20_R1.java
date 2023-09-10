@@ -102,21 +102,22 @@ public class V1_20_R1 implements ArenaNMS {
         this.registerAttribute(mob, Attributes.MAX_HEALTH);
         this.registerAttribute(mob, Attributes.MOVEMENT_SPEED);
 
-        if (!(mob instanceof PathfinderMob pathfinderMob)) return bukkitEntity;
+        if (mob instanceof PathfinderMob pathfinderMob) {
+            if (bukkitEntity instanceof Animals || bukkitEntity instanceof org.bukkit.entity.IronGolem) {
+                mob.goalSelector.getAvailableGoals().clear();
+                mob.goalSelector.addGoal(0, new FloatGoal(mob));
+                mob.goalSelector.addGoal(2, new MeleeAttackGoal(pathfinderMob, arena, faction));
+                mob.goalSelector.addGoal(8, new LookAtPlayerGoal(pathfinderMob, net.minecraft.world.entity.player.Player.class, 8.0F));
+            }
+            else if (mob instanceof net.minecraft.world.entity.monster.Drowned drowned) {
+                drowned.goalSelector.getAvailableGoals().removeIf(goal -> goal.getGoal() instanceof ZombieAttackGoal goal1);
+                drowned.goalSelector.addGoal(3, new ZombieAttackGoal(drowned, 1D, false));
+            }
+        }
 
-        if (bukkitEntity instanceof Animals) {
-            mob.goalSelector.getAvailableGoals().clear();
-            mob.goalSelector.addGoal(0, new FloatGoal(mob));
-            mob.goalSelector.addGoal(2, new MeleeAttackGoal(pathfinderMob));
-            mob.goalSelector.addGoal(8, new LookAtPlayerGoal(pathfinderMob, net.minecraft.world.entity.player.Player.class, 8.0F));
-        }
-        else if (mob instanceof net.minecraft.world.entity.monster.Drowned drowned) {
-            drowned.goalSelector.getAvailableGoals().removeIf(goal -> goal.getGoal() instanceof ZombieAttackGoal goal1);
-            drowned.goalSelector.addGoal(3, new ZombieAttackGoal(drowned, 1D, false));
-        }
         if (!EntityInjector.BRAINED.containsKey(type)) {
             mob.targetSelector.getAvailableGoals().clear();
-            mob.targetSelector.addGoal(2, new NearestFactionTargetGoal<>(pathfinderMob, arena, faction));
+            mob.targetSelector.addGoal(2, new NearestFactionTargetGoal<>(mob, arena, faction));
             mob.setAggressive(true);
         }
         return bukkitEntity;
