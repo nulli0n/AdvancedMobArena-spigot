@@ -1050,6 +1050,9 @@ public class Arena implements IArena, Placeholder {
         this.setRoundNumber(this.getRoundNumber() + 1);
         this.setRoundTotalMobsAmount(0);
 
+        ArenaWaveStartEvent event = new ArenaWaveStartEvent(this);
+        this.plugin.getPluginManager().callEvent(event);
+
         // Move all players that are outside of the active region to the first active one.
         ArenaRegion regionActive = this.getConfig().getRegionManager().getFirstUnlocked();
         this.getPlayers().select(GameState.INGAME, PlayerType.REAL).forEach(arenaPlayer -> {
@@ -1060,9 +1063,6 @@ public class Arena implements IArena, Placeholder {
                 arenaPlayer.getPlayer().teleport(regionActive.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
             }
         });
-
-        ArenaWaveStartEvent event = new ArenaWaveStartEvent(this);
-        this.plugin.getPluginManager().callEvent(event);
 
         // Set time until next wave
         this.setNextRoundCountdown(this.getConfig().getWaveManager().getRoundCountdown());
