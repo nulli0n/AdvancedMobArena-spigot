@@ -9,11 +9,11 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import su.nexmedia.engine.api.lang.LangColors;
 import su.nexmedia.engine.api.menu.impl.EditorMenu;
 import su.nexmedia.engine.api.menu.impl.Menu;
 import su.nexmedia.engine.api.menu.impl.MenuViewer;
 import su.nexmedia.engine.editor.EditorManager;
+import su.nexmedia.engine.utils.Colors;
 import su.nexmedia.engine.utils.ItemUtil;
 import su.nexmedia.engine.utils.PlayerUtil;
 import su.nexmedia.engine.utils.StringUtil;
@@ -132,7 +132,7 @@ public class KitMainEditor extends EditorMenu<AMA, Kit> {
                 String[] split = wrapper.getTextRaw().split(" ");
                 PotionEffectType effectType = PotionEffectType.getByName(split[0].toUpperCase());
                 if (effectType == null) {
-                    EditorManager.error(viewer.getPlayer(), LangColors.RED + "Invalid Effect!");
+                    EditorManager.error(viewer.getPlayer(), Colors.RED + "Invalid Effect!");
                     return false;
                 }
                 int amp = split.length >= 2 ? StringUtil.getInteger(split[1], 1) : 1;

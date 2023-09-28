@@ -4,7 +4,6 @@ import org.bukkit.block.Block;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.AbstractManager;
-import su.nexmedia.engine.api.manager.ConfigHolder;
 import su.nexmedia.engine.api.server.AbstractTask;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.impl.Arena;
@@ -20,7 +19,7 @@ import su.nightexpress.ama.stats.object.StatsScore;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class StatsManager extends AbstractManager<AMA> implements ConfigHolder {
+public class StatsManager extends AbstractManager<AMA> {
 
     private JYML config;
 
@@ -60,15 +59,9 @@ public class StatsManager extends AbstractManager<AMA> implements ConfigHolder {
         this.statsScores.clear();
     }
 
-    @Override
     @NotNull
     public JYML getConfig() {
         return config;
-    }
-
-    @Override
-    public void onSave() {
-
     }
 
     @NotNull

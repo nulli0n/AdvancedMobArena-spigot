@@ -8,7 +8,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.api.particle.SimpleParticle;
+import su.nexmedia.engine.utils.values.UniParticle;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -151,7 +151,7 @@ public class ArenaCuboid {
             if (world == null) return;
 
             Particle.DustOptions dustOptions = new Particle.DustOptions(Color.RED, 1f);
-            SimpleParticle particle = SimpleParticle.of(Particle.REDSTONE, dustOptions);
+            UniParticle particle = UniParticle.of(Particle.REDSTONE, dustOptions);
 
             for (Vector[] point : this.sides) {
                 for (Vector position : this.traverse(point[0], point[1])) {

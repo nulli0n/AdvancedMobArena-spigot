@@ -10,12 +10,12 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.lang.LangMessage;
-import su.nexmedia.engine.api.particle.SimpleParticle;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.lang.LangManager;
 import su.nexmedia.engine.utils.*;
 import su.nexmedia.engine.utils.random.Rnd;
+import su.nexmedia.engine.utils.values.UniParticle;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.Placeholders;
@@ -757,7 +757,7 @@ public class Arena implements IArena, Placeholder {
 
         arenaPlayer.setTransfer(true);
         player.teleport(this.getConfig().getLocation(ArenaLocationType.LOBBY));
-        SimpleParticle.of(Particle.CLOUD).play(player.getLocation(), 0.25, 0.15, 30);
+        UniParticle.of(Particle.CLOUD).play(player.getLocation(), 0.25, 0.15, 30);
         arenaPlayer.setTransfer(false);
 
         // Now clear all player's active effects, god modes, etc.
@@ -988,7 +988,7 @@ public class Arena implements IArena, Placeholder {
     }
 
     public void burnGroundItems() {
-        SimpleParticle particle = SimpleParticle.of(Particle.SMOKE_NORMAL);
+        UniParticle particle = UniParticle.of(Particle.SMOKE_NORMAL);
         this.getGroundItems().forEach(item -> {
             if (item.isValid() && item.isOnGround()) {
                 particle.play(item.getLocation(), 0.1, 0.05, 15);

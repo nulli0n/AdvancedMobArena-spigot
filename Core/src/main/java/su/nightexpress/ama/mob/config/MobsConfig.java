@@ -2,7 +2,6 @@ package su.nightexpress.ama.mob.config;
 
 import org.bukkit.entity.EntityType;
 import su.nexmedia.engine.api.config.JOption;
-import su.nexmedia.engine.api.lang.LangColors;
 import su.nexmedia.engine.api.lang.LangMessage;
 import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.StringUtil;
@@ -15,16 +14,18 @@ import su.nightexpress.ama.mob.kill.MobKillStreak;
 
 import java.util.*;
 
+import static su.nexmedia.engine.utils.Colors.*;
+
 public class MobsConfig {
 
     public static final JOption<String> NAME_FORMAT = JOption.create("Mobs.DisplayName_Format",
-        LangColors.LIGHT_YELLOW + Placeholders.MOB_NAME + " " + LangColors.GRAY + "Lv. " + LangColors.RED + Placeholders.MOB_LEVEL,
+        LIGHT_YELLOW + Placeholders.MOB_NAME + " " + GRAY + "Lv. " + RED + Placeholders.MOB_LEVEL,
         "Sets entity display name format for internal AMA mobs.",
         "Placeholders: " + Placeholders.MOB_NAME + ", " + Placeholders.MOB_LEVEL
     ).mapReader(Colorizer::apply);
 
     public static final JOption<String> BOSS_BAR_FORMAT = JOption.create("Mobs.BossBar_Format",
-        Placeholders.MOB_NAME + " " + LangColors.RED + Placeholders.MOB_HEALTH + "❤",
+        Placeholders.MOB_NAME + " " + RED + Placeholders.MOB_HEALTH + "❤",
         "Sets BossBar title format for internal AMA mobs.",
         "Placeholders: " + Placeholders.MOB_NAME + ", " + Placeholders.MOB_LEVEL + ", " + Placeholders.MOB_HEALTH + ", " + Placeholders.MOB_HEALTH_MAX
     ).mapReader(Colorizer::apply);
@@ -108,11 +109,11 @@ public class MobsConfig {
         (cfg, path, key) -> MobKillStreak.read(cfg, path + "." + key, StringUtil.getInteger(key, 0)),
         () -> {
             Map<Integer, MobKillStreak> map = new TreeMap<>();
-            map.put(2, new MobKillStreak(2, new LangMessage(ArenaAPI.PLUGIN, "<! type:\"titles:10:50:10\" !>" + LangColors.RED + "&lDouble Kill!"), new ArrayList<>()));
-            map.put(3, new MobKillStreak(3, new LangMessage(ArenaAPI.PLUGIN, "<! type:\"titles:10:50:10\" !>" + LangColors.RED + "&lTriple Kill!"), new ArrayList<>()));
-            map.put(4, new MobKillStreak(4, new LangMessage(ArenaAPI.PLUGIN, "<! type:\"titles:10:50:10\" !>" + LangColors.CYAN + "&lQuadra Kill!"), new ArrayList<>()));
-            map.put(5, new MobKillStreak(5, new LangMessage(ArenaAPI.PLUGIN, "<! type:\"titles:10:50:10\" !>" + LangColors.CYAN + "&lPenta Kill! \\n &d(+10 Coins)"), Collections.singletonList("ama coins add " + Placeholders.PLAYER_NAME + " 10")));
-            map.put(10, new MobKillStreak(10, new LangMessage(ArenaAPI.PLUGIN, "<! type:\"titles:10:50:10\" !>" + LangColors.YELLOW + "&lx" + Placeholders.GENERIC_AMOUNT + " Kill! \\n " + LangColors.GREEN + "(Heal)"), Collections.singletonList("heal " + Placeholders.PLAYER_NAME)));
+            map.put(2, new MobKillStreak(2, new LangMessage(ArenaAPI.PLUGIN, "<! type:\"titles:10:50:10\" !>" + RED + "&lDouble Kill!"), new ArrayList<>()));
+            map.put(3, new MobKillStreak(3, new LangMessage(ArenaAPI.PLUGIN, "<! type:\"titles:10:50:10\" !>" + RED + "&lTriple Kill!"), new ArrayList<>()));
+            map.put(4, new MobKillStreak(4, new LangMessage(ArenaAPI.PLUGIN, "<! type:\"titles:10:50:10\" !>" + CYAN + "&lQuadra Kill!"), new ArrayList<>()));
+            map.put(5, new MobKillStreak(5, new LangMessage(ArenaAPI.PLUGIN, "<! type:\"titles:10:50:10\" !>" + CYAN + "&lPenta Kill! \\n &d(+10 Coins)"), Collections.singletonList("ama coins add " + Placeholders.PLAYER_NAME + " 10")));
+            map.put(10, new MobKillStreak(10, new LangMessage(ArenaAPI.PLUGIN, "<! type:\"titles:10:50:10\" !>" + YELLOW + "&lx" + Placeholders.GENERIC_AMOUNT + " Kill! \\n " + GREEN + "(Heal)"), Collections.singletonList("heal " + Placeholders.PLAYER_NAME)));
             return map;
         },
         "Here you can create and customize mob kill streaks.",

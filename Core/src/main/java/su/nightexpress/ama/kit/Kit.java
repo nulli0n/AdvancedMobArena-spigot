@@ -10,7 +10,6 @@ import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.AbstractConfigHolder;
-import su.nexmedia.engine.api.manager.ConfigHolder;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.lang.LangManager;
@@ -21,9 +20,9 @@ import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.currency.Currency;
 import su.nightexpress.ama.api.hologram.HologramHolder;
 import su.nightexpress.ama.api.hologram.HologramType;
+import su.nightexpress.ama.api.type.PlayerType;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
-import su.nightexpress.ama.api.type.PlayerType;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.data.impl.ArenaUser;
 import su.nightexpress.ama.hologram.HologramManager;
@@ -33,7 +32,7 @@ import su.nightexpress.ama.kit.menu.KitPreviewMenu;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class Kit extends AbstractConfigHolder<AMA> implements ConfigHolder, HologramHolder, Placeholder {
+public class Kit extends AbstractConfigHolder<AMA> implements HologramHolder, Placeholder {
 
     private boolean      isDefault;
     private String       name;

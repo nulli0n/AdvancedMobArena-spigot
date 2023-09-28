@@ -7,6 +7,8 @@ import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.currency.CurrencyManager;
 import su.nightexpress.ama.hook.HookId;
 
+import static su.nexmedia.engine.utils.Colors.*;
+
 public class Lang extends EngineLang {
 
     @Deprecated

@@ -2,8 +2,7 @@ package su.nightexpress.ama.arena.script;
 
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.config.JYML;
-import su.nexmedia.engine.api.manager.ConfigHolder;
-import su.nexmedia.engine.api.manager.Loadable;
+import su.nexmedia.engine.api.manager.AbstractConfigHolder;
 import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.arena.editor.script.ScriptsEditor;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
@@ -12,7 +11,7 @@ import su.nightexpress.ama.arena.script.impl.ScriptCategory;
 
 import java.util.*;
 
-public class ArenaScriptManager implements ArenaChild, Loadable {
+public class ArenaScriptManager implements ArenaChild {
 
     public static final String DIR_SCRIPTS = "/scripts/";
 
@@ -26,7 +25,6 @@ public class ArenaScriptManager implements ArenaChild, Loadable {
         this.categories = new HashMap<>();
     }
 
-    @Override
     public void setup() {
         for (JYML cfg : JYML.loadAll(this.getScriptsPath(), true)) {
             ScriptCategory category = new ScriptCategory(this.getArenaConfig(), cfg);
@@ -39,7 +37,6 @@ public class ArenaScriptManager implements ArenaChild, Loadable {
         this.plugin().info("Loaded " + this.getScripts().size() + " scripts for '" + this.getArenaConfig().getId() + "' arena!");
     }
 
-    @Override
     public void shutdown() {
         if (this.editor != null) {
             this.editor.clear();
@@ -50,7 +47,7 @@ public class ArenaScriptManager implements ArenaChild, Loadable {
     }
 
     public void save() {
-        this.getCategories().forEach(ConfigHolder::save);
+        this.getCategories().forEach(AbstractConfigHolder::save);
     }
 
     @NotNull

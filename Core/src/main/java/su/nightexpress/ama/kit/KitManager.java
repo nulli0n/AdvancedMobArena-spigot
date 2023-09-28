@@ -181,7 +181,7 @@ public class KitManager extends AbstractManager<AMA> {
                     return kit.getCost() <= 0;
                 }).forEach(user::addKit);
 
-                user.saveData(this.plugin);
+                this.plugin.getUserManager().saveUser(user);
             });
         }
     }

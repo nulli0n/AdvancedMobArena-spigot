@@ -1,14 +1,13 @@
 package su.nightexpress.ama.arena.setup;
 
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.api.manager.Loadable;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.setup.manager.ArenaConfigSetupManager;
 import su.nightexpress.ama.arena.setup.manager.RegionSetupManager;
 import su.nightexpress.ama.arena.setup.manager.SpotSetupManager;
 import su.nightexpress.ama.arena.setup.manager.SpotStateSetupManager;
 
-public class ArenaSetupManager implements Loadable {
+public class ArenaSetupManager {
 
     private final AMA plugin;
 
@@ -21,12 +20,10 @@ public class ArenaSetupManager implements Loadable {
         this.plugin = plugin;
     }
 
-    @Override
     public void setup() {
 
     }
 
-    @Override
     public void shutdown() {
         if (this.spotStateSetupManager != null) {
             this.spotStateSetupManager.shutdown();

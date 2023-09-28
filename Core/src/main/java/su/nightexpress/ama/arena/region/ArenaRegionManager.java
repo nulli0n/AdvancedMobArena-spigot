@@ -4,7 +4,6 @@ import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
-import su.nexmedia.engine.api.manager.Loadable;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.utils.StringUtil;
@@ -16,7 +15,7 @@ import su.nightexpress.ama.arena.impl.ArenaConfig;
 
 import java.util.*;
 
-public class ArenaRegionManager implements ArenaChild, Loadable, Problematic, Placeholder {
+public class ArenaRegionManager implements ArenaChild, Problematic, Placeholder {
 
     public static final String DIR_REGIONS = "/regions/";
 
@@ -34,7 +33,6 @@ public class ArenaRegionManager implements ArenaChild, Loadable, Problematic, Pl
             .add(Placeholders.GENERIC_PROBLEMS, () -> String.join("\n", this.getProblems()));
     }
 
-    @Override
     public void setup() {
         for (JYML cfg : JYML.loadAll(this.getRegionsPath(), false)) {
             ArenaRegion region = new ArenaRegion(this.getArenaConfig(), cfg);
@@ -49,7 +47,6 @@ public class ArenaRegionManager implements ArenaChild, Loadable, Problematic, Pl
         });
     }
 
-    @Override
     public void shutdown() {
         if (this.editor != null) {
             this.editor.clear();

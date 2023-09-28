@@ -82,13 +82,13 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
 
         String path = this.getFile().getParentFile().getAbsolutePath();
 
-        this.waveManager = new ArenaWaveManager(this);
+        this.waveManager = new ArenaWaveManager(this, new JYML(path, ArenaWaveManager.CONFIG_NAME));
         this.regionManager = new ArenaRegionManager(this);
-        this.gameplayManager = new ArenaGameplayManager(this);
+        this.gameplayManager = new ArenaGameplayManager(this, new JYML(path, ArenaGameplayManager.CONFIG_NAME));
         this.supplyManager = new ArenaSupplyManager(this, new JYML(path, ArenaSupplyManager.CONFIG_NAME));
         this.spotManager = new ArenaSpotManager(this);
-        this.rewardManager = new ArenaRewardManager(this);
-        this.shopManager = new ShopManager(this);
+        this.rewardManager = new ArenaRewardManager(this, new JYML(path, ArenaRewardManager.CONFIG_NAME));
+        this.shopManager = new ShopManager(this, new JYML(path, ShopManager.CONFIG_NAME));
         this.scriptManager = new ArenaScriptManager(this);
 
         this.placeholderMap = new PlaceholderMap()
@@ -175,13 +175,13 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
         this.hologramLocations.addAll(cfg.getStringList("Hologram.Default.Locations")
             .stream().map(LocationUtil::deserialize).filter(Objects::nonNull).collect(Collectors.toSet()));
 
-        this.waveManager.setup();
+        this.waveManager.load();
         this.regionManager.setup();
-        this.gameplayManager.setup();
+        this.gameplayManager.load();
         this.supplyManager.load();
         this.spotManager.setup();
-        this.rewardManager.setup();
-        this.shopManager.setup();
+        this.rewardManager.load();
+        this.shopManager.load();
         this.scriptManager.setup();
         this.getConfig().saveChanges();
 
@@ -206,11 +206,11 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
         }
         this.spotManager.shutdown();
         this.regionManager.shutdown();
-        this.gameplayManager.shutdown();
+        this.gameplayManager.clear();
         this.supplyManager.clear();
-        this.waveManager.shutdown();
-        this.rewardManager.shutdown();
-        this.shopManager.shutdown();
+        this.waveManager.clear();
+        this.rewardManager.clear();
+        this.shopManager.clear();
         this.scriptManager.shutdown();
     }
 

@@ -6,7 +6,7 @@ import org.bukkit.permissions.Permission;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.command.AbstractCommand;
 import su.nexmedia.engine.api.command.CommandResult;
-import su.nexmedia.engine.api.manager.ConfigHolder;
+import su.nexmedia.engine.api.manager.AbstractConfigHolder;
 import su.nexmedia.engine.utils.CollectionsUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
@@ -117,7 +117,7 @@ public abstract class AbstractHologramCommand extends AbstractCommand<AMA> {
 
         this.perform(sender, type, holder);
 
-        if (holder instanceof ConfigHolder configHolder) {
+        if (holder instanceof AbstractConfigHolder<?> configHolder) {
             configHolder.save();
         }
         else if (holder instanceof ArenaStatsHologram statsHologram) {

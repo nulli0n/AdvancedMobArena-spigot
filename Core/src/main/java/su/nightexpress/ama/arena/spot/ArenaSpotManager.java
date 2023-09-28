@@ -4,7 +4,6 @@ import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
-import su.nexmedia.engine.api.manager.Loadable;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.utils.StringUtil;
@@ -16,7 +15,7 @@ import su.nightexpress.ama.arena.impl.ArenaConfig;
 
 import java.util.*;
 
-public class ArenaSpotManager implements ArenaChild, Loadable, Problematic, Placeholder {
+public class ArenaSpotManager implements ArenaChild, Problematic, Placeholder {
 
     public static final String DIR_SPOTS = "/spots/";
 
@@ -34,7 +33,6 @@ public class ArenaSpotManager implements ArenaChild, Loadable, Problematic, Plac
             .add(Placeholders.GENERIC_PROBLEMS, () -> String.join("\n", this.getProblems()));
     }
 
-    @Override
     public void setup() {
         for (JYML cfg : JYML.loadAll(this.getSpotsPath(), false)) {
             ArenaSpot spot = new ArenaSpot(this.arenaConfig, cfg);
@@ -44,8 +42,6 @@ public class ArenaSpotManager implements ArenaChild, Loadable, Problematic, Plac
             else arenaConfig.plugin().error("Spot not loaded: '" + cfg.getFile().getName() + "' spot for '" + arenaConfig.getId() + "' arena!");
         }
     }
-
-    @Override
     public void shutdown() {
         if (this.editor != null) {
             this.editor.clear();

@@ -3,36 +3,25 @@ package su.nightexpress.ama.arena.reward;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.config.JYML;
-import su.nexmedia.engine.api.manager.ConfigHolder;
-import su.nexmedia.engine.api.manager.Loadable;
+import su.nexmedia.engine.api.manager.AbstractConfigHolder;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.lang.LangManager;
-import su.nexmedia.engine.utils.StringUtil;
+import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.Problematic;
-import su.nightexpress.ama.api.type.GameEventType;
 import su.nightexpress.ama.api.arena.type.ArenaTargetType;
 import su.nightexpress.ama.arena.editor.reward.RewardListEditor;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
-import su.nightexpress.ama.arena.script.action.ParameterResult;
-import su.nightexpress.ama.arena.script.action.Parameters;
-import su.nightexpress.ama.arena.script.action.ScriptActions;
-import su.nightexpress.ama.arena.script.action.ScriptPreparedAction;
-import su.nightexpress.ama.arena.script.condition.ScriptCondition;
-import su.nightexpress.ama.arena.script.condition.ScriptConditions;
-import su.nightexpress.ama.arena.script.condition.ScriptPreparedCondition;
-import su.nightexpress.ama.arena.script.impl.ArenaScript;
 
 import java.util.*;
 
-public class ArenaRewardManager implements ArenaChild, ConfigHolder, Loadable, Problematic, Placeholder {
+public class ArenaRewardManager extends AbstractConfigHolder<AMA> implements ArenaChild, Problematic, Placeholder {
 
-    private static final String CONFIG_NAME = "rewards.yml";
+    public static final String CONFIG_NAME = "rewards.yml";
 
     private final ArenaConfig              arenaConfig;
-    private final JYML                     config;
     private final Map<String, ArenaReward> rewards;
     private final PlaceholderMap placeholderMap;
 
@@ -41,9 +30,9 @@ public class ArenaRewardManager implements ArenaChild, ConfigHolder, Loadable, P
 
     private RewardListEditor editor;
 
-    public ArenaRewardManager(@NotNull ArenaConfig arenaConfig) {
+    public ArenaRewardManager(@NotNull ArenaConfig arenaConfig, @NotNull JYML cfg) {
+        super(arenaConfig.plugin(), cfg);
         this.arenaConfig = arenaConfig;
-        this.config = new JYML(this.arenaConfig.getFile().getParentFile().getAbsolutePath(), CONFIG_NAME);
         this.rewards = new HashMap<>();
 
         this.placeholderMap = new PlaceholderMap()
@@ -54,57 +43,28 @@ public class ArenaRewardManager implements ArenaChild, ConfigHolder, Loadable, P
     }
 
     @Override
-    public void setup() {
-        this.isRetainOnLeave = config.getBoolean("Retain_On_Leave");
-        this.isRetainOnDeath = config.getBoolean("Retain_On_Death");
+    public boolean load() {
+        this.isRetainOnLeave = cfg.getBoolean("Retain_On_Leave");
+        this.isRetainOnDeath = cfg.getBoolean("Retain_On_Death");
 
-        for (String sId : config.getSection("List")) {
+        for (String sId : cfg.getSection("List")) {
             String path2 = "List." + sId + ".";
 
-            String name = config.getString(path2 + "Name", sId);
-            boolean isLate = config.getBoolean(path2 + "Late");
-            double chance = config.getDouble(path2 + "Chance");
+            String name = cfg.getString(path2 + "Name", sId);
+            boolean isLate = cfg.getBoolean(path2 + "Late");
+            double chance = cfg.getDouble(path2 + "Chance");
 
-            ArenaTargetType targetType = config.getEnum(path2 + "Target", ArenaTargetType.class, ArenaTargetType.PLAYER_ALL);
-            List<String> commands = config.getStringList(path2 + "Commands");
-            List<ItemStack> items = new ArrayList<>(Arrays.asList(config.getItemsEncoded(path2 + "Items")));
-
-            // ----------- CONVERT SCRIPTS START -----------
-            for (String eventRaw : config.getSection(path2 + "Triggers")) {
-                GameEventType eventType = StringUtil.getEnum(eventRaw, GameEventType.class).orElse(null);
-                if (eventType == null) continue;
-
-                String sName = "reward_" + sId;
-                ArenaScript script = new ArenaScript(this.arenaConfig, sName, eventType);
-
-                String values = config.getString(path2 + "Triggers." + eventRaw, "");
-                Map<String, List<ScriptPreparedCondition>> conditions = ArenaScript.ofGameTrigger(eventType, values);
-                conditions.values().forEach(list -> {
-                    list.add(new ScriptPreparedCondition(ScriptConditions.CHANCE, chance, ScriptCondition.Operator.SMALLER));
-                });
-                if (conditions.isEmpty()) {
-                    conditions.put(Placeholders.DEFAULT, Collections.singletonList(new ScriptPreparedCondition(ScriptConditions.CHANCE, chance, ScriptCondition.Operator.SMALLER)));
-                }
-                script.getConditions().putAll(conditions);
-
-                ScriptPreparedAction action = new ScriptPreparedAction(ScriptActions.GIVE_REWARD, new ParameterResult());
-                action.getParameters().add(Parameters.REWARD, sId.toLowerCase());
-                action.getParameters().add(Parameters.TARGET, targetType.name());
-                script.getActions().add(action);
-
-                this.getArenaConfig().getScriptManager().addConverted(script);
-            }
-            config.remove(path2 + "Triggers");
-            // ----------- CONVERT SCRIPTS END -----------
+            ArenaTargetType targetType = cfg.getEnum(path2 + "Target", ArenaTargetType.class, ArenaTargetType.PLAYER_ALL);
+            List<String> commands = cfg.getStringList(path2 + "Commands");
+            List<ItemStack> items = new ArrayList<>(Arrays.asList(cfg.getItemsEncoded(path2 + "Items")));
 
             ArenaReward reward = new ArenaReward(arenaConfig, sId, name, isLate, commands, items);
             this.getRewardsMap().put(reward.getId(), reward);
         }
-        config.saveChanges();
+        return true;
     }
 
-    @Override
-    public void shutdown() {
+    public void clear() {
         if (this.editor != null) {
             this.editor.clear();
             this.editor = null;
@@ -127,12 +87,6 @@ public class ArenaRewardManager implements ArenaChild, ConfigHolder, Loadable, P
         return editor;
     }
 
-    @NotNull
-    @Override
-    public JYML getConfig() {
-        return config;
-    }
-
     @Override
     @NotNull
     public List<String> getProblems() {
@@ -141,15 +95,15 @@ public class ArenaRewardManager implements ArenaChild, ConfigHolder, Loadable, P
 
     @Override
     public void onSave() {
-        config.set("Retain_On_Death", this.isRetainOnDeath());
-        config.set("Retain_On_Leave", this.isRetainOnLeave());
-        config.set("List", null);
+        cfg.set("Retain_On_Death", this.isRetainOnDeath());
+        cfg.set("Retain_On_Leave", this.isRetainOnLeave());
+        cfg.remove("List");
         this.getRewardsMap().forEach((id, reward) -> {
             String path2 = "List." + id + ".";
-            config.set(path2 + "Name", reward.getName());
-            config.set(path2 + "Late", reward.isLate());
-            config.set(path2 + "Commands", reward.getCommands());
-            config.setItemsEncoded(path2 + "Items", reward.getItems());
+            cfg.set(path2 + "Name", reward.getName());
+            cfg.set(path2 + "Late", reward.isLate());
+            cfg.set(path2 + "Commands", reward.getCommands());
+            cfg.setItemsEncoded(path2 + "Items", reward.getItems());
         });
     }
 

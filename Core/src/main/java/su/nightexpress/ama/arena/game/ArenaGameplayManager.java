@@ -5,8 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.config.JYML;
-import su.nexmedia.engine.api.manager.ConfigHolder;
-import su.nexmedia.engine.api.manager.Loadable;
+import su.nexmedia.engine.api.manager.AbstractConfigHolder;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.command.CommandRegister;
@@ -14,29 +13,24 @@ import su.nexmedia.engine.lang.LangManager;
 import su.nexmedia.engine.utils.EngineUtils;
 import su.nexmedia.engine.utils.NumberUtil;
 import su.nexmedia.engine.utils.StringUtil;
+import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.Problematic;
-import su.nightexpress.ama.api.type.GameEventType;
-import su.nightexpress.ama.api.arena.type.ArenaTargetType;
 import su.nightexpress.ama.arena.editor.game.GameplayEditor;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
-import su.nightexpress.ama.arena.script.action.ParameterResult;
-import su.nightexpress.ama.arena.script.action.Parameters;
-import su.nightexpress.ama.arena.script.action.ScriptActions;
-import su.nightexpress.ama.arena.script.action.ScriptPreparedAction;
-import su.nightexpress.ama.arena.script.condition.ScriptPreparedCondition;
-import su.nightexpress.ama.arena.script.impl.ArenaScript;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.hook.HookId;
 import su.nightexpress.ama.kit.Kit;
 
 import java.util.*;
 
-public class ArenaGameplayManager implements ArenaChild, ConfigHolder, Loadable, Problematic, Placeholder {
+public class ArenaGameplayManager extends AbstractConfigHolder<AMA> implements ArenaChild, Problematic, Placeholder {
+
+    public static final String CONFIG_NAME = "gameplay.yml";
 
     private final ArenaConfig arenaConfig;
-    private final JYML        config;
+    private final PlaceholderMap placeholderMap;
 
     private GameplayEditor editor;
 
@@ -69,8 +63,6 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, Loadable,
     private boolean isPlayerCommandsEnabled;
     private Set<String> playerCommandsAllowed;
 
-
-
     private boolean              isKitsEnabled;
     private Set<String>          kitsAllowed;
     private Map<String, Integer> kitsLimits;
@@ -78,13 +70,9 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, Loadable,
     private boolean petsAllowed;
     private boolean mcmmoAllowed;
 
-    private final PlaceholderMap placeholderMap;
-
-    private static final String CONFIG_NAME = "gameplay.yml";
-
-    public ArenaGameplayManager(@NotNull ArenaConfig arenaConfig) {
+    public ArenaGameplayManager(@NotNull ArenaConfig arenaConfig, @NotNull JYML cfg) {
+        super(arenaConfig.plugin(), cfg);
         this.arenaConfig = arenaConfig;
-        this.config = new JYML(arenaConfig.getFile().getParentFile().getAbsolutePath(), CONFIG_NAME);
         this.bannedItems = new HashSet<>();
         this.allowedSpawnReasons = new HashSet<>();
         this.playerCommandsAllowed = new HashSet<>();
@@ -127,96 +115,66 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, Loadable,
     }
 
     @Override
-    public void setup() {
-        this.setTimeleft(config.getInt("Timeleft", 30));
-        this.setLobbyTime(config.getInt("Lobby_Prepare_Time", 30));
-        this.setAnnouncesEnabled(config.getBoolean("Announces_Enabled", true));
-        this.setScoreboardEnabled(config.getBoolean("Scoreboard.Enabled", true));
-        this.setScoreboardId(config.getString("Scoreboard.Id", Placeholders.DEFAULT));
-        this.setHungerEnabled(config.getBoolean("Hunger_Enabled"));
-        this.setRegenerationEnabled(config.getBoolean("Regeneration_Enabled", true));
-        this.setItemDropEnabled(config.getBoolean("Item_Drop_Enabled"));
-        this.setItemPickupEnabled(config.getBoolean("Item_Pickup_Enabled"));
-        this.setItemDurabilityEnabled(config.getBoolean("Item_Durability_Enabled"));
-        this.setMobDropExpEnabled(config.getBoolean("Mob_Drop_Exp_Enabled"));
-        this.setMobDropLootEnabled(config.getBoolean("Mob_Drop_Items_Enabled"));
+    public boolean load() {
+        this.setTimeleft(cfg.getInt("Timeleft", 30));
+        this.setLobbyTime(cfg.getInt("Lobby_Prepare_Time", 30));
+        this.setAnnouncesEnabled(cfg.getBoolean("Announces_Enabled", true));
+        this.setScoreboardEnabled(cfg.getBoolean("Scoreboard.Enabled", true));
+        this.setScoreboardId(cfg.getString("Scoreboard.Id", Placeholders.DEFAULT));
+        this.setHungerEnabled(cfg.getBoolean("Hunger_Enabled"));
+        this.setRegenerationEnabled(cfg.getBoolean("Regeneration_Enabled", true));
+        this.setItemDropEnabled(cfg.getBoolean("Item_Drop_Enabled"));
+        this.setItemPickupEnabled(cfg.getBoolean("Item_Pickup_Enabled"));
+        this.setItemDurabilityEnabled(cfg.getBoolean("Item_Durability_Enabled"));
+        this.setMobDropExpEnabled(cfg.getBoolean("Mob_Drop_Exp_Enabled"));
+        this.setMobDropLootEnabled(cfg.getBoolean("Mob_Drop_Items_Enabled"));
 
-        this.setMobHighlightEnabled(config.getBoolean("Mob_Highlight.Enabled"));
-        this.setMobHighlightAmount(config.getDouble("Mob_Highlight.Amount"));
-        this.setMobHighlightColor(config.getEnum("Mob_Highlight.Color", ChatColor.class, ChatColor.RED));
+        this.setMobHighlightEnabled(cfg.getBoolean("Mob_Highlight.Enabled"));
+        this.setMobHighlightAmount(cfg.getDouble("Mob_Highlight.Amount"));
+        this.setMobHighlightColor(cfg.getEnum("Mob_Highlight.Color", ChatColor.class, ChatColor.RED));
 
-        this.bannedItems = new HashSet<>(config.getStringSet("Banned_Items").stream()
+        this.bannedItems = new HashSet<>(cfg.getStringSet("Banned_Items").stream()
             .map(Material::getMaterial).filter(Objects::nonNull).toList());
-        this.allowedSpawnReasons = new HashSet<>(config.getStringSet("Allowed_Spawn_Reasons")
+        this.allowedSpawnReasons = new HashSet<>(cfg.getStringSet("Allowed_Spawn_Reasons")
             .stream().map(raw -> StringUtil.getEnum(raw, CreatureSpawnEvent.SpawnReason.class).orElse(null))
             .filter(Objects::nonNull).toList());
 
-        for (String cmdId : config.getSection("Auto_Commands")) {
-            String path2 = "Auto_Commands." + cmdId + ".";
-            ArenaTargetType targetType = config.getEnum(path2 + "Target", ArenaTargetType.class, ArenaTargetType.GLOBAL);
-            List<String> commands = config.getStringList(path2 + "Commands");
-
-            // ----------- CONVERT SCRIPTS START -----------
-            for (String eventRaw : config.getSection(path2 + "Triggers")) {
-                GameEventType eventType = StringUtil.getEnum(eventRaw, GameEventType.class).orElse(null);
-                if (eventType == null) continue;
-
-                String name = "command_" + cmdId;
-                ArenaScript script = new ArenaScript(this.arenaConfig, name, eventType);
-
-                String values = config.getString(path2 + "Triggers." + eventRaw, "");
-                Map<String, List<ScriptPreparedCondition>> conditions = ArenaScript.ofGameTrigger(eventType, values);
-                script.getConditions().putAll(conditions);
-
-                for (String command : commands) {
-                    ScriptPreparedAction action = new ScriptPreparedAction(ScriptActions.RUN_COMMAND, new ParameterResult());
-                    action.getParameters().add(Parameters.NAME, command);
-                    action.getParameters().add(Parameters.TARGET, targetType.name());
-                    script.getActions().add(action);
-                }
-
-                this.getArenaConfig().getScriptManager().addConverted(script);
-            }
-            config.remove(path2 + "Triggers");
-            // ----------- CONVERT SCRIPTS END -----------
-        }
-
         String path = "Players.";
-        this.setPlayerMinAmount(config.getInt(path + "Minimum", 1));
-        this.setPlayerMaxAmount(config.getInt(path + "Maximum", 10));
-        this.setPlayerLivesAmount(config.getInt(path + "Lives", 1));
-        this.setPlayerReviveTime(config.getInt(path + "Revive_Time", -1));
-        this.setKeepInventory(config.getBoolean("Keep_Inventory"));
+        this.setPlayerMinAmount(cfg.getInt(path + "Minimum", 1));
+        this.setPlayerMaxAmount(cfg.getInt(path + "Maximum", 10));
+        this.setPlayerLivesAmount(cfg.getInt(path + "Lives", 1));
+        this.setPlayerReviveTime(cfg.getInt(path + "Revive_Time", -1));
+        this.setKeepInventory(cfg.getBoolean("Keep_Inventory"));
 
         path = "Spectate.";
-        this.setSpectateEnabled(config.getBoolean(path + "Enabled", true));
+        this.setSpectateEnabled(cfg.getBoolean(path + "Enabled", true));
 
         path = "Commands.";
-        this.setPlayerCommandsEnabled(config.getBoolean(path + "Allowed"));
-        this.setPlayerCommandsAllowed(config.getStringSet(path + "Whitelist"));
+        this.setPlayerCommandsEnabled(cfg.getBoolean(path + "Allowed"));
+        this.setPlayerCommandsAllowed(cfg.getStringSet(path + "Whitelist"));
 
         path = "Kits.";
-        this.setKitsEnabled(config.getBoolean(path + "Enabled", true));
-        this.setKitsAllowed(config.getStringSet(path + "Allowed"));
+        this.setKitsEnabled(cfg.getBoolean(path + "Enabled", true));
+        this.setKitsAllowed(cfg.getStringSet(path + "Allowed"));
         if (this.isKitsEnabled() && this.getKitsAllowed().isEmpty()) {
             this.getKitsAllowed().add(Placeholders.WILDCARD);
         }
 
         Map<String, Integer> kitLimitsMap = new HashMap<>();
-        for (String sId : config.getSection(path + "Limits")) {
-            kitLimitsMap.put(sId.toLowerCase(), config.getInt(path + "Limits." + sId));
+        for (String sId : cfg.getSection(path + "Limits")) {
+            kitLimitsMap.put(sId.toLowerCase(), cfg.getInt(path + "Limits." + sId));
         }
         this.setKitsLimits(kitLimitsMap);
 
         path = "Compatibility.";
-        this.setPetsAllowed(config.getBoolean(path + "Pets_Enabled"));
-        this.setMcmmoAllowed(config.getBoolean(path + "Mcmmo_Enabled"));
+        this.setPetsAllowed(cfg.getBoolean(path + "Pets_Enabled"));
+        this.setMcmmoAllowed(cfg.getBoolean(path + "Mcmmo_Enabled"));
 
-        config.saveChanges();
+        cfg.saveChanges();
+        return true;
     }
 
-    @Override
-    public void shutdown() {
+    public void clear() {
         if (this.editor != null) {
             this.editor.clear();
             this.editor = null;
@@ -225,53 +183,53 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, Loadable,
 
     @Override
     public void onSave() {
-        config.set("Timeleft", this.getTimeleft());
-        config.set("Lobby_Prepare_Time", this.getLobbyTime());
-        config.set("Announces_Enabled", this.isAnnouncesEnabled());
-        config.set("Scoreboard.Enabled", this.isScoreboardEnabled());
-        config.set("Scoreboard.Id", this.getScoreboardId());
-        config.set("Hunger_Enabled", this.isHungerEnabled());
-        config.set("Regeneration_Enabled", this.isRegenerationEnabled());
-        config.set("Item_Drop_Enabled", this.isItemDropEnabled());
-        config.set("Item_Pickup_Enabled", this.isItemPickupEnabled());
-        config.set("Item_Durability_Enabled", this.isItemDurabilityEnabled());
-        config.set("Mob_Drop_Exp_Enabled", this.isMobDropExpEnabled());
-        config.set("Mob_Drop_Items_Enabled", this.isMobDropLootEnabled());
-        config.set("Banned_Items", this.getBannedItems().stream().map(Material::name).toList());
-        config.set("Allowed_Spawn_Reasons", this.getAllowedSpawnReasons().stream().map(Enum::name).toList());
+        cfg.set("Timeleft", this.getTimeleft());
+        cfg.set("Lobby_Prepare_Time", this.getLobbyTime());
+        cfg.set("Announces_Enabled", this.isAnnouncesEnabled());
+        cfg.set("Scoreboard.Enabled", this.isScoreboardEnabled());
+        cfg.set("Scoreboard.Id", this.getScoreboardId());
+        cfg.set("Hunger_Enabled", this.isHungerEnabled());
+        cfg.set("Regeneration_Enabled", this.isRegenerationEnabled());
+        cfg.set("Item_Drop_Enabled", this.isItemDropEnabled());
+        cfg.set("Item_Pickup_Enabled", this.isItemPickupEnabled());
+        cfg.set("Item_Durability_Enabled", this.isItemDurabilityEnabled());
+        cfg.set("Mob_Drop_Exp_Enabled", this.isMobDropExpEnabled());
+        cfg.set("Mob_Drop_Items_Enabled", this.isMobDropLootEnabled());
+        cfg.set("Banned_Items", this.getBannedItems().stream().map(Material::name).toList());
+        cfg.set("Allowed_Spawn_Reasons", this.getAllowedSpawnReasons().stream().map(Enum::name).toList());
 
-        config.set("Mob_Highlight.Enabled", this.isMobHighlightEnabled());
-        config.set("Mob_Highlight.Amount", this.getMobHighlightAmount());
-        config.set("Mob_Highlight.Color", this.getMobHighlightColor().name());
+        cfg.set("Mob_Highlight.Enabled", this.isMobHighlightEnabled());
+        cfg.set("Mob_Highlight.Amount", this.getMobHighlightAmount());
+        cfg.set("Mob_Highlight.Color", this.getMobHighlightColor().name());
 
         String path = "Players.";
-        config.set(path + "Minimum", this.getPlayerMinAmount());
-        config.set(path + "Maximum", this.getPlayerMaxAmount());
-        config.set(path + "Lives", this.getPlayerLivesAmount());
-        config.set(path + "Revive_Time", this.getPlayerReviveTime());
-        config.set("Keep_Inventory", this.isKeepInventory());
+        cfg.set(path + "Minimum", this.getPlayerMinAmount());
+        cfg.set(path + "Maximum", this.getPlayerMaxAmount());
+        cfg.set(path + "Lives", this.getPlayerLivesAmount());
+        cfg.set(path + "Revive_Time", this.getPlayerReviveTime());
+        cfg.set("Keep_Inventory", this.isKeepInventory());
 
         path = "Spectate.";
-        config.set(path + "Enabled", this.isSpectateEnabled());
+        cfg.set(path + "Enabled", this.isSpectateEnabled());
 
         path = "Commands.";
-        config.set(path + "Allowed", this.isPlayerCommandsEnabled());
-        config.set(path + "Whitelist", this.getPlayerCommandsAllowed());
+        cfg.set(path + "Allowed", this.isPlayerCommandsEnabled());
+        cfg.set(path + "Whitelist", this.getPlayerCommandsAllowed());
 
-        config.set("Auto_Commands", null);
+        cfg.set("Auto_Commands", null);
 
         path = "Kits.";
-        config.set(path + "Enabled", this.isKitsEnabled());
-        config.set(path + "Allowed", new ArrayList<>(this.getKitsAllowed()));
+        cfg.set(path + "Enabled", this.isKitsEnabled());
+        cfg.set(path + "Allowed", new ArrayList<>(this.getKitsAllowed()));
         final String path2 = path;
-        config.set(path2 + "Limits", null);
+        cfg.set(path2 + "Limits", null);
         this.getKitsLimits().forEach((id, limit) -> {
-            config.set(path2 + "Limits." + id, limit);
+            cfg.set(path2 + "Limits." + id, limit);
         });
 
         path = "Compatibility.";
-        config.set(path + "Pets_Enabled", this.isPetsAllowed());
-        config.set(path + "Mcmmo_Enabled", this.isMcmmoAllowed());
+        cfg.set(path + "Pets_Enabled", this.isPetsAllowed());
+        cfg.set(path + "Mcmmo_Enabled", this.isMcmmoAllowed());
     }
 
     @Override
@@ -286,12 +244,6 @@ public class ArenaGameplayManager implements ArenaChild, ConfigHolder, Loadable,
             this.editor = new GameplayEditor(this);
         }
         return this.editor;
-    }
-
-    @NotNull
-    @Override
-    public JYML getConfig() {
-        return config;
     }
 
     @NotNull

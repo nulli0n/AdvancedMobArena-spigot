@@ -3,37 +3,28 @@ package su.nightexpress.ama.arena.wave;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
-import su.nexmedia.engine.api.manager.ConfigHolder;
-import su.nexmedia.engine.api.manager.Loadable;
+import su.nexmedia.engine.api.manager.AbstractConfigHolder;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.lang.LangManager;
 import su.nexmedia.engine.utils.NumberUtil;
-import su.nexmedia.engine.utils.StringUtil;
+import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.Problematic;
-import su.nightexpress.ama.api.type.GameEventType;
 import su.nightexpress.ama.arena.editor.wave.WaveManagerEditor;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
-import su.nightexpress.ama.arena.script.action.ParameterResult;
-import su.nightexpress.ama.arena.script.action.Parameters;
-import su.nightexpress.ama.arena.script.action.ScriptActions;
-import su.nightexpress.ama.arena.script.action.ScriptPreparedAction;
-import su.nightexpress.ama.arena.script.condition.ScriptPreparedCondition;
-import su.nightexpress.ama.arena.script.impl.ArenaScript;
 import su.nightexpress.ama.hook.mob.MobProvider;
 import su.nightexpress.ama.hook.mob.PluginMobProvider;
 import su.nightexpress.ama.hook.mob.impl.InternalMobProvider;
 
 import java.util.*;
 
-public class ArenaWaveManager implements ArenaChild, ConfigHolder, Loadable, Problematic, Placeholder {
+public class ArenaWaveManager extends AbstractConfigHolder<AMA> implements ArenaChild, Problematic, Placeholder {
 
     public static final String CONFIG_NAME = "waves.yml";
 
     private final ArenaConfig                     arenaConfig;
-    private final JYML                            config;
     private final Map<String, ArenaWave>          waves;
     private final PlaceholderMap placeholderMap;
 
@@ -49,9 +40,9 @@ public class ArenaWaveManager implements ArenaChild, ConfigHolder, Loadable, Pro
 
     private WaveManagerEditor editor;
 
-    public ArenaWaveManager(@NotNull ArenaConfig arenaConfig) {
+    public ArenaWaveManager(@NotNull ArenaConfig arenaConfig, @NotNull JYML cfg) {
+        super(arenaConfig.plugin(), cfg);
         this.arenaConfig = arenaConfig;
-        this.config = new JYML(arenaConfig.getFile().getParentFile().getAbsolutePath(), CONFIG_NAME);
         this.waves = new HashMap<>();
 
         this.placeholderMap = new PlaceholderMap()
@@ -68,64 +59,30 @@ public class ArenaWaveManager implements ArenaChild, ConfigHolder, Loadable, Pro
     }
 
     @Override
-    public void setup() {
-        this.setFinalRound(config.getInt("Final_Wave", 100));
-        this.setFirstRoundCountdown(config.getInt("Delay.First", 5));
-        this.setRoundCountdown(config.getInt("Delay.Default", 10));
+    public boolean load() {
+        this.setFinalRound(cfg.getInt("Final_Wave", 100));
+        this.setFirstRoundCountdown(cfg.getInt("Delay.First", 5));
+        this.setRoundCountdown(cfg.getInt("Delay.Default", 10));
 
         String path = "Gradual_Spawn.";
-        this.setGradualSpawnEnabled(config.getBoolean(path + "Enabled"));
-        this.setGradualSpawnPercentFirst(config.getDouble(path + "First.Amount_Percent", 50));
-        this.setGradualSpawnNextInterval(config.getInt(path + "Next.Time_Interval", 5));
-        this.setGradualSpawnNextPercent(config.getInt(path + "Next.Amount_Percent", 20));
-        this.setGradualSpawnNextKillPercent(config.getInt(path + "Next.For_Killed_Percent", 10));
+        this.setGradualSpawnEnabled(cfg.getBoolean(path + "Enabled"));
+        this.setGradualSpawnPercentFirst(cfg.getDouble(path + "First.Amount_Percent", 50));
+        this.setGradualSpawnNextInterval(cfg.getInt(path + "Next.Time_Interval", 5));
+        this.setGradualSpawnNextPercent(cfg.getInt(path + "Next.Amount_Percent", 20));
+        this.setGradualSpawnNextKillPercent(cfg.getInt(path + "Next.For_Killed_Percent", 10));
 
-        for (String ampId : config.getSection("Amplifiers")) {
-            String path2 = "Amplifiers." + ampId + ".";
-
-            int valueAmount = config.getInt(path2 + "Values.Amount");
-            int valueLevel = config.getInt(path2 + "Values.Level");
-
-            // ----------- CONVERT SCRIPTS START -----------
-            for (String eventRaw : config.getSection(path2 + "Triggers")) {
-                GameEventType eventType = StringUtil.getEnum(eventRaw, GameEventType.class).orElse(null);
-                if (eventType == null) continue;
-
-                String sName = "amplifier_" + ampId;
-                ArenaScript script = new ArenaScript(this.arenaConfig, sName, eventType);
-
-                String values = config.getString(path2 + "Triggers." + eventRaw, "");
-                Map<String, List<ScriptPreparedCondition>> conditions = ArenaScript.ofGameTrigger(eventType, values);
-                script.getConditions().putAll(conditions);
-
-                ScriptPreparedAction action = new ScriptPreparedAction(ScriptActions.ADJUST_MOB_AMOUNT, new ParameterResult());
-                action.getParameters().add(Parameters.WAVE, "null");
-                action.getParameters().add(Parameters.AMOUNT, valueAmount);
-                script.getActions().add(action);
-
-                ScriptPreparedAction action2 = new ScriptPreparedAction(ScriptActions.ADJUST_MOB_LEVEL, new ParameterResult());
-                action2.getParameters().add(Parameters.WAVE, "null");
-                action2.getParameters().add(Parameters.AMOUNT, valueLevel);
-                script.getActions().add(action2);
-
-                this.getArenaConfig().getScriptManager().addConverted(script);
-            }
-            config.remove(path2 + "Triggers");
-            // ----------- CONVERT SCRIPTS END -----------
-        }
-
-        for (String waveId : config.getSection("Waves")) {
+        for (String waveId : cfg.getSection("Waves")) {
             String path2 = "Waves." + waveId + ".";
 
             ArenaWave wave = new ArenaWave(this.arenaConfig, waveId, new HashSet<>());
-            for (String sId : config.getSection(path2 + "Mobs")) {
+            for (String sId : cfg.getSection(path2 + "Mobs")) {
                 String path3 = path2 + "Mobs." + sId + ".";
 
                 MobProvider provider = PluginMobProvider.getProviders().stream().filter(pv -> pv.getMobNames().contains(sId))
                     .findFirst().orElse(null);
 
                 if (provider == null) {
-                    String providerId = config.getString(path3 + "Provider", InternalMobProvider.NAME);
+                    String providerId = cfg.getString(path3 + "Provider", InternalMobProvider.NAME);
                     provider = PluginMobProvider.getProvider(providerId);
                     if (provider == null) {
                         this.plugin().error("Invalid mob provider: '" + providerId + "' in '" + getArenaConfig().getId() + " arena.");
@@ -133,10 +90,10 @@ public class ArenaWaveManager implements ArenaChild, ConfigHolder, Loadable, Pro
                     }
                 }
 
-                String mobId = config.getString(path3 + "Mob", sId);
-                int amount = config.getInt(path3 + "Amount");
-                int level = config.getInt(path3 + "Level");
-                double chance = config.getDouble(path3 + "Chance");
+                String mobId = cfg.getString(path3 + "Mob", sId);
+                int amount = cfg.getInt(path3 + "Amount");
+                int level = cfg.getInt(path3 + "Level");
+                double chance = cfg.getDouble(path3 + "Chance");
 
                 ArenaWaveMob mob = new ArenaWaveMob(wave, provider, mobId, amount, level, chance);
                 wave.getMobs().add(mob);
@@ -144,12 +101,10 @@ public class ArenaWaveManager implements ArenaChild, ConfigHolder, Loadable, Pro
 
             this.waves.put(wave.getId(), wave);
         }
-
-        config.saveChanges();
+        return true;
     }
 
-    @Override
-    public void shutdown() {
+    public void clear() {
         if (this.editor != null) {
             this.editor.clear();
             this.editor = null;
@@ -160,27 +115,27 @@ public class ArenaWaveManager implements ArenaChild, ConfigHolder, Loadable, Pro
 
     @Override
     public void onSave() {
-        config.set("Final_Wave", this.getFinalRound());
+        cfg.set("Final_Wave", this.getFinalRound());
 
-        config.set("Delay.First", this.getFirstRoundCountdown());
-        config.set("Delay.Default", this.getRoundCountdown());
+        cfg.set("Delay.First", this.getFirstRoundCountdown());
+        cfg.set("Delay.Default", this.getRoundCountdown());
 
-        config.set("Gradual_Spawn.Enabled", this.isGradualSpawnEnabled());
-        config.set("Gradual_Spawn.First.Amount_Percent", this.getGradualSpawnPercentFirst());
-        config.set("Gradual_Spawn.Next.Amount_Percent", this.getGradualSpawnNextPercent());
-        config.set("Gradual_Spawn.Next.For_Killed_Percent", this.getGradualSpawnNextKillPercent());
-        config.set("Gradual_Spawn.Next.Time_Interval", this.getGradualSpawnNextInterval());
+        cfg.set("Gradual_Spawn.Enabled", this.isGradualSpawnEnabled());
+        cfg.set("Gradual_Spawn.First.Amount_Percent", this.getGradualSpawnPercentFirst());
+        cfg.set("Gradual_Spawn.Next.Amount_Percent", this.getGradualSpawnNextPercent());
+        cfg.set("Gradual_Spawn.Next.For_Killed_Percent", this.getGradualSpawnNextKillPercent());
+        cfg.set("Gradual_Spawn.Next.Time_Interval", this.getGradualSpawnNextInterval());
 
-        config.remove("Waves");
+        cfg.remove("Waves");
         this.getWaves().forEach((id, wave) -> {
             String path2 = "Waves." + id + ".";
             wave.getMobs().forEach(mob -> {
                 String path3 = path2 + "Mobs." + UUID.randomUUID() + ".";
-                config.set(path3 + "Provider", mob.getProvider().getName());
-                config.set(path3 + "Mob", mob.getMobId());
-                config.set(path3 + "Amount", mob.getAmount());
-                config.set(path3 + "Level", mob.getLevel());
-                config.set(path3 + "Chance", mob.getChance());
+                cfg.set(path3 + "Provider", mob.getProvider().getName());
+                cfg.set(path3 + "Mob", mob.getMobId());
+                cfg.set(path3 + "Amount", mob.getAmount());
+                cfg.set(path3 + "Level", mob.getLevel());
+                cfg.set(path3 + "Chance", mob.getChance());
             });
         });
     }
@@ -203,12 +158,6 @@ public class ArenaWaveManager implements ArenaChild, ConfigHolder, Loadable, Pro
     @NotNull
     public ArenaConfig getArenaConfig() {
         return this.arenaConfig;
-    }
-
-    @Override
-    @NotNull
-    public JYML getConfig() {
-        return this.config;
     }
 
     @Override
