@@ -469,8 +469,8 @@ public class Arena implements IArena, Placeholder {
         Set<LocalTime> times = map.get(closest.getDayOfWeek());
         if (times == null || times.isEmpty()) return false;
 
-        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
-        return now.equals(closest.truncatedTo(ChronoUnit.MINUTES));
+        LocalTime timeNow = LocalTime.now().truncatedTo(ChronoUnit.MINUTES);
+        return times.stream().anyMatch(stored -> stored.truncatedTo(ChronoUnit.MINUTES).equals(timeNow));
     }
 
     public void tickLobby() {

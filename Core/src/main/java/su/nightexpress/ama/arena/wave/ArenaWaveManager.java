@@ -78,7 +78,7 @@ public class ArenaWaveManager extends AbstractConfigHolder<AMA> implements Arena
             for (String sId : cfg.getSection(path2 + "Mobs")) {
                 String path3 = path2 + "Mobs." + sId + ".";
 
-                MobProvider provider = PluginMobProvider.getProviders().stream().filter(pv -> pv.getMobNames().contains(sId))
+                /*MobProvider provider = PluginMobProvider.getProviders().stream().filter(pv -> pv.getMobNames().contains(sId))
                     .findFirst().orElse(null);
 
                 if (provider == null) {
@@ -88,9 +88,20 @@ public class ArenaWaveManager extends AbstractConfigHolder<AMA> implements Arena
                         this.plugin().error("Invalid mob provider: '" + providerId + "' in '" + getArenaConfig().getId() + " arena.");
                         continue;
                     }
+                }*/
+
+                String providerId = cfg.getString(path3 + "Provider", InternalMobProvider.NAME);
+                MobProvider provider = PluginMobProvider.getProvider(providerId);
+                if (provider == null) {
+                    this.plugin().error("Invalid mob provider: '" + providerId + "' in '" + getArenaConfig().getId() + "' arena.");
+                    continue;
                 }
 
                 String mobId = cfg.getString(path3 + "Mob", sId);
+                if (!provider.getMobNames().contains(mobId)) {
+                    this.plugin.warn("Mob Provider '" + provider.getName() + "' does not contains '" + mobId + "' mob! Arena: '" + getArenaConfig().getId() + "', Wave: '" + waveId + "'.");
+                }
+
                 int amount = cfg.getInt(path3 + "Amount");
                 int level = cfg.getInt(path3 + "Level");
                 double chance = cfg.getDouble(path3 + "Chance");

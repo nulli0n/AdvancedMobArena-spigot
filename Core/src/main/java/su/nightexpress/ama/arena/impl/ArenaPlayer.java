@@ -14,6 +14,7 @@ import su.nexmedia.engine.utils.TimeUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.IArenaPlayer;
+import su.nightexpress.ama.api.arena.type.ArenaLocationType;
 import su.nightexpress.ama.api.event.ArenaPlayerReadyEvent;
 import su.nightexpress.ama.arena.board.ArenaBoard;
 import su.nightexpress.ama.arena.board.ArenaBoardConfig;
@@ -192,6 +193,12 @@ public final class ArenaPlayer implements IArenaPlayer, Placeholder {
             if (!this.getArena().getConfig().getWaveManager().isInfiniteWaves()) {
                 this.addStats(StatType.GAMES_LOST, 1);
             }
+
+            Location spectate = this.getArena().getConfig().getLocation(ArenaLocationType.SPECTATE);
+            if (spectate != null) {
+                this.getPlayer().teleport(spectate);
+            }
+
             ArenaUtils.removeMobBossBars(this.getPlayer());
         }
         else {

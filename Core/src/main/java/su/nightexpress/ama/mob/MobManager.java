@@ -183,7 +183,8 @@ public class MobManager extends AbstractManager<AMA> {
         if (!MobsConfig.KILL_REWARD_ENABLED.get()) return null;
 
         var map = MobsConfig.KILL_REWARD_VALUES.get();
-        return map.getOrDefault(getMobIdProvider(entity), map.get(Placeholders.DEFAULT));
+        //System.out.println("getMobIdProvider(entity) = '" + getMobIdProvider(entity) + "'");
+        return map.getOrDefault(getMobIdProvider(entity).toLowerCase(), map.get(Placeholders.DEFAULT));
     }
 
     @Nullable

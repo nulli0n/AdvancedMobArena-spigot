@@ -284,22 +284,22 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onArenaBreakVehicle(VehicleDamageEvent e) {
-        e.setCancelled(!this.canDamage(e.getAttacker(), e.getVehicle()));
+        e.setCancelled(!this.canBreak(e.getAttacker(), e.getVehicle()));
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onArenaBreakDecorations(EntityDamageByEntityEvent e) {
         if (!(e.getEntity() instanceof LivingEntity)) {
-            e.setCancelled(!this.canDamage(e.getDamager(), e.getEntity()));
+            e.setCancelled(!this.canBreak(e.getDamager(), e.getEntity()));
         }
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onArenaBreakPainting(HangingBreakByEntityEvent e) {
-        e.setCancelled(!this.canDamage(e.getRemover(), e.getEntity()));
+        e.setCancelled(!this.canBreak(e.getRemover(), e.getEntity()));
     }
 
-    private boolean canDamage(@Nullable Entity damager, @NotNull Entity entity) {
+    private boolean canBreak(@Nullable Entity damager, @NotNull Entity entity) {
         if (damager instanceof Player player && ArenaPlayer.isPlaying(player)) {
             return false;
         }
@@ -332,17 +332,11 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
         }
     }*/
 
-    /**
-     * Prevent interact with non-mob entities in arena
-     */
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onArenaPlayerInteractEntity(PlayerInteractEntityEvent e) {
         e.setCancelled(!this.canInteract(e));
     }
 
-    /**
-     * Prevent interact with non-mob entities in arena
-     */
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onArenaPlayerInteractEntity2(PlayerInteractAtEntityEvent e) {
         e.setCancelled(!this.canInteract(e));
@@ -353,20 +347,23 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
         e.setCancelled(ArenaPlayer.isPlaying(e.getPlayer()));
     }
 
-    private boolean canInteract(@NotNull PlayerInteractEntityEvent e) {
-        Player player = e.getPlayer();
-        if (!ArenaPlayer.isPlaying(player)) return true;
+    private boolean canInteract(@NotNull PlayerInteractEntityEvent event) {
+        Player player = event.getPlayer();
+        ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
+        if (arenaPlayer == null) return true;
 
-        Entity entity = e.getRightClicked();
+        Entity entity = event.getRightClicked();
+        if (entity instanceof LivingEntity livingEntity && arenaPlayer.getArena().getMobs().isAlly(livingEntity)) return true;
+
         return entity instanceof Player || entity instanceof Vehicle || !this.plugin.getMobManager().isArenaEntity(entity);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onArenaChunkUnload(ChunkUnloadEvent e) {
-        Chunk chunk = e.getChunk();
+    public void onArenaChunkUnload(ChunkUnloadEvent event) {
+        Chunk chunk = event.getChunk();
         if (chunk.getPluginChunkTickets().contains(this.plugin)) return;
 
-        for (Entity entity : e.getChunk().getEntities()) {
+        for (Entity entity : event.getChunk().getEntities()) {
             if (plugin.getMobManager().isArenaEntity(entity)) {
                 chunk.addPluginChunkTicket(this.plugin);
                 return;
