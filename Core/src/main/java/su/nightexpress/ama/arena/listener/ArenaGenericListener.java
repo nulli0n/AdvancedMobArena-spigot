@@ -17,7 +17,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleDamageEvent;
-import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.event.world.ChunkLoadEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.manager.AbstractListener;
@@ -46,17 +46,17 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
-    public void onArenaPlayerBlockBreak(BlockBreakEvent e) {
-        Player player = e.getPlayer();
+    public void onArenaPlayerBlockBreak(BlockBreakEvent event) {
+        Player player = event.getPlayer();
         if (ArenaPlayer.isPlaying(player)) {
-            e.setCancelled(true);
+            event.setCancelled(true);
             return;
         }
 
-        Block block = e.getBlock();
+        Block block = event.getBlock();
         Arena arena = this.manager.getArenaAtLocation(block.getLocation());
         if (arena != null && !player.hasPermission(Perms.CREATOR)) {
-            e.setCancelled(true);
+            event.setCancelled(true);
         }
     }
 
@@ -114,7 +114,7 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
         if (arenaPlayer == null) return;
 
         Arena arena = arenaPlayer.getArena();
-        if (!arena.getConfig().getGameplayManager().isKitsEnabled()) return;
+        if (!arena.getConfig().getGameplaySettings().isKitsEnabled()) return;
         if (arena.getState() == GameState.INGAME) return;
 
         e.setCancelled(true);
@@ -140,12 +140,12 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
 
         if (arena.getState() == GameState.INGAME && !arena.isAboutToEnd()) {
             CreatureSpawnEvent.SpawnReason reason = event.getSpawnReason();
-            if (reason == CreatureSpawnEvent.SpawnReason.SPAWNER_EGG && MobsConfig.ALLY_FROM_EGGS.get().contains(entity.getType())) {
+            /*if (reason == CreatureSpawnEvent.SpawnReason.SPAWNER_EGG && MobsConfig.ALLY_FROM_EGGS.get().contains(entity.getType())) {
                 arena.spawnAllyMob(entity.getType(), location);
                 event.setCancelled(true);
                 return;
-            }
-            if (reason == CreatureSpawnEvent.SpawnReason.CUSTOM || arena.getConfig().getGameplayManager().isAllowedSpawnReason(reason)) {
+            }*/
+            if (reason == CreatureSpawnEvent.SpawnReason.CUSTOM || arena.getConfig().getGameplaySettings().isAllowedSpawnReason(reason)) {
                 if (!arena.isAboutToSpawnMobs()) {
                     MobManager.setArena(entity, arena);
                     arena.getMobs().getEnemies().add(entity);
@@ -153,7 +153,7 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
                 }
                 this.plugin.runTask(task -> {
                     if (ArenaUtils.isPet(entity)) {
-                        if (arena.getConfig().getGameplayManager().isPetsAllowed()) {
+                        if (arena.getConfig().getGameplaySettings().isPetsAllowed()) {
                             arena.getMobs().remove(entity);
                             arena.setRoundTotalMobsAmount(arena.getRoundTotalMobsAmount() - 1);
                         }
@@ -358,16 +358,12 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
         return entity instanceof Player || entity instanceof Vehicle || !this.plugin.getMobManager().isArenaEntity(entity);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onArenaChunkUnload(ChunkUnloadEvent event) {
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onArenaChunkUnload(ChunkLoadEvent event) {
         Chunk chunk = event.getChunk();
         if (chunk.getPluginChunkTickets().contains(this.plugin)) return;
-
-        for (Entity entity : event.getChunk().getEntities()) {
-            if (plugin.getMobManager().isArenaEntity(entity)) {
-                chunk.addPluginChunkTicket(this.plugin);
-                return;
-            }
+        if (this.plugin.getArenaManager().getArenaByChunk(chunk) != null) {
+            chunk.addPluginChunkTicket(this.plugin);
         }
     }
 

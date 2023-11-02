@@ -196,7 +196,6 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
         this.getLangManager().loadEnum(StatType.class);
         this.getLangManager().loadEnum(HologramType.class);
         this.getLangManager().loadEnum(MobStyleType.class);
-        // TODO this.getLangManager().setupEditorEnum(SetupItemType.class);
         this.getLang().saveChanges();
     }
 
@@ -256,19 +255,11 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
 
     @Override
     public boolean setupDataHandlers() {
-        try {
-            this.userData = DataHandler.getInstance(this);
-            this.userData.setup();
-        }
-        catch (SQLException e) {
-            this.error("Could not setup database handler!");
-            e.printStackTrace();
-            return false;
-        }
+        this.userData = DataHandler.getInstance(this);
+        this.userData.setup();
 
         this.userManager = new UserManager(this);
         this.userManager.setup();
-
         return true;
     }
 

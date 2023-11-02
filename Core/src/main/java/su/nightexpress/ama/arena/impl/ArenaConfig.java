@@ -1,36 +1,38 @@
 package su.nightexpress.ama.arena.impl;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.AbstractConfigHolder;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
-import su.nexmedia.engine.lang.LangManager;
 import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.LocationUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.api.arena.Problematic;
+import su.nightexpress.ama.api.arena.Inspectable;
+import su.nightexpress.ama.api.arena.Report;
 import su.nightexpress.ama.api.arena.type.ArenaLocationType;
 import su.nightexpress.ama.api.currency.Currency;
 import su.nightexpress.ama.api.hologram.HologramHolder;
 import su.nightexpress.ama.api.hologram.HologramType;
+import su.nightexpress.ama.api.type.GameState;
 import su.nightexpress.ama.arena.ArenaStatsHologram;
 import su.nightexpress.ama.arena.editor.arena.ArenaMainEditor;
-import su.nightexpress.ama.arena.game.ArenaGameplayManager;
-import su.nightexpress.ama.arena.region.ArenaRegionManager;
-import su.nightexpress.ama.arena.reward.ArenaRewardManager;
-import su.nightexpress.ama.arena.script.ArenaScriptManager;
+import su.nightexpress.ama.arena.game.GameplaySettings;
+import su.nightexpress.ama.arena.region.RegionManager;
+import su.nightexpress.ama.arena.reward.RewardManager;
+import su.nightexpress.ama.arena.script.ScriptManager;
 import su.nightexpress.ama.arena.shop.ShopManager;
-import su.nightexpress.ama.arena.spot.ArenaSpotManager;
-import su.nightexpress.ama.arena.supply.ArenaSupplyManager;
-import su.nightexpress.ama.api.type.GameState;
+import su.nightexpress.ama.arena.spot.SpotManager;
+import su.nightexpress.ama.arena.supply.SupplyManager;
 import su.nightexpress.ama.arena.util.ArenaUtils;
-import su.nightexpress.ama.arena.wave.ArenaWaveManager;
+import su.nightexpress.ama.arena.wave.WaveManager;
 import su.nightexpress.ama.hologram.HologramManager;
 import su.nightexpress.ama.hook.level.PlayerLevelProvider;
 import su.nightexpress.ama.hook.level.PluginLevelProvider;
@@ -41,7 +43,10 @@ import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHolder, Problematic, Placeholder {
+public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHolder, Inspectable, Placeholder {
+
+    private static final String GAMEPLAY_CONFIG_NAME = "gameplay.yml";
+    private static final String REWARDS_CONFIG_NAME  = "rewards.yml";
 
     private final Map<DayOfWeek, Set<LocalTime>>    autoOpenTimes;
     private final Map<DayOfWeek, Set<LocalTime>>    autoCloseTimes;
@@ -49,25 +54,26 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
     private final Map<StatType, ArenaStatsHologram> statsHolograms;
     private final Set<UUID>                         hologramIds;
     private final Set<Location>                     hologramLocations;
-    private final Map<Currency, Double>            joinPaymentRequirements;
-    private final Map<PlayerLevelProvider, Integer> joinLevelRequirements;
+    private final Map<Currency, Double>             paymentRequirements;
+    private final Map<PlayerLevelProvider, Integer> levelRequirements;
 
-    private final Arena                arena;
-    private final ArenaWaveManager     waveManager;
-    private final ArenaRegionManager   regionManager;
-    private final ArenaGameplayManager gameplayManager;
-    private final ArenaSupplyManager   supplyManager;
-    private final ArenaSpotManager     spotManager;
-    private final ArenaRewardManager   rewardManager;
-    private final ShopManager          shopManager;
-    private final ArenaScriptManager   scriptManager;
-    private final PlaceholderMap       placeholderMap;
+    private final Arena         arena;
+    private final WaveManager   waveManager;
+    private final RegionManager regionManager;
+    private final GameplaySettings gameplaySettings;
+    private final SupplyManager    supplyManager;
+    private final SpotManager      spotManager;
+    private final RewardManager      rewardManager;
+    private final ShopManager    shopManager;
+    private final ScriptManager  scriptManager;
+    private final PlaceholderMap placeholderMap;
 
-    private boolean isActive;
+    private boolean active;
     private String  name;
-    private boolean isPermissionRequired;
+    private boolean   permissionRequired;
+    private ItemStack icon;
 
-    private ArenaMainEditor editorMain;
+    private ArenaMainEditor mainEditor;
 
     public ArenaConfig(@NotNull AMA plugin, @NotNull JYML cfg, @NotNull String id) {
         super(plugin, cfg, id);
@@ -77,48 +83,21 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
         this.statsHolograms = new HashMap<>();
         this.hologramIds = new HashSet<>();
         this.hologramLocations = new HashSet<>();
-        this.joinPaymentRequirements = new HashMap<>();
-        this.joinLevelRequirements = new HashMap<>();
+        this.paymentRequirements = new HashMap<>();
+        this.levelRequirements = new HashMap<>();
 
         String path = this.getFile().getParentFile().getAbsolutePath();
 
-        this.waveManager = new ArenaWaveManager(this, new JYML(path, ArenaWaveManager.CONFIG_NAME));
-        this.regionManager = new ArenaRegionManager(this);
-        this.gameplayManager = new ArenaGameplayManager(this, new JYML(path, ArenaGameplayManager.CONFIG_NAME));
-        this.supplyManager = new ArenaSupplyManager(this, new JYML(path, ArenaSupplyManager.CONFIG_NAME));
-        this.spotManager = new ArenaSpotManager(this);
-        this.rewardManager = new ArenaRewardManager(this, new JYML(path, ArenaRewardManager.CONFIG_NAME));
+        this.waveManager = new WaveManager(this, new JYML(path, WaveManager.CONFIG_NAME));
+        this.regionManager = new RegionManager(this);
+        this.gameplaySettings = new GameplaySettings(this, new JYML(path, GAMEPLAY_CONFIG_NAME));
+        this.supplyManager = new SupplyManager(this, new JYML(path, SupplyManager.CONFIG_NAME));
+        this.spotManager = new SpotManager(this);
+        this.rewardManager = new RewardManager(this, new JYML(path, REWARDS_CONFIG_NAME));
         this.shopManager = new ShopManager(this, new JYML(path, ShopManager.CONFIG_NAME));
-        this.scriptManager = new ArenaScriptManager(this);
+        this.scriptManager = new ScriptManager(this);
 
-        this.placeholderMap = new PlaceholderMap()
-            .add(Placeholders.GENERIC_PROBLEMS, () -> String.join("\n", this.getProblems()))
-            .add(Placeholders.ARENA_ID, this::getId)
-            .add(Placeholders.ARENA_ACTIVE, () -> LangManager.getBoolean(this.isActive()))
-            .add(Placeholders.ARENA_NAME, this::getName)
-            .add(Placeholders.ARENA_PERMISSION, this::getPermission)
-            .add(Placeholders.ARENA_AUTO_STATE_OPEN_TIMES, () -> {
-                return this.getAutoOpenTimes().entrySet().stream().map(entry -> {
-                    return entry.getKey().name() + ": " + entry.getValue().stream().map(time -> time.format(ArenaUtils.TIME_FORMATTER)).collect(Collectors.joining(", "));
-                }).collect(Collectors.joining("\n"));
-            })
-            .add(Placeholders.ARENA_AUTO_STATE_CLOSE_TIMES, () -> {
-                return this.getAutoCloseTimes().entrySet().stream().map(entry -> {
-                    return entry.getKey().name() + ": " + entry.getValue().stream().map(time -> time.format(ArenaUtils.TIME_FORMATTER)).collect(Collectors.joining(", "));
-                }).collect(Collectors.joining("\n"));
-            })
-            .add(Placeholders.ARENA_REQUIREMENT_PERMISSION, () -> LangManager.getBoolean(this.isPermissionRequired()))
-            .add(Placeholders.ARENA_REQUIREMENT_PAYMENT, () -> {
-                return this.getJoinPaymentRequirements().keySet().stream().map(c -> {
-                    return c.format(this.getJoinPaymentRequirements().getOrDefault(c, 0D));
-                }).collect(Collectors.joining(", "));
-            })
-            .add(Placeholders.ARENA_REQUIREMENT_LEVEL, () -> {
-                return this.getJoinLevelRequirements().entrySet().stream().map(c -> {
-                    return c.getKey().getName() + ": " + c.getValue();
-                }).collect(Collectors.joining(", "));
-            });
-
+        this.placeholderMap = Placeholders.forArena(this);
         this.arena = new Arena(this);
     }
 
@@ -126,6 +105,7 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
     public boolean load() {
         this.setActive(cfg.getBoolean("Active"));
         this.setName(cfg.getString("Name", this.getId() + " Arena"));
+        this.setIcon(cfg.getItem("Icon"));
 
         for (String type : cfg.getSection("Auto_State_Schedulers")) {
             for (String dayName : cfg.getSection("Auto_State_Schedulers." + type)) {
@@ -147,7 +127,7 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
             double amount = cfg.getDouble("Join_Requirements.Payment." + sId, 0D);
             if (amount <= 0D) continue;
 
-            this.getJoinPaymentRequirements().put(currency, amount);
+            this.getPaymentRequirements().put(currency, amount);
         }
 
         for (String sId : cfg.getSection("Join_Requirements.Level")) {
@@ -157,7 +137,7 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
             int level = cfg.getInt("Join_Requirements.Level." + sId, 0);
             if (level <= 0) continue;
 
-            this.getJoinLevelRequirements().put(provider, level);
+            this.getLevelRequirements().put(provider, level);
         }
 
 
@@ -176,8 +156,8 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
             .stream().map(LocationUtil::deserialize).filter(Objects::nonNull).collect(Collectors.toSet()));
 
         this.waveManager.load();
-        this.regionManager.setup();
-        this.gameplayManager.load();
+        this.regionManager.load();
+        this.gameplaySettings.load();
         this.supplyManager.load();
         this.spotManager.setup();
         this.rewardManager.load();
@@ -200,13 +180,13 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
         this.removeHolograms();
         this.statsHolograms.values().forEach(HologramHolder::removeHolograms);
         this.statsHolograms.clear();
-        if (this.editorMain != null) {
-            this.editorMain.clear();
-            this.editorMain = null;
+        if (this.mainEditor != null) {
+            this.mainEditor.clear();
+            this.mainEditor = null;
         }
         this.spotManager.shutdown();
         this.regionManager.shutdown();
-        this.gameplayManager.clear();
+        this.gameplaySettings.clear();
         this.supplyManager.clear();
         this.waveManager.clear();
         this.rewardManager.clear();
@@ -218,17 +198,18 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
     public void onSave() {
         cfg.set("Active", this.isActive());
         cfg.set("Name", this.getName());
+        cfg.setItem("Icon", this.getIcon());
         this.autoOpenTimes.forEach((day, times) -> cfg.set("Auto_State_Schedulers.Open." + day.name(), times.stream().map(time -> time.format(ArenaUtils.TIME_FORMATTER)).toList()));
         this.autoCloseTimes.forEach((day, times) -> cfg.set("Auto_State_Schedulers.Close." + day.name(), times.stream().map(time -> time.format(ArenaUtils.TIME_FORMATTER)).toList()));
 
         String path = "Join_Requirements.";
         cfg.set(path + "Permission", this.isPermissionRequired());
         cfg.set(path + "Payment", null);
-        this.getJoinPaymentRequirements().forEach((currency, amount) -> {
+        this.getPaymentRequirements().forEach((currency, amount) -> {
             cfg.set(path + "Payment." + currency.getId(), amount);
         });
         cfg.remove(path + "Level");
-        this.getJoinLevelRequirements().forEach((provider, level) -> {
+        this.getLevelRequirements().forEach((provider, level) -> {
             cfg.set(path + "Level." + provider.getName(), level);
         });
 
@@ -244,7 +225,7 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
 
         this.waveManager.save();
         this.regionManager.save();
-        this.gameplayManager.save();
+        this.gameplaySettings.save();
         this.supplyManager.save();
         this.rewardManager.save();
         this.shopManager.save();
@@ -253,40 +234,74 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
 
     @Override
     @NotNull
-    public List<String> getProblems() {
-        List<String> list = new ArrayList<>();
+    public Report getReport() {
+        Report report = new Report();
+
         if (this.getLocation(ArenaLocationType.LOBBY) == null) {
-            list.add(problem("No Lobby Location"));
+            report.addProblem("No lobby location!");
         }
         if (this.getLocation(ArenaLocationType.SPECTATE) == null) {
-            list.add(problem("No Spectate Location"));
+            report.addProblem("No spectate location!");
         }
 
         if (this.getRegionManager().hasProblems()) {
-            list.add(problem("Problems in Region Manager"));
+            report.addProblem("Major issues in Region Manager.");
         }
-        if (this.getGameplayManager().hasProblems()) {
-            list.add(problem("Problems in Gameplay Manager"));
-        }
-        if (this.getWaveManager().hasProblems()) {
-            list.add(problem("Problems in Wave Manager"));
-        }
-        if (this.getSpotManager().hasProblems()) {
-            list.add(problem("Problems in Spot Manager"));
-        }
-        if (this.getRewardManager().hasProblems()) {
-            list.add(problem("Problems in Reward Manager"));
+        else if (this.getRegionManager().hasWarns()) {
+            report.addWarn("Minor issues in Region Manager.");
         }
 
-        return list;
+        if (this.getGameplaySettings().hasProblems()) {
+            report.addProblem("Major issues in Gameplay Settings.");
+        }
+        else if (this.getGameplaySettings().hasWarns()) {
+            report.addWarn("Minor issues in Gameplay Settings.");
+        }
+
+        if (this.getWaveManager().hasProblems()) {
+            report.addProblem("Major issues in Wave Manager.");
+        }
+        else if (this.getWaveManager().hasWarns()) {
+            report.addWarn("Minor issues in Wave Manager.");
+        }
+
+        if (this.getSpotManager().hasProblems()) {
+            report.addProblem("Major issues in Spot Manager.");
+        }
+        else if (this.getSpotManager().hasWarns()) {
+            report.addWarn("Minor issues in Spot Manager.");
+        }
+
+        if (this.getShopManager().hasProblems()) {
+            report.addProblem("Major issues in Shop Manager.");
+        }
+        else if (this.getShopManager().hasWarns()) {
+            report.addWarn("Minor issues in Shop Manager.");
+        }
+
+        if (this.getRewardManager().hasProblems()) {
+            report.addProblem("Major issues in Reward Manager.");
+        }
+        else if (this.getRewardManager().hasWarns()) {
+            report.addWarn("Minor issues in Reward Manager.");
+        }
+
+        if (this.getScriptManager().hasProblems()) {
+            report.addProblem("Major issues in Script Manager.");
+        }
+        else if (this.getScriptManager().hasWarns()) {
+            report.addWarn("Minor issues in Script Manager.");
+        }
+
+        return report;
     }
 
     @NotNull
     public ArenaMainEditor getEditor() {
-        if (this.editorMain == null) {
-            this.editorMain = new ArenaMainEditor(this.plugin, this);
+        if (this.mainEditor == null) {
+            this.mainEditor = new ArenaMainEditor(this.plugin, this);
         }
-        return this.editorMain;
+        return this.mainEditor;
     }
 
     @NotNull
@@ -295,11 +310,11 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
     }
 
     public boolean isActive() {
-        return this.isActive;
+        return this.active;
     }
 
     public void setActive(boolean isActive) {
-        this.isActive = isActive;
+        this.active = isActive;
     }
 
     @NotNull
@@ -312,11 +327,23 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
     }
 
     public boolean isPermissionRequired() {
-        return isPermissionRequired;
+        return permissionRequired;
     }
 
     public void setPermissionRequired(boolean permissionRequired) {
-        isPermissionRequired = permissionRequired;
+        this.permissionRequired = permissionRequired;
+    }
+
+    @NotNull
+    public ItemStack getIcon() {
+        return new ItemStack(this.icon);
+    }
+
+    public void setIcon(@NotNull ItemStack icon) {
+        if (icon.getType().isAir()) {
+            icon = new ItemStack(Material.MAP);
+        }
+        this.icon = new ItemStack(icon);
     }
 
     @NotNull
@@ -335,13 +362,13 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
     }
 
     @NotNull
-    public Map<Currency, Double> getJoinPaymentRequirements() {
-        return joinPaymentRequirements;
+    public Map<Currency, Double> getPaymentRequirements() {
+        return paymentRequirements;
     }
 
     @NotNull
-    public Map<PlayerLevelProvider, Integer> getJoinLevelRequirements() {
-        return joinLevelRequirements;
+    public Map<PlayerLevelProvider, Integer> getLevelRequirements() {
+        return levelRequirements;
     }
 
     public Location getLocation(@NotNull ArenaLocationType locationType) {
@@ -405,32 +432,32 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
     }
 
     @NotNull
-    public ArenaWaveManager getWaveManager() {
+    public WaveManager getWaveManager() {
         return this.waveManager;
     }
 
     @NotNull
-    public ArenaRegionManager getRegionManager() {
+    public RegionManager getRegionManager() {
         return this.regionManager;
     }
 
     @NotNull
-    public ArenaGameplayManager getGameplayManager() {
-        return this.gameplayManager;
+    public GameplaySettings getGameplaySettings() {
+        return this.gameplaySettings;
     }
 
     @NotNull
-    public ArenaSupplyManager getSupplyManager() {
+    public SupplyManager getSupplyManager() {
         return this.supplyManager;
     }
 
     @NotNull
-    public ArenaSpotManager getSpotManager() {
+    public SpotManager getSpotManager() {
         return this.spotManager;
     }
 
     @NotNull
-    public ArenaRewardManager getRewardManager() {
+    public RewardManager getRewardManager() {
         return rewardManager;
     }
 
@@ -440,7 +467,7 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
     }
 
     @NotNull
-    public ArenaScriptManager getScriptManager() {
+    public ScriptManager getScriptManager() {
         return scriptManager;
     }
 }

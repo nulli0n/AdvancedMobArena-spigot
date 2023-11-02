@@ -14,7 +14,7 @@ import su.nightexpress.ama.api.hologram.HologramHolder;
 import su.nightexpress.ama.api.hologram.HologramType;
 import su.nightexpress.ama.arena.ArenaStatsHologram;
 import su.nightexpress.ama.arena.impl.Arena;
-import su.nightexpress.ama.arena.region.ArenaRegion;
+import su.nightexpress.ama.arena.region.Region;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.stats.object.StatType;
 
@@ -54,7 +54,7 @@ public abstract class AbstractHologramCommand extends AbstractCommand<AMA> {
                         Arena arena = plugin.getArenaManager().getArenaById(args[3]);
                         if (arena == null) return super.getTab(player, arg, args);
 
-                        return arena.getConfig().getRegionManager().getRegions().stream().map(ArenaRegion::getId).toList();
+                        return arena.getConfig().getRegionManager().getRegions().stream().map(Region::getId).toList();
                     }
                     case ARENA_STATS -> {
                         return CollectionsUtil.getEnumsList(StatType.class);

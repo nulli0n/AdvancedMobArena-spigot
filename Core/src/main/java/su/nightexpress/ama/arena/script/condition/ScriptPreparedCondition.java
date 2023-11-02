@@ -7,8 +7,8 @@ import java.util.Arrays;
 
 public class ScriptPreparedCondition {
 
-    private final ScriptCondition<?, ?> condition;
-    private final Object                value;
+    private final ScriptCondition<?, ?>    condition;
+    private final Object                   value;
     private final ScriptCondition.Operator operator;
 
     public ScriptPreparedCondition(

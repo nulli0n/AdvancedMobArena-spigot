@@ -3,17 +3,16 @@ package su.nightexpress.ama.arena.editor.wave;
 import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.menu.impl.EditorMenu;
-import su.nexmedia.engine.utils.ItemUtil;
+import su.nexmedia.engine.utils.ItemReplacer;
 import su.nightexpress.ama.AMA;
-import su.nightexpress.ama.arena.wave.ArenaWaveManager;
+import su.nightexpress.ama.arena.wave.WaveManager;
 import su.nightexpress.ama.config.Lang;
-import su.nightexpress.ama.editor.EditorHub;
 import su.nightexpress.ama.editor.EditorLocales;
 
-public class WavesGradualSettingsEditor extends EditorMenu<AMA, ArenaWaveManager> {
+public class WavesGradualSettingsEditor extends EditorMenu<AMA, WaveManager> {
 
-    public WavesGradualSettingsEditor(@NotNull ArenaWaveManager waveManager) {
-        super(waveManager.getArena().plugin(), waveManager, EditorHub.TITLE_WAVE_EDITOR, 45);
+    public WavesGradualSettingsEditor(@NotNull WaveManager waveManager) {
+        super(waveManager.plugin(), waveManager, "Gradual Wave Spawn [" + waveManager.getArenaConfig().getId() + "]", 45);
 
         this.addReturn(40).setClick((viewer, event) -> {
             waveManager.getEditor().openNextTick(viewer, 1);
@@ -59,8 +58,8 @@ public class WavesGradualSettingsEditor extends EditorMenu<AMA, ArenaWaveManager
             });
         });
 
-        this.getItems().forEach(menuItem -> {
-            menuItem.getOptions().addDisplayModifier((viewer, item) -> ItemUtil.replace(item, waveManager.replacePlaceholders()));
-        });
+        this.getItems().forEach(menuItem -> menuItem.getOptions().addDisplayModifier((viewer, item) -> {
+            ItemReplacer.replace(item, waveManager.replacePlaceholders());
+        }));
     }
 }

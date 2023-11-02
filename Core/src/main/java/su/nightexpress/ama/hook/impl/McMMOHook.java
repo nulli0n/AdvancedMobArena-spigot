@@ -40,7 +40,7 @@ public final class McMMOHook extends AbstractListener<AMA> {
         if (arenaPlayer == null) return;
 
         Arena arena = arenaPlayer.getArena();
-        if (!arena.getConfig().getGameplayManager().isMcmmoAllowed()) {
+        if (!arena.getConfig().getGameplaySettings().isMcmmoAllowed()) {
             e.setCancelled(true);
         }
     }
@@ -52,7 +52,7 @@ public final class McMMOHook extends AbstractListener<AMA> {
         if (arenaPlayer == null) return;
 
         Arena arena = arenaPlayer.getArena();
-        if (!arena.getConfig().getGameplayManager().isMcmmoAllowed()) {
+        if (!arena.getConfig().getGameplaySettings().isMcmmoAllowed()) {
             e.setCancelled(true);
         }
     }

@@ -33,15 +33,22 @@ public class ForceStartCommand extends AbstractCommand<AMA> {
 
     @Override
     public void onExecute(@NotNull CommandSender sender, @NotNull CommandResult result) {
-        if (result.length() != 2) {
-            this.printUsage(sender);
-            return;
+        Arena arena = null;
+        if (result.length() < 2) {
+            if (sender instanceof Player player) {
+                arena = plugin.getArenaManager().getArena(player);
+            }
+            if (arena == null) {
+                this.printUsage(sender);
+                return;
+            }
         }
-
-        Arena arena = plugin.getArenaManager().getArenaById(result.getArg(1));
-        if (arena == null) {
-            plugin.getMessage(Lang.ARENA_ERROR_INVALID).send(sender);
-            return;
+        else {
+            arena = plugin.getArenaManager().getArenaById(result.getArg(1));
+            if (arena == null) {
+                plugin.getMessage(Lang.ARENA_ERROR_INVALID).send(sender);
+                return;
+            }
         }
 
         if (arena.getState() != GameState.READY) {

@@ -22,16 +22,15 @@ public class MobAI {
         return mob.getBrain().isMemoryValue(MemoryModuleType.ATTACK_TARGET, target) ? IGNORE_INVISIBILITY_AND_LOS.test(mob, target) : IGNORE_LOS.test(mob, target);
     }
 
-    public static boolean setAngerTarget(@NotNull Mob pet, @NotNull LivingEntity target, boolean force) {
-        Optional<LivingEntity> angerTarget = getAngerTarget(pet);
+    public static boolean setAngerTarget(@NotNull Mob mob, @NotNull LivingEntity target, boolean force) {
         if (!force) {
-            if (!isEntityAttackableIgnoringLineOfSight(pet, target)) return false;
+            if (!isEntityAttackableIgnoringLineOfSight(mob, target)) return false;
         }
 
-        pet.getBrain().eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
-        pet.getBrain().setMemoryWithExpiry(MemoryModuleType.ANGRY_AT, target.getUUID(), Integer.MAX_VALUE);
-        pet.getBrain().setMemoryWithExpiry(MemoryModuleType.UNIVERSAL_ANGER, true, Integer.MAX_VALUE);
-        pet.getBrain().setMemory(MemoryModuleType.ATTACK_TARGET, target);
+        mob.getBrain().eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
+        mob.getBrain().setMemoryWithExpiry(MemoryModuleType.ANGRY_AT, target.getUUID(), Integer.MAX_VALUE);
+        //pet.getBrain().setMemoryWithExpiry(MemoryModuleType.UNIVERSAL_ANGER, true, Integer.MAX_VALUE);
+        mob.getBrain().setMemory(MemoryModuleType.ATTACK_TARGET, target);
         return true;
     }
 

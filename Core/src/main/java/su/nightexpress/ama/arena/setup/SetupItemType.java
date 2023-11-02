@@ -10,53 +10,47 @@ import su.nexmedia.engine.utils.PDCUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.Keys;
 
+import static su.nexmedia.engine.utils.Colors2.*;
+
 import java.util.Arrays;
 
 public enum SetupItemType {
 
-    REGION_CUBOID(new ItemStack(Material.GOLDEN_AXE), "Region Cuboid Selector",
-        "Sets the arena region corners.",
-        "Left-Click to &fSet 1st\nRight-Click to &fSet 2nd"),
-    REGION_SPAWN(new ItemStack(Material.FEATHER), "Region Spawn Tool",
-        "Sets the region spawn location.",
-        "Location is set at your current location. Not of a clicked block!",
-        "Right-Click to &fSet"),
-    REGION_SPAWNER(new ItemStack(Material.BLAZE_ROD), "Region Spawner Tool",
-        "Sets the mob spawner on a clicked block.",
-        "Left-Click to &fAdd Spawner\nRight-Click to &fRemove Spawner"),
-    REGION_SAVE(new ItemStack(Material.EMERALD), "Save & Exit",
-        "Saves the changes you made and exit the setup mode.",
-        "Right-Click to &fSave"),
+    REGION_CUBOID(new ItemStack(Material.GOLDEN_AXE), YELLOW + BOLD + "Cuboid Selector",
+        GRAY + "Left-Click - " + WHITE + "1st corner",
+        GRAY + "Right-Click - " + WHITE + "2nd corner"
+    ),
 
-    SPOT_CUBOID(new ItemStack(Material.GOLDEN_AXE), "Spot Cuboid Selector",
-        "Sets the arena spot corners.",
-        "Left-Click to &fSet 1st\nRight-Click to &fSet 2nd"),
-    SPOT_STATE_PREVIEW(new ItemStack(Material.ITEM_FRAME), "Spot State Preview",
-        "Previews the current state.",
-        "Right-Click to &fPreview"),
-    SPOT_STATE_EXIT(new ItemStack(Material.BARRIER), "Exit",
-        "Exit the setup mode.",
-        "Right-Click to &fExit"),
-    SPOT_SAVE(new ItemStack(Material.EMERALD), "Save & Exit",
-        "Saves the changes you made and exit the setup mode.",
-        "Right-Click to &fSave"),
+    REGION_SPAWN(new ItemStack(Material.FEATHER), YELLOW + BOLD + "Player Spawn Tool" + GRAY + " (Right-Click)",
+        GRAY + "Location is set at your current location. Not of a clicked block!",
+        GRAY + "Right-Click to " + WHITE + "Set"
+    ),
 
-    ARENA_LOCATION_LOBBY(new ItemStack(Material.ENDER_PEARL), "Arena Lobby Location",
-        "Sets the arena lobby location.",
-        "Location is set at your current location. Not of a clicked block!",
-        "Right-Click to &fSet"),
-    ARENA_LOCATION_SPECTATE(new ItemStack(Material.ENDER_EYE), "Arena Spectate Location",
-        "Sets the arena spectate location.",
-        "Location is set at your current location. Not of a clicked block!",
-        "Right-Click to &fSet"),
-    ARENA_LOCATION_LEAVE(new ItemStack(Material.REDSTONE), "Arena Leave Location",
-        "Sets the arena leave location.",
-        "You may to not set this location. So, players will be teleported back to their original location.",
-        "Location is set at your current location. Not of a clicked block!",
-        "Right-Click to &fSet"),
-    ARENA_EXIT(new ItemStack(Material.BARRIER), "Exit",
-        "Exit the setup mode.",
-        "Right-Click to &fExit"),
+    REGION_SPAWNER(new ItemStack(Material.BLAZE_ROD), YELLOW + BOLD + "Mob Spawner Tool",
+        GRAY + "Left-Click to " + WHITE + "Add Spawner",
+        GRAY + "Right-Click to " + WHITE + "Remove Spawner"
+    ),
+
+    REGION_SAVE(new ItemStack(Material.EMERALD), GREEN + BOLD + "Save & Exit" + GRAY + " (Right-Click)"),
+
+    SPOT_CUBOID(new ItemStack(Material.GOLDEN_AXE), "Cuboid Selector",
+        GRAY + "Left-Click - " + WHITE + "1st corner",
+        GRAY + "Right-Click - " + WHITE + "2nd corner"
+    ),
+
+    SPOT_STATE_PREVIEW(new ItemStack(Material.ITEM_FRAME), YELLOW + BOLD + "State Preview" + GRAY + " (Right-Click)"),
+
+    SPOT_STATE_EXIT(new ItemStack(Material.BARRIER), RED + BOLD + "Exit" + GRAY + " (Right-Click)"),
+
+    SPOT_SAVE(new ItemStack(Material.EMERALD), GREEN + BOLD  + "Save & Exit" + GRAY + " (Right-Click)"),
+
+    ARENA_LOCATION_LOBBY(new ItemStack(Material.ENDER_PEARL), YELLOW + BOLD + "Lobby Location" + GRAY + " (Right-Click)"),
+
+    ARENA_LOCATION_SPECTATE(new ItemStack(Material.ENDER_EYE), YELLOW + BOLD + "Spectate Location" + GRAY + " (Right-Click)"),
+
+    ARENA_LOCATION_LEAVE(new ItemStack(Material.REDSTONE), YELLOW + BOLD + "Exit/Leave Location" + GRAY + " (Right-Click)"),
+
+    ARENA_EXIT(new ItemStack(Material.BARRIER), RED + BOLD + "Exit" + GRAY + " (Right-Click)"),
     ;
 
     private final ItemStack item;

@@ -29,6 +29,7 @@ import su.nexmedia.engine.utils.Reflex;
 import su.nightexpress.ama.api.arena.IArena;
 import su.nightexpress.ama.api.type.MobFaction;
 import su.nightexpress.ama.nms.ArenaNMS;
+import su.nightexpress.ama.nms.v1_20_R1.brain.goal.LastDamagerTargetGoal;
 import su.nightexpress.ama.nms.v1_20_R1.brain.goal.MeleeAttackGoal;
 import su.nightexpress.ama.nms.v1_20_R1.brain.goal.NearestFactionTargetGoal;
 
@@ -117,6 +118,7 @@ public class V1_20_R1 implements ArenaNMS {
 
         if (!EntityInjector.BRAINED.containsKey(type)) {
             mob.targetSelector.getAvailableGoals().clear();
+            mob.targetSelector.addGoal(1, new LastDamagerTargetGoal(mob, arena, faction));
             mob.targetSelector.addGoal(2, new NearestFactionTargetGoal<>(mob, arena, faction));
             mob.setAggressive(true);
         }

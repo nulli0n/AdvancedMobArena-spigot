@@ -23,13 +23,31 @@ import su.nightexpress.ama.nms.v1_20_R1.brain.MobAI;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class MobFightBehaviors {
 
     private static final TargetingConditions HURT_BY_TARGETING = TargetingConditions.forCombat().ignoreLineOfSight().ignoreInvisibilityTesting();
+
+    public static Set<LivingEntity> getTargetList(@NotNull ArenaMob arenaMob) {
+        IArena arena = arenaMob.getArena();
+        MobFaction faction = arenaMob.getFaction();
+
+        Set<LivingEntity> targetList = new HashSet<>();
+        if (faction == MobFaction.ENEMY) {
+            targetList.addAll(arena.getPlayers().getAlive().stream()
+                .map(player -> ((CraftPlayer)player.getPlayer()).getHandle()).collect(Collectors.toSet()));
+            targetList.addAll(arena.getMobs().getAllies().stream()
+                .map(entity -> ((CraftLivingEntity)entity).getHandle()).collect(Collectors.toSet()));
+        }
+        else if (faction == MobFaction.ALLY) {
+            targetList.addAll(arena.getMobs().getEnemies().stream()
+                .map(entity -> ((CraftLivingEntity)entity).getHandle()).collect(Collectors.toSet()));
+        }
+
+        return targetList;
+    }
 
     @NotNull
     public static BehaviorControl<Mob> autoTargetAndAttack() {
@@ -43,33 +61,28 @@ public class MobFightBehaviors {
 
                     LivingEntity target = MobAI.getAngerTarget(mob).orElse(null);
                     if (target == null) {
-                        IArena arena = arenaMob.getArena();
-                        MobFaction faction = arenaMob.getFaction();
-                        Set<LivingEntity> targetList = new HashSet<>();
-                        if (faction == MobFaction.ENEMY) {
-                            targetList.addAll(arena.getPlayers().getAlive().stream()
-                                .map(player -> ((CraftPlayer)player.getPlayer()).getHandle()).collect(Collectors.toSet()));
-                            targetList.addAll(arena.getMobs().getAllies().stream()
-                                .map(entity -> ((CraftLivingEntity)entity).getHandle()).collect(Collectors.toSet()));
-                        }
-                        else if (faction == MobFaction.ALLY) {
-                            targetList.addAll(arena.getMobs().getEnemies().stream()
-                                .map(entity -> ((CraftLivingEntity)entity).getHandle()).collect(Collectors.toSet()));
-                        }
+                        //IArena arena = arenaMob.getArena();
+                        //MobFaction faction = arenaMob.getFaction();
+                        LivingEntity lastDamager = mob.getLastAttacker();
+
+                        Set<LivingEntity> targetList = getTargetList(arenaMob);
                         if (!targetList.isEmpty()) {
-                            target = Rnd.get(targetList);
+                            if (lastDamager != null && targetList.contains(lastDamager)) {
+                                target = lastDamager;
+                            }
+                            else target = Rnd.get(targetList);
                         }
                     }
+
                     if (target == null) {
                         MobAI.eraseTarget(mob);
                         return false;
                     }
-
                     /*if (!mob.canAttack(target)) {
                         return false;
                     }*/
 
-                    EntityTargetEvent event = CraftEventFactory.callEntityTargetLivingEvent(mob, target, EntityTargetEvent.TargetReason.CLOSEST_PLAYER);
+                    EntityTargetEvent event = CraftEventFactory.callEntityTargetLivingEvent(mob, target, EntityTargetEvent.TargetReason.CLOSEST_ENTITY);
                     if (event.isCancelled()) {
                         return false;
                     }
@@ -95,14 +108,14 @@ public class MobFightBehaviors {
                 builer.present(MemoryModuleType.ATTACK_TARGET),
                 builer.absent(MemoryModuleType.ATTACK_COOLING_DOWN)
             ).apply(builer, (lookTarget, attackTarget, attackCooldown) -> {
-                return (world, pet, i) -> {
+                return (world, mob, i) -> {
                     LivingEntity target = builer.get(attackTarget);
-                    if (isHoldingUsableProjectileWeapon(pet)) return false;
-                    if (!pet.isWithinMeleeAttackRange(target)) return false;
+                    if (isHoldingUsableProjectileWeapon(mob)) return false;
+                    if (!mob.isWithinMeleeAttackRange(target)) return false;
 
                     lookTarget.set(new EntityTracker(target, true));
-                    pet.swing(InteractionHand.MAIN_HAND);
-                    pet.doHurtTarget(target);
+                    mob.swing(InteractionHand.MAIN_HAND);
+                    mob.doHurtTarget(target);
                     attackCooldown.setWithExpiry(true, cooldown);
                     return true;
                 };
@@ -110,10 +123,10 @@ public class MobFightBehaviors {
         });
     }
 
-    private static boolean isHoldingUsableProjectileWeapon(Mob pet) {
-        return pet.isHolding((itemStack) -> {
+    private static boolean isHoldingUsableProjectileWeapon(Mob mob) {
+        return mob.isHolding((itemStack) -> {
             Item item = itemStack.getItem();
-            return item instanceof ProjectileWeaponItem pj && pet.canFireProjectileWeapon(pj);
+            return item instanceof ProjectileWeaponItem pj && mob.canFireProjectileWeapon(pj);
         });
     }
 
@@ -127,11 +140,19 @@ public class MobFightBehaviors {
                     if (!(mob instanceof ArenaMob arenaMob)) return true;
 
                     LivingEntity target = instance.get(attackTarget);
-                    Set<UUID> players = arenaMob.getArena().getPlayers().getAlive().stream().map(p -> p.getPlayer().getUniqueId()).collect(Collectors.toSet());
-                    if (!players.contains(target.getUUID())) {
-                        MobAI.eraseTarget(pet);
+
+                    LivingEntity lastDamager = mob.getLastAttacker();
+                    if (lastDamager != null && lastDamager != target && mob.distanceTo(lastDamager) < mob.distanceTo(target)) {
+                        MobAI.eraseTarget(mob);
                         return true;
                     }
+
+                    Set<LivingEntity> targetList = getTargetList(arenaMob);
+                    if (!targetList.contains(target)) {
+                        MobAI.eraseTarget(mob);
+                        return true;
+                    }
+
                     return false;
                 };
             });

@@ -12,8 +12,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.ZombieAttackGoal;
-import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
-import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
@@ -24,6 +22,9 @@ import su.nexmedia.engine.utils.Reflex;
 import su.nightexpress.ama.api.arena.IArena;
 import su.nightexpress.ama.api.type.MobFaction;
 import su.nightexpress.ama.nms.ArenaNMS;
+import su.nightexpress.ama.nms.v1_19_R3.brain.goal.MeleeAttackGoal;
+import su.nightexpress.ama.nms.v1_19_R3.brain.goal.NearestFactionTargetGoal;
+import su.nightexpress.ama.nms.v1_19_R3.brain.goal.LastDamagerTargetGoal;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,41 +37,44 @@ public class V1_19_R3 implements ArenaNMS {
 
     @Override
     public LivingEntity spawnMob(@NotNull IArena arena, @NotNull MobFaction faction, @NotNull EntityType type, @NotNull Location location) {
-        net.minecraft.world.entity.Mob eIns = (net.minecraft.world.entity.Mob) EntityInjector.spawnEntity(type, location);
-        if (eIns == null) return null;
+        net.minecraft.world.entity.Mob mob = EntityInjector.spawnEntity(arena, faction, type, location);
+        if (mob == null) return null;
 
-        Entity bukkitEntity = eIns.getBukkitEntity();
-        LivingEntity eLiving = (LivingEntity) bukkitEntity;
+        LivingEntity bukkitEntity = (LivingEntity) mob.getBukkitEntity();
 
-        this.registerAttribute(eIns, Attributes.ARMOR);
-        this.registerAttribute(eIns, Attributes.ARMOR_TOUGHNESS);
-        this.setAttribute(eIns, Attributes.ATTACK_DAMAGE, 1D);
-        this.registerAttribute(eIns, Attributes.ATTACK_KNOCKBACK);
-        this.registerAttribute(eIns, Attributes.ATTACK_SPEED);
-        this.setAttribute(eIns, Attributes.FOLLOW_RANGE, 64D);
-        this.registerAttribute(eIns, Attributes.FLYING_SPEED);
-        this.registerAttribute(eIns, Attributes.JUMP_STRENGTH);
-        this.registerAttribute(eIns, Attributes.KNOCKBACK_RESISTANCE);
-        this.registerAttribute(eIns, Attributes.MAX_HEALTH);
-        this.registerAttribute(eIns, Attributes.MOVEMENT_SPEED);
+        bukkitEntity.teleport(location);
+        this.registerAttribute(mob, Attributes.ARMOR);
+        this.registerAttribute(mob, Attributes.ARMOR_TOUGHNESS);
+        this.setAttribute(mob, Attributes.ATTACK_DAMAGE, 1D);
+        this.registerAttribute(mob, Attributes.ATTACK_KNOCKBACK);
+        this.registerAttribute(mob, Attributes.ATTACK_SPEED);
+        this.setAttribute(mob, Attributes.FOLLOW_RANGE, 256D);
+        this.registerAttribute(mob, Attributes.FLYING_SPEED);
+        this.registerAttribute(mob, Attributes.JUMP_STRENGTH);
+        this.registerAttribute(mob, Attributes.KNOCKBACK_RESISTANCE);
+        this.registerAttribute(mob, Attributes.MAX_HEALTH);
+        this.registerAttribute(mob, Attributes.MOVEMENT_SPEED);
 
-        if (!(eIns instanceof PathfinderMob pathfinderMob)) return eLiving;
-
-        if (eLiving instanceof Animals) {
-            eIns.goalSelector.getAvailableGoals().clear();
-            eIns.goalSelector.addGoal(0, new FloatGoal(eIns));
-            eIns.goalSelector.addGoal(2, new PathfinderAttack(pathfinderMob));
-            eIns.goalSelector.addGoal(8, new LookAtPlayerGoal(pathfinderMob, net.minecraft.world.entity.player.Player.class, 8.0F));
+        if (mob instanceof PathfinderMob pathfinderMob) {
+            if (bukkitEntity instanceof Animals || bukkitEntity instanceof org.bukkit.entity.IronGolem) {
+                mob.goalSelector.getAvailableGoals().clear();
+                mob.goalSelector.addGoal(0, new FloatGoal(mob));
+                mob.goalSelector.addGoal(2, new MeleeAttackGoal(pathfinderMob, arena, faction));
+                mob.goalSelector.addGoal(8, new LookAtPlayerGoal(pathfinderMob, net.minecraft.world.entity.player.Player.class, 8.0F));
+            }
+            else if (mob instanceof net.minecraft.world.entity.monster.Drowned drowned) {
+                drowned.goalSelector.getAvailableGoals().removeIf(goal -> goal.getGoal() instanceof ZombieAttackGoal goal1);
+                drowned.goalSelector.addGoal(3, new ZombieAttackGoal(drowned, 1D, false));
+            }
         }
-        else if (eIns instanceof net.minecraft.world.entity.monster.Drowned drowned) {
-            drowned.goalSelector.getAvailableGoals().removeIf(goal -> goal.getGoal() instanceof ZombieAttackGoal goal1);
-            drowned.goalSelector.addGoal(3, new ZombieAttackGoal(drowned, 1D, false));
+
+        if (!EntityInjector.BRAINED.containsKey(type)) {
+            mob.targetSelector.getAvailableGoals().clear();
+            mob.targetSelector.addGoal(1, new LastDamagerTargetGoal(mob, arena, faction));
+            mob.targetSelector.addGoal(2, new NearestFactionTargetGoal<>(mob, arena, faction));
+            mob.setAggressive(true);
         }
-        eIns.targetSelector.getAvailableGoals().clear();
-        eIns.targetSelector.addGoal(1, new HurtByTargetGoal(pathfinderMob, net.minecraft.world.entity.player.Player.class));
-        eIns.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(pathfinderMob, net.minecraft.world.entity.player.Player.class, true, e -> true));
-        eIns.setAggressive(true);
-        return eLiving;
+        return bukkitEntity;
     }
 
     private void registerAttribute(@NotNull net.minecraft.world.entity.LivingEntity handle, @NotNull Attribute att) {

@@ -98,7 +98,7 @@ public class PlayerSnapshot {
         }
 
         // Return player inventory before the game
-        if (arena.getConfig().getGameplayManager().isKitsEnabled()) {
+        if (arena.getConfig().getGameplaySettings().isKitsEnabled()) {
             player.getInventory().setContents(snapshot.getInventory());
             player.getInventory().setArmorContents(snapshot.getArmor());
         }

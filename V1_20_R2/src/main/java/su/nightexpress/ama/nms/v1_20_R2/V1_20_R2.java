@@ -14,6 +14,7 @@ import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.ZombieAttackGoal;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
+import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.level.pathfinder.Path;
@@ -21,14 +22,19 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_20_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_20_R2.entity.CraftEntityType;
 import org.bukkit.craftbukkit.v1_20_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
 import org.bukkit.entity.*;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.Reflex;
 import su.nightexpress.ama.api.arena.IArena;
 import su.nightexpress.ama.api.type.MobFaction;
 import su.nightexpress.ama.nms.ArenaNMS;
+import su.nightexpress.ama.nms.v1_20_R2.brain.goal.LastDamagerTargetGoal;
 import su.nightexpress.ama.nms.v1_20_R2.brain.goal.MeleeAttackGoal;
 import su.nightexpress.ama.nms.v1_20_R2.brain.goal.NearestFactionTargetGoal;
 
@@ -58,6 +64,18 @@ public class V1_20_R2 implements ArenaNMS {
             super(world);
             this.navigation = new Nax(this, world);
         }
+    }
+
+    @Nullable
+    public EntityType getSpawnEggType(@NotNull ItemStack itemStack) {
+        net.minecraft.world.item.ItemStack nmsStack = CraftItemStack.asNMSCopy(itemStack);
+        if (nmsStack.getItem() instanceof SpawnEggItem eggItem) {
+            net.minecraft.world.entity.EntityType<?> type = eggItem.getType(nmsStack.getTag());
+            if (type != null) {
+                return CraftEntityType.minecraftToBukkit(type);
+            }
+        }
+        return null;
     }
 
     public Set<Block> createPath(@NotNull Block start, @NotNull Block end) {
@@ -117,6 +135,7 @@ public class V1_20_R2 implements ArenaNMS {
 
         if (!EntityInjector.BRAINED.containsKey(type)) {
             mob.targetSelector.getAvailableGoals().clear();
+            mob.targetSelector.addGoal(1, new LastDamagerTargetGoal(mob, arena, faction));
             mob.targetSelector.addGoal(2, new NearestFactionTargetGoal<>(mob, arena, faction));
             mob.setAggressive(true);
         }

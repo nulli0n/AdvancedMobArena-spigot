@@ -20,7 +20,7 @@ Product:
       - '#9af7ff▪ #ddeceeLeft-Click: #9af7ffPurchase'
     Kits:
       - '#ff9a9a[!] #ddeceeThis product is only available for:'
-      - '#ff9a9a%shop_product_allowed_kits%'
+      - '#ff9a9a%kit_name%'
     Unlocked:
       - '#a5ff9a[✓] #ddeceeProduct is #a5ff9aunlocked#ddecee.'
     Locked:

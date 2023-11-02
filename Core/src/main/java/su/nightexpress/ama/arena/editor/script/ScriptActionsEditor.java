@@ -1,9 +1,7 @@
 package su.nightexpress.ama.arena.editor.script;
 
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.menu.AutoPaged;
@@ -12,29 +10,35 @@ import su.nexmedia.engine.api.menu.impl.EditorMenu;
 import su.nexmedia.engine.api.menu.impl.MenuOptions;
 import su.nexmedia.engine.api.menu.impl.MenuViewer;
 import su.nexmedia.engine.editor.EditorManager;
-import su.nexmedia.engine.utils.ItemUtil;
-import su.nexmedia.engine.utils.StringUtil;
+import su.nexmedia.engine.utils.Colorizer;
+import su.nexmedia.engine.utils.ItemReplacer;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.arena.script.action.*;
+import su.nightexpress.ama.arena.script.action.ParameterResult;
+import su.nightexpress.ama.arena.script.action.ScriptAction;
+import su.nightexpress.ama.arena.script.action.ScriptActions;
+import su.nightexpress.ama.arena.script.action.ScriptPreparedAction;
 import su.nightexpress.ama.arena.script.impl.ArenaScript;
 import su.nightexpress.ama.arena.script.impl.ScriptCategory;
 import su.nightexpress.ama.config.Lang;
-import su.nightexpress.ama.editor.EditorHub;
 import su.nightexpress.ama.editor.EditorLocales;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
+
+import static su.nexmedia.engine.utils.Colors2.GRAY;
+import static su.nexmedia.engine.utils.Colors2.YELLOW;
 
 public class ScriptActionsEditor extends EditorMenu<AMA, ArenaScript> implements AutoPaged<ScriptPreparedAction> {
+
+    private static final String TITLE = "Script Actions";
 
     private final ScriptCategory category;
 
     public ScriptActionsEditor(@NotNull ScriptCategory category, @NotNull ArenaScript script) {
-        super(script.plugin(), script, EditorHub.TITLE_SCRIPT_EDITOR, 45);
+        super(category.plugin(), script, TITLE + " [" + script.getId() + "]", 45);
         this.category = category;
 
         this.addReturn(39).setClick((viewer, event) -> {
@@ -46,8 +50,7 @@ public class ScriptActionsEditor extends EditorMenu<AMA, ArenaScript> implements
         this.addCreation(EditorLocales.SCRIPT_ACTION_CREATE, 41).setClick((viewer, event) -> {
             EditorManager.suggestValues(viewer.getPlayer(), ScriptActions.getActions().stream().map(ScriptAction::getName).toList(), true);
             this.handleInput(viewer, Lang.EDITOR_ARENA_SCRIPT_ENTER_ACTION_NAME, wrapper -> {
-                String id = StringUtil.lowerCaseUnderscore(wrapper.getTextRaw());
-                ScriptAction scriptAction = ScriptActions.getByName(id);
+                ScriptAction scriptAction = ScriptActions.getByName(wrapper.getTextRaw());
                 if (scriptAction == null) {
                     EditorManager.error(viewer.getPlayer(), plugin.getMessage(Lang.EDITOR_ARENA_SCRIPT_ERROR_INVALID_ACTION).getLocalized());
                     return false;
@@ -85,17 +88,13 @@ public class ScriptActionsEditor extends EditorMenu<AMA, ArenaScript> implements
         ItemStack item = new ItemStack(Material.COMMAND_BLOCK);
 
         String params = action.getAction().getParameters().stream().map(parameter -> {
-            return ChatColor.YELLOW.toString() + ChatColor.BOLD + parameter.getName() + ": " + ChatColor.AQUA + action.getParameters().get(parameter, null);
-        }).collect(Collectors.joining("\n"));
+            return YELLOW + "> " + GRAY + parameter.getName() + ": " + YELLOW + action.getParameters().get(parameter, null);
+        }).map(Colorizer::apply).collect(Collectors.joining("\n"));
 
-        ItemUtil.mapMeta(item, meta -> {
-            meta.setDisplayName(EditorLocales.SCRIPT_ACTION_OBJECT.getLocalizedName());
-            meta.setLore(EditorLocales.SCRIPT_ACTION_OBJECT.getLocalizedLore());
-            meta.addItemFlags(ItemFlag.values());
-            ItemUtil.replace(meta, str -> str
-                .replace(Placeholders.SCRIPT_ACTION_NAME, action.getAction().getName())
-                .replace(Placeholders.SCRIPT_ACTION_PARAMS, params));
-        });
+        ItemReplacer.create(item).readLocale(EditorLocales.SCRIPT_ACTION_OBJECT).trimmed().hideFlags()
+            .replace(Placeholders.SCRIPT_ACTION_NAME, action.getAction().getName())
+            .replace(Placeholders.SCRIPT_ACTION_PARAMS, params)
+            .writeMeta();
         return item;
     }
 
@@ -111,31 +110,7 @@ public class ScriptActionsEditor extends EditorMenu<AMA, ArenaScript> implements
             }
 
             if (event.isLeftClick()) {
-                EditorManager.suggestValues(viewer.getPlayer(), action.getAction().getParameters().stream().map(Parameter::getName).toList(), false);
-                this.handleInput(viewer, Lang.EDITOR_ARENA_SCRIPT_ENTER_ACTION_PARAMETER, wrapper -> {
-                    String[] input2 = wrapper.getTextRaw().split(" ");
-                    if (input2.length < 2) {
-                        EditorManager.error(viewer.getPlayer(), plugin.getMessage(Lang.EDITOR_ARENA_SCRIPT_ERROR_INVALID_INPUT).getLocalized());
-                        return false;
-                    }
-
-                    String paramName = input2[0];
-                    String paramValue = Stream.of(input2).skip(1).collect(Collectors.joining(" "));
-
-                    Parameter<?> parameter = Parameters.getByName(paramName).orElse(null);
-                    if (parameter == null || !action.getAction().getParameters().contains(parameter)) {
-                        EditorManager.error(viewer.getPlayer(), plugin.getMessage(Lang.EDITOR_ARENA_SCRIPT_ERROR_INVALID_PARAMETER).getLocalized());
-                        return false;
-                    }
-                    if (paramValue.equalsIgnoreCase("null")) {
-                        action.getParameters().getParams().remove(parameter);
-                    }
-                    else {
-                        action.getParameters().add(parameter, parameter.getParser().apply(paramValue));
-                    }
-                    this.category.save();
-                    return true;
-                });
+                new ScriptParametersEditor(this.category, this.object, action).openNextTick(viewer, 1);
                 return;
             }
 

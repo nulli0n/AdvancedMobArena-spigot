@@ -9,10 +9,12 @@ import su.nexmedia.engine.api.manager.AbstractConfigHolder;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.lang.LangManager;
+import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
-import su.nightexpress.ama.api.arena.Problematic;
+import su.nightexpress.ama.api.arena.Inspectable;
+import su.nightexpress.ama.api.arena.Report;
 import su.nightexpress.ama.api.currency.Currency;
 import su.nightexpress.ama.api.event.ArenaShopEvent;
 import su.nightexpress.ama.api.type.GameEventType;
@@ -30,13 +32,13 @@ import su.nightexpress.ama.config.Lang;
 
 import java.util.*;
 
-public class ShopManager extends AbstractConfigHolder<AMA> implements ArenaChild, Lockable, Problematic, Placeholder {
+public class ShopManager extends AbstractConfigHolder<AMA> implements ArenaChild, Lockable, Inspectable, Placeholder {
 
     public static final String CONFIG_NAME = "shop.yml";
 
-    private final ArenaConfig                    arenaConfig;
+    private final ArenaConfig               arenaConfig;
     private final Map<String, ShopCategory> categories;
-    private final PlaceholderMap placeholderMap;
+    private final PlaceholderMap            placeholderMap;
 
     private boolean   isActive;
     private boolean   isHideOtherKitProducts;
@@ -51,7 +53,6 @@ public class ShopManager extends AbstractConfigHolder<AMA> implements ArenaChild
         this.categories = new LinkedHashMap<>();
 
         this.placeholderMap = new PlaceholderMap()
-            .add(Placeholders.GENERIC_PROBLEMS, () -> String.join("\n", this.getProblems()))
             .add(Placeholders.SHOP_MANAGER_IS_ACTIVE, () -> LangManager.getBoolean(this.isActive()))
             .add(Placeholders.SHOP_MANAGER_HIDE_OTHER_KIT_ITEMS, () -> LangManager.getBoolean(this.isHideOtherKitProducts()))
         ;
@@ -97,7 +98,7 @@ public class ShopManager extends AbstractConfigHolder<AMA> implements ArenaChild
                 List<String> prCommands = cfg.getStringList(path2 + "Commands");
                 List<ItemStack> prItems = Arrays.asList(cfg.getItemsEncoded(path2 + "Items"));
 
-                ShopProduct product = new ShopProduct(category, prId, prName, prDesc, prCurrency, prPrice, prAllowedKits, prPreview, prCommands, prItems);
+                ShopProduct product = new ShopProduct(plugin, category, prId, prName, prDesc, prCurrency, prPrice, prAllowedKits, prPreview, prCommands, prItems);
                 category.getProductsMap().put(product.getId(), product);
             }
 
@@ -134,14 +135,14 @@ public class ShopManager extends AbstractConfigHolder<AMA> implements ArenaChild
             cfg.set(path + "Name", category.getName());
             cfg.set(path + "Description", category.getDescription());
             cfg.setItem(path + "Icon", category.getIcon());
-            cfg.set(path + "Allowed_Kits", category.getAllowedKits());
+            cfg.set(path + "Allowed_Kits", category.getKitsRequired());
             category.getProducts().forEach(shopProduct -> {
                 String path2 = path + "Products." + shopProduct.getId() + ".";
 
                 cfg.set(path2 + "Name", shopProduct.getName());
                 cfg.set(path2 + "Description", shopProduct.getDescription());
                 cfg.set(path2 + "Price", shopProduct.getPrice());
-                cfg.set(path2 + "Allowed_Kits", shopProduct.getAllowedKits());
+                cfg.set(path2 + "Allowed_Kits", shopProduct.getKitsRequired());
                 cfg.setItem(path2 + "Preview", shopProduct.getIcon());
                 cfg.set(path2 + "Commands", shopProduct.getCommands());
                 cfg.setItemsEncoded(path2 + "Items", shopProduct.getItems());
@@ -155,16 +156,34 @@ public class ShopManager extends AbstractConfigHolder<AMA> implements ArenaChild
         return this.placeholderMap;
     }
 
-    @Override
     @NotNull
-    public ArenaConfig getArenaConfig() {
-        return this.arenaConfig;
+    @Override
+    public Report getReport() {
+        Report report = new Report();
+
+        if (this.getCategoryMap().isEmpty()) {
+            report.addWarn("Shop has no categories!");
+        }
+        this.getCategories().forEach(category -> {
+            if (category.hasProblems()) {
+                report.addProblem("Major issues with '" + category.getId() + "' category!");
+            }
+            else if (category.hasWarns()) {
+                report.addWarn("Minor issues with '" + category.getId() + "' category!");
+            }
+        });
+
+        if (!report.hasProblems() && !report.hasWarns()) {
+            report.addGood("All " + this.getCategories().size() + " categories are fine!");
+        }
+
+        return report;
     }
 
     @Override
     @NotNull
-    public List<String> getProblems() {
-        return new ArrayList<>();
+    public ArenaConfig getArenaConfig() {
+        return this.arenaConfig;
     }
 
     @NotNull
@@ -181,6 +200,43 @@ public class ShopManager extends AbstractConfigHolder<AMA> implements ArenaChild
             this.menu = new ShopMainMenu(this);
         }
         return menu;
+    }
+
+    public boolean createCategory(@NotNull String id) {
+        id = StringUtil.lowerCaseUnderscore(id);
+
+        if (this.getCategory(id) != null) return false;
+
+        ShopCategory category = new ShopCategory(this.getArenaConfig(), id);
+        this.getCategoryMap().put(category.getId(), category);
+        return true;
+    }
+
+    public void removeCategory(@NotNull ShopCategory category) {
+        category.clear();
+        this.getCategoryMap().remove(category.getId());
+        this.save();
+    }
+
+    public boolean open(@NotNull Player player) {
+        ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
+        if (arenaPlayer == null) {
+            return false;
+        }
+
+        Arena arena = arenaPlayer.getArena();
+        if (arena.getState() != GameState.INGAME || !this.isActive()) {
+            plugin().getMessage(Lang.SHOP_OPEN_ERROR_DISABLED).send(player);
+            return false;
+        }
+
+        if (this.isLocked()) {
+            plugin().getMessage(Lang.SHOP_OPEN_ERROR_LOCKED).send(player);
+            return false;
+        }
+
+        this.getMenu().open(player, 1);
+        return true;
     }
 
     public boolean isActive() {
@@ -227,34 +283,5 @@ public class ShopManager extends AbstractConfigHolder<AMA> implements ArenaChild
     @Nullable
     public ShopCategory getCategory(@NotNull String id) {
         return this.getCategoryMap().get(id.toLowerCase());
-    }
-
-    public boolean createCategory(@NotNull String id) {
-        if (this.getCategory(id) != null) return false;
-
-        ShopCategory category = new ShopCategory(this.getArenaConfig(), id);
-        this.getCategoryMap().put(category.getId(), category);
-        return true;
-    }
-
-    public boolean open(@NotNull Player player) {
-        ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
-        if (arenaPlayer == null) {
-            return false;
-        }
-
-        Arena arena = arenaPlayer.getArena();
-        if (arena.getState() != GameState.INGAME || !this.isActive()) {
-            plugin().getMessage(Lang.SHOP_OPEN_ERROR_DISABLED).send(player);
-            return false;
-        }
-
-        if (this.isLocked()) {
-            plugin().getMessage(Lang.SHOP_OPEN_ERROR_LOCKED).send(player);
-            return false;
-        }
-
-        this.getMenu().open(player, 1);
-        return true;
     }
 }

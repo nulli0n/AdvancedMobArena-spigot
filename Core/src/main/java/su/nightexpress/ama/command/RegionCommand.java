@@ -9,7 +9,7 @@ import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
-import su.nightexpress.ama.arena.region.ArenaRegion;
+import su.nightexpress.ama.arena.region.Region;
 import su.nightexpress.ama.config.Lang;
 
 import java.util.Arrays;
@@ -49,7 +49,7 @@ public class RegionCommand extends AbstractCommand<AMA> {
             if (arenaPlayer == null) return super.getTab(player, arg, args);
 
             return arenaPlayer.getArena().getConfig().getRegionManager().getRegions()
-                .stream().map(ArenaRegion::getId).toList();
+                .stream().map(Region::getId).toList();
         }
         return super.getTab(player, arg, args);
     }
@@ -77,7 +77,7 @@ public class RegionCommand extends AbstractCommand<AMA> {
         }
 
         String regId = result.getArg(2);
-        ArenaRegion region = arena.getConfig().getRegionManager().getRegion(regId);
+        Region region = arena.getConfig().getRegionManager().getRegion(regId);
         if (region == null) {
             plugin.getMessage(Lang.Command_Region_State_Error_InvalidRegion).send(sender);
             return;

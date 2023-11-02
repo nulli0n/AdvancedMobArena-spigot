@@ -1,33 +1,89 @@
 package su.nightexpress.ama.arena.script.action;
 
+import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
+import su.nexmedia.engine.utils.CollectionsUtil;
 import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.StringUtil;
+import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.type.ArenaTargetType;
+import su.nightexpress.ama.arena.region.Region;
+import su.nightexpress.ama.arena.shop.impl.ShopCategory;
+import su.nightexpress.ama.arena.spot.ArenaSpot;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 
 public class Parameters {
 
     private static final Map<String, Parameter<?>> REGISTRY = new HashMap<>();
 
-    public static final Parameter<String> WAVE = asString("wave");
-    public static final Parameter<String> SPAWNERS = asString("spawners");
-    public static final Parameter<String> REGION = asString("region");
-    public static final Parameter<String> SHOP_CATEGORY = asString("shop_category");
-    public static final Parameter<String> SHOP_PRODUCT = asString("shop_product");
-    public static final Parameter<String> REWARD = asString("reward");
-    public static final Parameter<String> SPOT = asString("spot");
-    public static final Parameter<String> STATE = asString("state");
-    public static final Parameter<String>          NAME   = asString("name");
-    public static final Parameter<String>          MESSAGE   = asString("message");
+    public static final Parameter<String> WAVE = asString("wave")
+        .withIcon(Material.BLAZE_POWDER)
+        .withSuggestions((arena, result) -> new ArrayList<>(arena.getConfig().getWaveManager().getWaveMap().keySet()));
+
+    public static final Parameter<String> REGION = asString("region")
+        .withIcon(Material.OAK_FENCE)
+        .withSuggestions((arena, result) -> new ArrayList<>(arena.getConfig().getRegionManager().getRegionMap().keySet()));
+
+    public static final Parameter<String> SPAWNERS = asString("spawners")
+        .withIcon(Material.SPAWNER)
+        .withSuggestions((arena, result) -> {
+            String regionId = result.get(REGION, "");
+            Region region = arena.getConfig().getRegionManager().getRegion(regionId);
+            if (region == null) return Collections.emptyList();
+
+            List<String> list = new ArrayList<>(region.getMobSpawners().keySet());
+            list.add(0, Placeholders.WILDCARD);
+
+            return list;
+        });
+
+    public static final Parameter<String> SHOP_CATEGORY = asString("shop_category")
+        .withIcon(Material.EMERALD)
+        .withSuggestions((arena, result) -> new ArrayList<>(arena.getConfig().getShopManager().getCategoryMap().keySet()));
+
+    public static final Parameter<String> SHOP_PRODUCT = asString("shop_product")
+        .withIcon(Material.GOLD_NUGGET)
+        .withSuggestions((arena, result) -> {
+            String catId = result.get(SHOP_CATEGORY, "");
+            ShopCategory category = arena.getConfig().getShopManager().getCategory(catId);
+            if (category == null) return Collections.emptyList();
+
+            return new ArrayList<>(category.getProductsMap().keySet());
+        });
+
+    public static final Parameter<String> REWARD = asString("reward")
+        .withIcon(Material.GOLD_INGOT)
+        .withSuggestions((arena, result) -> new ArrayList<>(arena.getConfig().getRewardManager().getRewardMap().keySet()));
+
+    public static final Parameter<String> SPOT = asString("spot")
+        .withIcon(Material.ITEM_FRAME)
+        .withSuggestions((arena, result) -> new ArrayList<>(arena.getConfig().getSpotManager().getSpotsMap().keySet()));
+
+    public static final Parameter<String> STATE = asString("state")
+        .withIcon(Material.PAINTING)
+        .withSuggestions((arena, result) -> {
+            String spotId = result.get(SPOT, "");
+            ArenaSpot spot = arena.getConfig().getSpotManager().getSpot(spotId);
+            if (spot == null) return Collections.emptyList();
+
+            return new ArrayList<>(spot.getStates().keySet());
+        });
+
+    public static final Parameter<String> NAME = asString("name")
+        .withIcon(Material.NAME_TAG);
+
+    public static final Parameter<String> MESSAGE = asString("message")
+        .withIcon(Material.PAPER);
+
     public static final Parameter<ArenaTargetType> TARGET = register("target",
-        str -> StringUtil.getEnum(str, ArenaTargetType.class).orElse(ArenaTargetType.GLOBAL));
-    public static final Parameter<Integer>         AMOUNT = asInt("amount");
+        str -> StringUtil.getEnum(str, ArenaTargetType.class).orElse(ArenaTargetType.GLOBAL))
+        .withIcon(Material.COMPASS)
+        .withSuggestions((arena, result) -> CollectionsUtil.getEnumsList(ArenaTargetType.class));
+
+    public static final Parameter<Integer> AMOUNT = asInt("amount")
+        .withIcon(Material.HOPPER);
 
     @NotNull
     public static Optional<Parameter<?>> getByName(@NotNull String name) {

@@ -9,7 +9,7 @@ import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.arena.spot.ArenaSpot;
-import su.nightexpress.ama.arena.spot.ArenaSpotState;
+import su.nightexpress.ama.arena.spot.SpotState;
 import su.nightexpress.ama.config.Lang;
 
 import java.util.ArrayList;
@@ -94,7 +94,7 @@ public class SpotCommand extends AbstractCommand<AMA> {
             }
 
             String stateId = result.getArg(3);
-            ArenaSpotState state = spot.getState(stateId);
+            SpotState state = spot.getState(stateId);
             if (state == null) {
                 plugin.getMessage(Lang.Command_Spot_State_Error_InvalidState).send(sender);
                 return;

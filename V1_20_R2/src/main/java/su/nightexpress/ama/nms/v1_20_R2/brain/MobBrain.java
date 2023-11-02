@@ -78,9 +78,9 @@ public class MobBrain {
     }
 
     private static final Method ACTUALLY_HURT    = Reflex.getMethod(LivingEntity.class, "damageEntity0", DamageSource.class, Float.TYPE);
-    private static final Field  NO_ACTION_TIME   = Reflex.getField(LivingEntity.class, "bc");
-    private static final Field  LAST_DAMAGE_TIME = Reflex.getField(LivingEntity.class, "cg");
-    private static final Field  LAST_DAMAGE_SOURCE = Reflex.getField(LivingEntity.class, "cf");
+    private static final Field  NO_ACTION_TIME   = Reflex.getField(LivingEntity.class, "bb");
+    private static final Field  LAST_DAMAGE_TIME = Reflex.getField(LivingEntity.class, "cf");
+    private static final Field  LAST_DAMAGE_SOURCE = Reflex.getField(LivingEntity.class, "ce");
 
     public static boolean hurt(LivingEntity pet, DamageSource damagesource, float damage) {
         if (ACTUALLY_HURT == null) return false;

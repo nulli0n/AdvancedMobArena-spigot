@@ -41,15 +41,15 @@ public class DataHandler extends AbstractUserDataHandler<AMA, ArenaUser> {
 
                 return new ArenaUser(plugin, uuid, name, dateCreated, lastOnline, coins, kits, stats);
             }
-            catch (SQLException ex) {
-                ex.printStackTrace();
+            catch (SQLException exception) {
+                exception.printStackTrace();
                 return null;
             }
         };
     }
 
     @NotNull
-    public static synchronized DataHandler getInstance(@NotNull AMA plugin) throws SQLException {
+    public static synchronized DataHandler getInstance(@NotNull AMA plugin) {
         if (instance == null) {
             instance = new DataHandler(plugin);
         }

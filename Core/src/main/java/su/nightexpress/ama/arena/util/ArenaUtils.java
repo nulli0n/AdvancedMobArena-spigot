@@ -38,7 +38,7 @@ public class ArenaUtils {
             else return Optional.empty();
         }
 
-        team.setColor(arena.getConfig().getGameplayManager().getMobHighlightColor());
+        team.setColor(arena.getConfig().getGameplaySettings().getMobHighlightColor());
         return Optional.of(team);
     }
 

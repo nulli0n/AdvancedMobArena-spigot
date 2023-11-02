@@ -19,13 +19,13 @@ import su.nightexpress.ama.arena.editor.spot.SpotSettingsEditor;
 import su.nightexpress.ama.arena.setup.ArenaSetupUtils;
 import su.nightexpress.ama.arena.setup.SetupItemType;
 import su.nightexpress.ama.arena.spot.ArenaSpot;
-import su.nightexpress.ama.arena.spot.ArenaSpotState;
+import su.nightexpress.ama.arena.spot.SpotState;
 import su.nightexpress.ama.config.Lang;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SpotStateSetupManager extends AbstractSetupManager<ArenaSpotState> {
+public class SpotStateSetupManager extends AbstractSetupManager<SpotState> {
 
     private VisualTask visualTask;
 
@@ -34,7 +34,7 @@ public class SpotStateSetupManager extends AbstractSetupManager<ArenaSpotState> 
     }
 
     @Override
-    protected void onSetupStart(@NotNull Player player, @NotNull ArenaSpotState state) {
+    protected void onSetupStart(@NotNull Player player, @NotNull SpotState state) {
         this.visualTask = new VisualTask();
         this.visualTask.start();
 
@@ -45,7 +45,7 @@ public class SpotStateSetupManager extends AbstractSetupManager<ArenaSpotState> 
     }
 
     @Override
-    protected void onSetupEnd(@NotNull Player player, @NotNull ArenaSpotState state) {
+    protected void onSetupEnd(@NotNull Player player, @NotNull SpotState state) {
         if (this.visualTask != null) {
             this.visualTask.stop();
             this.visualTask = null;
@@ -56,9 +56,12 @@ public class SpotStateSetupManager extends AbstractSetupManager<ArenaSpotState> 
     }
 
     @Override
-    protected void handleItem(@NotNull PlayerInteractEvent e, @NotNull Player player, @NotNull ArenaSpotState state, @NotNull ItemStack item, @NotNull SetupItemType itemType) {
+    protected void handleItem(@NotNull PlayerInteractEvent e, @NotNull Player player, @NotNull SpotState state, @NotNull ItemStack item, @NotNull SetupItemType itemType) {
         switch (itemType) {
-            case SPOT_STATE_PREVIEW -> state.build();
+            case SPOT_STATE_PREVIEW -> {
+                state.build();
+                this.plugin.getMessage(Lang.SETUP_SPOT_STATE_LOADED).send(player);
+            }
             case SPOT_STATE_EXIT -> this.endSetup(player);
             case SPOT_SAVE -> {
                 ArenaCuboid cuboid = state.getSpot().getCuboid().orElse(null);

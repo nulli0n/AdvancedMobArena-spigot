@@ -9,30 +9,23 @@ import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.lang.LangManager;
 import su.nexmedia.engine.utils.Colorizer;
-import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
-import su.nightexpress.ama.api.arena.Problematic;
-import su.nightexpress.ama.api.type.GameEventType;
+import su.nightexpress.ama.api.arena.Inspectable;
+import su.nightexpress.ama.api.arena.Report;
 import su.nightexpress.ama.arena.editor.spot.SpotSettingsEditor;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
-import su.nightexpress.ama.arena.script.action.ParameterResult;
-import su.nightexpress.ama.arena.script.action.Parameters;
-import su.nightexpress.ama.arena.script.action.ScriptActions;
-import su.nightexpress.ama.arena.script.action.ScriptPreparedAction;
-import su.nightexpress.ama.arena.script.condition.ScriptPreparedCondition;
-import su.nightexpress.ama.arena.script.impl.ArenaScript;
 import su.nightexpress.ama.arena.util.ArenaCuboid;
 
 import java.util.*;
 
-public class ArenaSpot extends AbstractConfigHolder<AMA> implements ArenaChild, Problematic, Placeholder {
+public class ArenaSpot extends AbstractConfigHolder<AMA> implements ArenaChild, Inspectable, Placeholder {
 
-    private final ArenaConfig arenaConfig;
-    private final Map<String, ArenaSpotState> states;
-    private final PlaceholderMap placeholderMap;
+    private final ArenaConfig            arenaConfig;
+    private final Map<String, SpotState> states;
+    private final PlaceholderMap         placeholderMap;
 
     private boolean     isActive;
     private String      name;
@@ -46,7 +39,7 @@ public class ArenaSpot extends AbstractConfigHolder<AMA> implements ArenaChild, 
         this.states = new HashMap<>();
 
         this.placeholderMap = new PlaceholderMap()
-            .add(Placeholders.GENERIC_PROBLEMS, () -> String.join("\n", this.getProblems()))
+            .add(Placeholders.SPOT_REPORT, () -> String.join("\n", this.getReport().getFullReport()))
             .add(Placeholders.SPOT_ID, this::getId)
             .add(Placeholders.SPOT_NAME, this::getName)
             .add(Placeholders.SPOT_ACTIVE, () -> LangManager.getBoolean(this.isActive()))
@@ -66,31 +59,8 @@ public class ArenaSpot extends AbstractConfigHolder<AMA> implements ArenaChild, 
 
         for (String stateId : cfg.getSection("States")) {
             String path2 = "States." + stateId + ".";
-
-            // ----------- CONVERT SCRIPTS START -----------
-            for (String eventRaw : cfg.getSection(path2 + "Triggers")) {
-                GameEventType eventType = StringUtil.getEnum(eventRaw, GameEventType.class).orElse(null);
-                if (eventType == null) continue;
-
-                String sName = "spot_change_" + this.getId() + "_to_" + stateId;
-                ArenaScript script = new ArenaScript(this.arenaConfig, sName, eventType);
-
-                String values = cfg.getString(path2 + "Triggers." + eventRaw, "");
-                Map<String, List<ScriptPreparedCondition>> conditions = ArenaScript.ofGameTrigger(eventType, values);
-                script.getConditions().putAll(conditions);
-
-                ScriptPreparedAction action = new ScriptPreparedAction(ScriptActions.CHANGE_SPOT, new ParameterResult());
-                action.getParameters().add(Parameters.SPOT, this.getId());
-                action.getParameters().add(Parameters.STATE,stateId);
-                script.getActions().add(action);
-
-                this.getArenaConfig().getScriptManager().addConverted(script);
-            }
-            cfg.remove(path2 + "Triggers");
-            // ----------- CONVERT SCRIPTS END -----------
-
             List<String> blockSchemeRaw = new ArrayList<>(cfg.getStringList(path2 + "Scheme"));
-            ArenaSpotState state = new ArenaSpotState(this, stateId, blockSchemeRaw);
+            SpotState state = new SpotState(this, stateId, blockSchemeRaw);
             this.states.put(state.getId(), state);
         }
         cfg.saveChanges();
@@ -115,18 +85,19 @@ public class ArenaSpot extends AbstractConfigHolder<AMA> implements ArenaChild, 
         });
     }
 
-    @Override
     @NotNull
-    public List<String> getProblems() {
-        List<String> list = new ArrayList<>();
+    @Override
+    public Report getReport() {
+        Report report = new Report();
+
         if (this.getCuboid().isEmpty()) {
-            list.add(problem("Invalid Cuboid Selection!"));
+            report.addProblem("Invalid selection!");
         }
         if (this.getStates().isEmpty()) {
-            list.add(problem("No Spot States!"));
+            report.addWarn("No states!");
         }
 
-        return list;
+        return report;
     }
 
     @Override
@@ -183,17 +154,17 @@ public class ArenaSpot extends AbstractConfigHolder<AMA> implements ArenaChild, 
     }
 
     @NotNull
-    public Map<String, ArenaSpotState> getStates() {
+    public Map<String, SpotState> getStates() {
         return this.states;
     }
 
     @Nullable
-    public ArenaSpotState getState(@NotNull String id) {
+    public SpotState getState(@NotNull String id) {
         return this.getStates().get(id.toLowerCase());
     }
 
     public void setState(@NotNull Arena arena, @NotNull String id) {
-        ArenaSpotState state = this.getState(id);
+        SpotState state = this.getState(id);
         if (state == null) return;
         state.build(arena);
     }

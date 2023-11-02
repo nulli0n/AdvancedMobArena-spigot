@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.AbstractListener;
 import su.nexmedia.engine.api.manager.AbstractManager;
+import su.nexmedia.engine.utils.Colors2;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nexmedia.engine.utils.random.Rnd;
 import su.nightexpress.ama.AMA;
@@ -89,8 +90,8 @@ public class KitManager extends AbstractManager<AMA> {
         JYML cfg = new JYML(this.plugin.getDataFolder() + "/kits/kits/", id + ".yml");
         Kit kit = new Kit(plugin, cfg);
 
-        kit.setName("&a" + StringUtil.capitalizeUnderscored(id));
-        kit.setDescription(Arrays.asList("&7A newly created kit.", "&7Edit me in &e/ama editor"));
+        kit.setName(Colors2.YELLOW + StringUtil.capitalizeUnderscored(id));
+        kit.setDescription(new ArrayList<>());
         kit.setIcon(new ItemStack(Material.GOLDEN_CHESTPLATE));
         kit.setCurrency(this.plugin().getCurrencyManager().getOrAny(CurrencyManager.COINS));
         kit.setCost(100);
@@ -110,6 +111,14 @@ public class KitManager extends AbstractManager<AMA> {
         kit.save();
         kit.load();
         this.getKitsMap().put(kit.getId(), kit);
+        return true;
+    }
+
+    public boolean deleteKit(@NotNull Kit kit) {
+        if (!kit.getFile().delete()) return false;
+
+        kit.clear();
+        this.getKitsMap().remove(kit.getId());
         return true;
     }
 

@@ -68,7 +68,7 @@ public abstract class AbstractKitListMenu extends ConfigMenu<AMA> implements Aut
         if (arenaPlayer == null) return Collections.emptyList();
 
         Predicate<Kit> isValidMenu = this.getFilter(user);
-        Predicate<Kit> isAllowed = kit -> arenaPlayer.getArena().getConfig().getGameplayManager().isKitAllowed(kit.getId());
+        Predicate<Kit> isAllowed = kit -> arenaPlayer.getArena().getConfig().getGameplaySettings().isKitAllowed(kit.getId());
 
         return plugin.getKitManager().getKits().stream().filter(kit -> isValidMenu.and(isAllowed).test(kit)).toList();
     }

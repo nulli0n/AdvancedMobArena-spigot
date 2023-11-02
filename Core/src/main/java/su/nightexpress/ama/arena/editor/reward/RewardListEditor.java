@@ -2,7 +2,6 @@ package su.nightexpress.ama.arena.editor.reward;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.menu.AutoPaged;
@@ -11,23 +10,22 @@ import su.nexmedia.engine.api.menu.impl.EditorMenu;
 import su.nexmedia.engine.api.menu.impl.MenuOptions;
 import su.nexmedia.engine.api.menu.impl.MenuViewer;
 import su.nexmedia.engine.editor.EditorManager;
-import su.nexmedia.engine.utils.ItemUtil;
+import su.nexmedia.engine.utils.ItemReplacer;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
-import su.nightexpress.ama.arena.reward.ArenaReward;
-import su.nightexpress.ama.arena.reward.ArenaRewardManager;
+import su.nightexpress.ama.arena.reward.Reward;
+import su.nightexpress.ama.arena.reward.RewardManager;
 import su.nightexpress.ama.config.Lang;
-import su.nightexpress.ama.editor.EditorHub;
 import su.nightexpress.ama.editor.EditorLocales;
 
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
 
-public class RewardListEditor extends EditorMenu<AMA, ArenaRewardManager> implements AutoPaged<ArenaReward> {
+public class RewardListEditor extends EditorMenu<AMA, RewardManager> implements AutoPaged<Reward> {
 
-    public RewardListEditor(@NotNull ArenaRewardManager rewardManager) {
-        super(rewardManager.plugin(), rewardManager, EditorHub.TITLE_REWARD_EDITOR, 45);
+    public RewardListEditor(@NotNull RewardManager rewardManager) {
+        super(rewardManager.plugin(), rewardManager, "Rewards Editor [" + rewardManager.getRewards().size() + " rewards]", 45);
 
         this.addReturn(39).setClick((viewer, event) -> {
             rewardManager.getArenaConfig().getEditor().openNextTick(viewer, 1);
@@ -47,15 +45,15 @@ public class RewardListEditor extends EditorMenu<AMA, ArenaRewardManager> implem
         });
 
         this.addItem(Material.ENDER_CHEST, EditorLocales.REWARDS_RETAIN, 40).setClick((viewer, event) -> {
-            if (event.isLeftClick()) rewardManager.setRetainOnDeath(!rewardManager.isRetainOnDeath());
-            else if (event.isRightClick()) rewardManager.setRetainOnLeave(!rewardManager.isRetainOnLeave());
+            if (event.isLeftClick()) rewardManager.setKeepOnDeath(!rewardManager.isKeepOnDeath());
+            else if (event.isRightClick()) rewardManager.setKeepOnLeave(!rewardManager.isKeepOnLeave());
             rewardManager.save();
             this.openNextTick(viewer, viewer.getPage());
         });
 
-        this.getItems().forEach(menuItem -> {
-            menuItem.getOptions().addDisplayModifier((viewer, item) -> ItemUtil.replace(item, rewardManager.replacePlaceholders()));
-        });
+        this.getItems().forEach(menuItem -> menuItem.getOptions().addDisplayModifier((viewer, item) -> {
+            ItemReplacer.replace(item, rewardManager.replacePlaceholders());
+        }));
     }
 
     @Override
@@ -71,31 +69,34 @@ public class RewardListEditor extends EditorMenu<AMA, ArenaRewardManager> implem
 
     @Override
     @NotNull
-    public List<ArenaReward> getObjects(@NotNull Player player) {
-        return new ArrayList<>(this.object.getRewards());
+    public List<Reward> getObjects(@NotNull Player player) {
+        return this.object.getRewards().stream().sorted(Comparator.comparing(Reward::getId)).toList();
     }
 
     @Override
     @NotNull
-    public ItemStack getObjectStack(@NotNull Player player, @NotNull ArenaReward reward) {
-        ItemStack item = new ItemStack(Material.GOLD_INGOT);
-        ItemUtil.mapMeta(item, meta -> {
-            meta.setDisplayName(EditorLocales.REWARD_OBJECT.getLocalizedName());
-            meta.setLore(EditorLocales.REWARD_OBJECT.getLocalizedLore());
-            meta.addItemFlags(ItemFlag.values());
-            ItemUtil.replace(meta, reward.replacePlaceholders());
-        });
+    public ItemStack getObjectStack(@NotNull Player player, @NotNull Reward reward) {
+        ItemStack item;
+        if (reward.getItems().isEmpty()) {
+            if (reward.getCommands().isEmpty()) {
+                item = new ItemStack(Material.GOLD_INGOT);
+            }
+            else item = new ItemStack(Material.COMMAND_BLOCK);
+        }
+        else item = new ItemStack(reward.getItems().get(0));
+
+        ItemReplacer.create(item).readLocale(EditorLocales.REWARD_OBJECT).trimmed().hideFlags()
+            .replace(reward.getPlaceholders())
+            .writeMeta();
         return item;
     }
 
     @Override
     @NotNull
-    public ItemClick getObjectClick(@NotNull ArenaReward reward) {
+    public ItemClick getObjectClick(@NotNull Reward reward) {
         return (viewer, event) -> {
             if (event.isShiftClick() && event.isRightClick()) {
-                this.object.getRewardsMap().remove(reward.getId());
-                reward.clear();
-                this.object.save();
+                this.object.removeReward(reward);
                 this.openNextTick(viewer, viewer.getPage());
                 return;
             }

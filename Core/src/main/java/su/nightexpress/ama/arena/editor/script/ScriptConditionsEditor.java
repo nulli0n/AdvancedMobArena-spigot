@@ -1,9 +1,7 @@
 package su.nightexpress.ama.arena.editor.script;
 
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.menu.AutoPaged;
@@ -12,7 +10,9 @@ import su.nexmedia.engine.api.menu.impl.EditorMenu;
 import su.nexmedia.engine.api.menu.impl.MenuOptions;
 import su.nexmedia.engine.api.menu.impl.MenuViewer;
 import su.nexmedia.engine.editor.EditorManager;
-import su.nexmedia.engine.utils.ItemUtil;
+import su.nexmedia.engine.utils.Colorizer;
+import su.nexmedia.engine.utils.Colors2;
+import su.nexmedia.engine.utils.ItemReplacer;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
@@ -22,7 +22,6 @@ import su.nightexpress.ama.arena.script.condition.ScriptPreparedCondition;
 import su.nightexpress.ama.arena.script.impl.ArenaScript;
 import su.nightexpress.ama.arena.script.impl.ScriptCategory;
 import su.nightexpress.ama.config.Lang;
-import su.nightexpress.ama.editor.EditorHub;
 import su.nightexpress.ama.editor.EditorLocales;
 
 import java.util.ArrayList;
@@ -33,10 +32,12 @@ import java.util.stream.IntStream;
 
 public class ScriptConditionsEditor extends EditorMenu<AMA, ArenaScript> implements AutoPaged<String> {
 
+    private static final String TITLE = "Script Conditions";
+
     private final ScriptCategory category;
 
     public ScriptConditionsEditor(@NotNull ScriptCategory category, @NotNull ArenaScript script) {
-        super(script.plugin(), script, EditorHub.TITLE_SCRIPT_EDITOR, 45);
+        super(category.plugin(), script, TITLE + " [" + script.getId() + "]", 45);
         this.category = category;
 
         this.addReturn(39).setClick((viewer, event) -> {
@@ -80,17 +81,13 @@ public class ScriptConditionsEditor extends EditorMenu<AMA, ArenaScript> impleme
         ItemStack item = new ItemStack(Material.CHAIN_COMMAND_BLOCK);
 
         String condis = this.object.getConditions().getOrDefault(section, Collections.emptyList())
-            .stream().map(ScriptPreparedCondition::toRaw).map(str -> ChatColor.GREEN + str)
+            .stream().map(ScriptPreparedCondition::toRaw).map(str -> Colors2.GREEN + str)
             .collect(Collectors.joining("\n"));
 
-        ItemUtil.mapMeta(item, meta -> {
-            meta.setDisplayName(EditorLocales.SCRIPT_CONDITION_SECTION_OBJECT.getLocalizedName());
-            meta.setLore(EditorLocales.SCRIPT_CONDITION_SECTION_OBJECT.getLocalizedLore());
-            meta.addItemFlags(ItemFlag.values());
-            ItemUtil.replace(meta, str -> str
-                .replace(Placeholders.SCRIPT_CONDITION_SECTION_ID, section)
-                .replace(Placeholders.SCRIPT_CONDITION_SECTION_CONDITIONS, condis));
-        });
+        ItemReplacer.create(item).readLocale(EditorLocales.SCRIPT_CONDITION_SECTION_OBJECT).trimmed().hideFlags()
+            .replace(Placeholders.SCRIPT_CONDITION_SECTION_ID, section)
+            .replace(Placeholders.SCRIPT_CONDITION_SECTION_CONDITIONS, Colorizer.apply(condis))
+            .writeMeta();
         return item;
     }
 

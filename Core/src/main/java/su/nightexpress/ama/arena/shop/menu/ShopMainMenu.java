@@ -19,10 +19,13 @@ import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.arena.shop.ShopManager;
 import su.nightexpress.ama.arena.shop.impl.ShopCategory;
+import su.nightexpress.ama.kit.Kit;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class ShopMainMenu extends ConfigMenu<AMA> implements AutoPaged<ShopCategory> {
 
@@ -81,13 +84,19 @@ public class ShopMainMenu extends ConfigMenu<AMA> implements AutoPaged<ShopCateg
         ItemStack item = category.getIcon();
         ItemUtil.mapMeta(item, meta -> {
             List<String> lore = new ArrayList<>(this.categoryLoreDefault);
-            lore = StringUtil.replaceInList(lore, PLACEHOLDER_KITS, category.getAllowedKits().isEmpty() ? Collections.emptyList() : this.categoryLoreKits);
+            lore = StringUtil.replaceInList(lore, PLACEHOLDER_KITS, category.getKitsRequired().isEmpty() ? Collections.emptyList() : this.categoryLoreKits);
             lore = StringUtil.replaceInList(lore, PLACEHOLDER_LOCKED, category.isLocked() ? this.categoryLoreLocked : Collections.emptyList());
             lore = StringUtil.replaceInList(lore, PLACEHOLDER_UNLOCKED, category.isUnlocked() ? this.categoryLoreUnlocked : Collections.emptyList());
+
+            String kits = category.getKitsRequired().stream()
+                .map(id -> plugin.getKitManager().getKitById(id))
+                .filter(Objects::nonNull).map(Kit::getName)
+                .collect(Collectors.joining(", "));
 
             meta.setDisplayName(this.categoryName);
             meta.setLore(lore);
             ItemUtil.replace(meta, category.replacePlaceholders());
+            ItemUtil.replace(meta, str -> str.replace(Placeholders.KIT_NAME, kits));
         });
         return item;
     }

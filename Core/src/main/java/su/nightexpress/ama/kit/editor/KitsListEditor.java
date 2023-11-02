@@ -1,7 +1,6 @@
 package su.nightexpress.ama.kit.editor;
 
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.menu.AutoPaged;
@@ -10,23 +9,23 @@ import su.nexmedia.engine.api.menu.impl.EditorMenu;
 import su.nexmedia.engine.api.menu.impl.MenuOptions;
 import su.nexmedia.engine.api.menu.impl.MenuViewer;
 import su.nexmedia.engine.editor.EditorManager;
-import su.nexmedia.engine.utils.ItemUtil;
-import su.nexmedia.engine.utils.StringUtil;
+import su.nexmedia.engine.utils.ItemReplacer;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.config.Lang;
-import su.nightexpress.ama.editor.EditorHub;
 import su.nightexpress.ama.editor.EditorLocales;
 import su.nightexpress.ama.kit.Kit;
 import su.nightexpress.ama.kit.KitManager;
 
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
 
 public class KitsListEditor extends EditorMenu<AMA, KitManager> implements AutoPaged<Kit> {
 
+    private static final String TITLE = "Kit Editor";
+
     public KitsListEditor(@NotNull KitManager kitManager) {
-        super(kitManager.plugin(), kitManager, EditorHub.TITLE_KIT_EDITOR, 45);
+        super(kitManager.plugin(), kitManager, TITLE + " [" + kitManager.getKits().size() + " kits]", 45);
 
         this.addReturn(39).setClick((viewer, event) -> {
             this.plugin.getEditor().openNextTick(viewer, 1);
@@ -36,9 +35,8 @@ public class KitsListEditor extends EditorMenu<AMA, KitManager> implements AutoP
 
         this.addCreation(EditorLocales.KIT_CREATE, 41).setClick((viewer, event) -> {
             this.handleInput(viewer, Lang.EDITOR_KIT_ENTER_ID, wrapper -> {
-                String id = StringUtil.lowerCaseUnderscore(wrapper.getTextRaw());
-                if (!kitManager.createKit(id)) {
-                    EditorManager.error(viewer.getPlayer(), plugin.getMessage(Lang.Editor_Kit_Error_Exist).getLocalized());
+                if (!kitManager.createKit(wrapper.getTextRaw())) {
+                    EditorManager.error(viewer.getPlayer(), plugin.getMessage(Lang.EDITOR_KIT_ERROR_EXIST).getLocalized());
                     return false;
                 }
                 return true;
@@ -60,19 +58,16 @@ public class KitsListEditor extends EditorMenu<AMA, KitManager> implements AutoP
     @Override
     @NotNull
     public List<Kit> getObjects(@NotNull Player player) {
-        return new ArrayList<>(this.object.getKits());
+        return this.object.getKits().stream().sorted(Comparator.comparing(Kit::getId)).toList();
     }
 
     @Override
     @NotNull
     public ItemStack getObjectStack(@NotNull Player player, @NotNull Kit kit) {
-        ItemStack item = new ItemStack(kit.getIcon());
-        ItemUtil.mapMeta(item, meta -> {
-            meta.setDisplayName(EditorLocales.KIT_OBJECT.getLocalizedName());
-            meta.setLore(EditorLocales.KIT_OBJECT.getLocalizedLore());
-            meta.addItemFlags(ItemFlag.values());
-            ItemUtil.replace(meta, kit.replacePlaceholders());
-        });
+        ItemStack item = kit.getIcon();
+        ItemReplacer.create(item).readLocale(EditorLocales.KIT_OBJECT).trimmed().hideFlags()
+            .replace(kit.getPlaceholders())
+            .writeMeta();
         return item;
     }
 
@@ -81,10 +76,9 @@ public class KitsListEditor extends EditorMenu<AMA, KitManager> implements AutoP
     public ItemClick getObjectClick(@NotNull Kit kit) {
         return (viewer, event) -> {
             if (event.isShiftClick() && event.isRightClick()) {
-                if (!kit.getFile().delete()) return;
-                kit.clear();
-                this.object.getKitsMap().remove(kit.getId());
-                this.openNextTick(viewer, viewer.getPage());
+                if (this.object.deleteKit(kit)) {
+                    this.openNextTick(viewer, viewer.getPage());
+                }
                 return;
             }
             kit.getEditor().openNextTick(viewer, 1);

@@ -4,11 +4,10 @@ import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.menu.impl.EditorMenu;
 import su.nexmedia.engine.api.menu.impl.MenuViewer;
-import su.nexmedia.engine.utils.ItemUtil;
+import su.nexmedia.engine.utils.ItemReplacer;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.spot.ArenaSpot;
 import su.nightexpress.ama.config.Lang;
-import su.nightexpress.ama.editor.EditorHub;
 import su.nightexpress.ama.editor.EditorLocales;
 
 public class SpotSettingsEditor extends EditorMenu<AMA, ArenaSpot> {
@@ -16,7 +15,7 @@ public class SpotSettingsEditor extends EditorMenu<AMA, ArenaSpot> {
     private SpotStatesEditor spotStatesEditor;
 
     public SpotSettingsEditor(@NotNull ArenaSpot spot) {
-        super(spot.plugin(), spot, EditorHub.TITLE_SPOT_EDITOR, 45);
+        super(spot.plugin(), spot, "Spot Settings [" + spot.getId() + "]", 45);
 
         this.addReturn(40).setClick((viewer, event) -> {
             spot.getArenaConfig().getSpotManager().getEditor().openNextTick(viewer, 1);
@@ -50,9 +49,9 @@ public class SpotSettingsEditor extends EditorMenu<AMA, ArenaSpot> {
             this.getStatesEditor().openNextTick(viewer, 1);
         });
 
-        this.getItems().forEach(menuItem -> {
-            menuItem.getOptions().addDisplayModifier((viewer, item) -> ItemUtil.replace(item, spot.replacePlaceholders()));
-        });
+        this.getItems().forEach(menuItem -> menuItem.getOptions().addDisplayModifier((viewer, item) -> {
+            ItemReplacer.replace(item, spot.replacePlaceholders());
+        }));
     }
 
     private void save(@NotNull MenuViewer viewer) {

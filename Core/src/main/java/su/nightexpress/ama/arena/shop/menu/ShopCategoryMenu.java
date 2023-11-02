@@ -20,10 +20,13 @@ import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.arena.shop.impl.ShopCategory;
 import su.nightexpress.ama.arena.shop.impl.ShopProduct;
 import su.nightexpress.ama.api.type.GameState;
+import su.nightexpress.ama.kit.Kit;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class ShopCategoryMenu extends ConfigMenu<AMA> implements AutoPaged<ShopProduct> {
 
@@ -40,8 +43,8 @@ public class ShopCategoryMenu extends ConfigMenu<AMA> implements AutoPaged<ShopP
     private final List<String> itemLoreLocked;
     private final int[]        itemSlots;
 
-    public ShopCategoryMenu(@NotNull ShopCategory shopCategory) {
-        super(shopCategory.plugin(), JYML.loadOrExtract(shopCategory.plugin(), "/menu/arena.shop.category.yml"));
+    public ShopCategoryMenu(@NotNull AMA plugin, @NotNull ShopCategory shopCategory) {
+        super(plugin, JYML.loadOrExtract(plugin, "/menu/arena.shop.category.yml"));
         this.shopCategory = shopCategory;
 
         this.itemName = Colorizer.apply(cfg.getString("Product.Name", Placeholders.SHOP_PRODUCT_NAME));
@@ -95,13 +98,19 @@ public class ShopCategoryMenu extends ConfigMenu<AMA> implements AutoPaged<ShopP
         ItemStack item = product.getIcon();
         ItemUtil.mapMeta(item, meta -> {
             List<String> lore = new ArrayList<>(this.itemLoreDefault);
-            lore = StringUtil.replaceInList(lore, PLACEHOLDER_KITS, product.getAllowedKits().isEmpty() ? Collections.emptyList() : this.itemLoreKits);
+            lore = StringUtil.replaceInList(lore, PLACEHOLDER_KITS, product.getKitsRequired().isEmpty() ? Collections.emptyList() : this.itemLoreKits);
             lore = StringUtil.replaceInList(lore, PLACEHOLDER_LOCKED, product.isLocked() ? this.itemLoreLocked : Collections.emptyList());
             lore = StringUtil.replaceInList(lore, PLACEHOLDER_UNLOCKED, product.isUnlocked() ? this.itemLoreUnlocked : Collections.emptyList());
+
+            String kits = product.getKitsRequired().stream()
+                .map(id -> plugin.getKitManager().getKitById(id))
+                .filter(Objects::nonNull).map(Kit::getName)
+                .collect(Collectors.joining(", "));
 
             meta.setDisplayName(this.itemName);
             meta.setLore(lore);
             ItemUtil.replace(meta, product.replacePlaceholders());
+            ItemUtil.replace(meta, str -> str.replace(Placeholders.KIT_NAME, kits));
         });
         return item;
     }

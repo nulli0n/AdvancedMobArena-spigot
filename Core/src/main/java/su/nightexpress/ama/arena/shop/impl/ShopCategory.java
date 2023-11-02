@@ -10,12 +10,16 @@ import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.ItemUtil;
 import su.nexmedia.engine.utils.StringUtil;
+import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
-import su.nightexpress.ama.api.type.GameEventType;
+import su.nightexpress.ama.api.arena.Inspectable;
+import su.nightexpress.ama.api.arena.Report;
 import su.nightexpress.ama.api.currency.Currency;
 import su.nightexpress.ama.api.event.ArenaShopCategoryEvent;
-import su.nightexpress.ama.arena.editor.shop.ShopCategorySettingsEditor;
+import su.nightexpress.ama.api.type.GameEventType;
+import su.nightexpress.ama.api.type.GameState;
+import su.nightexpress.ama.arena.editor.shop.CategorySettingsEditor;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
@@ -23,16 +27,15 @@ import su.nightexpress.ama.arena.lock.LockState;
 import su.nightexpress.ama.arena.lock.Lockable;
 import su.nightexpress.ama.arena.shop.ShopManager;
 import su.nightexpress.ama.arena.shop.menu.ShopCategoryMenu;
-import su.nightexpress.ama.api.type.GameState;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.currency.CurrencyManager;
 import su.nightexpress.ama.kit.Kit;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
-public class ShopCategory implements ArenaChild, Lockable, Placeholder {
+public class ShopCategory implements ArenaChild, Lockable, Inspectable, Placeholder {
 
+    private final AMA                      plugin;
     private final ArenaConfig              arenaConfig;
     private final String                   id;
     private final PlaceholderMap           placeholderMap;
@@ -42,10 +45,10 @@ public class ShopCategory implements ArenaChild, Lockable, Placeholder {
     private List<String> description;
     private ItemStack    icon;
     private LockState    lockState;
-    private Set<String>  allowedKits;
+    private Set<String>  kitsRequired;
 
-    private ShopCategoryMenu           menu;
-    private ShopCategorySettingsEditor editor;
+    private ShopCategoryMenu       menu;
+    private CategorySettingsEditor editor;
 
     public ShopCategory(@NotNull ArenaConfig config, @NotNull String id) {
         this(config, id,
@@ -62,9 +65,10 @@ public class ShopCategory implements ArenaChild, Lockable, Placeholder {
         @NotNull String name,
         @NotNull List<String> description,
         @NotNull ItemStack icon,
-        @NotNull Set<String> allowedKits,
+        @NotNull Set<String> kitsRequired,
         @NotNull Map<String, ShopProduct> products
     ) {
+        this.plugin = arenaConfig.plugin();
         this.arenaConfig = arenaConfig;
         this.id = id.toLowerCase();
 
@@ -72,16 +76,31 @@ public class ShopCategory implements ArenaChild, Lockable, Placeholder {
         this.setDescription(description);
         this.setIcon(icon);
         this.lockState = LockState.UNLOCKED;
-        this.setAllowedKits(allowedKits);
+        this.setKitsRequired(kitsRequired);
         this.products = products;
 
         this.placeholderMap = new PlaceholderMap()
+            .add(Placeholders.SHOP_CATEGORY_REPORT, () -> String.join("\n", this.getReport().getFullReport()))
             .add(Placeholders.SHOP_CATEGORY_ID, this::getId)
             .add(Placeholders.SHOP_CATEGORY_NAME, this::getName)
             .add(Placeholders.SHOP_CATEGORY_DESCRIPTION, () -> String.join("\n", this.getDescription()))
-            .add(Placeholders.SHOP_CATEGORY_ALLOWED_KITS, () -> this.getAllowedKits().stream()
-                .map(kidId -> plugin().getKitManager().getKitById(kidId)).filter(Objects::nonNull)
-                .map(Kit::getName).map(Colorizer::strip).collect(Collectors.joining(", ")))
+            .add(Placeholders.SHOP_CATEGORY_KITS_REQUIRED, () -> {
+                List<String> list = new ArrayList<>();
+
+                if (this.getKitsRequired().isEmpty()) {
+                    list.add(Report.good("All kits are allowed!"));
+                }
+                else {
+                    this.getKitsRequired().forEach(kitId -> {
+                        Kit kit = plugin.getKitManager().getKitById(kitId);
+                        if (kit != null) {
+                            list.add(Report.good(kit.getName()));
+                        }
+                        else list.add(Report.problem(kitId));
+                    });
+                }
+                return String.join("\n", list);
+            })
         ;
     }
 
@@ -92,9 +111,29 @@ public class ShopCategory implements ArenaChild, Lockable, Placeholder {
     }
 
     @NotNull
-    public ShopCategorySettingsEditor getEditor() {
+    @Override
+    public Report getReport() {
+        Report report = new Report();
+
+        if (this.getProductsMap().isEmpty()) {
+            report.addWarn("No products created!");
+        }
+        this.getProducts().forEach(product -> {
+            if (product.hasProblems()) {
+                report.addProblem("Major issues with '" + product.getId() + "' product!");
+            }
+            else if (product.hasWarns()) {
+                report.addWarn("Minor issues with '" + product.getId() + "' product!");
+            }
+        });
+
+        return report;
+    }
+
+    @NotNull
+    public CategorySettingsEditor getEditor() {
         if (this.editor == null) {
-            this.editor = new ShopCategorySettingsEditor(this);
+            this.editor = new CategorySettingsEditor(this);
         }
         return this.editor;
     }
@@ -115,26 +154,34 @@ public class ShopCategory implements ArenaChild, Lockable, Placeholder {
     @NotNull
     public ShopCategoryMenu getMenu() {
         if (this.menu == null) {
-            this.menu = new ShopCategoryMenu(this);
+            this.menu = new ShopCategoryMenu(this.plugin, this);
         }
         return this.menu;
     }
 
     public boolean createProduct(@NotNull String id) {
+        id = StringUtil.lowerCaseUnderscore(id);
+
         if (this.getProduct(id) != null) return false;
 
-        Currency currency = plugin().getCurrencyManager().getOrAny(CurrencyManager.COINS);
-        ShopProduct product = new ShopProduct(this, id, currency);
+        Currency currency = this.plugin.getCurrencyManager().getOrAny(CurrencyManager.COINS);
+        ShopProduct product = new ShopProduct(this.plugin, this, id, currency);
         this.getProductsMap().put(product.getId(), product);
         return true;
     }
 
+    public void removeProduct(@NotNull ShopProduct product) {
+        product.clear();
+        this.getProductsMap().remove(product.getId());
+        this.getShopManager().save();
+    }
+
     public boolean isAvailable(@NotNull ArenaPlayer arenaPlayer) {
-        if (this.getArenaConfig().getGameplayManager().isKitsEnabled()) {
-            if (this.getAllowedKits().isEmpty() || this.getAllowedKits().contains(Placeholders.WILDCARD)) return true;
+        if (this.getArenaConfig().getGameplaySettings().isKitsEnabled()) {
+            if (this.getKitsRequired().isEmpty() || this.getKitsRequired().contains(Placeholders.WILDCARD)) return true;
 
             Kit kit = arenaPlayer.getKit();
-            return kit != null && this.getAllowedKits().contains(kit.getId());
+            return kit != null && this.getKitsRequired().contains(kit.getId());
         }
         return true;
     }
@@ -142,17 +189,17 @@ public class ShopCategory implements ArenaChild, Lockable, Placeholder {
     public boolean open(@NotNull ArenaPlayer arenaPlayer) {
         Arena arena = arenaPlayer.getArena();
         if (arena.getState() != GameState.INGAME || !arena.getConfig().getShopManager().isActive()) {
-            plugin().getMessage(Lang.SHOP_OPEN_ERROR_DISABLED).send(arenaPlayer.getPlayer());
+            this.plugin.getMessage(Lang.SHOP_OPEN_ERROR_DISABLED).send(arenaPlayer.getPlayer());
             return false;
         }
 
         if (this.isLocked()) {
-            plugin().getMessage(Lang.SHOP_CATEGORY_OPEN_ERROR_LOCKED).replace(this.replacePlaceholders()).send(arenaPlayer.getPlayer());
+            this.plugin.getMessage(Lang.SHOP_CATEGORY_OPEN_ERROR_LOCKED).replace(this.replacePlaceholders()).send(arenaPlayer.getPlayer());
             return false;
         }
 
         if (!this.isAvailable(arenaPlayer)) {
-            plugin().getMessage(Lang.SHOP_CATEGORY_OPEN_ERROR_UNAVAILABLE).send(arenaPlayer.getPlayer());
+            this.plugin.getMessage(Lang.SHOP_CATEGORY_OPEN_ERROR_UNAVAILABLE).send(arenaPlayer.getPlayer());
             return false;
         }
 
@@ -188,7 +235,7 @@ public class ShopCategory implements ArenaChild, Lockable, Placeholder {
 
         GameEventType eventType = this.isLocked() ? GameEventType.SHOP_CATEGORY_LOCKED : GameEventType.SHOP_CATEGORY_UNLOCKED;
         ArenaShopCategoryEvent event = new ArenaShopCategoryEvent(this.getArena(), this, eventType);
-        this.plugin().getPluginManager().callEvent(event);
+        this.plugin.getPluginManager().callEvent(event);
     }
 
     @NotNull
@@ -224,12 +271,12 @@ public class ShopCategory implements ArenaChild, Lockable, Placeholder {
     }
 
     @NotNull
-    public Set<String> getAllowedKits() {
-        return allowedKits;
+    public Set<String> getKitsRequired() {
+        return kitsRequired;
     }
 
-    public void setAllowedKits(@NotNull Set<String> allowedKits) {
-        this.allowedKits = allowedKits;
+    public void setKitsRequired(@NotNull Set<String> kitsRequired) {
+        this.kitsRequired = kitsRequired;
     }
 
     @NotNull

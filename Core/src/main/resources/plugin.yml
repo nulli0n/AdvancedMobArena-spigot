@@ -1,6 +1,7 @@
-name: AdvancedMobArena
-version: '${project.version}'
 main: su.nightexpress.ama.AMA
+version: '${project.version}'
+name: AdvancedMobArena
+description: Advanced mob arena with many cool features for your server. Enjoy!
 author: NightExpress
 depend: [ NexEngine ]
 softdepend:
@@ -19,5 +20,5 @@ softdepend:
   - MCPets
   - AdvancedPets
   - CombatPets
-description: Advanced mob arena with many cool features for your server. Enjoy!
+
 api-version: 1.18

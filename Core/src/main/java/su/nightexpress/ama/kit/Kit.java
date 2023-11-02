@@ -17,6 +17,7 @@ import su.nexmedia.engine.utils.*;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.Placeholders;
+import su.nightexpress.ama.api.arena.Report;
 import su.nightexpress.ama.api.currency.Currency;
 import su.nightexpress.ama.api.hologram.HologramHolder;
 import su.nightexpress.ama.api.hologram.HologramType;
@@ -30,6 +31,7 @@ import su.nightexpress.ama.kit.editor.KitMainEditor;
 import su.nightexpress.ama.kit.menu.KitPreviewMenu;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Kit extends AbstractConfigHolder<AMA> implements HologramHolder, Placeholder {
@@ -67,13 +69,16 @@ public class Kit extends AbstractConfigHolder<AMA> implements HologramHolder, Pl
             .add(Placeholders.KIT_PERMISSION, this::getPermission)
             .add(Placeholders.KIT_IS_DEFAULT, () -> LangManager.getBoolean(this.isDefault()))
             .add(Placeholders.KIT_IS_PERMISSION, () -> LangManager.getBoolean(this.isPermissionRequired()))
-            .add(Placeholders.KIT_COMMANDS, () -> String.join("\n", this.getCommands()))
-            .add(Placeholders.KIT_POTION_EFFECTS, () -> String.join("\n", this.getPotionEffects()
-                .stream().map(effect -> effect.getType().getName() + " " + NumberUtil.toRoman(effect.getAmplifier() + 1)).toList()))
+            .add(Placeholders.KIT_COMMANDS, () -> {
+                return this.getCommands().stream().map(Report::good).collect(Collectors.joining("\n"));
+            })
+            .add(Placeholders.KIT_POTION_EFFECTS, () -> this.getPotionEffects().stream()
+                .map(effect -> Report.good(LangManager.getPotionType(effect.getType()) + " " + NumberUtil.toRoman(effect.getAmplifier() + 1)))
+                .collect(Collectors.joining("\n")))
             .add(Placeholders.KIT_COST, () -> this.getCurrency().format(this.getCost()))
+            .add(Placeholders.KIT_CURRENCY, () -> this.getCurrency().getName())
             .add(Placeholders.KIT_ICON_LORE, () -> String.join("\n", ItemUtil.getLore(this.getIcon())))
             .add(Placeholders.KIT_ICON_MATERIAL, () -> this.getIcon().getType().name())
-            .add(Placeholders.KIT_CURRENCY, () -> this.getCurrency().getName())
         ;
     }
 
@@ -197,6 +202,10 @@ public class Kit extends AbstractConfigHolder<AMA> implements HologramHolder, Pl
             this.preview = new KitPreviewMenu(this);
         }
         return preview;
+    }
+
+    public boolean isFree() {
+        return this.getCost() <= 0D;
     }
 
     public boolean isDefault() {
@@ -405,13 +414,13 @@ public class Kit extends AbstractConfigHolder<AMA> implements HologramHolder, Pl
         Player player = arenaPlayer.getPlayer();
 
         // Check if kits are disabled on the arena
-        if (!arena.getConfig().getGameplayManager().isKitsEnabled()) {
+        if (!arena.getConfig().getGameplaySettings().isKitsEnabled()) {
             if (isMsg) plugin.getMessage(Lang.Arena_Game_Restrict_Kits).send(player);
             return false;
         }
 
         // Check if kit is banned on the arena
-        if (!arena.getConfig().getGameplayManager().isKitAllowed(this.getId())) {
+        if (!arena.getConfig().getGameplaySettings().isKitAllowed(this.getId())) {
             if (isMsg) plugin.getMessage(Lang.Kit_Select_Error_Disabled).send(player);
             return false;
         }
@@ -423,7 +432,7 @@ public class Kit extends AbstractConfigHolder<AMA> implements HologramHolder, Pl
         }
 
         // Check for limit
-        int limitMax = arena.getConfig().getGameplayManager().getKitLimit(this.getId());
+        int limitMax = arena.getConfig().getGameplaySettings().getKitLimit(this.getId());
         if (limitMax >= 0) {
             int limitHas = (int) arena.getPlayers().select(PlayerType.REAL).stream()
                 .filter(arenaPlayer1 -> arenaPlayer1.getKit() != null && arenaPlayer1.getKit().equals(this)).count();

@@ -11,12 +11,15 @@ import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.ItemUtil;
 import su.nexmedia.engine.utils.PlayerUtil;
 import su.nexmedia.engine.utils.StringUtil;
+import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
-import su.nightexpress.ama.api.type.GameEventType;
+import su.nightexpress.ama.api.arena.Inspectable;
+import su.nightexpress.ama.api.arena.Report;
 import su.nightexpress.ama.api.currency.Currency;
 import su.nightexpress.ama.api.event.ArenaShopProductEvent;
-import su.nightexpress.ama.arena.editor.shop.ShopProductSettingsEditor;
+import su.nightexpress.ama.api.type.GameEventType;
+import su.nightexpress.ama.arena.editor.shop.ProductSettingsEditor;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.arena.lock.LockState;
@@ -25,29 +28,33 @@ import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.kit.Kit;
 import su.nightexpress.ama.stats.object.StatType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-public class ShopProduct implements ArenaChild, Lockable, Placeholder {
+public class ShopProduct implements ArenaChild, Lockable, Inspectable, Placeholder {
 
-    private final ShopCategory shopCategory;
-    private final String       id;
+    private final AMA            plugin;
+    private final ShopCategory   category;
+    private final String         id;
     private final PlaceholderMap placeholderMap;
 
     private String          name;
     private List<String>    description;
-    private LockState lockState;
-    private Currency  currency;
-    private double    price;
-    private Set<String>     allowedKits;
+    private LockState       lockState;
+    private Currency        currency;
+    private double          price;
+    private Set<String>     kitsRequired;
     private ItemStack       icon;
     private List<String>    commands;
     private List<ItemStack> items;
 
-    private ShopProductSettingsEditor editor;
+    private ProductSettingsEditor editor;
 
-    public ShopProduct(@NotNull ShopCategory shopCategory, @NotNull String id, @NotNull Currency currency) {
-        this(shopCategory, id,
+    public ShopProduct(@NotNull AMA plugin, @NotNull ShopCategory category, @NotNull String id, @NotNull Currency currency) {
+        this(plugin, category, id,
             StringUtil.capitalizeUnderscored(id),
             new ArrayList<>(),
             currency,
@@ -59,7 +66,8 @@ public class ShopProduct implements ArenaChild, Lockable, Placeholder {
     }
 
     public ShopProduct(
-        @NotNull ShopCategory shopCategory,
+        @NotNull AMA plugin,
+        @NotNull ShopCategory category,
         @NotNull String id,
         @NotNull String name,
         @NotNull List<String> description,
@@ -70,7 +78,8 @@ public class ShopProduct implements ArenaChild, Lockable, Placeholder {
         @NotNull List<String> commands,
         @NotNull List<ItemStack> items
     ) {
-        this.shopCategory = shopCategory;
+        this.plugin = plugin;
+        this.category = category;
         this.id = id.toLowerCase();
         this.setName(name);
         this.setDescription(description);
@@ -78,20 +87,35 @@ public class ShopProduct implements ArenaChild, Lockable, Placeholder {
 
         this.setCurrency(currency);
         this.setPrice(price);
-        this.setAllowedKits(applicableKits);
+        this.setKitsRequired(applicableKits);
         this.setIcon(icon);
         this.setCommands(commands);
         this.setItems(items);
 
         this.placeholderMap = new PlaceholderMap()
+            .add(Placeholders.SHOP_PRODUCT_REPORT, () -> String.join("\n", this.getReport().getFullReport()))
             .add(Placeholders.SHOP_PRODUCT_ID, this::getId)
             .add(Placeholders.SHOP_PRODUCT_NAME, this::getName)
             .add(Placeholders.SHOP_PRODUCT_DESCRIPTION, () -> String.join("\n", this.getDescription()))
             .add(Placeholders.SHOP_PRODUCT_PRICE, () -> this.getCurrency().format(this.getPrice()))
             .add(Placeholders.SHOP_PRODUCT_CURRENCY, () -> this.getCurrency().getName())
-            .add(Placeholders.SHOP_PRODUCT_ALLOWED_KITS, () -> this.getAllowedKits().stream()
-                .map(kidId -> plugin().getKitManager().getKitById(kidId)).filter(Objects::nonNull)
-                .map(Kit::getName).map(Colorizer::strip).collect(Collectors.joining(", ")))
+            .add(Placeholders.SHOP_PRODUCT_KITS_REQUIRED, () -> {
+                List<String> list = new ArrayList<>();
+
+                if (this.getKitsRequired().isEmpty()) {
+                    list.add(Report.good("All kits are allowed!"));
+                }
+                else {
+                    this.getKitsRequired().forEach(kitId -> {
+                        Kit kit = plugin.getKitManager().getKitById(kitId);
+                        if (kit != null) {
+                            list.add(Report.good(kit.getName()));
+                        }
+                        else list.add(Report.problem(kitId));
+                    });
+                }
+                return String.join("\n", list);
+            })
             .add(Placeholders.SHOP_PRODUCT_COMMANDS, () -> String.join("\n", this.getCommands()))
         ;
     }
@@ -104,22 +128,34 @@ public class ShopProduct implements ArenaChild, Lockable, Placeholder {
         return this.placeholderMap;
     }
 
+    @NotNull
+    @Override
+    public Report getReport() {
+        Report report = new Report();
+
+        if (this.getCommands().isEmpty() && this.getItems().isEmpty()) {
+            report.addWarn("Product has no commands & items!");
+        }
+
+        return report;
+    }
+
     public boolean purchase(@NotNull ArenaPlayer arenaPlayer) {
         Player player = arenaPlayer.getPlayer();
 
         if (this.isLocked()) {
-            plugin().getMessage(Lang.SHOP_PRODUCT_ERROR_LOCKED).send(player);
+            plugin.getMessage(Lang.SHOP_PRODUCT_ERROR_LOCKED).send(player);
             return false;
         }
         if (!this.isAvailable(arenaPlayer)) {
-            plugin().getMessage(Lang.SHOP_PRODUCT_ERROR_UNAVAILABLE).send(player);
+            plugin.getMessage(Lang.SHOP_PRODUCT_ERROR_UNAVAILABLE).send(player);
             return false;
         }
 
         double price = this.getPrice();
         double balance = this.getCurrency().getHandler().getBalance(player);
         if (balance < price) {
-            plugin().getMessage(Lang.SHOP_PRODUCT_ERROR_NOT_ENOUGH_FUNDS).replace(this.replacePlaceholders()).send(player);
+            plugin.getMessage(Lang.SHOP_PRODUCT_ERROR_NOT_ENOUGH_FUNDS).replace(this.replacePlaceholders()).send(player);
             return false;
         }
 
@@ -127,24 +163,24 @@ public class ShopProduct implements ArenaChild, Lockable, Placeholder {
         this.give(player);
 
         arenaPlayer.addStats(StatType.COINS_SPENT, (int) price);
-        plugin().getMessage(Lang.SHOP_PRODUCT_PURCHASE).replace(this.replacePlaceholders()).send(player);
+        plugin.getMessage(Lang.SHOP_PRODUCT_PURCHASE).replace(this.replacePlaceholders()).send(player);
         return true;
     }
 
     public boolean isAvailable(@NotNull ArenaPlayer arenaPlayer) {
-        if (this.getArenaConfig().getGameplayManager().isKitsEnabled()) {
-            if (this.getAllowedKits().isEmpty() || this.getAllowedKits().contains(Placeholders.WILDCARD)) return true;
+        if (this.getArenaConfig().getGameplaySettings().isKitsEnabled()) {
+            if (this.getKitsRequired().isEmpty() || this.getKitsRequired().contains(Placeholders.WILDCARD)) return true;
 
             Kit kit = arenaPlayer.getKit();
-            return kit != null && this.getAllowedKits().contains(kit.getId());
+            return kit != null && this.getKitsRequired().contains(kit.getId());
         }
         return true;
     }
 
     @NotNull
-    public ShopProductSettingsEditor getEditor() {
+    public ProductSettingsEditor getEditor() {
         if (this.editor == null) {
-            this.editor = new ShopProductSettingsEditor(this);
+            this.editor = new ProductSettingsEditor(this.plugin, this);
         }
         return this.editor;
     }
@@ -157,7 +193,7 @@ public class ShopProduct implements ArenaChild, Lockable, Placeholder {
         this.getDescription().clear();
         this.getItems().clear();
         this.getCommands().clear();
-        this.getAllowedKits().clear();
+        this.getKitsRequired().clear();
     }
 
     public void give(@NotNull Player player) {
@@ -168,12 +204,12 @@ public class ShopProduct implements ArenaChild, Lockable, Placeholder {
     @NotNull
     @Override
     public ArenaConfig getArenaConfig() {
-        return this.getShopCategory().getArenaConfig();
+        return this.getCategory().getArenaConfig();
     }
 
     @NotNull
-    public ShopCategory getShopCategory() {
-        return shopCategory;
+    public ShopCategory getCategory() {
+        return category;
     }
 
     @NotNull
@@ -211,7 +247,7 @@ public class ShopProduct implements ArenaChild, Lockable, Placeholder {
 
         GameEventType eventType = this.isLocked() ? GameEventType.SHOP_ITEM_LOCKED : GameEventType.SHOP_ITEM_UNLOCKED;
         ArenaShopProductEvent regionEvent = new ArenaShopProductEvent(this.getArena(), eventType, this);
-        this.plugin().getPluginManager().callEvent(regionEvent);
+        this.plugin.getPluginManager().callEvent(regionEvent);
     }
 
     @NotNull
@@ -232,12 +268,12 @@ public class ShopProduct implements ArenaChild, Lockable, Placeholder {
     }
 
     @NotNull
-    public Set<String> getAllowedKits() {
-        return this.allowedKits;
+    public Set<String> getKitsRequired() {
+        return this.kitsRequired;
     }
 
-    public void setAllowedKits(@NotNull Set<String> allowedKits) {
-        this.allowedKits = new HashSet<>(allowedKits.stream().map(String::toLowerCase).toList());
+    public void setKitsRequired(@NotNull Set<String> kitsRequired) {
+        this.kitsRequired = kitsRequired.stream().map(String::toLowerCase).collect(Collectors.toCollection(HashSet::new));
     }
 
     @NotNull

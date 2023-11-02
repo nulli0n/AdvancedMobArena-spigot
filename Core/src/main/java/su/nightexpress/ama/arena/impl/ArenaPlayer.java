@@ -18,8 +18,8 @@ import su.nightexpress.ama.api.arena.type.ArenaLocationType;
 import su.nightexpress.ama.api.event.ArenaPlayerReadyEvent;
 import su.nightexpress.ama.arena.board.ArenaBoard;
 import su.nightexpress.ama.arena.board.ArenaBoardConfig;
-import su.nightexpress.ama.arena.region.ArenaRegion;
-import su.nightexpress.ama.arena.reward.ArenaReward;
+import su.nightexpress.ama.arena.region.Region;
+import su.nightexpress.ama.arena.reward.Reward;
 import su.nightexpress.ama.api.type.GameState;
 import su.nightexpress.ama.arena.util.ArenaUtils;
 import su.nightexpress.ama.config.Config;
@@ -42,7 +42,7 @@ public final class ArenaPlayer implements IArenaPlayer, Placeholder {
     private final Player player;
     private final Arena  arena;
     private final Map<StatType, Integer> stats;
-    private final List<ArenaReward>      rewards;
+    private final List<Reward>           rewards;
     private final PlaceholderMap         placeholderMap;
 
     private GameState  state;
@@ -100,7 +100,7 @@ public final class ArenaPlayer implements IArenaPlayer, Placeholder {
         this.state = GameState.WAITING;
         this.setReal();
         this.setKit(null);
-        this.setLifes(arena.getConfig().getGameplayManager().getPlayerLivesAmount());
+        this.setLifes(arena.getConfig().getGameplaySettings().getPlayerLifes());
         this.setScore(0);
         this.setKillStreak(0);
         this.setDead(false);
@@ -183,7 +183,7 @@ public final class ArenaPlayer implements IArenaPlayer, Placeholder {
 
         if (this.isOutOfLifes()) {
             this.setReviveTime(-1);
-            if (!this.getArena().getConfig().getRewardManager().isRetainOnDeath()) {
+            if (!this.getArena().getConfig().getRewardManager().isKeepOnDeath()) {
                 this.getRewards().clear();
             }
             if (this.getArena().getPlayers().hasAlive()) {
@@ -202,7 +202,7 @@ public final class ArenaPlayer implements IArenaPlayer, Placeholder {
             ArenaUtils.removeMobBossBars(this.getPlayer());
         }
         else {
-            this.setReviveTime(this.getArena().getConfig().getGameplayManager().getPlayerReviveTime());
+            this.setReviveTime(this.getArena().getConfig().getGameplaySettings().getPlayerRespawnTime());
             if (this.getArena().getPlayers().hasAlive()) {
                 this.plugin.getMessage(Lang.ARENA_GAME_DEATH_WITH_LIFES).replace(this.replacePlaceholders()).send(this.getPlayer());
             }
@@ -221,7 +221,7 @@ public final class ArenaPlayer implements IArenaPlayer, Placeholder {
     public void revive() {
         if (!this.isDead() || this.isGhost()) return;
 
-        ArenaRegion defRegion = this.getArena().getConfig().getRegionManager().getFirstUnlocked();
+        Region defRegion = this.getArena().getConfig().getRegionManager().getFirstUnlocked();
         if (defRegion != null && defRegion.getSpawnLocation() != null) {
             this.getPlayer().teleport(defRegion.getSpawnLocation());
         }
@@ -277,7 +277,7 @@ public final class ArenaPlayer implements IArenaPlayer, Placeholder {
     }
 
     @NotNull
-    public List<ArenaReward> getRewards() {
+    public List<Reward> getRewards() {
         return this.rewards;
     }
 
@@ -347,9 +347,9 @@ public final class ArenaPlayer implements IArenaPlayer, Placeholder {
     }
 
     public void addBoard() {
-        if (!this.arena.getConfig().getGameplayManager().isScoreboardEnabled()) return;
+        if (!this.arena.getConfig().getGameplaySettings().isScoreboardEnabled()) return;
 
-        ArenaBoardConfig boardConfig = Config.SCOREBOARDS.get().get(this.getArena().getConfig().getGameplayManager().getScoreboardId());
+        ArenaBoardConfig boardConfig = Config.SCOREBOARDS.get().get(this.getArena().getConfig().getGameplaySettings().getScoreboardId());
         if (boardConfig == null) return;
 
         if (EngineUtils.hasPlugin(HookId.SUNLIGHT)) {
@@ -371,7 +371,7 @@ public final class ArenaPlayer implements IArenaPlayer, Placeholder {
      * @return Returns ArenaRegion where player is.
      */
     @Nullable
-    public ArenaRegion getRegion() {
+    public Region getRegion() {
         Location location = this.getPlayer().getLocation();
         return this.getArena().getConfig().getRegionManager().getRegion(location);
     }

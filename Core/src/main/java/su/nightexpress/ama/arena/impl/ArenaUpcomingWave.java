@@ -3,8 +3,8 @@ package su.nightexpress.ama.arena.impl;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.arena.region.ArenaRegion;
-import su.nightexpress.ama.arena.wave.ArenaWaveMob;
+import su.nightexpress.ama.arena.region.Region;
+import su.nightexpress.ama.arena.wave.impl.WaveMob;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,10 +12,10 @@ import java.util.List;
 
 public class ArenaUpcomingWave {
 
-    private final List<ArenaWaveMob> mobs;
-    private final List<Location>     spawners;
+    private final List<WaveMob>  mobs;
+    private final List<Location> spawners;
 
-    public ArenaUpcomingWave(@NotNull ArenaRegion region, @NotNull List<ArenaWaveMob> mobs, @NotNull List<String> spawnerIds) {
+    public ArenaUpcomingWave(@NotNull Region region, @NotNull List<WaveMob> mobs, @NotNull List<String> spawnerIds) {
         this.mobs = mobs;
         this.spawners = new ArrayList<>();
 
@@ -36,11 +36,11 @@ public class ArenaUpcomingWave {
     }
 
     public int getMobsAmount() {
-        return this.getPreparedMobs().stream().mapToInt(ArenaWaveMob::getAmount).sum();
+        return this.getPreparedMobs().stream().mapToInt(WaveMob::getAmount).sum();
     }
 
     @NotNull
-    public List<ArenaWaveMob> getPreparedMobs() {
+    public List<WaveMob> getPreparedMobs() {
         return this.mobs;
     }
 

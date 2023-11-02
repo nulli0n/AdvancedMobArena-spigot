@@ -1,5 +1,6 @@
 package su.nightexpress.ama.arena;
 
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -12,12 +13,15 @@ import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
+import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.arena.listener.ArenaGameplayListener;
 import su.nightexpress.ama.arena.listener.ArenaGenericListener;
 import su.nightexpress.ama.arena.listener.ArenaMythicListener;
 import su.nightexpress.ama.arena.menu.ArenaListMenu;
+import su.nightexpress.ama.arena.region.Region;
 import su.nightexpress.ama.arena.task.ArenaOpenTask;
 import su.nightexpress.ama.arena.task.ArenaTickTask;
+import su.nightexpress.ama.arena.util.ArenaCuboid;
 import su.nightexpress.ama.hook.HookId;
 
 import java.io.File;
@@ -43,23 +47,16 @@ public class ArenaManager extends AbstractManager<AMA> {
     protected void onLoad() {
         this.plugin.runTask(task -> {
             for (File folder : FileUtil.getFolders(plugin.getDataFolder() + DIR_ARENAS)) {
-                // OLD DATA START
-                File fileOld = new File(folder.getAbsolutePath(), folder.getName() + ".yml");
-                File fileNew = new File(folder.getAbsolutePath(), "config.yml");
-                if (fileOld.exists()) {
-                    if (!fileOld.renameTo(fileNew)) {
-                        this.plugin.error("Could not rename arena config: " + fileOld.getName());
-                        continue;
-                    }
-                }
-                // OLD DATA END
-
                 JYML cfg = new JYML(folder.getAbsolutePath(), "config.yml");
                 ArenaConfig config = new ArenaConfig(plugin, cfg, folder.getName());
                 if (config.load()) {
                     this.arenas.put(config.getId(), config.getArena());
                     if (config.hasProblems()) {
-                        this.plugin.warn("Arena '" + config.getId() + "' contains some problems! Arena disabled until all problems are fixed.");
+                        this.plugin.warn("*".repeat(30));
+                        this.plugin.warn("There are major issues in '" + config.getId() + "' arena!");
+                        this.plugin.warn("Arena will be disabled for players until they are fixed.");
+                        this.plugin.warn("Please, take a look at Arena Editor for details.");
+                        this.plugin.warn("*".repeat(30));
                     }
                 }
                 else this.plugin.error("Arena not loaded: '" + cfg.getFile().getName() + "' !");
@@ -106,14 +103,15 @@ public class ArenaManager extends AbstractManager<AMA> {
         return arenaListMenu;
     }
 
-    public boolean create(@NotNull String arenaId) {
-        if (this.isArenaExists(arenaId)) {
+    public boolean create(@NotNull String id) {
+        id = StringUtil.lowerCaseUnderscore(id);
+        if (this.isArenaExists(id)) {
             return false;
         }
 
-        JYML cfg = new JYML(plugin.getDataFolder() + DIR_ARENAS + arenaId, "config.yml");
-        ArenaConfig arenaConfig = new ArenaConfig(plugin, cfg, arenaId);
-        arenaConfig.setName(StringUtil.capitalizeUnderscored(arenaId));
+        JYML cfg = new JYML(plugin.getDataFolder() + DIR_ARENAS + id, "config.yml");
+        ArenaConfig arenaConfig = new ArenaConfig(plugin, cfg, id);
+        arenaConfig.setName(StringUtil.capitalizeUnderscored(id));
         arenaConfig.load();
         arenaConfig.save();
         this.getArenasMap().put(arenaConfig.getId(), arenaConfig.getArena());
@@ -156,10 +154,40 @@ public class ArenaManager extends AbstractManager<AMA> {
     }
 
     @Nullable
+    public Arena getArena(@NotNull Player player) {
+        ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
+        return arenaPlayer == null ? null : arenaPlayer.getArena();
+    }
+
+    @Nullable
     public Arena getArenaAtLocation(@NotNull Location location) {
         return this.getArenas().stream()
             .filter(arena -> arena.getConfig().getRegionManager().getRegion(location) != null)
             .findFirst().orElse(null);
+    }
+
+    @Nullable
+    public Arena getArenaByChunk(@NotNull Chunk chunk) {
+        int chunkX = chunk.getX();
+        int chunkZ = chunk.getZ();
+
+        for (Arena arena : this.getArenas()) {
+            for (Region region : arena.getConfig().getRegionManager().getRegions()) {
+                ArenaCuboid cuboid = region.getCuboid().orElse(null);
+                if (cuboid == null) continue;
+
+                int chunkMinX = cuboid.getMin().getBlockX() >> 4;
+                int chunkMinZ = cuboid.getMin().getBlockZ() >> 4;
+
+                int chunkMaxX = cuboid.getMax().getBlockX() >> 4;
+                int chunkMaxZ = cuboid.getMax().getBlockZ() >> 4;
+
+                if (chunkX >= chunkMinX && chunkX <= chunkMaxX && chunkZ >= chunkMinZ && chunkZ <= chunkMaxZ) {
+                    return arena;
+                }
+            }
+        }
+        return null;
     }
 
     @Nullable

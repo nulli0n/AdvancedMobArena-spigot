@@ -17,7 +17,7 @@ Category:
       - '#9af7ff▪ #ddeceeLeft-Click: #9af7ffOpen'
     Kits:
       - '#ff9a9a[!] #ddeceeThis category is only available for:'
-      - '#ff9a9a%shop_category_allowed_kits%'
+      - '#ff9a9a%kit_name%'
     Unlocked:
       - '#a5ff9a[✓] #ddeceeCategory is #a5ff9aunlocked#ddecee.'
     Locked:

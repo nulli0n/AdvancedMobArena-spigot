@@ -10,13 +10,13 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.server.AbstractTask;
 import su.nightexpress.ama.AMA;
-import su.nightexpress.ama.arena.region.ArenaRegion;
+import su.nightexpress.ama.arena.region.Region;
 import su.nightexpress.ama.arena.setup.ArenaSetupUtils;
 import su.nightexpress.ama.arena.setup.SetupItemType;
 import su.nightexpress.ama.arena.util.ArenaCuboid;
 import su.nightexpress.ama.config.Lang;
 
-public class RegionSetupManager extends AbstractSetupManager<ArenaRegion> {
+public class RegionSetupManager extends AbstractSetupManager<Region> {
 
     private Location[] cuboidCache;
     private VisualTask visualTask;
@@ -43,7 +43,7 @@ public class RegionSetupManager extends AbstractSetupManager<ArenaRegion> {
     }
 
     @Override
-    protected void onSetupStart(@NotNull Player player, @NotNull ArenaRegion region) {
+    protected void onSetupStart(@NotNull Player player, @NotNull Region region) {
         this.cuboidCache = new Location[2];
         if (region.getCuboid().isPresent()) {
             ArenaCuboid cuboid = region.getCuboid().get();
@@ -59,7 +59,7 @@ public class RegionSetupManager extends AbstractSetupManager<ArenaRegion> {
     }
 
     @Override
-    protected void onSetupEnd(@NotNull Player player, @NotNull ArenaRegion region) {
+    protected void onSetupEnd(@NotNull Player player, @NotNull Region region) {
         region.getEditor().open(player, 1);
 
         this.cuboidCache = null;
@@ -76,7 +76,7 @@ public class RegionSetupManager extends AbstractSetupManager<ArenaRegion> {
             ArenaSetupUtils.addVisualBlock(player, cuboidCache[1]);
         }
 
-        ArenaRegion region = this.getObject();
+        Region region = this.getObject();
         if (region.getSpawnLocation() != null) {
             ArenaSetupUtils.addVisualText(player, "&a« Spawn Location »", region.getSpawnLocation());
             ArenaSetupUtils.addVisualBlock(player, region.getSpawnLocation());
@@ -101,7 +101,7 @@ public class RegionSetupManager extends AbstractSetupManager<ArenaRegion> {
     }
 
     @Override
-    protected void handleItem(@NotNull PlayerInteractEvent e, @NotNull Player player, @NotNull ArenaRegion region,
+    protected void handleItem(@NotNull PlayerInteractEvent e, @NotNull Player player, @NotNull Region region,
                               @NotNull ItemStack item, @NotNull SetupItemType itemType) {
 
         switch (itemType) {
@@ -110,7 +110,7 @@ public class RegionSetupManager extends AbstractSetupManager<ArenaRegion> {
                 if (block == null || block.isEmpty()) return;
 
                 Location location = block.getLocation();
-                ArenaRegion overlap = region.getArenaConfig().getRegionManager().getRegion(location);
+                Region overlap = region.getArenaConfig().getRegionManager().getRegion(location);
                 if (overlap != null && !region.getId().equals(overlap.getId())) {
                     plugin.getMessage(Lang.Setup_Region_Cuboid_Error_Overlap).replace(overlap.replacePlaceholders()).send(player);
                     return;

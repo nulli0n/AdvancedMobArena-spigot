@@ -2,7 +2,6 @@ package su.nightexpress.ama.arena.editor.script;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.menu.AutoPaged;
@@ -10,24 +9,24 @@ import su.nexmedia.engine.api.menu.click.ItemClick;
 import su.nexmedia.engine.api.menu.impl.EditorMenu;
 import su.nexmedia.engine.api.menu.impl.MenuOptions;
 import su.nexmedia.engine.api.menu.impl.MenuViewer;
-import su.nexmedia.engine.utils.ItemUtil;
-import su.nexmedia.engine.utils.StringUtil;
+import su.nexmedia.engine.utils.ItemReplacer;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.arena.script.ArenaScriptManager;
+import su.nightexpress.ama.arena.script.ScriptManager;
 import su.nightexpress.ama.arena.script.impl.ScriptCategory;
 import su.nightexpress.ama.config.Lang;
-import su.nightexpress.ama.editor.EditorHub;
 import su.nightexpress.ama.editor.EditorLocales;
 
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
 
-public class ScriptsEditor extends EditorMenu<AMA, ArenaScriptManager> implements AutoPaged<ScriptCategory> {
+public class ScriptsEditor extends EditorMenu<AMA, ScriptManager> implements AutoPaged<ScriptCategory> {
 
-    public ScriptsEditor(@NotNull ArenaScriptManager scriptManager) {
-        super(scriptManager.plugin(), scriptManager, EditorHub.TITLE_SCRIPT_EDITOR, 45);
+    private static final String TITLE = "Scripts Editor";
+
+    public ScriptsEditor(@NotNull AMA plugin, @NotNull ScriptManager scriptManager) {
+        super(plugin, scriptManager, TITLE + " [" + scriptManager.getArena().getId() + "]", 45);
 
         this.addReturn(39).setClick((viewer, event) -> {
             scriptManager.getArenaConfig().getEditor().openNextTick(viewer, 1);
@@ -37,8 +36,7 @@ public class ScriptsEditor extends EditorMenu<AMA, ArenaScriptManager> implement
 
         this.addCreation(EditorLocales.SCRIPT_CATEGORY_CREATE, 41).setClick((viewer, event) -> {
             this.handleInput(viewer, Lang.EDITOR_ARENA_SCRIPT_ENTER_CATEGORY, wrapper -> {
-                scriptManager.createCategory(StringUtil.lowerCaseUnderscore(wrapper.getTextRaw()));
-                scriptManager.save();
+                scriptManager.createCategory(wrapper.getTextRaw());
                 return true;
             });
         });
@@ -58,19 +56,16 @@ public class ScriptsEditor extends EditorMenu<AMA, ArenaScriptManager> implement
     @Override
     @NotNull
     public List<ScriptCategory> getObjects(@NotNull Player player) {
-        return new ArrayList<>(this.object.getCategories());
+        return this.object.getCategories().stream().sorted(Comparator.comparing(ScriptCategory::getId)).toList();
     }
 
     @Override
     @NotNull
     public ItemStack getObjectStack(@NotNull Player player, @NotNull ScriptCategory category) {
         ItemStack item = new ItemStack(Material.COMMAND_BLOCK_MINECART);
-        ItemUtil.mapMeta(item, meta -> {
-            meta.setDisplayName(EditorLocales.SCRIPT_CATEGORY_OBJECT.getLocalizedName());
-            meta.setLore(EditorLocales.SCRIPT_CATEGORY_OBJECT.getLocalizedLore());
-            meta.addItemFlags(ItemFlag.values());
-            ItemUtil.replace(meta, str -> str.replace(Placeholders.SCRIPT_CATEGORY_ID, category.getId()));
-        });
+        ItemReplacer.create(item).readLocale(EditorLocales.SCRIPT_CATEGORY_OBJECT).trimmed().hideFlags()
+            .replace(Placeholders.SCRIPT_CATEGORY_ID, category.getId())
+            .writeMeta();
         return item;
     }
 

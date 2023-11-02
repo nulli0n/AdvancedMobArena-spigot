@@ -3,18 +3,19 @@ package su.nightexpress.ama.arena.script.action;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.utils.Colorizer;
+import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.type.ArenaTargetType;
 import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.arena.impl.ArenaUpcomingWave;
-import su.nightexpress.ama.arena.region.ArenaRegion;
+import su.nightexpress.ama.arena.region.Region;
 import su.nightexpress.ama.arena.shop.impl.ShopCategory;
 import su.nightexpress.ama.arena.shop.impl.ShopProduct;
 import su.nightexpress.ama.arena.spot.ArenaSpot;
-import su.nightexpress.ama.arena.supply.ArenaSupplyChest;
-import su.nightexpress.ama.arena.wave.ArenaWave;
-import su.nightexpress.ama.arena.wave.ArenaWaveMob;
+import su.nightexpress.ama.arena.supply.SupplyChest;
+import su.nightexpress.ama.arena.wave.impl.Wave;
+import su.nightexpress.ama.arena.wave.impl.WaveMob;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -25,18 +26,20 @@ public class ScriptActions {
 
     public static final ScriptAction UNLOCK_REGION = register("unlock_region", (event, result) -> {
         String regId = result.get(Parameters.REGION, "");
-        ArenaRegion region = event.getArena().getConfig().getRegionManager().getRegion(regId);
+        Region region = event.getArena().getConfig().getRegionManager().getRegion(regId);
         if (region != null) region.unlock();
     }, Parameters.REGION);
+
     public static final ScriptAction LOCK_REGION   = register("lock_region", (event, result) -> {
         String regId = result.get(Parameters.REGION, "");
-        ArenaRegion region = event.getArena().getConfig().getRegionManager().getRegion(regId);
+        Region region = event.getArena().getConfig().getRegionManager().getRegion(regId);
         if (region != null) region.lock();
     }, Parameters.REGION);
 
     public static final ScriptAction UNLOCK_SHOP = register("unlock_shop", (event, result) -> {
         event.getArena().getConfig().getShopManager().unlock();
     });
+
     public static final ScriptAction LOCK_SHOP   = register("lock_shop", (event, result) -> {
         event.getArena().getConfig().getShopManager().lock();
     });
@@ -46,6 +49,7 @@ public class ScriptActions {
         ShopCategory category = event.getArena().getConfig().getShopManager().getCategory(catId);
         if (category != null) category.unlock();
     }, Parameters.SHOP_CATEGORY);
+
     public static final ScriptAction LOCK_SHOP_CATEGORY   = register("lock_shop_category", (event, result) -> {
         String catId = result.get(Parameters.SHOP_CATEGORY, "");
         ShopCategory category = event.getArena().getConfig().getShopManager().getCategory(catId);
@@ -62,6 +66,7 @@ public class ScriptActions {
         ShopProduct product = category.getProduct(prodId);
         if (product != null) product.unlock();
     }, Parameters.SHOP_CATEGORY, Parameters.SHOP_PRODUCT);
+
     public static final ScriptAction LOCK_SHOP_PRODUCT   = register("lock_shop_product", (event, result) -> {
         String catId = result.get(Parameters.SHOP_CATEGORY, "");
         String prodId = result.get(Parameters.SHOP_PRODUCT, "");
@@ -102,7 +107,7 @@ public class ScriptActions {
 
     public static final ScriptAction REFILL_SUPPLY_CHEST = register("refill_supply_chest", (event, result) -> {
         String chestId = result.get(Parameters.NAME, "");
-        ArenaSupplyChest chest = event.getArena().getConfig().getSupplyManager().getChest(chestId);
+        SupplyChest chest = event.getArena().getConfig().getSupplyManager().getChest(chestId);
         if (chest != null) chest.refill();
     }, Parameters.NAME);
 
@@ -123,17 +128,17 @@ public class ScriptActions {
     public static final ScriptAction INJECT_WAVE = register("inject_wave", (event, result) -> {
         String regionId = result.get(Parameters.REGION, "");
         String waveId = result.get(Parameters.WAVE, "");
-        String spawnerIds = result.get(Parameters.SPAWNERS, "");
+        String spawnerIds = result.get(Parameters.SPAWNERS, Placeholders.WILDCARD);
 
         Arena arena = event.getArena();
         ArenaConfig config = arena.getConfig();
-        ArenaRegion region = config.getRegionManager().getRegion(regionId);
+        Region region = config.getRegionManager().getRegion(regionId);
         if (region == null) return;
 
-        ArenaWave wave = config.getWaveManager().getWave(waveId);
+        Wave wave = config.getWaveManager().getWave(waveId);
         if (wave == null) return;
 
-        List<ArenaWaveMob> mobs = new ArrayList<>(wave.getMobsByChance().stream().map(ArenaWaveMob::new).toList());
+        List<WaveMob> mobs = new ArrayList<>(wave.getMobsByChance().stream().map(WaveMob::copy).toList());
         mobs.forEach(mob -> mob.setAmount((int) (mob.getAmount() + arena.getWaveAmplificatorAmount(wave.getId()))));
         mobs.forEach(mob -> mob.setLevel((int) (mob.getLevel() + arena.getWaveAmplificatorLevel(wave.getId()))));
         mobs.removeIf(mob -> mob.getAmount() <= 0);

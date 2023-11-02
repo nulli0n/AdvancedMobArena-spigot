@@ -27,7 +27,7 @@ public class SpectateCommand extends AbstractCommand<AMA> {
     public List<String> getTab(@NotNull Player player, int arg, @NotNull String[] args) {
         if (arg == 1) {
             return plugin.getArenaManager().getArenas().stream()
-                .filter(arena -> arena.getState() == GameState.INGAME && arena.getConfig().getGameplayManager().isSpectateEnabled())
+                .filter(arena -> arena.getState() == GameState.INGAME && arena.getConfig().getGameplaySettings().isSpectateEnabled())
                 .map(Arena::getId).toList();
         }
         return super.getTab(player, arg, args);

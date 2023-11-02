@@ -3,8 +3,8 @@ package su.nightexpress.ama.arena.script.condition;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.utils.TriFunction;
 import su.nightexpress.ama.arena.lock.LockState;
-import su.nightexpress.ama.arena.region.ArenaRegion;
-import su.nightexpress.ama.arena.region.ArenaRegionManager;
+import su.nightexpress.ama.arena.region.Region;
+import su.nightexpress.ama.arena.region.RegionManager;
 import su.nightexpress.ama.arena.shop.ShopManager;
 import su.nightexpress.ama.arena.shop.impl.ShopCategory;
 import su.nightexpress.ama.arena.shop.impl.ShopProduct;
@@ -12,9 +12,9 @@ import su.nightexpress.ama.arena.shop.impl.ShopProduct;
 public class ScriptConditionPrefabs {
 
     @NotNull
-    public static TriFunction<ArenaRegionManager, String, ScriptCondition.Operator, Boolean> forRegion(@NotNull LockState state) {
+    public static TriFunction<RegionManager, String, ScriptCondition.Operator, Boolean> forRegion(@NotNull LockState state) {
         return (regionManager, regId, opeartor) -> {
-            ArenaRegion region = regionManager.getRegion(regId);
+            Region region = regionManager.getRegion(regId);
             return region == null || region.getLockState() == state;
         };
     }

@@ -1,8 +1,11 @@
 package su.nightexpress.ama.arena.script.impl;
 
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.AbstractConfigHolder;
+import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.type.GameEventType;
@@ -36,7 +39,11 @@ public class ScriptCategory extends AbstractConfigHolder<AMA> implements ArenaCh
                 continue;
             }
 
-            ArenaScript script = new ArenaScript(this.arenaConfig, scriptId, eventType);
+            boolean inGameOnly = cfg.getBoolean(path2 + "InGameOnly", true);
+            ItemStack icon = cfg.getItem(path2 + "Icon");
+            if (icon.getType().isAir()) icon = new ItemStack(Material.MAP);
+
+            ArenaScript script = new ArenaScript(this.arenaConfig, scriptId, eventType, inGameOnly, icon);
 
             for (String conditionId : cfg.getSection(path2 + "Conditions")) {
                 List<ScriptPreparedCondition> entries = new ArrayList<>();
@@ -71,6 +78,8 @@ public class ScriptCategory extends AbstractConfigHolder<AMA> implements ArenaCh
             String path = script.getId() + ".";
 
             cfg.set(path + "Event", script.getEventType().name());
+            cfg.set(path + "InGameOnly", script.isInGameOnly());
+            cfg.setItem(path + "Icon", script.getIcon());
             script.getConditions().forEach((key, value) -> {
                 cfg.set(path + "Conditions." + key, value.stream().map(ScriptPreparedCondition::toRaw).toList());
             });
@@ -117,10 +126,13 @@ public class ScriptCategory extends AbstractConfigHolder<AMA> implements ArenaCh
     }
 
     public boolean createScript(@NotNull String id) {
+        id = StringUtil.lowerCaseUnderscore(id);
+
         if (this.getScript(id).isPresent()) return false;
 
-        ArenaScript script = new ArenaScript(this.getArenaConfig(), id, GameEventType.WAVE_START);
+        ArenaScript script = new ArenaScript(this.getArenaConfig(), id, GameEventType.WAVE_START, true, new ItemStack(Material.MAP));
         this.getScriptsMap().put(script.getId(), script);
+        this.save();
         return true;
     }
 }

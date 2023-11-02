@@ -3,6 +3,8 @@ package su.nightexpress.ama.arena.listener;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
@@ -28,7 +30,7 @@ import su.nightexpress.ama.api.type.GameState;
 import su.nightexpress.ama.arena.ArenaManager;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
-import su.nightexpress.ama.arena.region.ArenaRegion;
+import su.nightexpress.ama.arena.region.Region;
 import su.nightexpress.ama.arena.util.ArenaUtils;
 import su.nightexpress.ama.arena.util.LobbyItem;
 import su.nightexpress.ama.config.Lang;
@@ -61,7 +63,7 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
         if (arenaPlayer == null) return;
 
         Arena arena = arenaPlayer.getArena();
-        if (!arena.getConfig().getGameplayManager().isItemDurabilityEnabled()) {
+        if (!arena.getConfig().getGameplaySettings().isItemDurabilityEnabled()) {
             e.setCancelled(true);
         }
     }
@@ -74,12 +76,12 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
 
         Arena arena = arenaPlayer.getArena();
         // Prevent drop lobby or kit items in lobby.
-        if (arena.getConfig().getGameplayManager().isKitsEnabled() && arenaPlayer.getState() != GameState.INGAME) {
+        if (arena.getConfig().getGameplaySettings().isKitsEnabled() && arenaPlayer.getState() != GameState.INGAME) {
             e.setCancelled(true);
             return;
         }
 
-        if (!arena.getConfig().getGameplayManager().isItemDropEnabled()) {
+        if (!arena.getConfig().getGameplaySettings().isItemDropEnabled()) {
             e.setCancelled(true);
         }
     }
@@ -93,7 +95,7 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
         if (arenaPlayer == null) return;
 
         Arena arena = arenaPlayer.getArena();
-        if (!arena.getConfig().getGameplayManager().isRegenerationEnabled()) {
+        if (!arena.getConfig().getGameplaySettings().isRegenerationEnabled()) {
             e.setCancelled(true);
         }
     }
@@ -106,29 +108,28 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
         if (arenaPlayer == null) return;
 
         Arena arena = arenaPlayer.getArena();
-        if (!arena.getConfig().getGameplayManager().isHungerEnabled()) {
+        if (!arena.getConfig().getGameplaySettings().isHungerEnabled()) {
             e.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
-    public void onGamePlayerCmd(PlayerCommandPreprocessEvent e) {
-        Player player = e.getPlayer();
+    public void onGamePlayerCommand(PlayerCommandPreprocessEvent event) {
+        Player player = event.getPlayer();
+        if (player.hasPermission(Perms.BYPASS_ARENA_GAME_COMMANDS)) return;
+
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
         if (arenaPlayer == null) return;
 
-        if (player.hasPermission(Perms.BYPASS_ARENA_GAME_COMMANDS)) return;
+        String command = StringUtil.extractCommandName(event.getMessage());
+        if (ArrayUtil.contains(plugin.getLabels(), command)) return;
 
         Arena arena = arenaPlayer.getArena();
-        if (arena.getConfig().getGameplayManager().isPlayerCommandsEnabled()) return;
+        if (arena.getConfig().getGameplaySettings().isWhitelistedCommand(command)) return;
 
-        String cmd = StringUtil.extractCommandName(e.getMessage());
-        if (ArrayUtil.contains(plugin.getLabels(), cmd)) return;
-        if (arena.getConfig().getGameplayManager().getPlayerCommandsAllowed().contains(cmd)) return;
-
-        e.setCancelled(true);
-        player.closeInventory();
-        plugin.getMessage(Lang.Arena_Game_Restrict_Commands).send(player);
+        event.setCancelled(true);
+        this.plugin.runTask(task -> player.closeInventory());
+        this.plugin.getMessage(Lang.ARENA_GAME_RESTRICT_COMMANDS).send(player);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -150,7 +151,7 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
         }
 
         Arena arena = arenaPlayer.getArena();
-        ArenaRegion region = arena.getConfig().getRegionManager().getRegion(to);
+        Region region = arena.getConfig().getRegionManager().getRegion(to);
         if (arenaPlayer.isGhost() && region == null) {
             e.setCancelled(true);
             return;
@@ -185,7 +186,7 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
         ArenaPlayerDeathEvent deathEvent = new ArenaPlayerDeathEvent(arena, arenaPlayer);
         plugin.getPluginManager().callEvent(deathEvent);
 
-        if (arena.getConfig().getGameplayManager().isKeepInventory()) {
+        if (arena.getConfig().getGameplaySettings().isKeepInventory()) {
             e.setKeepInventory(true);
             e.getDrops().clear();
         }
@@ -202,10 +203,10 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
         Arena arena = this.plugin.getMobManager().getEntityArena(entity);
         if (arena == null) return;
 
-        if (!arena.getConfig().getGameplayManager().isMobDropLootEnabled()) {
+        if (!arena.getConfig().getGameplaySettings().isMobDropLootEnabled()) {
             e.getDrops().clear();
         }
-        if (!arena.getConfig().getGameplayManager().isMobDropExpEnabled()) {
+        if (!arena.getConfig().getGameplaySettings().isMobDropExpEnabled()) {
             e.setDroppedExp(0);
         }
 
@@ -316,33 +317,48 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onGameItemInteract(PlayerInteractEvent e) {
-        Player player = e.getPlayer();
+    public void onGameItemInteract(PlayerInteractEvent event) {
+        Player player = event.getPlayer();
 
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
         if (arenaPlayer == null) return;
 
-        ItemStack item = e.getItem();
+        ItemStack item = event.getItem();
         if (item == null || item.getType().isAir()) return;
 
         if (arenaPlayer.getState() != GameState.INGAME) {
             // Prevent using lobby items on arena signs
             // and interactable blocks.
-            Block block = e.getClickedBlock();
+            Block block = event.getClickedBlock();
             if (block != null && block.getType().isInteractable()) return;
 
             LobbyItem lobbyItem = LobbyItem.get(item);
             if (lobbyItem != null) {
                 lobbyItem.use(arenaPlayer);
-                e.setUseItemInHand(Result.DENY);
+                event.setUseItemInHand(Result.DENY);
                 return;
             }
         }
 
         Arena arena = arenaPlayer.getArena();
-        if (arena.getConfig().getGameplayManager().getBannedItems().contains(item.getType())) {
-            e.setUseItemInHand(Result.DENY);
-            e.setUseInteractedBlock(Result.DENY);
+        if (arena.getConfig().getGameplaySettings().getBannedItems().contains(item.getType())) {
+            event.setUseItemInHand(Result.DENY);
+            event.setUseInteractedBlock(Result.DENY);
+            return;
+        }
+
+        // What a stupid spawner egg api.....
+        String typeRaw = item.getType().name();
+        Block block = event.getClickedBlock();
+        if (block != null && !block.getType().isInteractable() && typeRaw.endsWith("_SPAWN_EGG")) {
+            String typeName = typeRaw.replace("_SPAWN_EGG", "");
+            EntityType entityType = StringUtil.getEnum(typeName, EntityType.class).orElse(null);
+            if (entityType != null && MobsConfig.ALLY_FROM_EGGS.get().contains(entityType)) {
+                arena.spawnAllyMob(entityType, block.getRelative(BlockFace.UP).getLocation());
+                item.setAmount(item.getAmount() - 1);
+            }
+            event.setUseItemInHand(Result.DENY);
+            event.setUseInteractedBlock(Result.DENY);
         }
     }
 }
