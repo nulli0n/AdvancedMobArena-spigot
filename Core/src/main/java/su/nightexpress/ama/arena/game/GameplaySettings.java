@@ -346,12 +346,18 @@ public class GameplaySettings extends AbstractConfigHolder<AMA> implements Arena
         return aliases.stream().anyMatch(alias -> this.getCommandWhitelist().contains(alias));
     }
 
+    @Deprecated
     public boolean isKitAllowed(@NotNull Kit kit) {
         return this.isKitAllowed(kit.getId());
     }
 
+    @Deprecated
     public boolean isKitAllowed(@NotNull String id) {
-        return this.getKitsLimits().isEmpty() || this.getKitLimit(id) != 0;
+        return this.getKitLimit(id) != 0;
+    }
+
+    public boolean hasKitLimits() {
+        return !this.getKitsLimits().isEmpty();
     }
 
     public int getKitLimit(@NotNull Kit kit) {
@@ -359,7 +365,7 @@ public class GameplaySettings extends AbstractConfigHolder<AMA> implements Arena
     }
 
     public int getKitLimit(@NotNull String id) {
-        return this.getKitsLimits().getOrDefault(id, 0);
+        return this.getKitsLimits().isEmpty() ? -1 : this.getKitsLimits().getOrDefault(id, 0);
     }
 
     public int getTimeleft() {

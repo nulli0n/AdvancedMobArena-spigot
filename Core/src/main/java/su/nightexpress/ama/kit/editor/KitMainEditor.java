@@ -24,6 +24,9 @@ import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.editor.EditorLocales;
 import su.nightexpress.ama.kit.Kit;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
 
 public class KitMainEditor extends EditorMenu<AMA, Kit> {
@@ -204,7 +207,12 @@ public class KitMainEditor extends EditorMenu<AMA, Kit> {
         @Override
         public void onReady(@NotNull MenuViewer viewer, @NotNull Inventory inventory) {
             super.onReady(viewer, inventory);
-            inventory.setContents(this.isArmor ? this.kit.getArmor() : this.kit.getItems());
+
+            List<ItemStack> items = new ArrayList<>(Arrays.asList(this.isArmor ? this.kit.getArmor() : this.kit.getItems()));
+            if (this.isArmor) items.addAll(Arrays.asList(this.kit.getExtras()));
+
+            //inventory.setContents(this.isArmor ? this.kit.getArmor() : this.kit.getItems());
+            inventory.setContents(items.toArray(new ItemStack[0]));
         }
 
         @Override

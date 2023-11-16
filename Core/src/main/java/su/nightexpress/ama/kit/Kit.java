@@ -433,7 +433,7 @@ public class Kit extends AbstractConfigHolder<AMA> implements HologramHolder, Pl
 
         // Check for limit
         int limitMax = arena.getConfig().getGameplaySettings().getKitLimit(this.getId());
-        if (limitMax >= 0) {
+        if (limitMax > 0) {
             int limitHas = (int) arena.getPlayers().select(PlayerType.REAL).stream()
                 .filter(arenaPlayer1 -> arenaPlayer1.getKit() != null && arenaPlayer1.getKit().equals(this)).count();
             if (limitHas >= limitMax) {

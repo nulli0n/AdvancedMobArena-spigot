@@ -1036,7 +1036,7 @@ public class EditorLocales extends su.nexmedia.engine.api.editor.EditorLocales {
         .name("Equipment")
         .text("Items for mob's armor slots.").emptyLine()
         .text(RED + BOLD + "Item Order:")
-        .text("Boots " + RED + "→" + GRAY + " Legs " + RED + "→" + GRAY + " Chest " + RED + "→" + GRAY + " Head " + RED + "→" + GRAY + " OffHand")
+        .text("Boots " + RED + "→" + GRAY + " Legs " + RED + "→" + GRAY + " Chest " + RED + "→" + GRAY + " Head " + RED + "→" + GRAY + " Hand " + RED + "→" + GRAY + "OffHand")
         .emptyLine()
         .click(LMB, "navigate")
         .build();

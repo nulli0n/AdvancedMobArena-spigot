@@ -108,8 +108,9 @@ public class Reward implements ArenaChild, Inspectable, Placeholder {
         return editor;
     }
 
+    // TODO Setting to ignore dead players or not
     public void give(@NotNull Arena arena, ArenaTargetType targetType) {
-        arena.getPlayers().select(targetType, PlayerType.REAL).forEach(arenaPlayer -> {
+        arena.getPlayers().select(targetType/*, PlayerType.REAL*/).forEach(arenaPlayer -> {
             if (this.isCompletionRequired()) {
                 arenaPlayer.getRewards().add(this);
             }
