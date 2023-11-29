@@ -13,7 +13,7 @@ class AddCommand extends ManageCommand {
         super(plugin, currency, new String[]{"give"}, Perms.COMMAND_COINS_GIVE);
         this.setDescription(plugin.getMessage(Lang.COMMAND_COINS_ADD_DESC));
         this.setUsage(plugin.getMessage(Lang.COMMAND_COINS_ADD_GIVE_USAGE));
-        this.setDoneMessage(plugin.getMessage(Lang.COMMAND_COINS_ADD_GIVE_DONE));
+        this.setNotify(plugin.getMessage(Lang.COMMAND_COINS_ADD_GIVE_DONE));
     }
 
     @Override

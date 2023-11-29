@@ -46,6 +46,7 @@ public class GameplayEditorPlayers extends EditorMenu<AMA, GameplaySettings> {
             game.getEditorCompat().openNextTick(viewer, 1);
         });
 
+
         this.addItem(ItemUtil.createCustomHead(TEXTURE_PLAYERS), EditorLocales.GAMEPLAY_PLAYER_AMOUNT, 10).setClick((viewer, event) -> {
             this.handleInput(viewer.getPlayer(), plugin.getMessage(Lang.EDITOR_GENERIC_ENTER_NUMBER), wrapper -> {
                 if (event.isLeftClick()) {
@@ -101,6 +102,9 @@ public class GameplayEditorPlayers extends EditorMenu<AMA, GameplaySettings> {
             game.setKeepInventory(!game.isKeepInventory());
             this.save(viewer);
         });
+
+
+
 
         this.addItem(ItemUtil.createCustomHead(TEXTURE_HIGHLIGHT), EditorLocales.GAMEPLAY_MOB_HIGHLIGHT, 28).setClick((viewer, event) -> {
             if (event.isShiftClick()) {

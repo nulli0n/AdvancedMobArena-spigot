@@ -56,7 +56,7 @@ public class Wave implements ArenaChild, Placeholder {
     @NotNull
     public WaveMobsEditor getEditor() {
         if (this.editor == null) {
-            this.editor = new WaveMobsEditor(this);
+            this.editor = new WaveMobsEditor(this.getArenaConfig().plugin(), this);
         }
         return this.editor;
     }

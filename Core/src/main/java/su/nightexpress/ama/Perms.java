@@ -4,8 +4,7 @@ import su.nexmedia.engine.api.server.JPermission;
 
 public class Perms {
 
-    private static final String PREFIX = "advancedmobarena.";
-
+    public static final String PREFIX       = "advancedmobarena.";
     public static final String PREFIX_ARENA = PREFIX + "arena.";
     public static final String PREFIX_KIT   = PREFIX + "kit.";
 
@@ -23,6 +22,7 @@ public class Perms {
     public static final JPermission BYPASS_ARENA_JOIN_PAYMENT  = new JPermission(PREFIX + "bypass.arena.join.payment", "Bypasses arena join payments.");
     public static final JPermission BYPASS_ARENA_JOIN_LEVEL    = new JPermission(PREFIX + "bypass.arena.join.level", "Bypasses arena level requirements.");
     public static final JPermission BYPASS_ARENA_GAME_COMMANDS = new JPermission(PREFIX + "bypass.arena.game.commands", "Allows to use non-arena commands in game.");
+    public static final JPermission BYPASS_ARENA_JOIN_COOLDOWN = new JPermission(PREFIX + "bypass.arena.join.cooldown", "Bypasses arena join cooldowns.");
     public static final JPermission BYPASS_KIT_COST            = new JPermission(PREFIX + "bypass.kit.cost", "Allows to purchase kits from kit shop for free.");
 
     public static final JPermission COMMAND_EDITOR          = new JPermission(PREFIX + "command.editor", "Allows to use '/ama editor' command.");
@@ -53,16 +53,37 @@ public class Perms {
 
     static {
         PLUGIN.addChildren(PLUGIN_COMMAND, PLUGIN_BYPASS, CREATOR, ARENA_ALL, KIT_ALL);
+
         PLUGIN_BYPASS.addChildren(BYPASS_ARENA, BYPASS_KIT);
-        PLUGIN_COMMAND.addChildren(COMMAND_EDITOR, COMMAND_RELOAD, COMMAND_BALANCE, COMMAND_BALANCE_OTHERS,
-            COMMAND_COINS, COMMAND_HOLOGRAM, COMMAND_FORCEEND, COMMAND_FORCESTART,
-            COMMAND_JOIN, COMMAND_JOIN_OTHERS, COMMAND_LEAVE, COMMAND_LIST, COMMAND_REGION, COMMAND_SET_ACTIVE,
-            COMMAND_SCORE, COMMAND_SHOP, COMMAND_SKIPROUND,
-            COMMAND_SPECTATE, COMMAND_SPOT, COMMAND_STATS);
+
+        PLUGIN_COMMAND.addChildren(
+            COMMAND_EDITOR,
+            COMMAND_RELOAD,
+            COMMAND_BALANCE, COMMAND_BALANCE_OTHERS,
+            COMMAND_COINS,
+            COMMAND_HOLOGRAM,
+            COMMAND_FORCEEND, COMMAND_FORCESTART,
+            COMMAND_JOIN, COMMAND_JOIN_OTHERS,
+            COMMAND_LEAVE,
+            COMMAND_LIST,
+            COMMAND_REGION,
+            COMMAND_SET_ACTIVE,
+            COMMAND_SCORE,
+            COMMAND_SHOP,
+            COMMAND_SKIPROUND,
+            COMMAND_SPECTATE,
+            COMMAND_SPOT,
+            COMMAND_STATS
+        );
 
         BYPASS_ARENA.addChildren(
-            BYPASS_ARENA_JOIN_INGAME, BYPASS_ARENA_GAME_COMMANDS,
-            BYPASS_ARENA_JOIN_LEVEL, BYPASS_ARENA_JOIN_PAYMENT);
+            BYPASS_ARENA_GAME_COMMANDS,
+            BYPASS_ARENA_JOIN_INGAME,
+            BYPASS_ARENA_JOIN_LEVEL,
+            BYPASS_ARENA_JOIN_PAYMENT,
+            BYPASS_ARENA_JOIN_COOLDOWN
+        );
+
         BYPASS_KIT.addChildren(BYPASS_KIT_COST);
 
         COMMAND_COINS.addChildren(COMMAND_COINS_GIVE, COMMAND_COINS_TAKE);

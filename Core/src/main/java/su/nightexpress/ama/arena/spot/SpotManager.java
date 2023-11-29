@@ -21,8 +21,8 @@ public class SpotManager implements ArenaChild, Inspectable {
     public static final String DIR_SPOTS = "/spots/";
 
     private final AMA         plugin;
-    private final ArenaConfig arenaConfig;
-    private final Map<String, ArenaSpot> spots;
+    private final ArenaConfig       arenaConfig;
+    private final Map<String, Spot> spots;
 
     private SpotListEditor editor;
 
@@ -34,7 +34,7 @@ public class SpotManager implements ArenaChild, Inspectable {
 
     public void setup() {
         for (JYML cfg : JYML.loadAll(this.getSpotsPath(), false)) {
-            ArenaSpot spot = new ArenaSpot(this.arenaConfig, cfg);
+            Spot spot = new Spot(this.arenaConfig, cfg);
             if (spot.load()) {
                 this.spots.put(spot.getId(), spot);
             }
@@ -46,7 +46,7 @@ public class SpotManager implements ArenaChild, Inspectable {
             this.editor.clear();
             this.editor = null;
         }
-        this.getSpots().forEach(ArenaSpot::clear);
+        this.getSpots().forEach(Spot::clear);
         this.getSpotsMap().clear();
     }
 
@@ -88,12 +88,12 @@ public class SpotManager implements ArenaChild, Inspectable {
     }
 
     @NotNull
-    public Map<String, ArenaSpot> getSpotsMap() {
+    public Map<String, Spot> getSpotsMap() {
         return this.spots;
     }
 
     @NotNull
-    public Collection<ArenaSpot> getSpots() {
+    public Collection<Spot> getSpots() {
         return this.getSpotsMap().values();
     }
 
@@ -103,7 +103,7 @@ public class SpotManager implements ArenaChild, Inspectable {
         if (this.getSpot(id) != null) return false;
 
         String path = this.getSpotsPath() + id + ".yml";
-        ArenaSpot spot = new ArenaSpot(this.getArenaConfig(), new JYML(this.getSpotsPath(), id + ".yml"));
+        Spot spot = new Spot(this.getArenaConfig(), new JYML(this.getSpotsPath(), id + ".yml"));
         spot.setActive(false);
         spot.setName(StringUtil.capitalizeUnderscored(spot.getId()) + " Spot");
         spot.save();
@@ -112,11 +112,11 @@ public class SpotManager implements ArenaChild, Inspectable {
         return true;
     }
 
-    public void addSpot(@NotNull ArenaSpot spot) {
+    public void addSpot(@NotNull Spot spot) {
         this.getSpotsMap().put(spot.getId(), spot);
     }
 
-    public void removeSpot(@NotNull ArenaSpot spot) {
+    public void removeSpot(@NotNull Spot spot) {
         if (spot.getFile().delete()) {
             spot.clear();
             this.getSpotsMap().remove(spot.getId());
@@ -124,12 +124,12 @@ public class SpotManager implements ArenaChild, Inspectable {
     }
 
     @Nullable
-    public ArenaSpot getSpot(@NotNull String id) {
+    public Spot getSpot(@NotNull String id) {
         return this.getSpotsMap().get(id.toLowerCase());
     }
 
     @Nullable
-    public ArenaSpot getSpot(@NotNull Location location) {
+    public Spot getSpot(@NotNull Location location) {
         return this.getSpots().stream()
             .filter(spot -> spot.getCuboid().isPresent() && spot.getCuboid().get().contains(location))
             .findFirst().orElse(null);

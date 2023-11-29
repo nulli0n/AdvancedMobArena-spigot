@@ -2,7 +2,10 @@ package su.nightexpress.ama.arena;
 
 import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
@@ -22,6 +25,8 @@ import su.nightexpress.ama.arena.region.Region;
 import su.nightexpress.ama.arena.task.ArenaOpenTask;
 import su.nightexpress.ama.arena.task.ArenaTickTask;
 import su.nightexpress.ama.arena.util.ArenaCuboid;
+import su.nightexpress.ama.arena.util.BlockPos;
+import su.nightexpress.ama.arena.util.Cuboid;
 import su.nightexpress.ama.hook.HookId;
 
 import java.io.File;
@@ -103,7 +108,7 @@ public class ArenaManager extends AbstractManager<AMA> {
         return arenaListMenu;
     }
 
-    public boolean create(@NotNull String id) {
+    public boolean create(@NotNull World world, @NotNull String id) {
         id = StringUtil.lowerCaseUnderscore(id);
         if (this.isArenaExists(id)) {
             return false;
@@ -111,9 +116,12 @@ public class ArenaManager extends AbstractManager<AMA> {
 
         JYML cfg = new JYML(plugin.getDataFolder() + DIR_ARENAS + id, "config.yml");
         ArenaConfig arenaConfig = new ArenaConfig(plugin, cfg, id);
+        arenaConfig.setWorld(world);
         arenaConfig.setName(StringUtil.capitalizeUnderscored(id));
+        arenaConfig.setProtectionZone(new Cuboid(BlockPos.empty(), BlockPos.empty()));
+        arenaConfig.setIcon(new ItemStack(Material.MAP));
+        arenaConfig.saveBasics();
         arenaConfig.load();
-        arenaConfig.save();
         this.getArenasMap().put(arenaConfig.getId(), arenaConfig.getArena());
         return true;
     }
@@ -162,7 +170,7 @@ public class ArenaManager extends AbstractManager<AMA> {
     @Nullable
     public Arena getArenaAtLocation(@NotNull Location location) {
         return this.getArenas().stream()
-            .filter(arena -> arena.getConfig().getRegionManager().getRegion(location) != null)
+            .filter(arena -> arena.getConfig().isProtected(location))
             .findFirst().orElse(null);
     }
 

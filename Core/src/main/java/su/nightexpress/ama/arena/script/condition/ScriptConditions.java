@@ -8,12 +8,16 @@ import su.nexmedia.engine.utils.TriFunction;
 import su.nexmedia.engine.utils.random.Rnd;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.event.*;
+import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.lock.LockState;
 import su.nightexpress.ama.arena.region.Region;
 import su.nightexpress.ama.arena.region.RegionManager;
 import su.nightexpress.ama.arena.shop.ShopManager;
 import su.nightexpress.ama.api.type.GameState;
 import su.nightexpress.ama.api.type.PlayerType;
+import su.nightexpress.ama.arena.spot.Spot;
+import su.nightexpress.ama.arena.spot.SpotManager;
+import su.nightexpress.ama.arena.spot.SpotState;
 
 import java.util.*;
 import java.util.function.Function;
@@ -89,6 +93,9 @@ public class ScriptConditions {
     public static final ScriptCondition<String, String> REGION_ID = string("region_id",
         event -> ((ArenaRegionEvent) event).getArenaRegion().getId());
 
+    public static final ScriptCondition<String, String> MOB_ID = string("mob_id",
+        event -> ((ArenaMobDeathEvent) event).getMobId());
+
     public static final ScriptCondition<String, String> SHOP_CATEGORY_ID = string("shop_category_id",
         event -> event instanceof ArenaShopProductEvent productEvent ? productEvent.getShopProduct().getCategory().getId() : ((ArenaShopCategoryEvent) event).getShopCategory().getId());
 
@@ -100,6 +107,55 @@ public class ScriptConditions {
 
     public static final ScriptCondition<String, String> SPOT_STATE_ID = string("spot_state_id",
         event -> ((ArenaSpotStateChangeEvent) event).getNewState().getId());
+
+    public static final ScriptCondition<String, SpotManager> SPOT_IN_STATE = register("spot_in_state",
+        str -> str,
+        event -> event.getArena().getConfig().getSpotManager(),
+        (spotManager, str, operator) -> {
+            String[] split = str.split(":");
+            if (split.length < 2) return false;
+
+            String spotId = split[0];
+            String stateId = split[1];
+
+            Spot spot = spotManager.getSpot(spotId);
+            if (spot == null) return false;
+
+            SpotState state = spot.getLastState();
+
+            if (operator == ScriptCondition.Operator.EQUAL) {
+                return state != null && state.getId().equalsIgnoreCase(stateId);
+            }
+            else if (operator == ScriptCondition.Operator.NOT_EQUAL) {
+                return state == null || !state.getId().equalsIgnoreCase(stateId);
+            }
+            return false;
+        });
+
+    public static final ScriptCondition<String, Arena> VARIABLE_EXIST = register("variable_exist",
+        String::toLowerCase,
+        ArenaEvent::getArena,
+        (arena, str, operator) -> arena.hasVariable(str));
+
+    public static final ScriptCondition<String, Arena> VARIABLE_NOT_EXIST = register("variable_not_exist",
+        String::toLowerCase,
+        ArenaEvent::getArena,
+        (arena, str, operator) -> !arena.hasVariable(str));
+
+    public static final ScriptCondition<String, Arena> VARIABLE_VALUE = register("variable_value",
+        String::toLowerCase,
+        ArenaEvent::getArena,
+        (arena, str, operator) -> {
+            String[] split = str.split(":");
+            if (split.length < 2) return false;
+
+            String varId = split[1];
+            if (!arena.hasVariable(varId)) return false;
+
+            double check = StringUtil.getDouble(split[0], 0, true);
+            double value = arena.getVariable(varId);
+            return test(operator, value, check);
+        });
 
     @NotNull
     public static <C, E> ScriptCondition<C, E> register(@NotNull String name,
@@ -116,14 +172,15 @@ public class ScriptConditions {
 
         Function<String, Number> parser = str -> StringUtil.getDouble(str, 0D);
         TriFunction<Number, Number, ScriptCondition.Operator, Boolean> tester = (eventValue, condValue, operator) -> {
-            return switch (operator) {
+            return test(operator, eventValue.doubleValue(), condValue.doubleValue());
+            /*return switch (operator) {
                 case EQUAL -> eventValue.doubleValue() == condValue.doubleValue();
                 case NOT_EQUAL -> eventValue.doubleValue() != condValue.doubleValue();
                 case GREATER -> eventValue.doubleValue() > condValue.doubleValue();
                 case SMALLER -> eventValue.doubleValue() < condValue.doubleValue();
                 case EACH -> eventValue.intValue() % condValue.intValue() == 0;
                 case EACH_NOT -> eventValue.intValue() % condValue.intValue() != 0;
-            };
+            };*/
         };
 
         return register(name, parser, extractor, tester);
@@ -149,14 +206,15 @@ public class ScriptConditions {
         };
         TriFunction<Number, Number[], ScriptCondition.Operator, Boolean> tester = (eventValue, condValue, operator) -> {
             return Arrays.stream(condValue).anyMatch(number -> {
-                return switch (operator) {
+                return test(operator, eventValue.doubleValue(), number.doubleValue());
+                /*return switch (operator) {
                     case EQUAL -> eventValue.doubleValue() == number.doubleValue();
                     case NOT_EQUAL -> eventValue.doubleValue() != number.doubleValue();
                     case GREATER -> eventValue.doubleValue() > number.doubleValue();
                     case SMALLER -> eventValue.doubleValue() < number.doubleValue();
                     case EACH -> eventValue.intValue() % number.intValue() == 0;
                     case EACH_NOT -> eventValue.intValue() % number.intValue() != 0;
-                };
+                };*/
             });
         };
 
@@ -192,5 +250,16 @@ public class ScriptConditions {
     @NotNull
     public static Set<ScriptCondition<?, ?>> getConditions() {
         return new HashSet<>(REGISTRY.values());
+    }
+
+    private static boolean test(@NotNull ScriptCondition.Operator operator, double value, double check) {
+        return switch (operator) {
+            case EQUAL -> value == check;
+            case NOT_EQUAL -> value != check;
+            case GREATER -> value > check;
+            case SMALLER -> value < check;
+            case EACH -> value % check == 0;
+            case EACH_NOT -> value % check != 0;
+        };
     }
 }

@@ -12,7 +12,7 @@ import su.nightexpress.ama.arena.impl.ArenaUpcomingWave;
 import su.nightexpress.ama.arena.region.Region;
 import su.nightexpress.ama.arena.shop.impl.ShopCategory;
 import su.nightexpress.ama.arena.shop.impl.ShopProduct;
-import su.nightexpress.ama.arena.spot.ArenaSpot;
+import su.nightexpress.ama.arena.spot.Spot;
 import su.nightexpress.ama.arena.supply.SupplyChest;
 import su.nightexpress.ama.arena.wave.impl.Wave;
 import su.nightexpress.ama.arena.wave.impl.WaveMob;
@@ -101,7 +101,7 @@ public class ScriptActions {
     public static final ScriptAction CHANGE_SPOT = register("change_spot", (event, result) -> {
         String spotId = result.get(Parameters.SPOT, "");
         String stateId = result.get(Parameters.STATE, "");
-        ArenaSpot spot = event.getArena().getConfig().getSpotManager().getSpot(spotId);
+        Spot spot = event.getArena().getConfig().getSpotManager().getSpot(spotId);
         if (spot != null) spot.setState(event.getArena(), stateId);
     }, Parameters.SPOT, Parameters.STATE);
 
@@ -128,7 +128,7 @@ public class ScriptActions {
     public static final ScriptAction INJECT_WAVE = register("inject_wave", (event, result) -> {
         String regionId = result.get(Parameters.REGION, "");
         String waveId = result.get(Parameters.WAVE, "");
-        String spawnerIds = result.get(Parameters.SPAWNERS, Placeholders.WILDCARD);
+        String spawnerGroup = result.get(Parameters.SPAWNERS, Placeholders.WILDCARD);
 
         Arena arena = event.getArena();
         ArenaConfig config = arena.getConfig();
@@ -144,11 +144,39 @@ public class ScriptActions {
         mobs.removeIf(mob -> mob.getAmount() <= 0);
         if (mobs.isEmpty()) return;
 
-        List<String> spawners = new ArrayList<>(Arrays.asList(spawnerIds.split(",")));
+        List<String> spawners = new ArrayList<>(Arrays.asList(spawnerGroup.split(",")));
         spawners.removeIf(String::isEmpty);
 
         arena.injectWave(new ArenaUpcomingWave(region, mobs, spawners));
     }, Parameters.WAVE, Parameters.REGION, Parameters.SPAWNERS);
+
+    public static final ScriptAction CREATE_VAR = register("create_variable", (event, result) -> {
+        String name = result.get(Parameters.NAME, "");
+        double initial = result.get(Parameters.DOUBLE_VALUE, 0D);
+
+        event.getArena().createVariable(name, initial);
+    }, Parameters.NAME, Parameters.DOUBLE_VALUE);
+
+    public static final ScriptAction SET_VAR = register("set_variable", (event, result) -> {
+        String name = result.get(Parameters.NAME, "");
+        double value = result.get(Parameters.DOUBLE_VALUE, 0D);
+
+        event.getArena().setVariable(name, value);
+    }, Parameters.NAME, Parameters.DOUBLE_VALUE);
+
+    public static final ScriptAction INC_VAR = register("inc_variable", (event, result) -> {
+        String name = result.get(Parameters.NAME, "");
+        double value = result.get(Parameters.DOUBLE_VALUE, 0D);
+
+        event.getArena().incVariable(name, value);
+    }, Parameters.NAME, Parameters.DOUBLE_VALUE);
+
+    public static final ScriptAction DEC_VAR = register("dec_variable", (event, result) -> {
+        String name = result.get(Parameters.NAME, "");
+        double value = result.get(Parameters.DOUBLE_VALUE, 0D);
+
+        event.getArena().decVariable(name, value);
+    }, Parameters.NAME, Parameters.DOUBLE_VALUE);
 
     @NotNull
     public static ScriptAction register(@NotNull String name,

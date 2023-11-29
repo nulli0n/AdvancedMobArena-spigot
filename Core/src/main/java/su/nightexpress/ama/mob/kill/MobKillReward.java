@@ -54,7 +54,7 @@ public class MobKillReward {
         Player player = arenaPlayer.getPlayer();
         this.getPayment().forEach(((currency, amount) -> currency.getHandler().give(player, amount)));
         this.getCommands().forEach(command -> PlayerUtil.dispatchCommand(player, command));
-        arenaPlayer.addScore(this.getScore());
+        arenaPlayer.gainScore(this.getScore());
     }
 
     @NotNull

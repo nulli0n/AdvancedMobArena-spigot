@@ -70,7 +70,11 @@ public interface IArenaPlayer {
 
     void setScore(int score);
 
+    void gainScore(int amount);
+
     void addScore(int amount);
+
+    void removeScore(int amount);
 
     int getKillStreak();
 

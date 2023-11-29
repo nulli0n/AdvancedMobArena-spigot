@@ -24,7 +24,6 @@ import su.nexmedia.engine.utils.NumberUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
-import su.nightexpress.ama.arena.util.ArenaUtils;
 import su.nightexpress.ama.mob.editor.MobMainEditor;
 import su.nightexpress.ama.mob.style.MobStyleType;
 
@@ -178,17 +177,11 @@ public class MobConfig extends AbstractConfigHolder<AMA> implements Placeholder 
     }
 
     @NotNull
-    public BossBar createOrUpdateBar(@NotNull LivingEntity entity) {
+    public BossBar createBar(@NotNull LivingEntity entity) {
         String title = this.getBarTitle(entity);
-
-        BossBar bossBar = ArenaUtils.getMobBossBar(entity);
-        if (bossBar == null) bossBar = this.plugin.getServer().createBossBar(title, this.getBarColor(), this.getBarStyle(), BarFlag.DARKEN_SKY);
-
-        double maxHealth = EntityUtil.getAttribute(entity, Attribute.GENERIC_MAX_HEALTH);
-        double percent = Math.max(0D, Math.min(1D, entity.getHealth() / maxHealth));
-
+        BossBar bossBar = this.plugin.getServer().createBossBar(title, this.getBarColor(), this.getBarStyle(), BarFlag.DARKEN_SKY);
         bossBar.setTitle(title);
-        bossBar.setProgress(percent);
+        bossBar.setProgress(1D);
         bossBar.setVisible(true);
         return bossBar;
     }
@@ -253,7 +246,7 @@ public class MobConfig extends AbstractConfigHolder<AMA> implements Placeholder 
     }*/
 
     @NotNull
-    private String getBarTitle(@NotNull LivingEntity entity) {
+    public String getBarTitle(@NotNull LivingEntity entity) {
         double maxHealth = EntityUtil.getAttribute(entity, Attribute.GENERIC_MAX_HEALTH);
         return this.replacePlaceholders().apply(MobsConfig.BOSS_BAR_FORMAT.get())
             .replace(Placeholders.MOB_HEALTH, NumberUtil.format(entity.getHealth()))

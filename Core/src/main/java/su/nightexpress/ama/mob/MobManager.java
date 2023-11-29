@@ -4,6 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -11,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.AbstractManager;
+import su.nexmedia.engine.utils.EntityUtil;
 import su.nexmedia.engine.utils.NumberUtil;
 import su.nexmedia.engine.utils.PDCUtil;
 import su.nexmedia.engine.utils.StringUtil;
@@ -19,7 +21,6 @@ import su.nightexpress.ama.Keys;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.type.MobFaction;
 import su.nightexpress.ama.arena.impl.Arena;
-import su.nightexpress.ama.arena.util.ArenaUtils;
 import su.nightexpress.ama.hologram.HologramManager;
 import su.nightexpress.ama.hook.mob.MobProvider;
 import su.nightexpress.ama.hook.mob.PluginMobProvider;
@@ -139,7 +140,7 @@ public class MobManager extends AbstractManager<AMA> {
         customMob.applySettings(entity, level);
         customMob.applyAttributes(entity, level);
         if (customMob.isBarEnabled()) {
-            ArenaUtils.addMobBossBar(arena, entity, customMob.createOrUpdateBar(entity));
+            arena.createBossBar(entity, customMob.createBar(entity));
         }
         this.setMobConfig(entity, customMob);
         return entity;
@@ -230,5 +231,26 @@ public class MobManager extends AbstractManager<AMA> {
 
     public static int getEntityLevel(@NotNull LivingEntity entity) {
         return PDCUtil.getInt(entity, Keys.ENTITY_MOB_LEVEL).orElse(0);
+    }
+
+    public boolean updateMobBar(@NotNull LivingEntity entity) {
+        Arena arena = this.plugin.getMobManager().getEntityArena(entity);
+        if (arena == null) return false;
+
+        BossBar bossBar = arena.getBossBar(entity);
+        if (bossBar == null) return false;
+
+        MobConfig config = this.getEntityMobConfig(entity);
+        if (config == null) return false;
+
+        this.plugin.runTask(task -> {
+            double maxHealth = EntityUtil.getAttribute(entity, Attribute.GENERIC_MAX_HEALTH);
+            double percent = Math.max(0D, Math.min(1D, entity.getHealth() / maxHealth));
+
+            bossBar.setTitle(config.getBarTitle(entity));
+            bossBar.setProgress(percent);
+        });
+
+        return true;
     }
 }

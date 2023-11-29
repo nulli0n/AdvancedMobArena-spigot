@@ -3,6 +3,7 @@ package su.nightexpress.ama.arena.script.impl;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import su.nexmedia.engine.api.config.JOption;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.AbstractConfigHolder;
 import su.nexmedia.engine.utils.StringUtil;
@@ -21,6 +22,7 @@ public class ScriptCategory extends AbstractConfigHolder<AMA> implements ArenaCh
     private final ArenaConfig arenaConfig;
     private final Map<String, ArenaScript> scripts;
 
+    private int priority;
     private ScriptsCategoryEditor editor;
 
     public ScriptCategory(@NotNull ArenaConfig arenaConfig, @NotNull JYML cfg) {
@@ -31,7 +33,11 @@ public class ScriptCategory extends AbstractConfigHolder<AMA> implements ArenaCh
 
     @Override
     public boolean load() {
+        this.setPriority(JOption.create("_Priority", 0).read(cfg));
+
         for (String scriptId : cfg.getSection("")) {
+            if (scriptId.startsWith("_")) continue;
+
             String path2 = scriptId + ".";
             GameEventType eventType = cfg.getEnum(path2 + "Event", GameEventType.class);
             if (eventType == null) {
@@ -73,6 +79,7 @@ public class ScriptCategory extends AbstractConfigHolder<AMA> implements ArenaCh
     @Override
     public void onSave() {
         cfg.getSection("").forEach(cfg::remove);
+        cfg.set("_Priority", this.getPriority());
 
         this.getScripts().forEach(script -> {
             String path = script.getId() + ".";
@@ -108,6 +115,14 @@ public class ScriptCategory extends AbstractConfigHolder<AMA> implements ArenaCh
     @Override
     public ArenaConfig getArenaConfig() {
         return arenaConfig;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
     }
 
     @NotNull

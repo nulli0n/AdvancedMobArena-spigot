@@ -12,7 +12,7 @@ import su.nexmedia.engine.api.menu.impl.MenuViewer;
 import su.nexmedia.engine.editor.EditorManager;
 import su.nexmedia.engine.utils.ItemReplacer;
 import su.nightexpress.ama.AMA;
-import su.nightexpress.ama.arena.spot.ArenaSpot;
+import su.nightexpress.ama.arena.spot.Spot;
 import su.nightexpress.ama.arena.spot.SpotManager;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.editor.EditorLocales;
@@ -21,7 +21,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
 
-public class SpotListEditor extends EditorMenu<AMA, SpotManager> implements AutoPaged<ArenaSpot> {
+public class SpotListEditor extends EditorMenu<AMA, SpotManager> implements AutoPaged<Spot> {
 
     public SpotListEditor(@NotNull AMA plugin, @NotNull SpotManager spotManager) {
         super(plugin, spotManager, "Spots Editor [" + spotManager.getSpots().size() + " spots]", 45);
@@ -56,13 +56,13 @@ public class SpotListEditor extends EditorMenu<AMA, SpotManager> implements Auto
 
     @Override
     @NotNull
-    public List<ArenaSpot> getObjects(@NotNull Player player) {
-        return this.object.getSpots().stream().sorted(Comparator.comparing(ArenaSpot::getId)).toList();
+    public List<Spot> getObjects(@NotNull Player player) {
+        return this.object.getSpots().stream().sorted(Comparator.comparing(Spot::getId)).toList();
     }
 
     @Override
     @NotNull
-    public ItemStack getObjectStack(@NotNull Player player, @NotNull ArenaSpot spot) {
+    public ItemStack getObjectStack(@NotNull Player player, @NotNull Spot spot) {
         ItemStack item = new ItemStack(Material.END_PORTAL_FRAME);
         ItemReplacer.create(item).readLocale(EditorLocales.SPOT_OBJECT).trimmed().hideFlags()
             .replace(spot.getPlaceholders())
@@ -72,7 +72,7 @@ public class SpotListEditor extends EditorMenu<AMA, SpotManager> implements Auto
 
     @Override
     @NotNull
-    public ItemClick getObjectClick(@NotNull ArenaSpot spot) {
+    public ItemClick getObjectClick(@NotNull Spot spot) {
         return (viewer, event) -> {
             if (event.isShiftClick() && event.isRightClick()) {
                 this.object.removeSpot(spot);

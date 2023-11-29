@@ -9,6 +9,7 @@ import su.nexmedia.engine.api.command.CommandResult;
 import su.nexmedia.engine.api.lang.LangMessage;
 import su.nexmedia.engine.utils.CollectionsUtil;
 import su.nexmedia.engine.utils.NumberUtil;
+import su.nexmedia.engine.utils.PlayerUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.currency.Currency;
@@ -16,19 +17,19 @@ import su.nightexpress.ama.api.currency.Currency;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class ManageCommand extends AbstractCommand<AMA> {
+abstract class ManageCommand extends AbstractCommand<AMA> {
 
     protected final Currency currency;
 
-    private LangMessage doneMessage;
+    private LangMessage notify;
 
     public ManageCommand(@NotNull AMA plugin, @NotNull Currency currency, @NotNull String[] aliases, @NotNull Permission permission) {
         super(plugin, aliases, permission);
         this.currency = currency;
     }
 
-    protected void setDoneMessage(@NotNull LangMessage doneMessage) {
-        this.doneMessage = doneMessage;
+    protected void setNotify(@NotNull LangMessage notify) {
+        this.notify = notify;
     }
 
     protected abstract void modify(@NotNull Player player, double amount);
@@ -52,7 +53,7 @@ public abstract class ManageCommand extends AbstractCommand<AMA> {
             return;
         }
 
-        Player player = plugin.getServer().getPlayer(result.getArg(2));
+        Player player = PlayerUtil.getPlayer(result.getArg(2));
         if (player == null) {
             this.errorPlayer(sender);
             return;
@@ -66,7 +67,7 @@ public abstract class ManageCommand extends AbstractCommand<AMA> {
 
         this.modify(player, amount);
 
-        this.doneMessage
+        this.notify
             .replace(this.currency.replacePlaceholders())
             .replace(Placeholders.forPlayer(player))
             .replace(Placeholders.GENERIC_AMOUNT, NumberUtil.format(amount))

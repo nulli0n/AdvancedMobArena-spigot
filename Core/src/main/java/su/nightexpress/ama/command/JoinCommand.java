@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.command.AbstractCommand;
 import su.nexmedia.engine.api.command.CommandResult;
 import su.nexmedia.engine.utils.CollectionsUtil;
+import su.nexmedia.engine.utils.PlayerUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.arena.impl.Arena;
@@ -39,13 +40,17 @@ public class JoinCommand extends AbstractCommand<AMA> {
         Arena arena;
 
         if (result.length() >= 2) {
-            player = plugin.getServer().getPlayer(result.getArg(2, sender.getName()));
+
+            if (result.length() >= 3) {
+                if (!sender.hasPermission(Perms.COMMAND_JOIN_OTHERS)) {
+                    this.errorPermission(sender);
+                    return;
+                }
+            }
+
+            player = PlayerUtil.getPlayer(result.getArg(2, sender.getName()));
             if (player == null) {
                 this.errorPlayer(sender);
-                return;
-            }
-            if (!sender.hasPermission(Perms.COMMAND_JOIN_OTHERS) && !player.getName().equalsIgnoreCase(sender.getName())) {
-                this.errorPermission(sender);
                 return;
             }
 

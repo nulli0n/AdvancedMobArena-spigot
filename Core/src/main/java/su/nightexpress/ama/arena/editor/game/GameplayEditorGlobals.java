@@ -77,7 +77,12 @@ public class GameplayEditorGlobals extends EditorMenu<AMA, GameplaySettings> {
         });
 
         this.addItem(Material.ENDER_EYE, EditorLocales.GAMEPLAY_SPECTATE, 16).setClick((viewer, event) -> {
-            game.setSpectateEnabled(!game.isSpectateEnabled());
+            if (event.isLeftClick()) {
+                game.setSpectateEnabled(!game.isSpectateEnabled());
+            }
+            else if (event.isRightClick()) {
+                game.setLeaveOnDeath(!game.isLeaveOnDeath());
+            }
             this.save(viewer);
         });
 
@@ -105,8 +110,8 @@ public class GameplayEditorGlobals extends EditorMenu<AMA, GameplaySettings> {
                 EditorManager.suggestValues(viewer.getPlayer(), plugin.getKitManager().getKitIds(), false);
                 this.handleInput(viewer, Lang.EDITOR_ARENA_GAMEPLAY_ENTER_KIT_LIMIT, wrapper -> {
                     String[] split = wrapper.getTextRaw().split(" ");
-                    int limit = split.length >= 2 ? StringUtil.getInteger(split[0], -1) : -1;
-                    String kitId = split[1];
+                    String kitId = split[0];
+                    int limit = split.length >= 2 ? StringUtil.getInteger(split[1], -1) : -1;
                     game.getKitsLimits().put(kitId.toLowerCase(), limit);
                     game.save();
                     return true;

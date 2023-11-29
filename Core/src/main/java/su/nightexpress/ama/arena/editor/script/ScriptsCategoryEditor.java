@@ -11,12 +11,15 @@ import su.nexmedia.engine.api.menu.click.ItemClick;
 import su.nexmedia.engine.api.menu.impl.EditorMenu;
 import su.nexmedia.engine.api.menu.impl.MenuOptions;
 import su.nexmedia.engine.api.menu.impl.MenuViewer;
+import su.nexmedia.engine.editor.EditorManager;
 import su.nexmedia.engine.lang.LangManager;
 import su.nexmedia.engine.utils.CollectionsUtil;
 import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.ItemReplacer;
+import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
+import su.nightexpress.ama.api.type.GameEventType;
 import su.nightexpress.ama.arena.script.action.ScriptPreparedAction;
 import su.nightexpress.ama.arena.script.condition.ScriptPreparedCondition;
 import su.nightexpress.ama.arena.script.impl.ArenaScript;
@@ -126,9 +129,15 @@ public class ScriptsCategoryEditor extends EditorMenu<AMA, ScriptCategory> imple
                 script.getConditionsEditor(this.object).openNextTick(viewer, 1);
             }
             else if (event.getClick() == ClickType.DROP) {
-                script.setEventType(CollectionsUtil.next(script.getEventType()));
-                this.object.save();
-                this.openNextTick(viewer, viewer.getPage());
+                EditorManager.suggestValues(viewer.getPlayer(), CollectionsUtil.getEnumsList(GameEventType.class), true);
+                this.handleInput(viewer, Lang.EDITOR_GENERIC_ENTER_EVENT_TYPE, wrapper -> {
+                    GameEventType type = StringUtil.getEnum(wrapper.getTextRaw(), GameEventType.class).orElse(null);
+                    if (type != null) {
+                        script.setEventType(type);
+                        this.object.save();
+                    }
+                    return true;
+                });
             }
         };
     }

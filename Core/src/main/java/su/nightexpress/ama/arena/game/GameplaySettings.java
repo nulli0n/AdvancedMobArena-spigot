@@ -55,6 +55,7 @@ public class GameplaySettings extends AbstractConfigHolder<AMA> implements Arena
     private boolean isMobDropExpEnabled;
     private boolean isMobDropLootEnabled;
     private boolean isSpectateEnabled;
+    private boolean leaveOnDeath;
 
     private boolean   mobHighlightEnabled;
     private double    mobHighlightAmount;
@@ -117,6 +118,7 @@ public class GameplaySettings extends AbstractConfigHolder<AMA> implements Arena
             .add(Placeholders.GAMEPLAY_PLAYER_REVIVE_TIME, () -> NumberUtil.format(this.getPlayerRespawnTime()))
             .add(Placeholders.GAMEPLAY_KEEP_INVENTORY, () -> LangManager.getBoolean(this.isKeepInventory()))
             .add(Placeholders.GAMEPLAY_SPECTATE_ENABLED, () -> LangManager.getBoolean(this.isSpectateEnabled()))
+            .add(Placeholders.GAMEPLAY_LEAVE_ON_DEATH, () -> LangManager.getBoolean(this.isLeaveOnDeath()))
             .add(Placeholders.GAMEPLAY_COMMAND_WHITELIST, () -> {
                 if (this.getCommandWhitelist().isEmpty()) {
                     return Report.problem("No commands are allowed.");
@@ -166,6 +168,7 @@ public class GameplaySettings extends AbstractConfigHolder<AMA> implements Arena
         this.setItemDurabilityEnabled(cfg.getBoolean("Item_Durability_Enabled"));
         this.setMobDropExpEnabled(cfg.getBoolean("Mob_Drop_Exp_Enabled"));
         this.setMobDropLootEnabled(cfg.getBoolean("Mob_Drop_Items_Enabled"));
+        this.setLeaveOnDeath(cfg.getBoolean("Leave_On_Death", false));
 
         this.setMobHighlightEnabled(cfg.getBoolean("Mob_Highlight.Enabled"));
         this.setMobHighlightAmount(cfg.getDouble("Mob_Highlight.Amount"));
@@ -243,6 +246,7 @@ public class GameplaySettings extends AbstractConfigHolder<AMA> implements Arena
         cfg.set("Mob_Drop_Items_Enabled", this.isMobDropLootEnabled());
         cfg.set("Banned_Items", this.getBannedItems().stream().map(Material::name).toList());
         cfg.set("Allowed_Spawn_Reasons", this.getAllowedSpawnReasons().stream().map(Enum::name).toList());
+        cfg.set("Leave_On_Death", this.isLeaveOnDeath());
 
         cfg.set("Mob_Highlight.Enabled", this.isMobHighlightEnabled());
         cfg.set("Mob_Highlight.Amount", this.getMobHighlightAmount());
@@ -346,12 +350,10 @@ public class GameplaySettings extends AbstractConfigHolder<AMA> implements Arena
         return aliases.stream().anyMatch(alias -> this.getCommandWhitelist().contains(alias));
     }
 
-    @Deprecated
     public boolean isKitAllowed(@NotNull Kit kit) {
         return this.isKitAllowed(kit.getId());
     }
 
-    @Deprecated
     public boolean isKitAllowed(@NotNull String id) {
         return this.getKitLimit(id) != 0;
     }
@@ -563,6 +565,14 @@ public class GameplaySettings extends AbstractConfigHolder<AMA> implements Arena
 
     public void setSpectateEnabled(boolean spectateEnabled) {
         isSpectateEnabled = spectateEnabled;
+    }
+
+    public boolean isLeaveOnDeath() {
+        return leaveOnDeath;
+    }
+
+    public void setLeaveOnDeath(boolean leaveOnDeath) {
+        this.leaveOnDeath = leaveOnDeath;
     }
 
     public boolean isKitsEnabled() {

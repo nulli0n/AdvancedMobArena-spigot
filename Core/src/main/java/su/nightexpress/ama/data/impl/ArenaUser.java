@@ -3,6 +3,7 @@ package su.nightexpress.ama.data.impl;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.data.AbstractUser;
 import su.nightexpress.ama.AMA;
+import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.kit.Kit;
 import su.nightexpress.ama.stats.object.StatType;
 
@@ -15,11 +16,14 @@ public class ArenaUser extends AbstractUser<AMA> {
     private Set<String>                         kits;
     private Map<String, Map<StatType, Integer>> stats;
 
+    private final Map<String, Long> arenaCooldownMap;
+
     public ArenaUser(@NotNull AMA plugin, @NotNull UUID uuid, @NotNull String name) {
         this(plugin, uuid, name, System.currentTimeMillis(), System.currentTimeMillis(),
             0, // Coins
             new HashSet<>(), // Kits
-            new HashMap<>() // Stats
+            new HashMap<>(), // Stats
+            new HashMap<>() // Arena Cooldown
         );
     }
 
@@ -32,12 +36,14 @@ public class ArenaUser extends AbstractUser<AMA> {
 
         int coins,
         @NotNull Set<String> kits,
-        @NotNull Map<String, Map<StatType, Integer>> stats
+        @NotNull Map<String, Map<StatType, Integer>> stats,
+        @NotNull Map<String, Long> arenaCooldownMap
     ) {
         super(plugin, uuid, name, dateCreated, lastLogin);
         this.setCoins(coins);
         this.setKits(kits);
         this.setStats(stats);
+        this.arenaCooldownMap = new HashMap<>(arenaCooldownMap);
     }
 
     public int getCoins() {
@@ -109,5 +115,35 @@ public class ArenaUser extends AbstractUser<AMA> {
 
     public void setStats(@NotNull Map<String, Map<StatType, Integer>> stats) {
         this.stats = stats;
+    }
+
+    @NotNull
+    public Map<String, Long> getArenaCooldownMap() {
+        this.arenaCooldownMap.values().removeIf(date -> System.currentTimeMillis() > date);
+        return this.arenaCooldownMap;
+    }
+
+    public boolean isOnCooldown(@NotNull Arena arena) {
+        return this.isOnCooldown(arena.getId());
+    }
+
+    public boolean isOnCooldown(@NotNull String arenaId) {
+        return this.getArenaCooldown(arenaId) > System.currentTimeMillis();
+    }
+
+    public long getArenaCooldown(@NotNull Arena arena) {
+        return this.getArenaCooldown(arena.getId());
+    }
+
+    public long getArenaCooldown(@NotNull String arenaId) {
+        return this.getArenaCooldownMap().getOrDefault(arenaId.toLowerCase(), 0L);
+    }
+
+    public void setArenaCooldown(@NotNull Arena arena, long expireDate) {
+        this.setArenaCooldown(arena.getId(), expireDate);
+    }
+
+    public void setArenaCooldown(@NotNull String arenaId, long expireDate) {
+        this.getArenaCooldownMap().put(arenaId.toLowerCase(), expireDate);
     }
 }

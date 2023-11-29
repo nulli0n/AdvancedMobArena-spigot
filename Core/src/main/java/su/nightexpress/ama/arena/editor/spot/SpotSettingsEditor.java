@@ -6,15 +6,15 @@ import su.nexmedia.engine.api.menu.impl.EditorMenu;
 import su.nexmedia.engine.api.menu.impl.MenuViewer;
 import su.nexmedia.engine.utils.ItemReplacer;
 import su.nightexpress.ama.AMA;
-import su.nightexpress.ama.arena.spot.ArenaSpot;
+import su.nightexpress.ama.arena.spot.Spot;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.editor.EditorLocales;
 
-public class SpotSettingsEditor extends EditorMenu<AMA, ArenaSpot> {
+public class SpotSettingsEditor extends EditorMenu<AMA, Spot> {
 
     private SpotStatesEditor spotStatesEditor;
 
-    public SpotSettingsEditor(@NotNull ArenaSpot spot) {
+    public SpotSettingsEditor(@NotNull Spot spot) {
         super(spot.plugin(), spot, "Spot Settings [" + spot.getId() + "]", 45);
 
         this.addReturn(40).setClick((viewer, event) -> {

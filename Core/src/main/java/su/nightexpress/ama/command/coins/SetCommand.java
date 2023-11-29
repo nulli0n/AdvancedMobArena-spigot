@@ -13,7 +13,7 @@ class SetCommand extends ManageCommand {
         super(plugin, currency, new String[]{"set"}, Perms.COMMAND_COINS_SET);
         this.setDescription(plugin.getMessage(Lang.COMMAND_COINS_SET_DESC));
         this.setUsage(plugin.getMessage(Lang.COMMAND_COINS_SET_USAGE));
-        this.setDoneMessage(plugin.getMessage(Lang.COMMAND_COINS_SET_DONE));
+        this.setNotify(plugin.getMessage(Lang.COMMAND_COINS_SET_DONE));
     }
 
     @Override

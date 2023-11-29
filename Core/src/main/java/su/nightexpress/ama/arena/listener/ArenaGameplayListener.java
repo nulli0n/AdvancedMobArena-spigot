@@ -31,7 +31,6 @@ import su.nightexpress.ama.arena.ArenaManager;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.arena.region.Region;
-import su.nightexpress.ama.arena.util.ArenaUtils;
 import su.nightexpress.ama.arena.util.LobbyItem;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.mob.MobManager;
@@ -51,38 +50,38 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onArenaGameEvent(ArenaGameGenericEvent e) {
-        e.getArena().onArenaGameEvent(e);
+    public void onArenaGameEvent(ArenaGameGenericEvent event) {
+        event.getArena().onArenaGameEvent(event);
     }
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
-    public void onGamePlayerItemDurability(PlayerItemDamageEvent e) {
-        Player player = e.getPlayer();
+    public void onGameplayItemDurability(PlayerItemDamageEvent event) {
+        Player player = event.getPlayer();
 
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
         if (arenaPlayer == null) return;
 
         Arena arena = arenaPlayer.getArena();
         if (!arena.getConfig().getGameplaySettings().isItemDurabilityEnabled()) {
-            e.setCancelled(true);
+            event.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
-    public void onGamePlayerItemDrop(PlayerDropItemEvent e) {
-        Player player = e.getPlayer();
+    public void onGameplayItemDrop(PlayerDropItemEvent event) {
+        Player player = event.getPlayer();
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
         if (arenaPlayer == null) return;
 
         Arena arena = arenaPlayer.getArena();
         // Prevent drop lobby or kit items in lobby.
         if (arena.getConfig().getGameplaySettings().isKitsEnabled() && arenaPlayer.getState() != GameState.INGAME) {
-            e.setCancelled(true);
+            event.setCancelled(true);
             return;
         }
 
         if (!arena.getConfig().getGameplaySettings().isItemDropEnabled()) {
-            e.setCancelled(true);
+            event.setCancelled(true);
         }
     }
 
@@ -151,12 +150,12 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
         }
 
         Arena arena = arenaPlayer.getArena();
-        Region region = arena.getConfig().getRegionManager().getRegion(to);
-        if (arenaPlayer.isGhost() && region == null) {
+        if (!arena.getConfig().isProtected(to)) {
             e.setCancelled(true);
             return;
         }
 
+        Region region = arena.getConfig().getRegionManager().getRegion(to);
         if (region == null || !region.isActive() || region.isUnlocked()) return;
 
         region.getCuboid().ifPresent(cuboid -> {
@@ -167,18 +166,18 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onGamePlayerDeathRealSpawn(PlayerRespawnEvent e) {
-        Player player = e.getPlayer();
+    public void onGamePlayerDeathRealSpawn(PlayerRespawnEvent event) {
+        Player player = event.getPlayer();
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
         if (arenaPlayer == null) return;
 
         arenaPlayer.onDeath();
-        e.setRespawnLocation(player.getLocation());
+        event.setRespawnLocation(player.getLocation());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onGamePlayerDeathReal(PlayerDeathEvent e) {
-        Player player = e.getEntity();
+    public void onGamePlayerDeathReal(PlayerDeathEvent event) {
+        Player player = event.getEntity();
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
         if (arenaPlayer == null) return;
 
@@ -187,12 +186,12 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
         plugin.getPluginManager().callEvent(deathEvent);
 
         if (arena.getConfig().getGameplaySettings().isKeepInventory()) {
-            e.setKeepInventory(true);
-            e.getDrops().clear();
+            event.setKeepInventory(true);
+            event.getDrops().clear();
         }
 
-        e.setDroppedExp(0);
-        e.setKeepLevel(true);
+        event.setDroppedExp(0);
+        event.setKeepLevel(true);
         this.plugin.runTask(task -> player.spigot().respawn());
     }
 
@@ -213,7 +212,7 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
         String mobId = MobManager.getMobId(entity);
         MobConfig customMob = this.plugin.getMobManager().getEntityMobConfig(entity);
         if (customMob != null && customMob.isBarEnabled()) {
-            ArenaUtils.removeMobBossBar(entity);
+            arena.removeBossBar(entity);
         }
 
         ArenaMobDeathEvent mobDeathEvent = new ArenaMobDeathEvent(arena, entity, mobId);

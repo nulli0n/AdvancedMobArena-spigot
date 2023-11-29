@@ -2,6 +2,7 @@ package su.nightexpress.ama.arena.impl;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,6 +33,8 @@ import su.nightexpress.ama.arena.shop.ShopManager;
 import su.nightexpress.ama.arena.spot.SpotManager;
 import su.nightexpress.ama.arena.supply.SupplyManager;
 import su.nightexpress.ama.arena.util.ArenaUtils;
+import su.nightexpress.ama.arena.util.BlockPos;
+import su.nightexpress.ama.arena.util.Cuboid;
 import su.nightexpress.ama.arena.wave.WaveManager;
 import su.nightexpress.ama.hologram.HologramManager;
 import su.nightexpress.ama.hook.level.PlayerLevelProvider;
@@ -57,21 +60,24 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
     private final Map<Currency, Double>             paymentRequirements;
     private final Map<PlayerLevelProvider, Integer> levelRequirements;
 
-    private final Arena         arena;
-    private final WaveManager   waveManager;
-    private final RegionManager regionManager;
+    private final Arena            arena;
+    private final WaveManager      waveManager;
+    private final RegionManager    regionManager;
     private final GameplaySettings gameplaySettings;
     private final SupplyManager    supplyManager;
     private final SpotManager      spotManager;
-    private final RewardManager      rewardManager;
-    private final ShopManager    shopManager;
-    private final ScriptManager  scriptManager;
-    private final PlaceholderMap placeholderMap;
+    private final RewardManager    rewardManager;
+    private final ShopManager      shopManager;
+    private final ScriptManager    scriptManager;
+    private final PlaceholderMap   placeholderMap;
 
-    private boolean active;
-    private String  name;
+    private boolean   active;
+    private World     world;
+    private Cuboid    protectionZone;
+    private String    name;
     private boolean   permissionRequired;
     private ItemStack icon;
+    private int joinCooldown;
 
     private ArenaMainEditor mainEditor;
 
@@ -104,6 +110,13 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
     @Override
     public boolean load() {
         this.setActive(cfg.getBoolean("Active"));
+
+        this.world = this.plugin.getServer().getWorld(cfg.getString("World", "null"));
+
+        BlockPos min = BlockPos.read(cfg, "Protection_Zone.P1");
+        BlockPos max = BlockPos.read(cfg, "Protection_Zone.P2");
+        this.setProtectionZone(new Cuboid(min, max));
+
         this.setName(cfg.getString("Name", this.getId() + " Arena"));
         this.setIcon(cfg.getItem("Icon"));
 
@@ -118,6 +131,7 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
             }
         }
 
+        this.setJoinCooldown(cfg.getInt("Join_Cooldown"));
         this.setPermissionRequired(cfg.getBoolean("Join_Requirements.Permission"));
 
         for (String sId : cfg.getSection("Join_Requirements.Payment")) {
@@ -196,11 +210,13 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
 
     @Override
     public void onSave() {
-        cfg.set("Active", this.isActive());
-        cfg.set("Name", this.getName());
-        cfg.setItem("Icon", this.getIcon());
+        this.saveBasics();
+
+        this.cfg.remove("Auto_State_Schedulers");
         this.autoOpenTimes.forEach((day, times) -> cfg.set("Auto_State_Schedulers.Open." + day.name(), times.stream().map(time -> time.format(ArenaUtils.TIME_FORMATTER)).toList()));
         this.autoCloseTimes.forEach((day, times) -> cfg.set("Auto_State_Schedulers.Close." + day.name(), times.stream().map(time -> time.format(ArenaUtils.TIME_FORMATTER)).toList()));
+
+        cfg.set("Join_Cooldown", this.getJoinCooldown());
 
         String path = "Join_Requirements.";
         cfg.set(path + "Permission", this.isPermissionRequired());
@@ -223,6 +239,19 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
         });
         cfg.set("Hologram.Default.Locations", this.getHologramLocations().stream().map(LocationUtil::serialize).toList());
 
+        this.saveAdditional();
+    }
+
+    public void saveBasics() {
+        cfg.set("Active", this.isActive());
+        cfg.set("World", this.getWorld().getName());
+        this.getProtectionZone().getMin().write(cfg, "Protection_Zone.P1");
+        this.getProtectionZone().getMax().write(cfg, "Protection_Zone.P2");
+        cfg.set("Name", this.getName());
+        cfg.setItem("Icon", this.getIcon());
+    }
+
+    private void saveAdditional() {
         this.waveManager.save();
         this.regionManager.save();
         this.gameplaySettings.save();
@@ -236,6 +265,13 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
     @NotNull
     public Report getReport() {
         Report report = new Report();
+
+        if (this.getProtectionZone().isEmpty()) {
+            report.addProblem("No Protection Zone selected!");
+        }
+        else if (this.world == null) {
+            report.addProblem("Invalid world!");
+        }
 
         if (this.getLocation(ArenaLocationType.LOBBY) == null) {
             report.addProblem("No lobby location!");
@@ -309,12 +345,39 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
         return this.arena;
     }
 
+    public boolean isProtected(@NotNull Location location) {
+        return !this.getProtectionZone().isEmpty() && this.getProtectionZone().contains(location);
+    }
+
+    @NotNull
+    public Location getLocation(@NotNull BlockPos pos) {
+        return pos.toLocation(this.getWorld());
+    }
+
     public boolean isActive() {
         return this.active;
     }
 
     public void setActive(boolean isActive) {
         this.active = isActive;
+    }
+
+    //@NotNull
+    public World getWorld() {
+        return world;
+    }
+
+    public void setWorld(@NotNull World world) {
+        this.world = world;
+    }
+
+    @NotNull
+    public Cuboid getProtectionZone() {
+        return protectionZone;
+    }
+
+    public void setProtectionZone(@NotNull Cuboid protectionZone) {
+        this.protectionZone = protectionZone;
     }
 
     @NotNull
@@ -349,6 +412,14 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
     @NotNull
     public String getPermission() {
         return Perms.PREFIX_ARENA + this.getId();
+    }
+
+    public int getJoinCooldown() {
+        return joinCooldown;
+    }
+
+    public void setJoinCooldown(int joinCooldown) {
+        this.joinCooldown = joinCooldown;
     }
 
     @NotNull

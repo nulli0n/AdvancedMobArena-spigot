@@ -9,7 +9,7 @@ import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.type.ArenaTargetType;
 import su.nightexpress.ama.arena.region.Region;
 import su.nightexpress.ama.arena.shop.impl.ShopCategory;
-import su.nightexpress.ama.arena.spot.ArenaSpot;
+import su.nightexpress.ama.arena.spot.Spot;
 
 import java.util.*;
 import java.util.function.Function;
@@ -65,7 +65,7 @@ public class Parameters {
         .withIcon(Material.PAINTING)
         .withSuggestions((arena, result) -> {
             String spotId = result.get(SPOT, "");
-            ArenaSpot spot = arena.getConfig().getSpotManager().getSpot(spotId);
+            Spot spot = arena.getConfig().getSpotManager().getSpot(spotId);
             if (spot == null) return Collections.emptyList();
 
             return new ArrayList<>(spot.getStates().keySet());
@@ -84,6 +84,9 @@ public class Parameters {
 
     public static final Parameter<Integer> AMOUNT = asInt("amount")
         .withIcon(Material.HOPPER);
+
+    public static final Parameter<Double> DOUBLE_VALUE = asDouble("value")
+        .withIcon(Material.OAK_SIGN);
 
     @NotNull
     public static Optional<Parameter<?>> getByName(@NotNull String name) {
@@ -105,6 +108,12 @@ public class Parameters {
     @NotNull
     public static Parameter<Integer> asInt(@NotNull String name) {
         Function<String, Integer> parser = str -> StringUtil.getInteger(str, 0, true);
+        return register(name, parser);
+    }
+
+    @NotNull
+    public static Parameter<Double> asDouble(@NotNull String name) {
+        Function<String, Double> parser = str -> StringUtil.getDouble(str, 0, true);
         return register(name, parser);
     }
 

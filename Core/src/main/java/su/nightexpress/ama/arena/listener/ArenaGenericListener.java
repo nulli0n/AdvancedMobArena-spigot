@@ -33,7 +33,6 @@ import su.nightexpress.ama.arena.util.ArenaUtils;
 import su.nightexpress.ama.config.Config;
 import su.nightexpress.ama.kit.Kit;
 import su.nightexpress.ama.mob.MobManager;
-import su.nightexpress.ama.mob.config.MobConfig;
 import su.nightexpress.ama.mob.config.MobsConfig;
 
 public class ArenaGenericListener extends AbstractListener<AMA> {
@@ -62,22 +61,20 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onArenaDamageGeneric(EntityDamageEvent e) {
-        if (!(e.getEntity() instanceof LivingEntity entity)) return;
+        // Avoid damage in lobby
+        if (e.getEntity() instanceof Player player) {
+            ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
+            if (arenaPlayer == null) return;
 
-        MobConfig mob = this.plugin.getMobManager().getEntityMobConfig(entity);
-        if (mob != null && mob.isBarEnabled()) {
-            this.plugin.runTask(task -> mob.createOrUpdateBar(entity));
+
+            if (arenaPlayer.getState() != GameState.INGAME) {
+                e.setCancelled(true);
+            }
             return;
         }
 
-        if (!(entity instanceof Player player)) return;
-
-        ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
-        if (arenaPlayer == null) return;
-
-        // Avoid damage in lobby
-        if (arenaPlayer.getState() != GameState.INGAME) {
-            e.setCancelled(true);
+        if (e.getEntity() instanceof LivingEntity entity) {
+            this.plugin.getMobManager().updateMobBar(entity);
         }
     }
 

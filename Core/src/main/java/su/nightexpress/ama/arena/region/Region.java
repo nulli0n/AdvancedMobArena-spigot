@@ -1,7 +1,7 @@
 package su.nightexpress.ama.arena.region;
 
 import org.bukkit.Location;
-import org.bukkit.block.Block;
+import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
@@ -28,6 +28,7 @@ import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.arena.lock.LockState;
 import su.nightexpress.ama.arena.lock.Lockable;
 import su.nightexpress.ama.arena.util.ArenaCuboid;
+import su.nightexpress.ama.arena.util.BlockPos;
 import su.nightexpress.ama.hologram.HologramManager;
 
 import java.util.*;
@@ -35,9 +36,9 @@ import java.util.stream.Collectors;
 
 public class Region extends AbstractConfigHolder<AMA> implements ArenaChild, Lockable, HologramHolder, Inspectable, Placeholder {
 
-    private final ArenaConfig           arenaConfig;
-    private final Map<String, Location> mobSpawners;
-    private final Set<Location>         hologramLocations;
+    private final ArenaConfig                arenaConfig;
+    private final Map<String, Set<BlockPos>> mobSpawners;
+    private final Set<Location>              hologramLocations;
     private final Set<UUID>             hologramIds;
     private final PlaceholderMap        placeholderMap;
 
@@ -83,13 +84,25 @@ public class Region extends AbstractConfigHolder<AMA> implements ArenaChild, Loc
         }
         this.spawnLocation = cfg.getLocation("Spawn_Location");
 
-        for (String sId : cfg.getSection("Mob_Spawners")) {
-            Location loc = cfg.getLocation("Mob_Spawners." + sId);
-            if (loc == null) {
-                plugin.error("Invalid location for '" + sId + "' mob spawner in '" + getFile().getName() + "' region!");
-                continue;
+        if (cfg.contains("Mob_Spawners")) {
+            Set<String> oldSpawners = new HashSet<>();
+
+            for (String sId : cfg.getSection("Mob_Spawners")) {
+                Location loc = cfg.getLocation("Mob_Spawners." + sId);
+                if (loc == null) continue;
+
+                oldSpawners.add(BlockPos.from(loc).serialize());
             }
-            this.mobSpawners.put(sId.toLowerCase(), loc);
+
+            cfg.set("Spawners." + Placeholders.DEFAULT, oldSpawners);
+            cfg.remove("Mob_Spawners");
+        }
+
+        for (String sId : cfg.getSection("Spawners")) {
+            Set<BlockPos> spawners = cfg.getStringSet("Spawners." + sId).stream()
+                .map(BlockPos::deserialize)
+                .filter(pos -> !pos.isEmpty()).collect(Collectors.toSet());
+            this.mobSpawners.put(sId.toLowerCase(), spawners);
         }
 
         String path = "Hologram.";
@@ -113,9 +126,13 @@ public class Region extends AbstractConfigHolder<AMA> implements ArenaChild, Loc
             cfg.set("Bounds.To", cuboid.getMax());
         });
         cfg.set("Spawn_Location", this.getSpawnLocation());
-        cfg.set("Mob_Spawners", null);
+        /*cfg.set("Mob_Spawners", null);
         this.mobSpawners.forEach((id, loc) -> {
             cfg.set("Mob_Spawners." + id, loc);
+        });*/
+        cfg.remove("Spawners");
+        this.mobSpawners.forEach((id, spawners) -> {
+            cfg.set("Spawners." + id, spawners.stream().map(BlockPos::serialize).toList());
         });
         cfg.set("Hologram.Locations", this.getHologramLocations().stream().map(LocationUtil::serialize).toList());
     }
@@ -235,18 +252,40 @@ public class Region extends AbstractConfigHolder<AMA> implements ArenaChild, Loc
     }
 
     @NotNull
-    public Map<String, Location> getMobSpawners() {
+    public Map<String, Set<BlockPos>> getMobSpawners() {
         return this.mobSpawners;
     }
 
-    @Nullable
+    @NotNull
+    public Set<BlockPos> getMobSpawners(@NotNull String group) {
+        return this.getMobSpawners().computeIfAbsent(group.toLowerCase(), k -> new HashSet<>());
+    }
+
+    @NotNull
+    public Set<Location> getMobSpawnersLocations(@NotNull String group) {
+        World world = this.getArenaConfig().getWorld();
+
+        return this.getMobSpawners(group).stream().map(pos -> pos.toLocation(world)).collect(Collectors.toSet());
+    }
+
+    /*@Nullable
     public Location getMobSpawner(@NotNull String id) {
         Location location = this.getMobSpawners().get(id.toLowerCase());
         return location == null ? null : location.clone();
+    }*/
+
+    public boolean removeMobSpawner(@NotNull String group, @NotNull Location location) {
+        BlockPos pos = BlockPos.from(location);
+
+        return this.getMobSpawners(group).remove(pos);
     }
 
-    public boolean addMobSpawner(@NotNull Location location) {
-        if (this.getMobSpawners().containsValue(location)) {
+    public boolean addMobSpawner(@NotNull String group, @NotNull Location location) {
+        BlockPos pos = BlockPos.from(location);
+
+        return getMobSpawners(group).add(pos);
+
+        /*if (this.getMobSpawners().containsValue(location)) {
             return false;
         }
 
@@ -260,7 +299,7 @@ public class Region extends AbstractConfigHolder<AMA> implements ArenaChild, Loc
         }
 
         this.getMobSpawners().put(idFinal, location);
-        return true;
+        return true;*/
     }
 
     @NotNull

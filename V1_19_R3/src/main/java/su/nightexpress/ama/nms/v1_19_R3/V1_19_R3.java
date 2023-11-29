@@ -9,9 +9,7 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.goal.FloatGoal;
-import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
-import net.minecraft.world.entity.ai.goal.ZombieAttackGoal;
+import net.minecraft.world.entity.ai.goal.*;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
@@ -62,9 +60,15 @@ public class V1_19_R3 implements ArenaNMS {
                 mob.goalSelector.addGoal(2, new MeleeAttackGoal(pathfinderMob, arena, faction));
                 mob.goalSelector.addGoal(8, new LookAtPlayerGoal(pathfinderMob, net.minecraft.world.entity.player.Player.class, 8.0F));
             }
-            else if (mob instanceof net.minecraft.world.entity.monster.Drowned drowned) {
-                drowned.goalSelector.getAvailableGoals().removeIf(goal -> goal.getGoal() instanceof ZombieAttackGoal goal1);
-                drowned.goalSelector.addGoal(3, new ZombieAttackGoal(drowned, 1D, false));
+            else {
+                if (mob instanceof net.minecraft.world.entity.monster.Drowned drowned) {
+                    drowned.goalSelector.getAvailableGoals().removeIf(goal -> goal.getGoal() instanceof ZombieAttackGoal goal1);
+                    drowned.goalSelector.addGoal(3, new ZombieAttackGoal(drowned, 1D, false));
+                }
+                pathfinderMob.goalSelector.getAvailableGoals().removeIf(wrappedGoal -> {
+                    var goal = wrappedGoal.getGoal();
+                    return goal instanceof FleeSunGoal || goal instanceof AvoidEntityGoal<?> || goal instanceof RestrictSunGoal;
+                });
             }
         }
 

@@ -39,7 +39,7 @@ public class ArenaListEditor extends EditorMenu<AMA, ArenaManager> implements Au
 
         this.addCreation(EditorLocales.ARENA_CREATION, 41).setClick((viewer, event) -> {
             this.handleInput(viewer, Lang.EDITOR_ARENA_ENTER_ID, wrapper -> {
-                if (!arenaManager.create(wrapper.getTextRaw())) {
+                if (!arenaManager.create(viewer.getPlayer().getWorld(), wrapper.getTextRaw())) {
                     EditorManager.error(viewer.getPlayer(), plugin.getMessage(Lang.EDITOR_ARENA_ERROR_EXISTS).getLocalized());
                     return false;
                 }

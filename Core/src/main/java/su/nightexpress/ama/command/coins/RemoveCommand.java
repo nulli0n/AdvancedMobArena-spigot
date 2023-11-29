@@ -13,7 +13,7 @@ public class RemoveCommand extends ManageCommand {
         super(plugin, currency, new String[]{"remove"}, Perms.COMMAND_COINS_TAKE);
         this.setDescription(plugin.getMessage(Lang.COMMAND_COINS_REMOVE_DESC));
         this.setUsage(plugin.getMessage(Lang.COMMAND_COINS_REMOVE_USAGE));
-        this.setDoneMessage(plugin.getMessage(Lang.COMMAND_COINS_REMOVE_DONE));
+        this.setNotify(plugin.getMessage(Lang.COMMAND_COINS_REMOVE_DONE));
     }
 
     @Override

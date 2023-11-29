@@ -29,8 +29,8 @@ import java.util.stream.IntStream;
 
 public class WaveMobsEditor extends EditorMenu<AMA, Wave> implements AutoPaged<WaveMob> {
 
-    public WaveMobsEditor(@NotNull Wave wave) {
-        super(wave.getArena().plugin(), wave, "Wave Mobs [" + wave.getId() +"]", 45);
+    public WaveMobsEditor(@NotNull AMA plugin, @NotNull Wave wave) {
+        super(plugin, wave, "Wave Mobs [" + wave.getId() +"]", 45);
 
         this.addReturn(39).setClick((viewer, event) -> {
             wave.getArenaConfig().getWaveManager().getEditor().getListEditor().openNextTick(viewer, 1);

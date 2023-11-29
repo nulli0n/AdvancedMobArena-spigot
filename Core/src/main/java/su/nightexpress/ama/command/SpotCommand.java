@@ -8,7 +8,7 @@ import su.nexmedia.engine.api.command.CommandResult;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
-import su.nightexpress.ama.arena.spot.ArenaSpot;
+import su.nightexpress.ama.arena.spot.Spot;
 import su.nightexpress.ama.arena.spot.SpotState;
 import su.nightexpress.ama.config.Lang;
 
@@ -51,14 +51,14 @@ public class SpotCommand extends AbstractCommand<AMA> {
             if (arenaPlayer == null) return super.getTab(player, arg, args);
 
             return arenaPlayer.getArena().getConfig().getSpotManager().getSpotsMap()
-                .values().stream().map(ArenaSpot::getId).collect(Collectors.toList());
+                .values().stream().map(Spot::getId).collect(Collectors.toList());
         }
         if (arg == 3) {
             ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
             if (arenaPlayer == null) return super.getTab(player, arg, args);
 
             String spotId = args[2];
-            ArenaSpot spot = arenaPlayer.getArena().getConfig().getSpotManager().getSpot(spotId);
+            Spot spot = arenaPlayer.getArena().getConfig().getSpotManager().getSpot(spotId);
             if (spot == null) return super.getTab(player, arg, args);
 
             return new ArrayList<>(spot.getStates().keySet());
@@ -87,7 +87,7 @@ public class SpotCommand extends AbstractCommand<AMA> {
             }
 
             String spotId = result.getArg(2);
-            ArenaSpot spot = arenaPlayer.getArena().getConfig().getSpotManager().getSpot(spotId);
+            Spot spot = arenaPlayer.getArena().getConfig().getSpotManager().getSpot(spotId);
             if (spot == null) {
                 plugin.getMessage(Lang.Command_Spot_State_Error_InvalidSpot).send(sender);
                 return;

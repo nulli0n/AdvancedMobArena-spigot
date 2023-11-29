@@ -54,7 +54,6 @@ public class RegionSetupManager extends AbstractSetupManager<Region> {
         Inventory inventory = player.getInventory();
         inventory.setItem(0, SetupItemType.REGION_CUBOID.getItem());
         inventory.setItem(2, SetupItemType.REGION_SPAWN.getItem());
-        inventory.setItem(4, SetupItemType.REGION_SPAWNER.getItem());
         inventory.setItem(8, SetupItemType.REGION_SAVE.getItem());
     }
 
@@ -81,11 +80,6 @@ public class RegionSetupManager extends AbstractSetupManager<Region> {
             ArenaSetupUtils.addVisualText(player, "&a« Spawn Location »", region.getSpawnLocation());
             ArenaSetupUtils.addVisualBlock(player, region.getSpawnLocation());
         }
-
-        region.getMobSpawners().forEach((id, location) -> {
-            ArenaSetupUtils.addVisualText(player, "&cMob Spawner &7(ID: &f" + id + "&7)", location);
-            ArenaSetupUtils.addVisualBlock(player, location);
-        });
     }
 
     private void updateVisualParticles(@NotNull Player player) {
@@ -137,25 +131,6 @@ public class RegionSetupManager extends AbstractSetupManager<Region> {
                 }
                 region.setSpawnLocation(location);
                 plugin.getMessage(Lang.Setup_Region_Spawn_Set).replace(region.replacePlaceholders()).send(player);
-            }
-            case REGION_SPAWNER -> {
-                Block block = e.getClickedBlock();
-                if (block == null) return;
-
-                Location location = block.getLocation();
-                if (region.getCuboid().isEmpty() || !region.getCuboid().get().contains(location)) {
-                    plugin.getMessage(Lang.Setup_Region_Error_Outside).send(player);
-                    return;
-                }
-
-                Action action = e.getAction();
-                if (action == Action.RIGHT_CLICK_BLOCK && region.getMobSpawners().values().remove(location)) {
-                    plugin.getMessage(Lang.Setup_Region_Spawner_Remove).replace(region.replacePlaceholders()).send(player);
-                    return;
-                }
-                if (action == Action.LEFT_CLICK_BLOCK && region.addMobSpawner(location)) {
-                    plugin.getMessage(Lang.Setup_Region_Spawner_Add).replace(region.replacePlaceholders()).send(player);
-                }
             }
             case REGION_SAVE -> {
                 if (cuboidCache[0] != null && cuboidCache[1] != null) {

@@ -80,6 +80,13 @@ public class EditorLocales extends su.nexmedia.engine.api.editor.EditorLocales {
         .click(SHIFT_RMB, "clear close times")
         .build();
 
+    public static final EditorLocale ARENA_JOIN_COOLDOWN = builder(PREFIX + "Arena.JoinCooldown")
+        .name("Join (Play) Cooldown")
+        .text("Sets how often players can", "join this arena again", "after play.")
+        .emptyLine()
+        .current("Current", Placeholders.ARENA_JOIN_COOLDOWN + GRAY + " (" + WHITE + LMB + GRAY + ")")
+        .build();
+
     public static final EditorLocale ARENA_GAMEPLAY_SETTINGS = builder(PREFIX + "Arena.GameplaySettings")
         .name("Gameplay Settings")
         .textRaw(Placeholders.ARENA_REPORT_GAMEPLAY).emptyLine()
@@ -213,6 +220,23 @@ public class EditorLocales extends su.nexmedia.engine.api.editor.EditorLocales {
         .text("General region name.").emptyLine()
         .currentHeader()
         .current("Name", Placeholders.REGION_NAME + GRAY + " (" + WHITE + LMB + GRAY + ")")
+        .build();
+
+    public static final EditorLocale REGION_SPAWNERS = builder(PREFIX + "Region.Spawners")
+        .name("Mob Spawners")
+        .text("Create mob spawners here.").emptyLine()
+        .click(LMB, "navigate")
+        .build();
+
+    public static final EditorLocale REGION_SPAWNERS_CREATE = builder(PREFIX + "Region.Spawners.Create")
+        .name("New Group")
+        .build();
+
+    public static final EditorLocale REGION_SPAWNERS_OBJECT = builder(PREFIX + "Region.Spawners.Object")
+        .name("Spawner Group: " + WHITE + Placeholders.GENERIC_NAME)
+        .current("Spawners", Placeholders.GENERIC_AMOUNT).emptyLine()
+        .click(LMB, "edit spawners")
+        .click(SHIFT_RMB, "delete" + RED + " (no undo)")
         .build();
 
     public static final EditorLocale GAMEPLAY_PAGE_REQUIREMENTS = builder(PREFIX + "Gameplay.Page.Requirements")
@@ -355,10 +379,11 @@ public class EditorLocales extends su.nexmedia.engine.api.editor.EditorLocales {
 
     public static final EditorLocale GAMEPLAY_SPECTATE = builder(PREFIX + "Gameplay.Spectate")
         .name("Spectators Allowed")
-        .text("Sets whether or not", "non-arena players can spectate", "this arena.")
-        .emptyLine()
+        .text("Sets whether or not", "non-arena players can spectate", "this arena.").emptyLine()
+        .text("And if players will auto", "leave arena on death when", "no lifes left.").emptyLine()
         .currentHeader()
         .current("Enabled", Placeholders.GAMEPLAY_SPECTATE_ENABLED + GRAY + " (" + WHITE + LMB + GRAY + ")")
+        .current("Leave on Death", Placeholders.GAMEPLAY_LEAVE_ON_DEATH + GRAY + " (" + WHITE + RMB + GRAY + ")")
         .build();
 
     public static final EditorLocale GAMEPLAY_COMMANDS = builder(PREFIX + "Gameplay.Commands")
@@ -804,8 +829,10 @@ public class EditorLocales extends su.nexmedia.engine.api.editor.EditorLocales {
 
     public static final EditorLocale SCRIPT_CATEGORY_OBJECT = builder(PREFIX + "Script.Category.Object")
         .name("Category: " + ORANGE + Placeholders.SCRIPT_CATEGORY_ID)
+        .current("Priority", Placeholders.SCRIPT_CATEGORY_PRIORITY)
         .emptyLine()
         .click(LMB, "edit")
+        .click(RMB, "change priority")
         .click(SHIFT_RMB, "delete " + RED + "(no undo)")
         .build();
 

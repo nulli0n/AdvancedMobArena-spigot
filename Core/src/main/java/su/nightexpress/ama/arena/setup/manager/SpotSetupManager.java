@@ -13,10 +13,10 @@ import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.util.ArenaCuboid;
 import su.nightexpress.ama.arena.setup.ArenaSetupUtils;
 import su.nightexpress.ama.arena.setup.SetupItemType;
-import su.nightexpress.ama.arena.spot.ArenaSpot;
+import su.nightexpress.ama.arena.spot.Spot;
 import su.nightexpress.ama.config.Lang;
 
-public class SpotSetupManager extends AbstractSetupManager<ArenaSpot> {
+public class SpotSetupManager extends AbstractSetupManager<Spot> {
 
     private Location[] cuboidCache;
 
@@ -27,7 +27,7 @@ public class SpotSetupManager extends AbstractSetupManager<ArenaSpot> {
     }
 
     @Override
-    protected void onSetupStart(@NotNull Player player, @NotNull ArenaSpot spot) {
+    protected void onSetupStart(@NotNull Player player, @NotNull Spot spot) {
         this.cuboidCache = new Location[2];
         spot.getCuboid().ifPresent(cuboid -> {
             this.cuboidCache[0] = cuboid.getMin().clone();
@@ -43,7 +43,7 @@ public class SpotSetupManager extends AbstractSetupManager<ArenaSpot> {
     }
 
     @Override
-    protected void onSetupEnd(@NotNull Player player, @NotNull ArenaSpot spot) {
+    protected void onSetupEnd(@NotNull Player player, @NotNull Spot spot) {
         if (this.visualTask != null) {
             this.visualTask.stop();
             this.visualTask = null;
@@ -54,7 +54,7 @@ public class SpotSetupManager extends AbstractSetupManager<ArenaSpot> {
     }
 
     @Override
-    protected void handleItem(@NotNull PlayerInteractEvent e, @NotNull Player player, @NotNull ArenaSpot spot,
+    protected void handleItem(@NotNull PlayerInteractEvent e, @NotNull Player player, @NotNull Spot spot,
                               @NotNull ItemStack item, @NotNull SetupItemType itemType) {
         switch (itemType) {
             case SPOT_CUBOID -> {
@@ -64,7 +64,7 @@ public class SpotSetupManager extends AbstractSetupManager<ArenaSpot> {
                 Action action = e.getAction();
                 Location location = block.getLocation();
 
-                ArenaSpot overlap = spot.getArenaConfig().getSpotManager().getSpot(location);
+                Spot overlap = spot.getArenaConfig().getSpotManager().getSpot(location);
                 if (overlap != null && !spot.getId().equals(overlap.getId())) {
                     plugin.getMessage(Lang.SETUP_SPOT_CUBOID_ERROR_OVERLAP).replace(overlap.replacePlaceholders()).send(player);
                     return;

@@ -10,18 +10,18 @@ import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.lang.LangManager;
 import su.nexmedia.engine.utils.EngineUtils;
 import su.nexmedia.engine.utils.EntityUtil;
+import su.nexmedia.engine.utils.NumberUtil;
 import su.nexmedia.engine.utils.TimeUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.IArenaPlayer;
 import su.nightexpress.ama.api.arena.type.ArenaLocationType;
 import su.nightexpress.ama.api.event.ArenaPlayerReadyEvent;
+import su.nightexpress.ama.api.type.GameState;
 import su.nightexpress.ama.arena.board.ArenaBoard;
 import su.nightexpress.ama.arena.board.ArenaBoardConfig;
 import su.nightexpress.ama.arena.region.Region;
 import su.nightexpress.ama.arena.reward.Reward;
-import su.nightexpress.ama.api.type.GameState;
-import su.nightexpress.ama.arena.util.ArenaUtils;
 import su.nightexpress.ama.config.Config;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.data.impl.ArenaUser;
@@ -79,10 +79,10 @@ public final class ArenaPlayer implements IArenaPlayer, Placeholder {
     }
 
     @NotNull
-    public static ArenaPlayer create(@NotNull Player player, @NotNull Arena arena) {
+    public static ArenaPlayer create(@NotNull AMA plugin, @NotNull Player player, @NotNull Arena arena) {
         if (ArenaPlayer.isPlaying(player)) throw new IllegalStateException("This player is already playing other arena!");
 
-        ArenaPlayer arenaPlayer = new ArenaPlayer(player, arena);
+        ArenaPlayer arenaPlayer = new ArenaPlayer(plugin, player, arena);
         PLAYER_MAP.put(player.getUniqueId(), arenaPlayer);
         return arenaPlayer;
     }
@@ -91,8 +91,8 @@ public final class ArenaPlayer implements IArenaPlayer, Placeholder {
         PLAYER_MAP.remove(player.getUniqueId());
     }
 
-    private ArenaPlayer(@NotNull Player player, @NotNull Arena arena) {
-        this.plugin = arena.plugin();
+    private ArenaPlayer(@NotNull AMA plugin, @NotNull Player player, @NotNull Arena arena) {
+        this.plugin = plugin;
         this.stats = new HashMap<>();
         this.rewards = new ArrayList<>();
         this.player = player;
@@ -107,11 +107,12 @@ public final class ArenaPlayer implements IArenaPlayer, Placeholder {
 
         this.placeholderMap = new PlaceholderMap()
             .add(Placeholders.PLAYER_NAME, this.getPlayer().getName())
+            .add(Placeholders.PLAYER_DISPLAY_NAME, this.getPlayer().getDisplayName())
             .add(Placeholders.PLAYER_LIVES, () -> String.valueOf(this.getLifes()))
             .add(Placeholders.PLAYER_STREAK, () -> String.valueOf(this.getKillStreak()))
             .add(Placeholders.PLAYER_STREAK_DECAY, () -> TimeUtil.getLocalTimeOf(this.getKillStreakDecay()).format(FORMAT_STREAK))
             .add(Placeholders.PLAYER_SCORE, () -> String.valueOf(this.getScore()))
-            .add(Placeholders.PLAYER_KILLS, () -> String.valueOf(this.getStats(StatType.MOB_KILLS)))
+            .add(Placeholders.PLAYER_KILLS, () -> NumberUtil.format(this.getStats(StatType.MOB_KILLS)))
             .add(Placeholders.PLAYER_IS_READY, () -> LangManager.getBoolean(this.isReady()))
             .add(Placeholders.PLAYER_KIT_NAME, () -> this.getKit() == null ? "-" : this.getKit().getName())
         ;
@@ -181,29 +182,38 @@ public final class ArenaPlayer implements IArenaPlayer, Placeholder {
         this.setDead(true);
         this.takeLive();
 
+        Arena arena = this.getArena();
+
         if (this.isOutOfLifes()) {
             this.setReviveTime(-1);
-            if (!this.getArena().getConfig().getRewardManager().isKeepOnDeath()) {
+            if (!arena.getConfig().getRewardManager().isKeepOnDeath()) {
                 this.getRewards().clear();
             }
-            if (this.getArena().getPlayers().hasAlive()) {
+            if (arena.getPlayers().hasAlive()) {
                 this.plugin.getMessage(Lang.ARENA_GAME_DEATH_NO_LIFES).replace(this.replacePlaceholders()).send(this.getPlayer());
             }
             this.setGhost();
-            if (!this.getArena().getConfig().getWaveManager().isInfiniteWaves()) {
+            if (!arena.getConfig().getWaveManager().isInfiniteWaves()) {
                 this.addStats(StatType.GAMES_LOST, 1);
             }
 
-            Location spectate = this.getArena().getConfig().getLocation(ArenaLocationType.SPECTATE);
-            if (spectate != null) {
-                this.getPlayer().teleport(spectate);
-            }
+            this.plugin.runTask(task -> {
+                if (arena.getConfig().getGameplaySettings().isLeaveOnDeath()) {
+                    arena.leaveArena(this);
+                    return;
+                }
 
-            ArenaUtils.removeMobBossBars(this.getPlayer());
+                Location spectate = arena.getConfig().getLocation(ArenaLocationType.SPECTATE);
+                if (spectate != null) {
+                    this.getPlayer().teleport(spectate);
+                }
+            });
+
+            arena.removeBossBars(this.getPlayer());
         }
         else {
-            this.setReviveTime(this.getArena().getConfig().getGameplaySettings().getPlayerRespawnTime());
-            if (this.getArena().getPlayers().hasAlive()) {
+            this.setReviveTime(arena.getConfig().getGameplaySettings().getPlayerRespawnTime());
+            if (arena.getPlayers().hasAlive()) {
                 this.plugin.getMessage(Lang.ARENA_GAME_DEATH_WITH_LIFES).replace(this.replacePlaceholders()).send(this.getPlayer());
             }
         }
@@ -212,8 +222,9 @@ public final class ArenaPlayer implements IArenaPlayer, Placeholder {
         this.addStats(StatType.DEATHS, 1);
         this.setKillStreak(0);
         this.setKillStreakDecay(0);
-        this.getArena().broadcast(plugin.getMessage(Lang.ARENA_GAME_INFO_PLAYER_DEATH)
-            .replace(this.getArena().replacePlaceholders())
+
+        arena.broadcast(plugin.getMessage(Lang.ARENA_GAME_INFO_PLAYER_DEATH)
+            .replace(arena.replacePlaceholders())
             .replace(this.replacePlaceholders())
         );
     }
@@ -376,17 +387,30 @@ public final class ArenaPlayer implements IArenaPlayer, Placeholder {
         return this.getArena().getConfig().getRegionManager().getRegion(location);
     }
 
+    @Override
     public int getScore() {
         return score;
     }
 
+    @Override
     public void setScore(int score) {
         this.score = Math.max(0, score);
         this.getArena().updateGameScore();
     }
 
-    public void addScore(int amount) {
+    @Override
+    public void gainScore(int amount) {
         this.setScore(this.getScore() + amount);
+    }
+
+    @Override
+    public void addScore(int amount) {
+        this.gainScore(Math.abs(amount));
+    }
+
+    @Override
+    public void removeScore(int amount) {
+        this.gainScore(-Math.abs(amount));
     }
 
     public int getKillStreak() {
@@ -421,7 +445,7 @@ public final class ArenaPlayer implements IArenaPlayer, Placeholder {
     public void saveStats() {
         String arena = this.getArena().getId();
         Player player = this.getPlayer();
-        ArenaUser user = this.getArena().plugin().getUserManager().getUserData(player);
+        ArenaUser user = this.plugin.getUserManager().getUserData(player);
 
         Map<StatType, Integer> gameStats = this.getStats();
         Map<StatType, Integer> userStats = user.getStats(arena);

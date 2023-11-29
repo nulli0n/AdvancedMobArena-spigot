@@ -112,7 +112,9 @@ public class ScriptManager implements ArenaChild, Inspectable {
 
     @NotNull
     public List<ArenaScript> getScripts() {
-        return this.getCategories().stream().flatMap(map -> map.getScripts().stream()).toList();
+        return this.getCategories().stream()
+            .sorted(Comparator.comparing(ScriptCategory::getPriority, Comparator.reverseOrder()))
+            .flatMap(map -> map.getScripts().stream()).toList();
     }
 
     public boolean createCategory(@NotNull String id) {

@@ -21,7 +21,7 @@ import su.nightexpress.ama.arena.util.ArenaCuboid;
 
 import java.util.*;
 
-public class ArenaSpot extends AbstractConfigHolder<AMA> implements ArenaChild, Inspectable, Placeholder {
+public class Spot extends AbstractConfigHolder<AMA> implements ArenaChild, Inspectable, Placeholder {
 
     private final ArenaConfig            arenaConfig;
     private final Map<String, SpotState> states;
@@ -30,10 +30,11 @@ public class ArenaSpot extends AbstractConfigHolder<AMA> implements ArenaChild, 
     private boolean     isActive;
     private String      name;
     private ArenaCuboid cuboid;
+    private SpotState lastState;
 
     private SpotSettingsEditor editor;
 
-    public ArenaSpot(@NotNull ArenaConfig arenaConfig, @NotNull JYML cfg) {
+    public Spot(@NotNull ArenaConfig arenaConfig, @NotNull JYML cfg) {
         super(arenaConfig.plugin(), cfg);
         this.arenaConfig = arenaConfig;
         this.states = new HashMap<>();
@@ -166,6 +167,17 @@ public class ArenaSpot extends AbstractConfigHolder<AMA> implements ArenaChild, 
     public void setState(@NotNull Arena arena, @NotNull String id) {
         SpotState state = this.getState(id);
         if (state == null) return;
+
         state.build(arena);
+        this.lastState = state;
+    }
+
+    @Nullable
+    public SpotState getLastState() {
+        return lastState;
+    }
+
+    public void setLastState(@Nullable SpotState lastState) {
+        this.lastState = lastState;
     }
 }

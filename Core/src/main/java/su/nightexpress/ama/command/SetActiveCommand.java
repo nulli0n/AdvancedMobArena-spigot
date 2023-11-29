@@ -19,23 +19,8 @@ public class SetActiveCommand extends AbstractCommand<AMA> {
 
     public SetActiveCommand(@NotNull AMA plugin) {
         super(plugin, new String[]{"setactive"}, Perms.COMMAND_SET_ACTIVE);
-    }
-
-    @Override
-    @NotNull
-    public String getUsage() {
-        return plugin.getMessage(Lang.COMMAND_SETACTIVE_USAGE).getLocalized();
-    }
-
-    @Override
-    @NotNull
-    public String getDescription() {
-        return plugin.getMessage(Lang.COMMAND_SETACTIVE_DESC).getLocalized();
-    }
-
-    @Override
-    public boolean isPlayerOnly() {
-        return false;
+        this.setDescription(plugin.getMessage(Lang.COMMAND_SETACTIVE_DESC));
+        this.setUsage(plugin.getMessage(Lang.COMMAND_SETACTIVE_USAGE));
     }
 
     @Override

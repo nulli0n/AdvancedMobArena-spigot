@@ -2,10 +2,7 @@ package su.nightexpress.ama.arena.setup;
 
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.ama.AMA;
-import su.nightexpress.ama.arena.setup.manager.ArenaConfigSetupManager;
-import su.nightexpress.ama.arena.setup.manager.RegionSetupManager;
-import su.nightexpress.ama.arena.setup.manager.SpotSetupManager;
-import su.nightexpress.ama.arena.setup.manager.SpotStateSetupManager;
+import su.nightexpress.ama.arena.setup.manager.*;
 
 public class ArenaSetupManager {
 
@@ -13,6 +10,7 @@ public class ArenaSetupManager {
 
     private ArenaConfigSetupManager configSetupManager;
     private RegionSetupManager      regionSetupManager;
+    private RegionSpawnerSetupManager regionSpawnerSetupManager;
     private SpotSetupManager        spotSetupManager;
     private SpotStateSetupManager   spotStateSetupManager;
 
@@ -32,6 +30,9 @@ public class ArenaSetupManager {
         if (this.spotSetupManager != null) {
             this.spotSetupManager.shutdown();
             this.spotSetupManager = null;
+        }
+        if (this.regionSpawnerSetupManager != null) {
+            this.regionSpawnerSetupManager.shutdown();
         }
         if (this.regionSetupManager != null) {
             this.regionSetupManager.shutdown();
@@ -59,6 +60,15 @@ public class ArenaSetupManager {
             this.regionSetupManager.setup();
         }
         return this.regionSetupManager;
+    }
+
+    @NotNull
+    public RegionSpawnerSetupManager getRegionSpawnerSetupManager() {
+        if (this.regionSpawnerSetupManager == null) {
+            this.regionSpawnerSetupManager = new RegionSpawnerSetupManager(this.plugin);
+            this.regionSpawnerSetupManager.setup();
+        }
+        return regionSpawnerSetupManager;
     }
 
     @NotNull

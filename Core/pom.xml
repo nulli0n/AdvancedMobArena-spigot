@@ -5,7 +5,7 @@
     <parent>
         <artifactId>AdvancedMobArena</artifactId>
         <groupId>su.nightexpress.ama</groupId>
-        <version>7.11.0</version>
+        <version>7.13.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -71,32 +71,32 @@
         <dependency>
             <groupId>su.nightexpress.ama</groupId>
             <artifactId>API</artifactId>
-            <version>7.11.0</version>
+            <version>7.13.0</version>
         </dependency>
         <dependency>
             <groupId>su.nightexpress.ama</groupId>
             <artifactId>NMS</artifactId>
-            <version>7.11.0</version>
+            <version>7.13.0</version>
         </dependency>
         <dependency>
             <groupId>su.nightexpress.ama</groupId>
             <artifactId>V1_20_R2</artifactId>
-            <version>7.11.0</version>
+            <version>7.13.0</version>
         </dependency>
         <dependency>
             <groupId>su.nightexpress.ama</groupId>
             <artifactId>V1_18_R2</artifactId>
-            <version>7.11.0</version>
+            <version>7.13.0</version>
         </dependency>
         <dependency>
             <groupId>su.nightexpress.ama</groupId>
             <artifactId>V1_19_R3</artifactId>
-            <version>7.11.0</version>
+            <version>7.13.0</version>
         </dependency>
         <dependency>
             <groupId>su.nightexpress.ama</groupId>
             <artifactId>V1_20_R1</artifactId>
-            <version>7.11.0</version>
+            <version>7.13.0</version>
         </dependency>
         <dependency>
             <groupId>su.nightexpress.sunlight</groupId>

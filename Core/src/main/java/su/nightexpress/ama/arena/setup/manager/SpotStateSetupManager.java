@@ -18,7 +18,7 @@ import su.nightexpress.ama.arena.util.ArenaCuboid;
 import su.nightexpress.ama.arena.editor.spot.SpotSettingsEditor;
 import su.nightexpress.ama.arena.setup.ArenaSetupUtils;
 import su.nightexpress.ama.arena.setup.SetupItemType;
-import su.nightexpress.ama.arena.spot.ArenaSpot;
+import su.nightexpress.ama.arena.spot.Spot;
 import su.nightexpress.ama.arena.spot.SpotState;
 import su.nightexpress.ama.config.Lang;
 
@@ -110,7 +110,7 @@ public class SpotStateSetupManager extends AbstractSetupManager<SpotState> {
         Player player = e.getPlayer();
         if (!this.isEditing(player)) return;
 
-        ArenaSpot spot = this.getObject().getSpot();
+        Spot spot = this.getObject().getSpot();
 
         Block block = e.getBlock();
         ArenaCuboid cuboid = spot.getCuboid().orElse(null);
@@ -125,7 +125,7 @@ public class SpotStateSetupManager extends AbstractSetupManager<SpotState> {
         Player player = e.getPlayer();
         if (!this.isEditing(player)) return;
 
-        ArenaSpot spot = this.getObject().getSpot();
+        Spot spot = this.getObject().getSpot();
 
         Block block = e.getBlock();
         ArenaCuboid cuboid = spot.getCuboid().orElse(null);

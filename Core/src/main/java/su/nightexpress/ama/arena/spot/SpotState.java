@@ -20,15 +20,15 @@ import java.util.Map;
 
 public class SpotState implements ArenaChild, Placeholder {
 
-    private final ArenaSpot spot;
-    private final String    id;
+    private final Spot   spot;
+    private final String id;
     private final PlaceholderMap placeholderMap;
 
     private       List<String>                  schemeRaw;
     private final Map<Location, BlockData>      scheme;
 
     public SpotState(
-        @NotNull ArenaSpot spot,
+        @NotNull Spot spot,
         @NotNull String id,
         @NotNull List<String> schemeRaw
     ) {
@@ -54,7 +54,7 @@ public class SpotState implements ArenaChild, Placeholder {
     }
 
     @NotNull
-    public ArenaSpot getSpot() {
+    public Spot getSpot() {
         return this.spot;
     }
 

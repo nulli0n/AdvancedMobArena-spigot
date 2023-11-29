@@ -166,6 +166,24 @@ public class GameplayEditorRequirements extends EditorMenu<AMA, ArenaConfig> {
             if (config.getLevelRequirements().isEmpty()) item.setType(Material.GLASS_BOTTLE);
         });
 
+
+
+        this.addItem(Material.REPEATER, EditorLocales.ARENA_JOIN_COOLDOWN, 37).setClick((viewer, event) -> {
+            if (event.isRightClick()) {
+                config.setJoinCooldown(0);
+                this.save(viewer);
+                return;
+            }
+
+            this.handleInput(viewer, Lang.EDITOR_GENERIC_ENTER_SECONDS, wrapper -> {
+                config.setJoinCooldown(wrapper.asAnyInt(0));
+                config.save();
+                return true;
+            });
+        });
+
+
+
         this.getItems().forEach(menuItem -> menuItem.getOptions().addDisplayModifier((viewer, item) -> {
             ItemReplacer.replace(item, Placeholders.forArenaEditor(config).replacer());
         }));

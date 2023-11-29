@@ -51,11 +51,13 @@ public class Config {
         "Instantly decreases lobby countdown timer to the specified value, if all players are ready to play.",
         "Set this to -1 to disable feature."
     );
+
     public static final JOption<Boolean> LOBBY_READY_FREEZE_TIMER_WHEN_DROPPED = JOption.create("Lobby.Ready_State.Freeze_Dropped_Timer_When_Not_Ready",
         false,
         "When enabled, lobby timer will be stopped, when someone changes his state as 'not ready'.",
         "This option will only have effect if lobby timer was already decreased by the setting above."
     );
+
     public static final JOption<Map<LobbyItem.Type, LobbyItem>> LOBBY_ITEMS = new JOption<Map<LobbyItem.Type, LobbyItem>>("Lobby.Items",
         (cfg, path, def) -> {
             return Stream.of(LobbyItem.Type.values()).collect(Collectors.toMap(k -> k, v -> {

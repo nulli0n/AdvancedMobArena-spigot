@@ -20,6 +20,7 @@ public class DataHandler extends AbstractUserDataHandler<AMA, ArenaUser> {
     private static final SQLColumn COLUMN_COINS = SQLColumn.of("coins", ColumnType.INTEGER);
     private static final SQLColumn COLUMN_KITS  = SQLColumn.of("kits", ColumnType.STRING);
     private static final SQLColumn COLUMN_STATS = SQLColumn.of("stats", ColumnType.STRING);
+    private static final SQLColumn COLUMN_ARENA_COOLDOWN = SQLColumn.of("arenaCooldown", ColumnType.STRING);
 
     private static DataHandler instance;
 
@@ -38,8 +39,9 @@ public class DataHandler extends AbstractUserDataHandler<AMA, ArenaUser> {
                 int coins = resultSet.getInt(COLUMN_COINS.getName());
                 Set<String> kits = gson.fromJson(resultSet.getString(COLUMN_KITS.getName()), new TypeToken<Set<String>>() {}.getType());
                 Map<String, Map<StatType, Integer>> stats = gson.fromJson(resultSet.getString(COLUMN_STATS.getName()), new TypeToken<Map<String, Map<StatType, Integer>>>() {}.getType());
+                Map<String, Long> arenaCooldownMap = this.gson.fromJson(resultSet.getString(COLUMN_ARENA_COOLDOWN.getName()), new TypeToken<Map<String, Long>>(){}.getType());
 
-                return new ArenaUser(plugin, uuid, name, dateCreated, lastOnline, coins, kits, stats);
+                return new ArenaUser(plugin, uuid, name, dateCreated, lastOnline, coins, kits, stats, arenaCooldownMap);
             }
             catch (SQLException exception) {
                 exception.printStackTrace();
@@ -64,43 +66,38 @@ public class DataHandler extends AbstractUserDataHandler<AMA, ArenaUser> {
 
     @Override
     public void onSynchronize() {
+        this.plugin.getUserManager().getUsersLoaded().forEach(user -> {
+            ArenaUser fetch = this.getUser(user.getId());
+            if (fetch == null) return;
 
+            fetch.getArenaCooldownMap().clear();
+            fetch.getArenaCooldownMap().putAll(user.getArenaCooldownMap());
+        });
+    }
+
+    @Override
+    protected void onLoad() {
+        super.onLoad();
+
+        this.addColumn(this.tableUsers, COLUMN_ARENA_COOLDOWN.toValue("{}"));
     }
 
     @Override
     @NotNull
     protected List<SQLColumn> getExtraColumns() {
-        return Arrays.asList(COLUMN_COINS, COLUMN_KITS, COLUMN_STATS);
+        return Arrays.asList(COLUMN_COINS, COLUMN_KITS, COLUMN_STATS, COLUMN_ARENA_COOLDOWN);
     }
 
     @Override
-    protected @NotNull List<SQLValue> getSaveColumns(@NotNull ArenaUser user) {
+    @NotNull
+    protected List<SQLValue> getSaveColumns(@NotNull ArenaUser user) {
         return Arrays.asList(
             COLUMN_COINS.toValue(user.getCoins()),
             COLUMN_KITS.toValue(this.gson.toJson(user.getKits())),
-            COLUMN_STATS.toValue(this.gson.toJson(user.getStats()))
+            COLUMN_STATS.toValue(this.gson.toJson(user.getStats())),
+            COLUMN_ARENA_COOLDOWN.toValue(this.gson.toJson(user.getArenaCooldownMap()))
         );
     }
-
-    /*@Override
-    @NotNull
-    protected LinkedHashMap<String, String> getColumnsToCreate() {
-        LinkedHashMap<String, String> map = new LinkedHashMap<>();
-        map.put("coins", DataTypes.INTEGER.build(this.getDataType(), 11));
-        map.put("kits", DataTypes.STRING.build(this.getDataType()));
-        map.put("stats", DataTypes.STRING.build(this.getDataType()));
-        return map;
-    }
-
-    @Override
-    @NotNull
-    protected LinkedHashMap<String, String> getColumnsToSave(@NotNull ArenaUser user) {
-        LinkedHashMap<String, String> map = new LinkedHashMap<>();
-        map.put("coins", String.valueOf(user.getCoins()));
-        map.put("kits", this.gson.toJson(user.getKits()));
-        map.put("stats", this.gson.toJson(user.getStats()));
-        return map;
-    }*/
 
     @Override
     @NotNull

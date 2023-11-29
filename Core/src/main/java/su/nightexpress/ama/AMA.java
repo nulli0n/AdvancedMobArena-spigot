@@ -8,21 +8,22 @@ import su.nexmedia.engine.api.command.GeneralCommand;
 import su.nexmedia.engine.api.data.UserDataHolder;
 import su.nexmedia.engine.command.list.ReloadSubCommand;
 import su.nexmedia.engine.utils.EngineUtils;
-import su.nightexpress.ama.api.type.GameEventType;
 import su.nightexpress.ama.api.arena.type.ArenaTargetType;
 import su.nightexpress.ama.api.hologram.HologramType;
 import su.nightexpress.ama.api.hologram.IHologramHandler;
+import su.nightexpress.ama.api.type.GameEventType;
+import su.nightexpress.ama.api.type.GameState;
 import su.nightexpress.ama.arena.ArenaManager;
 import su.nightexpress.ama.arena.lock.LockState;
 import su.nightexpress.ama.arena.setup.ArenaSetupManager;
-import su.nightexpress.ama.api.type.GameState;
 import su.nightexpress.ama.command.*;
+import su.nightexpress.ama.command.score.ScoreCommand;
 import su.nightexpress.ama.config.Config;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.currency.CurrencyManager;
 import su.nightexpress.ama.data.DataHandler;
-import su.nightexpress.ama.data.impl.ArenaUser;
 import su.nightexpress.ama.data.UserManager;
+import su.nightexpress.ama.data.impl.ArenaUser;
 import su.nightexpress.ama.editor.EditorHub;
 import su.nightexpress.ama.editor.EditorLocales;
 import su.nightexpress.ama.hologram.HologramManager;
@@ -52,8 +53,6 @@ import su.nightexpress.ama.nms.v1_20_R2.V1_20_R2;
 import su.nightexpress.ama.sign.SignManager;
 import su.nightexpress.ama.stats.StatsManager;
 import su.nightexpress.ama.stats.object.StatType;
-
-import java.sql.SQLException;
 
 public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser> {
 
@@ -241,7 +240,7 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
         mainCommand.addChildren(new ListCmd(this));
         mainCommand.addChildren(new RegionCommand(this));
         mainCommand.addChildren(new SetActiveCommand(this));
-        mainCommand.addChildren(new ScoreCmd(this));
+        mainCommand.addChildren(new ScoreCommand(this));
         mainCommand.addChildren(new ShopCommand(this));
         mainCommand.addChildren(new SkipRoundCommand(this));
         mainCommand.addChildren(new SpectateCommand(this));

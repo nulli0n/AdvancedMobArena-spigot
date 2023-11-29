@@ -3,11 +3,18 @@ package su.nightexpress.ama;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.lang.LangManager;
+import su.nexmedia.engine.utils.NumberUtil;
 import su.nexmedia.engine.utils.StringUtil;
+import su.nexmedia.engine.utils.TimeUtil;
+import su.nightexpress.ama.api.ArenaAPI;
 import su.nightexpress.ama.api.arena.Report;
+import su.nightexpress.ama.api.type.PlayerType;
+import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.arena.util.ArenaUtils;
+import su.nightexpress.ama.config.Lang;
 
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
@@ -40,6 +47,7 @@ public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
     public static final String ARENA_NAME                   = "%arena_name%";
     public static final String ARENA_OPEN_TIMES          = "%arena_auto_state_open_times%";
     public static final String ARENA_CLOSE_TIMES         = "%arena_auto_state_close_times%";
+    public static final String ARENA_JOIN_COOLDOWN = "%arena_join_cooldown%";
     public static final String ARENA_PAYMENT_REQUIREMENT = "%arena_requirement_payment%";
     public static final String ARENA_LEVEL_REQUIREMENT   = "%arena_requirement_level%";
     public static final String ARENA_PERMISSION          = "%arena_permission%";
@@ -78,6 +86,9 @@ public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
     public static final String ARENA_WAVE_MOB_LEVEL  = "%arena_wave_mob_level%";
     public static final String ARENA_WAVE_MOB_CHANCE = "%arena_wave_mob_chance%";
 
+    public static final Function<String, String> ARENA_VARIABLE = var -> "%arena_var_" + var + "%";
+    public static final Function<String, String> ARENA_VARIABLE_RAW = var -> "%arena_raw_var_" + var + "%";
+
     public static final String GAMEPLAY_TIMELEFT     = "%gameplay_timeleft%";
     public static final String GAMEPLAY_LOBBY_TIME              = "%gameplay_lobby_time%";
     public static final String GAMEPLAY_ANNOUNCEMENTS           = "%gameplay_announcements%";
@@ -86,6 +97,7 @@ public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
     public static final String GAMEPLAY_SCOREBOARD_CHECK        = "%gameplay_scoreboard_check%";
     public static final String GAMEPLAY_HUNGER_ENABLED          = "%gameplay_hunger_enabled%";
     public static final String GAMEPLAY_REGENERATION_ENABLED    = "%gameplay_regeneration_enabled%";
+    public static final String GAMEPLAY_LEAVE_ON_DEATH = "%gameplay_leave_on_death%";
     public static final String GAMEPLAY_ITEM_DROP_ENABLED       = "%gameplay_item_drop_enabled%";
     public static final String GAMEPLAY_ITEM_PICKUP_ENABLED     = "%gameplay_item_pickup_enabled%";
     public static final String GAMEPLAY_ITEM_DURABULITY_ENABLED = "%gameplay_item_durability_enabled%";
@@ -153,6 +165,7 @@ public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
     public static final String SHOP_PRODUCT_CURRENCY      = "%shop_product_currency%";
 
     public static final String SCRIPT_CATEGORY_ID                  = "%script_category_id%";
+    public static final String SCRIPT_CATEGORY_PRIORITY                  = "%script_category_priority%";
     public static final String SCRIPT_ID                           = "%script_id%";
     public static final String SCRIPT_EVENT_TYPE                   = "%script_event_type%";
     public static final String SCRIPT_IN_GAME_ONLY = "%script_in_game_only%";
@@ -230,6 +243,33 @@ public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
     }
 
     @NotNull
+    public static PlaceholderMap forArena(@NotNull Arena arena) {
+        return new PlaceholderMap(arena.getConfig().getPlaceholders())
+            .add(Placeholders.ARENA_STATE, () -> ArenaAPI.PLUGIN.getLangManager().getEnum(arena.getState()))
+            .add(Placeholders.ARENA_PLAYERS, () -> String.valueOf(arena.getPlayers().select(PlayerType.REAL).size()))
+            .add(Placeholders.ARENA_REAL_PLAYERS, () -> String.valueOf(arena.getPlayers().select(PlayerType.REAL).size()))
+            .add(Placeholders.ARENA_GHOST_PLAYERS, () -> String.valueOf(arena.getPlayers().select(PlayerType.GHOST).size()))
+            .add(Placeholders.ARENA_DEAD_PLAYERS, () -> String.valueOf(arena.getPlayers().getDead().size()))
+            .add(Placeholders.ARENA_ALIVE_PLAYERS, () -> String.valueOf(arena.getPlayers().getAlive().size()))
+            .add(Placeholders.ARENA_PLAYERS_MAX, () -> String.valueOf(arena.getConfig().getGameplaySettings().getPlayerMaxAmount()))
+            .add(Placeholders.ARENA_MOBS_ALIVE, () -> String.valueOf(arena.getMobs().getEnemies().size()))
+            .add(Placeholders.ARENA_MOBS_LEFT, () -> String.valueOf(arena.getMobsAwaitingSpawn()))
+            .add(Placeholders.ARENA_MOBS_TOTAL, () -> String.valueOf(arena.getRoundTotalMobsAmount()))
+            .add(Placeholders.ARENA_WAVE_NUMBER, () -> String.valueOf(arena.getRoundNumber()))
+            .add(Placeholders.ARENA_WAVE_NEXT_IN, () -> String.valueOf(arena.getNextRoundCountdown()))
+            .add(Placeholders.ARENA_END_COUNTDOWN, () -> String.valueOf(arena.getEndCountdown()))
+            .add(Placeholders.ARENA_TIMELEFT, () -> {
+                if (arena.getConfig().getGameplaySettings().hasTimeleft()) {
+                    return TimeUtil.getLocalTimeOf(arena.getGameTimeleft()).format(Arena.FORMAT_TIMELEFT);
+                }
+                else {
+                    return LangManager.getPlain(Lang.OTHER_INFINITY);
+                }
+            })
+            .add(Placeholders.ARENA_SCORE, () -> NumberUtil.format(arena.getGameScore()));
+    }
+
+    @NotNull
     public static PlaceholderMap forArenaEditor(@NotNull ArenaConfig arenaConfig) {
         return new PlaceholderMap()
             .add(Placeholders.ARENA_PERMISSION, arenaConfig::getPermission)
@@ -242,6 +282,7 @@ public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
             .add(Placeholders.ARENA_REPORT_SHOP, () -> String.join("\n", arenaConfig.getShopManager().getReport().getFullReport()))
             .add(Placeholders.ARENA_REPORT_SPOTS, () -> String.join("\n", arenaConfig.getSpotManager().getReport().getFullReport()))
             .add(Placeholders.ARENA_REPORT_SCRIPTS, () -> String.join("\n", arenaConfig.getScriptManager().getReport().getFullReport()))
+            .add(Placeholders.ARENA_JOIN_COOLDOWN, () -> TimeUtil.formatTime(arenaConfig.getJoinCooldown() * 1000L))
             .add(Placeholders.ARENA_OPEN_TIMES, () -> {
                 return arenaConfig.getAutoOpenTimes().entrySet().stream().map(entry -> {
                     String day = StringUtil.capitalizeUnderscored(entry.getKey().name().toLowerCase());

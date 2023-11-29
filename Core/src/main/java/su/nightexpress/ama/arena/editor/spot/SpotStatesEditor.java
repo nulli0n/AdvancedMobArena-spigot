@@ -13,7 +13,7 @@ import su.nexmedia.engine.editor.EditorManager;
 import su.nexmedia.engine.utils.ItemReplacer;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
-import su.nightexpress.ama.arena.spot.ArenaSpot;
+import su.nightexpress.ama.arena.spot.Spot;
 import su.nightexpress.ama.arena.spot.SpotState;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.editor.EditorLocales;
@@ -22,9 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
-public class SpotStatesEditor extends EditorMenu<AMA, ArenaSpot> implements AutoPaged<SpotState> {
+public class SpotStatesEditor extends EditorMenu<AMA, Spot> implements AutoPaged<SpotState> {
 
-    public SpotStatesEditor(@NotNull ArenaSpot spot) {
+    public SpotStatesEditor(@NotNull Spot spot) {
         super(spot.plugin(), spot, "Spot States [" + spot.getId() + "]", 45);
 
         this.addReturn(39).setClick((viewer, event) -> {

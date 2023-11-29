@@ -1,6 +1,7 @@
 package su.nightexpress.ama.arena.impl;
 
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.arena.region.Region;
@@ -15,17 +16,20 @@ public class ArenaUpcomingWave {
     private final List<WaveMob>  mobs;
     private final List<Location> spawners;
 
-    public ArenaUpcomingWave(@NotNull Region region, @NotNull List<WaveMob> mobs, @NotNull List<String> spawnerIds) {
+    public ArenaUpcomingWave(@NotNull Region region, @NotNull List<WaveMob> mobs, @NotNull List<String> spawnerGroups) {
         this.mobs = mobs;
         this.spawners = new ArrayList<>();
 
-        spawnerIds.forEach(spawnerId -> {
-            Location location = region.getMobSpawner(spawnerId);
-            if (location != null) this.spawners.add(location);
+        spawnerGroups.forEach(spawnerGroup -> {
+            this.spawners.addAll(region.getMobSpawnersLocations(spawnerGroup));
         });
 
-        if (this.spawners.isEmpty() || spawnerIds.contains(Placeholders.WILDCARD)) {
-            spawners.addAll(region.getMobSpawners().values());
+        if (this.spawners.isEmpty() || spawnerGroups.contains(Placeholders.WILDCARD)) {
+            World world = region.getArenaConfig().getWorld();
+
+            region.getMobSpawners().values().forEach(set -> {
+                set.forEach(pos -> this.spawners.add(pos.toLocation(world)));
+            });
         }
 
         Collections.shuffle(this.spawners);

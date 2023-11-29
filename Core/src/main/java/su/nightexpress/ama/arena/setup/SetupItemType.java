@@ -44,6 +44,8 @@ public enum SetupItemType {
 
     SPOT_SAVE(new ItemStack(Material.EMERALD), GREEN + BOLD  + "Save & Exit" + GRAY + " (Right-Click)"),
 
+    ARENA_PROTECTION_ZONE(new ItemStack(Material.DIAMOND_AXE), CYAN + BOLD + "Protection Selector" + GRAY + " (LMB / RMB)"),
+
     ARENA_LOCATION_LOBBY(new ItemStack(Material.ENDER_PEARL), YELLOW + BOLD + "Lobby Location" + GRAY + " (Right-Click)"),
 
     ARENA_LOCATION_SPECTATE(new ItemStack(Material.ENDER_EYE), YELLOW + BOLD + "Spectate Location" + GRAY + " (Right-Click)"),

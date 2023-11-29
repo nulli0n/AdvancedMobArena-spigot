@@ -8,17 +8,9 @@ import su.nightexpress.ama.currency.CurrencyManager;
 import su.nightexpress.ama.hook.HookId;
 
 import static su.nexmedia.engine.utils.Colors.*;
+import static su.nightexpress.ama.Placeholders.*;
 
 public class Lang extends EngineLang {
-
-    @Deprecated
-    public static final LangKey Help_Score = new LangKey(
-        "Help.Score", """
-        <! prefix:"false" !>
-        &a/ama score add <player> <amount> &7- Add score to a player.
-        &a/ama score take <player> <amount> &7- Take score from a player.
-        &a/ama score set <player> <amount> &7- Set score for a player.
-        """);
 
     public static final LangKey COMMAND_COINS_DESC  = LangKey.of("Command.Coins.Desc", "Arena coins management.");
     public static final LangKey COMMAND_COINS_USAGE = LangKey.of("Command.Coins.Usage", "[help]");
@@ -76,15 +68,20 @@ public class Lang extends EngineLang {
     public static final LangKey COMMAND_SETACTIVE_USAGE             = new LangKey("Command.SetActive.Usage", "<arena> <true/false>");
     public static final LangKey COMMAND_SETACTIVE_DONE              = new LangKey("Command.SetActive.Done", "Arena &a%arena_id%&7 active state: &f%state%&7.");
 
-    public static final LangKey Command_Score_Desc            = new LangKey("Command.Score.Desc", "Manage player's game score.");
-    public static final LangKey Command_Score_Usage           = new LangKey("Command.Score.Usage", "<add|take|set>");
-    public static final LangKey Command_Score_Add_Usage       = new LangKey("Command.Score.Add.Usage", "&cUsage: &f/ama score add <player> <amount>");
-    public static final LangKey Command_Score_Add_Done        = new LangKey("Command.Score.Add.Done", "&aAdded &f%points% points to &a%player%'s &fscore!");
-    public static final LangKey Command_Score_Take_Usage      = new LangKey("Command.Score.Take.Usage", "&cUsage: &f/ama score take <player> <amount>");
-    public static final LangKey Command_Score_Take_Done       = new LangKey("Command.Score.Take.Done", "&aTaken &f%points% points from &a%player%'s &fscore!");
-    public static final LangKey Command_Score_Set_Usage       = new LangKey("Command.Score.Set.Usage", "&cUsage: &f/ama score set <player> <amount>");
-    public static final LangKey Command_Score_Set_Done        = new LangKey("Command.Score.Set.Done", "&aSet &a%player%'s &fscore to &a%score%&f!");
-    public static final LangKey Command_Score_Error_NotInGame = new LangKey("Command.Score.Error.NotInGame", "&cThis player is not in game!");
+    public static final LangKey COMMAND_SCORE_DESC  = LangKey.of("Command.Score.Desc", "Manage score of arena players.");
+    public static final LangKey COMMAND_SCORE_USAGE = LangKey.of("Command.Score.Usage", "[help]");
+
+    public static final LangKey COMMAND_SCORE_ADD_DESC = LangKey.of("Command.Score.Add.Desc", "Add score to a player.");
+    public static final LangKey COMMAND_SCORE_ADD_USAGE = LangKey.of("Command.Score.Add.Usage", "<player> <amount>");
+    public static final LangKey COMMAND_SCORE_ADD_DONE  = LangKey.of("Command.Score.Add.Done", LIGHT_YELLOW + "Added " + ORANGE + GENERIC_AMOUNT + LIGHT_YELLOW + " to " + ORANGE + PLAYER_DISPLAY_NAME + LIGHT_YELLOW + "'s score!");
+
+    public static final LangKey COMMAND_SCORE_REMOVE_DESC = LangKey.of("Command.Score.Remove.Desc", "Remove score from a player.");
+    public static final LangKey COMMAND_SCORE_REMOVE_USAGE = LangKey.of("Command.Score.Remove.Usage", "<player> <amount>");
+    public static final LangKey COMMAND_SCORE_REMOVE_DONE  = LangKey.of("Command.Score.Remove.Done", LIGHT_YELLOW + "Removed " + ORANGE + GENERIC_AMOUNT + LIGHT_YELLOW + " from " + ORANGE + PLAYER_DISPLAY_NAME + LIGHT_YELLOW + "'s score!");
+
+    public static final LangKey COMMAND_SCORE_SET_DESC = LangKey.of("Command.Score.Set.Desc", "Set player's score.");
+    public static final LangKey COMMAND_SCORE_SET_USAGE = LangKey.of("Command.Score.Set.Usage", "<player> <amount>");
+    public static final LangKey COMMAND_SCORE_SET_DONE  = LangKey.of("Command.Score.Set.Done", LIGHT_YELLOW + "Set " + ORANGE + PLAYER_DISPLAY_NAME + LIGHT_YELLOW + "'s score to " + ORANGE + GENERIC_AMOUNT + LIGHT_YELLOW + "!");
 
     public static final LangKey Command_Spot_Desc                     = new LangKey("Command.Spot.Desc", "Manage in-game arena spots.");
     public static final LangKey Command_Spot_Usage                    = new LangKey("Command.Spot.Usage", "[state]");
@@ -99,7 +96,7 @@ public class Lang extends EngineLang {
 
     public static final LangKey COMMAND_SKIP_ROUND_DESC  = LangKey.of("Command.SkipRound.Desc", "Skips arena round(s).");
     public static final LangKey COMMAND_SKIP_ROUND_USAGE = LangKey.of("Command.SkipRound.Usage", "[arena] [amount]");
-    public static final LangKey COMMAND_SKIP_ROUND_DONE = LangKey.of("Command.SkipRound.Done", LIGHT_YELLOW + "Set " + ORANGE + Placeholders.GENERIC_AMOUNT + LIGHT_YELLOW + " rounds to skip for " + ORANGE + Placeholders.ARENA_NAME + LIGHT_YELLOW + ".");
+    public static final LangKey COMMAND_SKIP_ROUND_DONE = LangKey.of("Command.SkipRound.Done", LIGHT_YELLOW + "Set " + ORANGE + GENERIC_AMOUNT + LIGHT_YELLOW + " rounds to skip for " + ORANGE + ARENA_NAME + LIGHT_YELLOW + ".");
     public static final LangKey COMMAND_SKIP_ROUND_ERROR_NOT_IN_GAME = LangKey.of("Command.SkipRound.Error.NotInGame", RED + "Can not skip rounds: " + LIGHT_YELLOW + "Arena is not in game or is about to end.");
 
     public static final LangKey COMMAND_SPECTATE_DESC  = LangKey.of("Command.Spectate.Desc", "Spectate an arena.");
@@ -115,6 +112,7 @@ public class Lang extends EngineLang {
 
     public static final LangKey ARENA_JOIN_ERROR_PERMISSION = new LangKey("Arena.Join.Error.Permission", "&cYou don't have permission to join this arena!");
     public static final LangKey ARENA_JOIN_ERROR_PAYMENT    = new LangKey("Arena.Join.Error.Payment", "&cYou must have &e%arena_requirement_payment% &cto join the arena!");
+    public static final LangKey ARENA_JOIN_ERROR_COOLDOWN    = new LangKey("Arena.Join.Error.Cooldown", RED + "You can join this arena again in " + ORANGE + Placeholders.GENERIC_TIME + RED + "!");
     public static final LangKey ARENA_JOIN_ERROR_LEVEL    = new LangKey("Arena.Join.Error.Level", "&cYour level is not suitable to join the arena!");
     public static final LangKey ARENA_JOIN_ERROR_IN_GAME    = new LangKey("Arena.Join.Error.InGame", "&cYou are already in game!");
     public static final LangKey ARENA_JOIN_ERROR_MAXIMUM    = new LangKey("Arena.Join.Error.Maximum", "&cThere is maximum players on the arena.");
@@ -141,49 +139,69 @@ public class Lang extends EngineLang {
     public static final LangKey Arena_Game_Restrict_NoPets   = new LangKey("Arena.Game.Restrict.NoPets", "Pets are not allowed on this arena. Your pet has gone.");
     public static final LangKey ARENA_GAME_ERROR_NOT_IN_GAME = new LangKey("Arena.Game.Error.NotInGame", "You are not in game!");
 
-    public static final LangKey ARENA_GAME_LEAVE_INFO  = LangKey.of("Arena.Game.Leave.Info", "You has left the arena.");
+    public static final LangKey ARENA_ERROR_PLAYER_NOT_IN_GAME = LangKey.of("Arena.Error.PlayerNotInGame", RED + "This player is not in game!");
 
-    public static final LangKey Arena_Game_Lobby_Enter       = new LangKey("Arena.Game.Lobby.Enter", "<! type:\"titles:10:50:10\" !>" + "&a&lWelcome to Mob Arena! \n &2&lPlease, choose your kit");
-    public static final LangKey Arena_Game_Lobby_Timer       = new LangKey("Arena.Game.Lobby.Timer", "<! type:\"titles:10:50:10\" sound:\"" + Sound.BLOCK_NOTE_BLOCK_PLING.name() + "\" !>" + "&e&lThe game will start in \n &a&l%time% seconds!");
-    public static final LangKey Arena_Game_Lobby_MinPlayers  = new LangKey("Arena.Game.Lobby.MinPlayers", "Minimum players to start: &c%min%");
-    public static final LangKey Arena_Game_Lobby_Joined      = new LangKey("Arena.Game.Lobby.Joined", "&a%player_name% &7has joined the arena.");
+    public static final LangKey ARENA_GAME_LEAVE_INFO = LangKey.of("Arena.Game.Leave.Info", "You has left the arena.");
+
+    public static final LangKey ARENA_LOBBY_JOIN = LangKey.of("Arena.Game.Lobby.Enter",
+        "<! type:\"titles:20:60:20\" !>" +
+            "\n" + GREEN + BOLD + "Welcome, Mobfighter!" +
+            "\n" + GRAY + "Prepare your equipment.");
+
+    public static final LangKey ARENA_LOBBY_COUNTDOWN = LangKey.of("Arena.Game.Lobby.Timer",
+        "<! type:\"titles:10:40:10\" sound:\"" + Sound.BLOCK_NOTE_BLOCK_PLING.name() + "\" !>" +
+            "\n" + YELLOW + BOLD + "Prepare to Fight!" +
+            "\n" + GRAY + "We start in " + YELLOW + GENERIC_TIME + GRAY + " seconds!");
+
+    public static final LangKey ARENA_LOBBY_MIN_PLAYERS = LangKey.of("Arena.Game.Lobby.MinPlayers",
+        GRAY + "We need " + RED + GENERIC_AMOUNT + GRAY + " more players to start!");
+
+    public static final LangKey ARENA_LOBBY_PLAYER_JOINED = LangKey.of("Arena.Game.Lobby.Joined",
+        "<! prefix:\"false\" !>" +
+        GREEN + PLAYER_DISPLAY_NAME + GRAY + " joined the arena.");
 
     public static final LangKey ARENA_GAME_DEATH_WITH_LIFES = LangKey.of("Arena.Game.Death.WithLifes",
         "<! type:\"titles:10:60:10\" sound:\"" + Sound.ENTITY_ZOMBIE_DEATH.name() + "\" !>" +
             "\n" + RED + "&lYou Died!" +
-            "\n" + GRAY + "You have " + RED + Placeholders.PLAYER_LIVES + "❤" + GRAY + " extra lifes!");
-    public static final LangKey ARENA_GAME_DEATH_NO_LIFES   = LangKey.of("Arena.Game.Death.NoLifes",
+            "\n" + GRAY + "You have " + RED + PLAYER_LIVES + "❤" + GRAY + " extra lifes!");
+
+    public static final LangKey ARENA_GAME_DEATH_NO_LIFES = LangKey.of("Arena.Game.Death.NoLifes",
         "<! type:\"titles:10:60:10\" sound:\"" + Sound.ENTITY_ZOMBIE_DEATH.name() + "\" !>" +
-            "\n" + RED + "&lYou Died!" +
+            "\n" + RED + BOLD + "You Died!" +
             "\n" + GRAY + "You don't have extra lifes. Leave: " + RED + "/ama leave");
 
     public static final LangKey ARENA_GAME_REVIVE_WITH_LIFES = LangKey.of("Arena.Game.Revive.WithLifes",
         "<! type:\"titles:10:60:10\" sound:\"" + Sound.ITEM_TOTEM_USE.name() + "\" !>" +
-            "\n" + GREEN + "&lYou've been revived!" +
-            "\n" + GRAY + "You have " + GREEN + Placeholders.PLAYER_LIVES + "❤" + GRAY + " extra lifes!");
-    public static final LangKey ARENA_GAME_REVIVE_NO_LIFES   = LangKey.of("Arena.Game.Revive.NoLifes",
+            "\n" + GREEN + BOLD + "You've been revived!" +
+            "\n" + GRAY + "You have " + GREEN + PLAYER_LIVES + "❤" + GRAY + " extra lifes!");
+
+    public static final LangKey ARENA_GAME_REVIVE_NO_LIFES = LangKey.of("Arena.Game.Revive.NoLifes",
         "<! type:\"titles:10:60:10\" sound:\"" + Sound.ITEM_TOTEM_USE.name() + "\" !>" +
-            "\n" + GREEN + "&lYou've been revived!" +
+            "\n" + GREEN + BOLD + "You've been revived!" +
             "\n" + GRAY + "This is your " + RED + "last" + GRAY + " chance!");
 
-    public static final LangKey ARENA_GAME_INFO_PLAYER_READY     = LangKey.of("Arena.Game.Info.Player.Ready",
-        GREEN + Placeholders.PLAYER_NAME + GRAY + " is ready to play!");
+    public static final LangKey ARENA_GAME_INFO_PLAYER_READY = LangKey.of("Arena.Game.Info.Player.Ready",
+        GREEN + PLAYER_NAME + GRAY + " is ready to play!");
+
     public static final LangKey ARENA_GAME_INFO_PLAYER_NOT_READY = LangKey.of("Arena.Game.Info.Player.NotReady",
-        RED + Placeholders.PLAYER_NAME + GRAY + " is not ready to play.");
+        RED + PLAYER_NAME + GRAY + " is not ready to play.");
+
     public static final LangKey ARENA_GAME_INFO_PLAYER_DEATH = LangKey.of("Arena.Game.Info.Player.Death",
-        RED + Placeholders.PLAYER_NAME + " " + GRAY + "died!");
+        RED + PLAYER_NAME + GRAY + " died!");
 
     public static final LangKey ARENA_GAME_END_ALL_DEAD = LangKey.of("Arena.Game.End.AllDead",
         "<! type:\"titles:10:100:10\" sound:\"" + Sound.ENTITY_BLAZE_DEATH.name() + "\" !>" +
-            "\n" + RED + "&lDefeat" +
+            "\n" + RED + BOLD + "Defeat" +
             "\n" + GRAY + "All players died...");
+
     public static final LangKey ARENA_GAME_END_TIMEOUT = LangKey.of("Arena.Game.End.Timeout",
         "<! type:\"titles:10:100:10\" sound:\"" + Sound.ENTITY_BLAZE_DEATH.name() + "\" !>" +
-            "\n" + RED + "&lTime Out" +
+            "\n" + RED + BOLD + "Time Out" +
             "\n" + GRAY + "You were unable to beat them in a time...");
+
     public static final LangKey ARENA_GAME_END_COMPLETED = LangKey.of("Arena.Game.End.Completed",
         "<! type:\"titles:10:100:10\" sound:\"" + Sound.ENTITY_PLAYER_LEVELUP.name() + "\" !>" +
-            "\n" + GREEN + "&lVictory!" +
+            "\n" + GREEN + BOLD + "Victory!" +
             "\n" + GRAY + "You've passed all the waves!");
 
     public static final LangKey ARENA_GAME_STATUS_SPECTATE = LangKey.of("Arena.Game.Status.Spectate",
@@ -191,11 +209,13 @@ public class Lang extends EngineLang {
 
     public static final LangKey ARENA_GAME_STATUS_DEAD_WITH_LIFES = LangKey.of("Arena.Game.Status.Dead.WithLifes",
         "<! type:\"action_bar\" !>" + RED + "You're dead. You will be revived at the round end.");
-    public static final LangKey ARENA_GAME_STATUS_DEAD_NO_LIFES   = LangKey.of("Arena.Game.Status.Dead.NoLifes",
+
+    public static final LangKey ARENA_GAME_STATUS_DEAD_NO_LIFES = LangKey.of("Arena.Game.Status.Dead.NoLifes",
         "<! type:\"action_bar\" !>" + RED + "You're dead. You don't have extra lifes and can spectate only.");
 
     public static final LangKey ARENA_GAME_STATUS_ROUND_PREPARE = LangKey.of("Arena.Game.Status.Round.Prepare",
         "<! type:\"action_bar\" !>&6&lNew round in: &e&l%arena_wave_next_in% &6&lseconds!");
+
     public static final LangKey ARENA_GAME_STATUS_ROUND_ACTIVE  = LangKey.of("Arena.Game.Status.Round.Active",
         "<! type:\"action_bar\" !>&b[Mobs] &aAlive: &2" + Placeholders.ARENA_MOBS_ALIVE + " &7| &eLeft: &6" + Placeholders.ARENA_MOBS_LEFT);
 
@@ -232,6 +252,8 @@ public class Lang extends EngineLang {
     public static final LangKey EDITOR_GENERIC_ENTER_NUMBER      = LangKey.of("Editor.Generic.Enter.Number", "&7Enter &a[Number]");
     public static final LangKey EDITOR_GENERIC_ENTER_PERCENT     = LangKey.of("Editor.Generic.Enter.Percent", "&7Enter &a[Percent Amount]");
     public static final LangKey EDITOR_GENERIC_ENTER_SECONDS     = LangKey.of("Editor.Generic.Enter.Seconds", "&7Enter &a[Seconds Amount]");
+    public static final LangKey EDITOR_GENERIC_ENTER_PRIORITY     = LangKey.of("Editor.Generic.Enter.Priority", "&7Enter &a[Priority]");
+    public static final LangKey EDITOR_GENERIC_ENTER_EVENT_TYPE        = LangKey.of("Editor.Generic.Enter.EventType", GRAY + "Enter " + GREEN + "[Event Type]");
 
     public static final LangKey EDITOR_ARENA_ENTER_ID             = LangKey.of("Editor.Arena.Enter.Id", "&7Enter &a[Arena Identifier]");
     public static final LangKey EDITOR_ARENA_ENTER_SCHEDULER_TIME = LangKey.of("Editor.Arena.Enter.SchedulerTime", "&7Enter &a[Day] [Time] &7| &aMonday 15:30");
@@ -268,6 +290,7 @@ public class Lang extends EngineLang {
     public static final LangKey EDITOR_ARENA_SCRIPT_ERROR_INVALID_INPUT     = LangKey.of("Editor.Arena.Script.Error.InvalidInput", "&cInvalid input!");
 
     public static final LangKey EDITOR_REGION_ENTER_ID     = LangKey.of("Editor.Region.Enter.Id", "&7Enter &a[Region Identifier]");
+    public static final LangKey EDITOR_REGION_ENTER_GROUP_ID     = LangKey.of("Editor.Region.Enter.GroupId", "&7Enter unique &a[Group Identifier]");
     public static final LangKey EDITOR_REGION_ERROR_EXISTS = LangKey.of("Editor.Region.Error.Exists", "&cRegion is already exists!");
 
     public static final LangKey EDITOR_SUPPLY_CHEST_ENTER_ID      = LangKey.of("Editor.SupplyChest.Enter.Id", "&7Enter &a[Chest Identifier]");
@@ -301,6 +324,7 @@ public class Lang extends EngineLang {
     public static final LangKey Setup_Arena_Leave_Set    = new LangKey("Setup.Arena.Leave.Set", "&7Defined leave location for &a%arena_id% &7arena!");
     public static final LangKey Setup_Arena_Leave_UnSet  = new LangKey("Setup.Arena.Leave.Unset", "&7Undefined leave location for &a%arena_id% &7arena!");
     public static final LangKey Setup_Arena_Spectate_Set = new LangKey("Setup.Arena.Spectate.Set", "&7Defined spectate location for &a%arena_id% &7arena!");
+    public static final LangKey Setup_Arena_Cuboid_Set           = new LangKey("Setup.Arena.Cuboid.Set", "&7Set &a#%corner% &7corner for the &a%arena_id% &7arena!");
 
     public static final LangKey SETUP_REGION_ERROR_ENABLED = LangKey.of("Setup.Region.Error.Enabled", RED + "You must disable the region first!");
     public static final LangKey Setup_Region_Spawn_Set     = new LangKey("Setup.Region.Spawn.Set", "&7Defined spawn location for &a%region_id% &7region!");
