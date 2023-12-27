@@ -15,9 +15,9 @@ import su.nexmedia.engine.utils.TimeUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.IArenaPlayer;
-import su.nightexpress.ama.api.arena.type.ArenaLocationType;
 import su.nightexpress.ama.api.event.ArenaPlayerReadyEvent;
 import su.nightexpress.ama.api.type.GameState;
+import su.nightexpress.ama.api.type.PlayerType;
 import su.nightexpress.ama.arena.board.ArenaBoard;
 import su.nightexpress.ama.arena.board.ArenaBoardConfig;
 import su.nightexpress.ama.arena.region.Region;
@@ -46,6 +46,7 @@ public final class ArenaPlayer implements IArenaPlayer, Placeholder {
     private final PlaceholderMap         placeholderMap;
 
     private GameState  state;
+    private PlayerType type;
     private ArenaBoard board;
     private Kit        kit;
     private int        lifes;
@@ -54,7 +55,7 @@ public final class ArenaPlayer implements IArenaPlayer, Placeholder {
     private int        killStreak;
     private long       killStreakDecay;
     private boolean    dead;
-    private boolean    ghost;
+    private boolean    spectator;
     private boolean    transfer;
 
     @Nullable
@@ -98,7 +99,7 @@ public final class ArenaPlayer implements IArenaPlayer, Placeholder {
         this.player = player;
         this.arena = arena;
         this.state = GameState.WAITING;
-        this.setReal();
+        this.setType(PlayerType.REAL);
         this.setKit(null);
         this.setLifes(arena.getConfig().getGameplaySettings().getPlayerLifes());
         this.setScore(0);
@@ -192,7 +193,7 @@ public final class ArenaPlayer implements IArenaPlayer, Placeholder {
             if (arena.getPlayers().hasAlive()) {
                 this.plugin.getMessage(Lang.ARENA_GAME_DEATH_NO_LIFES).replace(this.replacePlaceholders()).send(this.getPlayer());
             }
-            this.setGhost();
+            this.setType(PlayerType.GHOST);
             if (!arena.getConfig().getWaveManager().isInfiniteWaves()) {
                 this.addStats(StatType.GAMES_LOST, 1);
             }
@@ -200,12 +201,6 @@ public final class ArenaPlayer implements IArenaPlayer, Placeholder {
             this.plugin.runTask(task -> {
                 if (arena.getConfig().getGameplaySettings().isLeaveOnDeath()) {
                     arena.leaveArena(this);
-                    return;
-                }
-
-                Location spectate = arena.getConfig().getLocation(ArenaLocationType.SPECTATE);
-                if (spectate != null) {
-                    this.getPlayer().teleport(spectate);
                 }
             });
 
@@ -278,6 +273,17 @@ public final class ArenaPlayer implements IArenaPlayer, Placeholder {
         }
     }
 
+    @NotNull
+    @Override
+    public PlayerType getType() {
+        return type;
+    }
+
+    @Override
+    public void setType(@NotNull PlayerType type) {
+        this.type = type;
+    }
+
     @Nullable
     public Kit getKit() {
         return this.kit;
@@ -325,7 +331,17 @@ public final class ArenaPlayer implements IArenaPlayer, Placeholder {
         this.dead = dead;
     }
 
-    public boolean isGhost() {
+    @Override
+    public boolean isSpectator() {
+        return spectator;
+    }
+
+    @Override
+    public void setSpectator(boolean spectator) {
+        this.spectator = spectator;
+    }
+
+    /*public boolean isGhost() {
         return this.ghost;
     }
 
@@ -339,7 +355,7 @@ public final class ArenaPlayer implements IArenaPlayer, Placeholder {
 
     public void setReal() {
         this.ghost = false;
-    }
+    }*/
 
     public boolean isTransfer() {
         return transfer;

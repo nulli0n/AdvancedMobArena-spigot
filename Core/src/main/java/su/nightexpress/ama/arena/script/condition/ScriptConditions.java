@@ -230,6 +230,8 @@ public class ScriptConditions {
             if (operator == ScriptCondition.Operator.NOT_EQUAL) {
                 return !eventValue.equalsIgnoreCase(condValue);
             }
+            //System.out.println("eventValue = " + eventValue);
+            //System.out.println("condValue = " + condValue);
             return eventValue.equalsIgnoreCase(condValue) || condValue.equalsIgnoreCase(Placeholders.WILDCARD);
         };
 

@@ -996,7 +996,8 @@ public class Arena implements IArena, Placeholder {
         PlayerSnapshot.doSnapshot(player);
 
         ArenaPlayer arenaPlayer = ArenaPlayer.create(this.plugin, player, this);
-        arenaPlayer.setGhost();
+        arenaPlayer.setType(PlayerType.GHOST);
+        arenaPlayer.setSpectator(true);
         arenaPlayer.setLifes(0);
         arenaPlayer.setState(GameState.INGAME);
 
@@ -1061,12 +1062,22 @@ public class Arena implements IArena, Placeholder {
     }
 
     public void broadcast(@NotNull ArenaTargetType targetType, @NotNull LangMessage message) {
+        if (targetType == ArenaTargetType.GLOBAL) {
+            message.broadcast();
+            return;
+        }
+
         this.getPlayers().select(targetType).forEach(arenaPlayer -> {
             message.send(arenaPlayer.getPlayer());
         });
     }
 
     public void broadcast(@NotNull ArenaTargetType targetType, @NotNull String message) {
+        if (targetType == ArenaTargetType.GLOBAL) {
+            this.plugin.getServer().broadcastMessage(message);
+            return;
+        }
+
         this.getPlayers().select(targetType).forEach(arenaPlayer -> {
             arenaPlayer.getPlayer().sendMessage(message);
         });
@@ -1078,7 +1089,7 @@ public class Arena implements IArena, Placeholder {
             return;
         }
 
-        this.getPlayers().select(targetType, PlayerType.REAL).forEach(arenaPlayer -> {
+        this.getPlayers().select(targetType).forEach(arenaPlayer -> {
             PlayerUtil.dispatchCommand(arenaPlayer.getPlayer(), command);
         });
     }
@@ -1318,6 +1329,9 @@ public class Arena implements IArena, Placeholder {
 
                     for (int count = 0; count < mobsSpawned; count++) {
                         this.spawnMob(preparedMob, spawners.get(counterSpawner));
+                        if (mobsWave < spawners.size()) {
+                            Collections.shuffle(spawners);
+                        }
                     }
 
                     if (preparedMob.getAmount() <= 0) {

@@ -23,6 +23,7 @@ import su.nexmedia.engine.utils.ArrayUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
+import su.nightexpress.ama.api.arena.type.ArenaLocationType;
 import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
 import su.nightexpress.ama.api.event.ArenaMobDeathEvent;
 import su.nightexpress.ama.api.event.ArenaPlayerDeathEvent;
@@ -166,13 +167,27 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onGamePlayerDeathResurrect(EntityResurrectEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+
+        ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
+        if (arenaPlayer == null) return;
+
+        if (arenaPlayer.getArena().getConfig().getGameplaySettings().getBannedItems().contains(Material.TOTEM_OF_UNDYING)) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onGamePlayerDeathRealSpawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
         if (arenaPlayer == null) return;
 
         arenaPlayer.onDeath();
-        event.setRespawnLocation(player.getLocation());
+
+        Location spectate = arenaPlayer.getArena().getConfig().getLocation(ArenaLocationType.SPECTATE);
+        event.setRespawnLocation(spectate == null ? player.getLocation() : spectate);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

@@ -346,7 +346,7 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
     }
 
     public boolean isProtected(@NotNull Location location) {
-        return !this.getProtectionZone().isEmpty() && this.getProtectionZone().contains(location);
+        return !this.getProtectionZone().isEmpty() && location.getWorld() == this.getWorld() && this.getProtectionZone().contains(location);
     }
 
     @NotNull

@@ -31,6 +31,7 @@ import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.arena.util.ArenaUtils;
 import su.nightexpress.ama.config.Config;
+import su.nightexpress.ama.hook.pet.PluginPetProvider;
 import su.nightexpress.ama.kit.Kit;
 import su.nightexpress.ama.mob.MobManager;
 import su.nightexpress.ama.mob.config.MobsConfig;
@@ -79,25 +80,33 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onArenaDamageFriendly(EntityDamageByEntityEvent e) {
-        if (!(e.getEntity() instanceof LivingEntity victim)) return;
+    public void onArenaDamageFriendly(EntityDamageByEntityEvent event) {
+        if (!(event.getEntity() instanceof LivingEntity victim)) return;
 
-        Entity eDamager = e.getDamager();
+        Entity eDamager = event.getDamager();
         if (eDamager instanceof Projectile projectile && projectile.getShooter() instanceof LivingEntity living) {
             eDamager = living;
         }
+        else if (eDamager instanceof TNTPrimed primed && primed.getSource() instanceof Player player) {
+            eDamager = player;
+        }
 
-        Arena arenaDamager = this.plugin.getMobManager().getEntityArena(eDamager);
-        Arena arenaVictim = this.plugin.getMobManager().getEntityArena(victim);
-        if (arenaDamager == arenaVictim && arenaDamager != null) {
-            if (arenaDamager.getMobs().getFaction((LivingEntity) eDamager) == arenaDamager.getMobs().getFaction(victim)) {
-                e.setCancelled(true);
+        Arena damagerArena = this.plugin.getMobManager().getEntityArena(eDamager);
+        Arena victimArena = this.plugin.getMobManager().getEntityArena(victim);
+        if (damagerArena == victimArena && damagerArena != null) {
+            if (damagerArena.getMobs().getFaction((LivingEntity) eDamager) == damagerArena.getMobs().getFaction(victim)) {
+                event.setCancelled(true);
             }
         }
-        else if (eDamager instanceof Player pDamager && victim instanceof Player pVictim) {
-            if (pDamager == pVictim) return;
-            if (ArenaPlayer.isPlaying(pDamager) || ArenaPlayer.isPlaying(pVictim)) {
-                e.setCancelled(true);
+        else if (eDamager instanceof Player pDamager) {
+            if (victim instanceof Player pVictim) {
+                if (pDamager == pVictim) return;
+                if (ArenaPlayer.isPlaying(pDamager) || ArenaPlayer.isPlaying(pVictim)) {
+                    event.setCancelled(true);
+                }
+            }
+            else if (PluginPetProvider.getProviders().stream().anyMatch(provider -> provider.isPet(victim))) {
+                event.setCancelled(true);
             }
         }
     }

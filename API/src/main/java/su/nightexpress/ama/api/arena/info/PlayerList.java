@@ -58,13 +58,18 @@ public class PlayerList<P extends IArenaPlayer> {
     }
 
     @NotNull
+    public Set<P> players() {
+        return this.all().stream().filter(Predicate.not(P::isSpectator)).collect(Collectors.toSet());
+    }
+
+    @NotNull
     public Set<P> select(@NotNull PlayerType playerType) {
         return players.stream().filter(arenaPlayer -> arenaPlayer.getType() == playerType).collect(Collectors.toSet());
     }
 
     @NotNull
     public Set<P> select(@NotNull GameState state) {
-        return this.all().stream().filter(arenaPlayer -> arenaPlayer.getState() == state).collect(Collectors.toSet());
+        return this.all().stream().filter(arenaPlayer -> arenaPlayer.getState() == state && !arenaPlayer.isSpectator()).collect(Collectors.toSet());
     }
 
     @NotNull

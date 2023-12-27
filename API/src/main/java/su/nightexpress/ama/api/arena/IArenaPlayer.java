@@ -25,6 +25,18 @@ public interface IArenaPlayer {
 
     void setState(@NotNull GameState state);
 
+    @NotNull PlayerType getType();
+
+    void setType(@NotNull PlayerType type);
+
+    default boolean isGhost() {
+        return this.getType() == PlayerType.GHOST;
+    }
+
+    default boolean isReal() {
+        return this.getType() == PlayerType.REAL;
+    }
+
     @NotNull Player getPlayer();
 
     int getReviveTime();
@@ -41,18 +53,17 @@ public interface IArenaPlayer {
 
     void setDead(boolean dead);
 
-    @NotNull
-    default PlayerType getType() {
-        return this.isGhost() ? PlayerType.GHOST : PlayerType.REAL;
-    }
+    boolean isSpectator();
 
-    boolean isGhost();
+    void setSpectator(boolean spectator);
 
-    boolean isReal();
+    //boolean isGhost();
 
-    void setGhost();
+    //boolean isReal();
 
-    void setReal();
+    //void setGhost();
+
+    //void setReal();
 
     boolean isTransfer();
 

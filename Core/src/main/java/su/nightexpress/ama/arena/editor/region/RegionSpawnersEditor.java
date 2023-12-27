@@ -33,7 +33,7 @@ public class RegionSpawnersEditor extends EditorMenu<AMA, Region> implements Aut
         this.addNextPage(44);
         this.addPreviousPage(36);
 
-        this.addCreation(EditorLocales.REGION_CREATE, 41).setClick((viewer, event) -> {
+        this.addCreation(EditorLocales.REGION_SPAWNERS_CREATE, 41).setClick((viewer, event) -> {
             this.handleInput(viewer, Lang.EDITOR_REGION_ENTER_GROUP_ID, wrapper -> {
                 region.getMobSpawners(wrapper.getTextRaw());
                 return true;

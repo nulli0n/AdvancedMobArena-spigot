@@ -113,6 +113,7 @@ public class EntityInjector {
         try {
             Mob entity = clazz.getConstructor(ServerLevel.class, IArena.class, MobFaction.class).newInstance(level, arena, faction);
             level.addFreshEntity(entity, null);
+            entity.moveTo(location.getX(), location.getY(), location.getZ());
             return entity;
         }
         catch (Exception ex) {

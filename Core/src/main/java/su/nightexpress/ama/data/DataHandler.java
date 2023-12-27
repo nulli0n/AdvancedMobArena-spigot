@@ -40,6 +40,7 @@ public class DataHandler extends AbstractUserDataHandler<AMA, ArenaUser> {
                 Set<String> kits = gson.fromJson(resultSet.getString(COLUMN_KITS.getName()), new TypeToken<Set<String>>() {}.getType());
                 Map<String, Map<StatType, Integer>> stats = gson.fromJson(resultSet.getString(COLUMN_STATS.getName()), new TypeToken<Map<String, Map<StatType, Integer>>>() {}.getType());
                 Map<String, Long> arenaCooldownMap = this.gson.fromJson(resultSet.getString(COLUMN_ARENA_COOLDOWN.getName()), new TypeToken<Map<String, Long>>(){}.getType());
+                if (arenaCooldownMap == null) arenaCooldownMap = new HashMap<>();
 
                 return new ArenaUser(plugin, uuid, name, dateCreated, lastOnline, coins, kits, stats, arenaCooldownMap);
             }

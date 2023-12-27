@@ -16,7 +16,7 @@ public class ArenaListMenu extends ConfigMenu<AMA> {
         super(plugin, JYML.loadOrExtract(plugin, "/menu/arena.list.yml"));
 
         this.registerHandler(MenuItemType.class)
-            .addClick(MenuItemType.CLOSE, (viewer, event) -> plugin.runTask(task -> viewer.getPlayer().closeInventory()))
+            .addClick(MenuItemType.CLOSE, ClickHandler.forClose(this))
             .addClick(MenuItemType.PAGE_NEXT, ClickHandler.forNextPage(this))
             .addClick(MenuItemType.PAGE_PREVIOUS, ClickHandler.forPreviousPage(this));
 

@@ -34,34 +34,38 @@ public class V1_18_R2 implements ArenaNMS {
 
     @Override
     public LivingEntity spawnMob(@NotNull IArena arena, @NotNull MobFaction faction, @NotNull EntityType type, @NotNull Location location) {
-        net.minecraft.world.entity.Mob eIns = (net.minecraft.world.entity.Mob) EntityInjector.spawnEntity(type, location);
-        if (eIns == null) return null;
+        net.minecraft.world.entity.Mob mob = (net.minecraft.world.entity.Mob) EntityInjector.spawnEntity(type, location);
+        if (mob == null) return null;
 
-        Entity bukkitEntity = eIns.getBukkitEntity();
+        Entity bukkitEntity = mob.getBukkitEntity();
         LivingEntity eLiving = (LivingEntity) bukkitEntity;
 
-        this.registerAttribute(eIns, Attributes.ARMOR);
-        this.registerAttribute(eIns, Attributes.ARMOR_TOUGHNESS);
-        this.setAttribute(eIns, Attributes.ATTACK_DAMAGE, 1D);
-        this.registerAttribute(eIns, Attributes.ATTACK_KNOCKBACK);
-        this.registerAttribute(eIns, Attributes.ATTACK_SPEED);
-        this.setAttribute(eIns, Attributes.FOLLOW_RANGE, 64D);
-        this.registerAttribute(eIns, Attributes.FLYING_SPEED);
-        this.registerAttribute(eIns, Attributes.JUMP_STRENGTH);
-        this.registerAttribute(eIns, Attributes.KNOCKBACK_RESISTANCE);
-        this.registerAttribute(eIns, Attributes.MAX_HEALTH);
-        this.registerAttribute(eIns, Attributes.MOVEMENT_SPEED);
+        this.registerAttribute(mob, Attributes.ARMOR);
+        this.registerAttribute(mob, Attributes.ARMOR_TOUGHNESS);
+        this.registerAttribute(mob, Attributes.ATTACK_DAMAGE);
+        this.registerAttribute(mob, Attributes.ATTACK_KNOCKBACK);
+        this.registerAttribute(mob, Attributes.ATTACK_SPEED);
+        this.setAttribute(mob, Attributes.FOLLOW_RANGE, 64D);
+        this.registerAttribute(mob, Attributes.FLYING_SPEED);
+        this.registerAttribute(mob, Attributes.JUMP_STRENGTH);
+        this.registerAttribute(mob, Attributes.KNOCKBACK_RESISTANCE);
+        this.registerAttribute(mob, Attributes.MAX_HEALTH);
+        this.registerAttribute(mob, Attributes.MOVEMENT_SPEED);
 
-        if (!(eIns instanceof PathfinderMob pathfinderMob)) return eLiving;
+        if (mob.getAttributeBaseValue(Attributes.ATTACK_DAMAGE) == 0) {
+            this.setAttribute(mob, Attributes.ATTACK_DAMAGE, 1);
+        }
+
+        if (!(mob instanceof PathfinderMob pathfinderMob)) return eLiving;
 
         if (eLiving instanceof Animals) {
-            eIns.goalSelector.getAvailableGoals().clear();
-            eIns.goalSelector.addGoal(0, new FloatGoal(eIns));
-            eIns.goalSelector.addGoal(2, new PathfinderAttack(pathfinderMob));
+            mob.goalSelector.getAvailableGoals().clear();
+            mob.goalSelector.addGoal(0, new FloatGoal(mob));
+            mob.goalSelector.addGoal(2, new PathfinderAttack(pathfinderMob));
         }
-        eIns.targetSelector.getAvailableGoals().clear();
-        eIns.targetSelector.addGoal(1, new HurtByTargetGoal(pathfinderMob, net.minecraft.world.entity.player.Player.class));
-        eIns.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(pathfinderMob, net.minecraft.world.entity.player.Player.class, true));
+        mob.targetSelector.getAvailableGoals().clear();
+        mob.targetSelector.addGoal(1, new HurtByTargetGoal(pathfinderMob, net.minecraft.world.entity.player.Player.class));
+        mob.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(pathfinderMob, net.minecraft.world.entity.player.Player.class, true));
 
         return eLiving;
     }

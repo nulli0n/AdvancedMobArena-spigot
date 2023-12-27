@@ -34,8 +34,5 @@ Arenas:
         - '&6▸ &eState: &6%arena_state%'
         - '&6▸ &ePlayers: &6%arena_players%&7/&6%arena_players_max%'
         - ''
-        - '&c▸ &7Permission Required: &c%arena_requirement_permission%'
-        - '&c▸ &7Money Required: &c%arena_requirement_payment%'
-        - ''
         - '&a&nClick to join the arena!'
     Slots: 10

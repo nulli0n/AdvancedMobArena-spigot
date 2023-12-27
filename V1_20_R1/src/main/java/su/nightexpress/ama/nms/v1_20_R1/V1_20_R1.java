@@ -93,7 +93,7 @@ public class V1_20_R1 implements ArenaNMS {
         bukkitEntity.teleport(location);
         this.registerAttribute(mob, Attributes.ARMOR);
         this.registerAttribute(mob, Attributes.ARMOR_TOUGHNESS);
-        this.setAttribute(mob, Attributes.ATTACK_DAMAGE, 1D);
+        this.registerAttribute(mob, Attributes.ATTACK_DAMAGE);
         this.registerAttribute(mob, Attributes.ATTACK_KNOCKBACK);
         this.registerAttribute(mob, Attributes.ATTACK_SPEED);
         this.setAttribute(mob, Attributes.FOLLOW_RANGE, 256D);
@@ -102,6 +102,10 @@ public class V1_20_R1 implements ArenaNMS {
         this.registerAttribute(mob, Attributes.KNOCKBACK_RESISTANCE);
         this.registerAttribute(mob, Attributes.MAX_HEALTH);
         this.registerAttribute(mob, Attributes.MOVEMENT_SPEED);
+
+        if (mob.getAttributeBaseValue(Attributes.ATTACK_DAMAGE) == 0) {
+            this.setAttribute(mob, Attributes.ATTACK_DAMAGE, 1);
+        }
 
         if (mob instanceof PathfinderMob pathfinderMob) {
             if (bukkitEntity instanceof Animals || bukkitEntity instanceof org.bukkit.entity.IronGolem) {

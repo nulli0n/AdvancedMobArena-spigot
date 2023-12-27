@@ -239,6 +239,7 @@ public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
             .add(Placeholders.ARENA_ID, arenaConfig::getId)
             .add(Placeholders.ARENA_ACTIVE, () -> LangManager.getBoolean(arenaConfig.isActive()))
             .add(Placeholders.ARENA_NAME, arenaConfig::getName)
+            .add(Placeholders.ARENA_PERMISSION_REQUIREMENT, () -> LangManager.getBoolean(arenaConfig.isPermissionRequired()))
             ;
     }
 

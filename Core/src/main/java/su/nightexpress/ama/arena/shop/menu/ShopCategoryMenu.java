@@ -59,7 +59,7 @@ public class ShopCategoryMenu extends ConfigMenu<AMA> implements AutoPaged<ShopP
             .addClick(MenuItemType.RETURN, (viewer, event) -> {
                 ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(viewer.getPlayer());
                 if (arenaPlayer != null) {
-                    this.shopCategory.open(arenaPlayer);
+                    this.shopCategory.getArenaConfig().getShopManager().open(arenaPlayer.getPlayer());
                 }
             })
             .addClick(MenuItemType.PAGE_NEXT, ClickHandler.forNextPage(this))
