@@ -1,0 +1,61 @@
+Name: '&6Archer'
+Description:
+  - '&6▸ &7Damage:          &6■■■&8■■'
+  - '&6▸ &7Defense:        &6■&8■■■■'
+  - '&6▸ &7Buffs:       &6Speed I'
+  - '&7'
+  - '&7Archers are ranges. They use &fPower'
+  - '&7bows to slain mobs on a distance.'
+  - '&7And a melee weapon with a &fKnockback'
+  - '&7to push close mobs away.'
+  - '&7'
+  - '&7Instead of powerful armor,'
+  - '&7they have a &fSpeed&7 buff to'
+  - '&7avoid mob''s attacks.'
+Default: false
+Permission_Required: false
+Cost: 300.0
+Currency: coins
+Icon:
+  Material: BOW
+  Item_Flags:
+    - '*'
+Content:
+  Commands: [ ]
+  Armor:
+    - 1800020009km800ndlkmspb3e9gmct1qdhim2t38clp5uojfdtq762g00dq62po300348obdc5jma0000000k007chkn6s3cc5sgg0049pgmqp80o1ti4pboehp628hqbdti4ojfdhi24ej6c5m76p9c49kn8obcd5hi4ej6c5m76p9c49qmsp35e9m6irj5cgh3kpj1dhpmab12edq74qbbclq6gsjfeljmg8hqcpgmosr55gh6uoj6elpm6obkcli24ej6c5m76p9c49hmur3fe8h3k8j7dtm688hc49q6au3k48t24a21e9hmgpbi54g24v9cfch6it31dhkm68hqcpgmosr55gh66rrcdtp24eh2ctp62u925gh78pboegh3k8i2dtnn8sp2fleio8jkcls788hq48h7q0000400agrfeln78080
+    - k00010004qb400d6qqbeclhn4ob6egt6opb1ehk6asivdhimepr9dpjn62g00dq62po300348obdc5jma0000000k007chkn6s3cc5sgg0049pgmqp80o1ti4pboehp628hqbdti4ojfdhi24ej6c5m76p9c49kn8obcd5hi4ej6c5m76p9c49qmsp35e9m6irj5cgh3kpj1dhpmab12edq74qbbclq6gsjfeljmg8hqcpgmosr55gh6uoj6elpm6obkcli24ej6c5m76p9c49hmur3fe8h3k8j7dtm688hc49q6au3k48t24a21e9hmgpbi54g24v9cfch6it31dhkm68hqcpgmosr55gh66rrcdtp24eh2ctp62u925gh78pboegh3k8igc5n78sp2fleio8jkcls788hq48h7q0000400agrfeln78080
+    - 1800020009km800sdlkmspb3e9gmct1qdhim2t38clp5uor8clpn8s3cc5q6a2g00dq62po300348obdc5jma0000000k007chkn6s3cc5sgg0049pgmqp80o1ti4pboehp628hqbdti4ojfdhi24ej6c5m76p9c49kn8obcd5hi4ej6c5m76p9c49qmsp35e9m6irj5cgh3kpj1dhpmab12edq74qbbclq6gsjfeljmg8hqcpgmosr55gh6uoj6elpm6obkcli24ej6c5m76p9c49hmur3fe8h3k8j7dtm688hc49q6au3k48t24a21e9hmgpbi54g24v9cfch6it31dhkm68hqcpgmosr55gh66rrcdtp24eh2ctp62u925gh78pboegh3k8ikeln6iop2fleio8jkcls788hq48h7q0000400agrfeln78080
+    - 5000080016ip0031mmirj5cdp62pjk79m6aobkd1in4nr8clm6qpbk18006t31cs1g01i4c5mm2pr50000000a003m8qbje1m62u880024sobdck0bsup2cls78sj148t5mup2c9nmop1279j62r3jckm24qbkc5m6iop279j62r3jckm24tbechin4r39dpim88hqcpgmosr55gh76t3id5lmat38e9nnapr848t6cobcediio8jfc9j7asr3c5q6ap1279j62r3jckm24orfdhnn48hq49jmur3448m24t35f1q24eh2510n4or8clp2i812fkm7m8j9ehgmoqb348t6cobcediio8j3dtm6ush278h6esj1f4h2o8jkcls788hq491m2s12fleio8jkcls788hq48h7q0000400agrfeln78080
+  Inventory:
+    - 1800020009km800ddlkmspb3e9gmct1qc9nne2g00dq62po300348obdc5jma0000000k007chkn6s3cc5sgg0049pgmqp80npti4pboehp628hqbdti4ojfdhi24ej6c5m76p9c49kn8obcd5hi4ej6c5m76p9c49qmsp35e9m6irj5cgh3kpj1dhpmab12edq74qbbclq6gsjfeljmg8hqcpgmosr55gh6uoj6elpm6obkcli24ej6c5m76p9c49hmur3fe8h3k8j7dtm688hc49q6au3k48t24a21e9hmgpbi54g24v9cfch6it31dhkm68hqcpgmosr55gh66rrcdtp24eh2ctp62u925gh78pboegh3k8i2dtri4vat5gh78pboegh3k8h2fk00i00c8ln66q31dpq6qpbeehpgk0000020g002d5i004jdd5n6aoric5j78ej9dpj6irj9ehsg4003dhr6o001004000j9cg00urb9dpim6sj1cpq3ks3fetin40g00dm7cr000c00g002d5i003rdd5n6aoric5j78ejgeln66q02001motjc0010020009km800kdlkmspb3e9gmct1qeln64sj5c5lmirj708006r3mdg00a0000400agrfeln78080
+    - 5000080016ip002pmmirj5cdp62pjk79rmurr4cln5usrndtp682g00dq62po300348obdc5jma0000000k007chkn6s3cc5sgg0049pgmqp80o1ti4pboehp628hqbdti4ojfdhi24ej6c5m76p9c49kn8obcd5hi4ej6c5m76p9c49qmsp35e9m6irj5cgh3kpj1dhpmab12edq74qbbclq6gsjfeljmg8hqcpgmosr55gh6uoj6elpm6obkcli24ej6c5m76p9c49hmur3fe8h3k8j7dtm688hc49q6au3k48t24a21e9hmgpbi54g24v9cfch6it31dhkm68hqcpgmosr55gh66rrcdtp24eh2ctp62u925gh78pboegh3k8ijetnn4p12fleio8jkcls788hq48h7q0090064arj3d1gmst3dcln78soa000000880016ip002dmmirj5cdp62pjk79lmsrr3ddh62orb08006r3mdg0040000400agrfeln78080
+    - 2g0004000j9cg01crb9dpim6sj1cpq3kprfdhi6arivc5o70r350400agrfeln78100
+    - 1800020009km800gdlkmspb3e9gmct1qe1nn8qbfdo5000rkc5jgg006a1nn8qbfdo01krb9dpim6sj1cpq3ksrke9nmspqvedrmipjkdpin6so00400agrfeln78200
+    - 5000080016ip0021mmirj5cdp62pjk79o6ut39dtn0k003ehgme2000p86ut39dtn007jdd5n6aoric5j78ejcdtn6enr6d5p6anriclpmisrkc5n66p800400agrfeln78100
+    - k00010004qb40086qqbeclhn4ob6egt70rrkd5nms2g00dq62po800350rrkd5nms00odlkmspb3e9gmct1qedq74rrectfmgpb1dhkmspo00400agrfeln78100
+    - a0000g002d5i005bdd5n6aoric5j78ej3dtnmmpb4bth6apb60400agrfeln78800
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - 1800020009km800fdlkmspb3e9gmct1qc5p74rrn0400agrfeln78g00
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+  Potion_Effects:
+    SPEED: 1
+Hologram:
+  Locations: [ ]

@@ -1,0 +1,58 @@
+Name: '&3Warrior'
+Description:
+  - '&3▸ &7Damage:          &3■■■&8■■'
+  - '&3▸ &7Defense:        &3■■■&8■■'
+  - '&3▸ &7Buffs:          &3None'
+  - '&7'
+  - '&7Warriors are balanced between'
+  - '&7armor and damage. Not too much,'
+  - '&7not too less. They are good as'
+  - '&7solo/newbie choice.'
+  - '&7'
+  - '&7However, it doesn''t have'
+  - '&7any buffs.'
+Default: true
+Permission_Required: false
+Cost: 0.0
+Currency: coins
+Icon:
+  Material: CHAINMAIL_CHESTPLATE
+  Item_Flags:
+    - '*'
+Content:
+  Commands: [ ]
+  Armor:
+    - a0000g002d5i006bdd5n6aoric5j78ej3d1gmirjdc5kmonr2dtnn8soa001n8ob70c00ch31dlgmep80000002801h2msor8c5n78rb5dpq762g00000220009km800kdlkmspb3e9gmct1qe1p6ut35cdq6irre08006r3mdg0040000400agrfeln78080
+    - 5000080016ip003hmmirj5cdp62pjk79hmgob9dpmm2qbcbtm6apr7d5n6esoa001n8ob70c00ch31dlgmep80000002801h2msor8c5n78rb5dpq762g00000220009km800kdlkmspb3e9gmct1qe1p6ut35cdq6irre08006r3mdg0040000400agrfeln78080
+    - a0000g002d5i007jdd5n6aoric5j78ej3d1gmirjdc5kmonr3d1in6t3gdhgn8p8a001n8ob70c00ch31dlgmep80000002801h2msor8c5n78rb5dpq762g00000220009km800kdlkmspb3e9gmct1qe1p6ut35cdq6irre08006r3mdg0040000400agrfeln78080
+    - 2g0004000j9cg01krb9dpim6sj1cpq3kor8c5kmsrb1d5m5uq35dhmmat0a001n8ob70c00ch31dlgmep80000002801h2msor8c5n78rb5dpq762g00000220009km800kdlkmspb3e9gmct1qe1p6ut35cdq6irre08006r3mdg0040000400agrfeln78080
+  Inventory:
+    - 1800020009km800kdlkmspb3e9gmct1qd5p6urivedrmusj418006t31cs1g01i4c5mm2pr5000000090064arj3d1gmst3dcln78soa000000880016ip002dmmirj5cdp62pjk79pmgobie1n6asrj08006r3mdg0040000400agrfeln78080
+    - a0000g002d5i005bdd5n6aoric5j78ej3dtnmmpb4bth6apb60400agrfeln78400
+    - 2g0004000j9cg01crb9dpim6sj1cpq3kprfdhi6arivc5o70r350400agrfeln78100
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+Hologram:
+  Locations: [ ]

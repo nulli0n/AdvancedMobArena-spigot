@@ -1,0 +1,24 @@
+main: su.nightexpress.ama.AMA
+version: '${project.version}'
+name: AdvancedMobArena
+description: Advanced mob arena with many cool features for your server. Enjoy!
+author: NightExpress
+depend: [ NexEngine ]
+softdepend:
+  - Vault
+  - MythicMobs
+  - EliteMobs
+  - BossMania
+  - mcMMO
+  - MMOCore
+  - HolographicDisplays
+  - DecentHolograms
+  - PlaceholderAPI
+  - SunLight
+  - Essentials
+  - CoinsEngine
+  - MCPets
+  - AdvancedPets
+  - CombatPets
+
+api-version: 1.18

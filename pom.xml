@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>su.nightexpress.ama</groupId>
+    <artifactId>AdvancedMobArena</artifactId>
+    <packaging>pom</packaging>
+    <version>7.14.0</version>
+    <modules>
+        <module>API</module>
+        <module>Core</module>
+        <module>NMS</module>
+        <module>V1_19_R3</module>
+        <module>V1_20_R2</module>
+        <module>V1_20_R3</module>
+    </modules>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.20.2-R0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>su.nexmedia</groupId>
+            <artifactId>NexEngine</artifactId>
+            <version>2.2.12</version>
+        </dependency>
+    </dependencies>
+
+</project>

@@ -1,0 +1,19 @@
+Title: 'Arena Kit Preview'
+Size: 45
+
+Item_Slots: 2,3,4,5,6,7,8,11,12,13,14,15,16,17,20,21,22,23,24,25,26,29,30,31,32,33,34,35
+Armor_Slots: 27,18,9,0
+
+Content:
+  filler:
+    Item:
+      Material: BLACK_STAINED_GLASS_PANE
+      Name: ''
+    Slots: 1,10,19,28,36,37,38,39,41,42,43,44
+
+  backs:
+    Item:
+      Material: BARRIER
+      Name: '&c&lReturn'
+    Slots: 40
+    Type: RETURN

@@ -1,0 +1,214 @@
+Title: Arena Stats
+Size: 54
+
+Content:
+  exit:
+    Slots: 49
+    Type: CLOSE
+    Item:
+      Material: BARRIER
+      Name: '&c&lClose'
+    Priority: 5
+
+Stat_Icons:
+  MOB_KILLS:
+    Slots: 0
+    Type: MOB_KILLS
+    Item:
+      Material: IRON_SWORD
+      Name: '&aMob Kills'
+      Lore:
+        - '&7Amount of killed mobs.'
+        - ''
+        - '&a▸ &7%arena_name%: &a%score%'
+        - ''
+        - '&a&lTOTAL: &2&l%total%'
+      Item_Flags:
+        - HIDE_ENCHANTS
+        - HIDE_ATTRIBUTES
+        - HIDE_UNBREAKABLE
+        - HIDE_DESTROYS
+        - HIDE_PLACED_ON
+        - HIDE_POTION_EFFECTS
+        - HIDE_DYE
+    Priority: 5
+
+  GAMES_WON:
+    Slots: 1
+    Type: GAMES_WON
+    Item:
+      Material: EMERALD
+      Name: '&aGames Won'
+      Lore:
+        - '&7Amount of finished games.'
+        - ''
+        - '&a▸ &7%arena_name%: &a%score%'
+        - ''
+        - '&a&lTOTAL: &2&l%total%'
+    Priority: 5
+
+  GAMES_LOST:
+    Slots: 2
+    Type: GAMES_LOST
+    Item:
+      Material: REDSTONE
+      Name: '&cGames Lost'
+      Lore:
+        - '&7Amount of unfinished games.'
+        - ''
+        - '&c▸ &7%arena_name%: &c%score%'
+        - ''
+        - '&c&lTOTAL: &4&l%total%'
+    Priority: 5
+
+  GAMES_PLAYED:
+    Slots: 3
+    Type: GAMES_PLAYED
+    Item:
+      Material: MAP
+      Name: '&eGames Played'
+      Lore:
+        - '&7Amount of played games.'
+        - ''
+        - '&e▸ &7%arena_name%: &e%score%'
+        - ''
+        - '&e&lTOTAL: &6&l%total%'
+    Priority: 5
+
+  DEATHS:
+    Slots: 4
+    Type: DEATHS
+    Item:
+      Material: ROTTEN_FLESH
+      Name: '&6Deaths'
+      Lore:
+        - '&7Amount of deaths.'
+        - ''
+        - '&6▸ &7%arena_name%: &6%score%'
+        - ''
+        - '&6&lTOTAL: &f&l%total%'
+    Priority: 5
+
+  COINS_SPENT:
+    Slots: 5
+    Type: COINS_SPENT
+    Item:
+      Material: GOLD_NUGGET
+      Name: '&eCoins Spent'
+      Lore:
+        - '&7Amount of spent coins.'
+        - ''
+        - '&e▸ &7%arena_name%: &e%score%'
+        - ''
+        - '&e&lTOTAL: &6&l%total%'
+    Priority: 5
+
+  TNT_EXPLODED:
+    Slots: 6
+    Type: TNT_EXPLODED
+    Item:
+      Material: TNT
+      Name: '&cTNT Exploded'
+      Lore:
+        - '&7Amount of exploded TNT.'
+        - ''
+        - '&c▸ &7%arena_name%: &c%score%'
+        - ''
+        - '&c&lTOTAL: &4&l%total%'
+    Priority: 5
+
+  ARROWS_LAUNCHED:
+    Slots: 7
+    Type: ARROWS_LAUNCHED
+    Item:
+      Material: ARROW
+      Name: '&fArrows Launched'
+      Lore:
+        - '&7Amount of launched arrows.'
+        - ''
+        - '&f▸ &7%arena_name%: &f%score%'
+        - ''
+        - '&f&lTOTAL: &7&l%total%'
+    Priority: 5
+
+  POTIONS_DRUNK:
+    Slots: 8
+    Type: POTIONS_DRUNK
+    Item:
+      Material: POTION
+      Name: '&9Potions Drunk'
+      Lore:
+        - '&7Amount of drunk potions.'
+        - ''
+        - '&9▸ &7%arena_name%: &9%score%'
+        - ''
+        - '&9&lTOTAL: &f&l%total%'
+      Item_Flags:
+        - HIDE_ENCHANTS
+        - HIDE_ATTRIBUTES
+        - HIDE_UNBREAKABLE
+        - HIDE_DESTROYS
+        - HIDE_PLACED_ON
+        - HIDE_POTION_EFFECTS
+        - HIDE_DYE
+    Priority: 5
+
+  FOOD_EATEN:
+    Slots: 9
+    Type: FOOD_EATEN
+    Item:
+      Material: APPLE
+      Name: '&cFood Eaten'
+      Lore:
+        - '&7Amount of eaten food.'
+        - ''
+        - '&c▸ &7%arena_name%: &c%score%'
+        - ''
+        - '&c&lTOTAL: &4&l%total%'
+    Priority: 5
+
+  EQUIPMENT_BROKEN:
+    Slots: 10
+    Type: EQUIPMENT_BROKEN
+    Item:
+      Material: DAMAGED_ANVIL
+      Name: '&6Equipment Broken'
+      Lore:
+        - '&7Amount of broken equipment.'
+        - ''
+        - '&6▸ &7%arena_name%: &6%score%'
+        - ''
+        - '&6&lTOTAL: &e&l%total%'
+    Priority: 5
+
+  WAVES_PASSED:
+    Slots: 11
+    Type: WAVES_PASSED
+    Item:
+      Material: BLAZE_POWDER
+      Name: '&6Waves Passed'
+      Lore:
+        - '&7Amount of passed waves.'
+        - '&8(Highest result displayed)'
+        - ''
+        - '&e▸ &7%arena_name%: &e%score%'
+        - ''
+        - '&e&lTOTAL: &6&l%total%'
+    Priority: 5
+
+  BEST_KILL_STREAK:
+    Slots: 12
+    Type: BEST_KILL_STREAK
+    Item:
+      Material: LEAD
+      Name: '&6Best Kill Streak'
+      Lore:
+        - '&7Amount of mobs killed in a row.'
+        - '&8(Highest result displayed)'
+        - ''
+        - '&e▸ &7%arena_name%: &e%score%'
+        - ''
+        - '&e&lTOTAL: &6&l%total%'
+    Priority: 5
+# Sets whether to use Paper's MiniMessage API for the GUI Title.
+Use_Mini_Message: false

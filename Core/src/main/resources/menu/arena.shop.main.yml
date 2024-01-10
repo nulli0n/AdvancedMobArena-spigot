@@ -1,0 +1,53 @@
+Title: '#5d6d7e            &lArena Shop'
+Size: 27
+Inventory_Type: CHEST
+Use_Mini_Message: false
+
+Category:
+  Name: '%shop_category_name%'
+  Lore:
+    Default:
+      - '%shop_category_description%'
+      - ''
+      - '%kits%'
+      - '%unlocked%'
+      - '%locked%'
+      - ''
+      - '#9af7ff&lActions:'
+      - '#9af7ff▪ #ddeceeLeft-Click: #9af7ffOpen'
+    Kits:
+      - '#ff9a9a[!] #ddeceeThis category is only available for:'
+      - '#ff9a9a%kit_name%'
+    Unlocked:
+      - '#a5ff9a[✓] #ddeceeCategory is #a5ff9aunlocked#ddecee.'
+    Locked:
+      - '#ff9a9a[!] #ddeceeCategory is #ff9a9alocked#ddecee currently.'
+  Slots: 10,11,12,13,14,15,16
+
+Content:
+  return:
+    Priority: 5
+    Slots: 22
+    Type: CLOSE
+    Item:
+      Material: PLAYER_HEAD
+      Head_Texture: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmViNTg4YjIxYTZmOThhZDFmZjRlMDg1YzU1MmRjYjA1MGVmYzljYWI0MjdmNDYwNDhmMThmYzgwMzQ3NWY3In19fQ==
+      Name: '#FF5733(✕) &lExit'
+
+  page_next:
+    Priority: 5
+    Slots: 23
+    Type: PAGE_NEXT
+    Item:
+      Material: PLAYER_HEAD
+      Head_Texture: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjgyYWQxYjljYjRkZDIxMjU5YzBkNzVhYTMxNWZmMzg5YzNjZWY3NTJiZTM5NDkzMzgxNjRiYWM4NGE5NmUifX19
+      Name: '#e3fbf9(→) &lNext Page'
+
+  page_previous:
+    Priority: 5
+    Slots: 21
+    Type: PAGE_PREVIOUS
+    Item:
+      Material: PLAYER_HEAD
+      Head_Texture: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzdhZWU5YTc1YmYwZGY3ODk3MTgzMDE1Y2NhMGIyYTdkNzU1YzYzMzg4ZmYwMTc1MmQ1ZjQ0MTlmYzY0NSJ9fX0=
+      Name: '#e3fbf9(←) &lPrevious Page'

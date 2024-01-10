@@ -1,0 +1,68 @@
+Name: '&cBerserker'
+Description:
+  - '&c▸ &7Damage:          &c■■■■■'
+  - '&c▸ &7Defense:        &8■■■■■'
+  - '&c▸ &7Buffs:       &cStrength I'
+  - '&7'
+  - '&7Berserks are the ones, who'
+  - '&7inflicts a lot of damage'
+  - '&7to mobs. With &fSharped&7 axes,'
+  - '&7they easily kills mobs.'
+  - '&7'
+  - '&7But, while have an ability'
+  - '&7for slain mobs, they are very'
+  - '&7vulnerable for incoming damage.'
+Default: false
+Permission_Required: false
+Cost: 600
+Currency: coins
+Icon:
+  Material: GOLDEN_AXE
+  Item_Flags:
+    - '*'
+Content:
+  Commands: [ ]
+  Armor:
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - 5000080016ip0035mmirj5cdp62pjk79kn4rrebthmgpbjeho6oobkck0g01a3dtqmst0118006t31cs1g01i4c5mm2pr50000000a003m8qbje1m62u880024sobdck02oup2ehingt1278hc59r35116asjjclp6mpbi54gc59pn95p6urh08dk6asrke1m62t3549ug0000
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+  Inventory:
+    - a0000g002d5i005bdd5n6aoric5j78ej4d5gmqrrechfm2u350400agrfeln7808a001n8ob70c00ch31dlgmep80000002g00ti6isrgdhgni2000h762rb500k7m8jkcls788hq4b1aeop889in4sr5e9lmash9431aedq4d5gmqrrecgg42u3549ug02801h2msor8c5n78rb5dpq762g0000020g00dm7cr000c4000j9cg016rb9dpim6sj1cpq3ksr8c5p70rj5edpg0000
+    - 5000080016ip0021mmirj5cdp62pjk79o6ut39dtn020058dnnarjk105000rkc5jgg006a1nn8qbfdo01irb9dpim6sj1cpq3ksrke9nmspqvedq74pbectq6g000
+    - a0000g002d5i005bdd5n6aoric5j78ej3dtnmmpb4bth6apb60400agrfeln78800
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+  Potion_Effects:
+    INCREASE_DAMAGE: 1

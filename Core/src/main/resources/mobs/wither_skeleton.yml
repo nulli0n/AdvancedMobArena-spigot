@@ -1,0 +1,18 @@
+Name: Wither Skeleton
+Name_Visible: true
+Entity_Type: WITHER_SKELETON
+Level:
+  Minimum: 1
+  Maximum: 10
+Attributes:
+  Base:
+    GENERIC_MAX_HEALTH: 20.0
+  Per_Level:
+    GENERIC_MAX_HEALTH: 1.0
+Equipment:
+  HAND: a0000g002d5i005bdd5n6aoric5j78ejjehnmspavedrmusj418006t31cs1g01i4c5mm2pr5000000000400agrfeln78080
+  OFF_HAND: k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78000
+  FEET: k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78000
+  LEGS: k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78000
+  CHEST: k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78000
+  HEAD: k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78000

@@ -1,0 +1,11 @@
+Name: Wither
+Name_Visible: true
+Entity_Type: WITHER
+Level:
+  Minimum: 1
+  Maximum: 10
+Attributes:
+  Base:
+    GENERIC_MAX_HEALTH: 20.0
+  Per_Level:
+    GENERIC_MAX_HEALTH: 1.0

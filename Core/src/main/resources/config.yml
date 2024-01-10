@@ -1,0 +1,5 @@
+Plugin:
+  Command_Aliases: advancedmobarena,ama
+
+Database:
+  Table_Prefix: 'advancedmobarena'

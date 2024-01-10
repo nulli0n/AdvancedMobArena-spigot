@@ -1,0 +1,63 @@
+Name: '&dCleric'
+Description:
+  - '&d▸ &7Damage:          &d■&8■■■■'
+  - '&d▸ &7Defense:        &d■■&8■■■'
+  - '&d▸ &7Buffs:       &dRegeneration I'
+  - '&7'
+  - '&7Clerics are supports. They have'
+  - '&7a bunch of &fHeal&7 and &fRegeneration'
+  - '&7potions to keep their team alive.'
+  - '&7Also, they have a few &fInstant Damage'
+  - '&7potions to be able to protect themselves.'
+  - '&7'
+  - '&7They don''t have powerful weapon'
+  - '&7or armor, but a permanent &fRegeneration'
+  - '&7effect instead.'
+Default: false
+Permission_Required: false
+Cost: 500.0
+Currency: coins
+Icon:
+  Material: POTION
+  Color: 255,0,0
+  Item_Flags:
+    - '*'
+Content:
+  Commands: [ ]
+  Armor:
+    - 2g0004000j9cg01crb9dpim6sj1cpq3kprfdhi6arivc9nmut3j18006t31cs1g01i4c5mm2pr5000000000400agrfeln78080
+    - 1800020009km800pdlkmspb3e9gmct1qctnmop35dpfmopb7ctkmsprj18006t31cs1g01i4c5mm2pr5000000000400agrfeln78080
+    - 2g0004000j9cg01mrb9dpim6sj1cpq3kprfdhi6arivcdk6asrke1m62t3518006t31cs1g01i4c5mm2pr5000000000400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+  Inventory:
+    - a0000g002d5i005bdd5n6aoric5j78ejjehnmspavedrmusj418006t31cs1g01i4c5mm2pr5000000090064arj3d1gmst3dcln78soa000000g80016ip003hmmirj5cdp62pjk79h62rj5btnmcnr1e9q6gsjfe1nm8so2001motjc000g020009km800fdlkmspb3e9gmct1qedmmit3508006r3mdg0020000400agrfeln78080
+    - a0000g002d5i005bdd5n6aoric5j78ej3dtnmmpb4bth6apb60400agrfeln78400
+    - k00010004qb40086qqbeclhn4ob6egt70rrkd5nms2g00dq62po800350rrkd5nms00odlkmspb3e9gmct1qedq74rrectfmgpb1dhkmspo00400agrfeln78400
+    - k00010004qb40086qqbeclhn4ob6egt70rrkd5nms2g00dq62po800350rrkd5nms00tdlkmspb3e9gmct1qedq74rrectfn4pb7cln6asj1ehkmurg00400agrfeln78400
+    - 1800020009km800ndlkmspb3e9gmct1qedo6oobjd1fn0rrkd5nms2g00dq62po800350rrkd5nms00odlkmspb3e9gmct1qedq74rrectfmgpb1dhkmspo00400agrfeln78400
+    - 1800020009km800ndlkmspb3e9gmct1qedo6oobjd1fn0rrkd5nms2g00dq62po800350rrkd5nms00tdlkmspb3e9gmct1qedq74rrectfn4pb7cln6asj1ehkmurg00400agrfeln78400
+    - 1800020009km800ndlkmspb3e9gmct1qedo6oobjd1fn0rrkd5nms2g00dq62po800350rrkd5nms00odlkmspb3e9gmct1qedq74rrectfmgobidlkmspo00400agrfeln78400
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+  Potion_Effects:
+    REGENERATION: 1
+Hologram:
+  Locations: [ ]

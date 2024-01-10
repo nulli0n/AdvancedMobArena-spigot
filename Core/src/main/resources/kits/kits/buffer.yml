@@ -1,0 +1,63 @@
+Name: '&5Buffer'
+Description:
+  - '&5▸ &7Damage:          &5■&8■■■■'
+  - '&5▸ &7Defense:        &5■■&8■■■'
+  - '&5▸ &7Buffs:       &5Regeneration I'
+  - '&7'
+  - '&7Buffers are supports. They have'
+  - '&7a bunch of &fSpeed&7 and &fStrength'
+  - '&7potions to help their team.'
+  - '&7And also &fWeakness&7, &fPoison&7 and'
+  - '&fSlowness&7 potions to make mobs more weak.'
+  - '&7'
+  - '&7They don''t have powerful weapon'
+  - '&7or armor, but a permanent &fRegeneration'
+  - '&7effect instead.'
+Default: false
+Permission_Required: false
+Cost: 500.0
+Currency: coins
+Icon:
+  Material: POTION
+  Color: 200,0,200
+  Item_Flags:
+    - '*'
+Content:
+  Commands: [ ]
+  Armor:
+    - 2g0004000j9cg01crb9dpim6sj1cpq3kprfdhi6arivc9nmut3j18006t31cs1g01i4c5mm2pr5000000000400agrfeln78080
+    - 1800020009km800pdlkmspb3e9gmct1qctnmop35dpfmopb7ctkmsprj18006t31cs1g01i4c5mm2pr5000000000400agrfeln78080
+    - 2g0004000j9cg01mrb9dpim6sj1cpq3kprfdhi6arivcdk6asrke1m62t3518006t31cs1g01i4c5mm2pr5000000000400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+  Inventory:
+    - a0000g002d5i005bdd5n6aoric5j78ejjehnmspavedrmusj418006t31cs1g01i4c5mm2pr5000000090064arj3d1gmst3dcln78soa000000g80016ip003hmmirj5cdp62pjk79h62rj5btnmcnr1e9q6gsjfe1nm8so2001motjc000g020009km800fdlkmspb3e9gmct1qedmmit3508006r3mdg0020000400agrfeln78080
+    - a0000g002d5i005bdd5n6aoric5j78ej3dtnmmpb4bth6apb60400agrfeln78400
+    - 1800020009km800ndlkmspb3e9gmct1qedo6oobjd1fn0rrkd5nms2g00dq62po800350rrkd5nms00jdlkmspb3e9gmct1qedrmipjkdpin6so00400agrfeln78400
+    - a0000g002d5i005rdd5n6aoric5j78ejje1m62sr8bto6ut39dtn0k003ehgme2000p86ut39dtn006bdd5n6aoric5j78ejjehp6urj7btpn8sj5dpjn8q000400agrfeln78400
+    - a0000g002d5i005rdd5n6aoric5j78ejje1m62sr8bto6ut39dtn0k003ehgme2000p86ut39dtn006bdd5n6aoric5j78ejjehp6urj7btpmorrndpin6so00400agrfeln78400
+    - 5000080016ip002tmmirj5cdp62pjk79pn0r31edk5us3fehkmurga001n8ob71000ck3fehkmurg029mmirj5cdp62pjk79rmaobbdpin6so00400agrfeln78400
+    - 5000080016ip002tmmirj5cdp62pjk79pn0r31edk5us3fehkmurga001n8ob71000ck3fehkmurg02tmmirj5cdp62pjk79pn8sjfdpjlus3fd5pmurg00400agrfeln78400
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+    - k00010004qb4006mqqbeclhn4ob6egt62qbi0400agrfeln78080
+  Potion_Effects:
+    REGENERATION: 1
+Hologram:
+  Locations: [ ]
