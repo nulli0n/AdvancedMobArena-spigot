@@ -3,12 +3,9 @@ package su.nightexpress.ama.arena.listener;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
-import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -32,7 +29,6 @@ import su.nightexpress.ama.arena.ArenaManager;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.arena.region.Region;
-import su.nightexpress.ama.arena.util.LobbyItem;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.mob.MobManager;
 import su.nightexpress.ama.mob.config.MobConfig;
@@ -166,7 +162,7 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
         });
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    /*@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onGamePlayerDeathResurrect(EntityResurrectEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
 
@@ -176,7 +172,7 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
         if (arenaPlayer.getArena().getConfig().getGameplaySettings().getBannedItems().contains(Material.TOTEM_OF_UNDYING)) {
             event.setCancelled(true);
         }
-    }
+    }*/
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onGamePlayerDeathRealSpawn(PlayerRespawnEvent event) {
@@ -262,26 +258,14 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onGamePlayerBlockPlace(BlockPlaceEvent e) {
-        Player player = e.getPlayer();
-        Block block = e.getBlock();
-        ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
-
-        if (arenaPlayer != null) {
-            e.setCancelled(true);
-            if (block.getType() == Material.TNT) {
-                ItemStack item = e.getItemInHand();
-                item.setAmount(item.getAmount() - 1);
-                TNTPrimed tnt = block.getWorld().spawn(block.getLocation(), TNTPrimed.class);
-                tnt.setSource(player);
-            }
-            return;
-        }
-
+    public void onGamePlayerBlockPlace(BlockPlaceEvent event) {
+        Player player = event.getPlayer();
         if (player.hasPermission(Perms.CREATOR)) return;
+
+        Block block = event.getBlock();
         Arena arena = this.manager.getArenaAtLocation(block.getLocation());
         if (arena != null) {
-            e.setCancelled(true);
+            event.setCancelled(true);
         }
     }
 
@@ -322,57 +306,11 @@ public class ArenaGameplayListener extends AbstractListener<AMA> {
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
-    public void onGamePlayerQuit(PlayerQuitEvent e) {
-        Player player = e.getPlayer();
+    public void onGamePlayerQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
         ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
         if (arenaPlayer == null) return;
 
         arenaPlayer.leaveArena();
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onGameItemInteract(PlayerInteractEvent event) {
-        Player player = event.getPlayer();
-
-        ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
-        if (arenaPlayer == null) return;
-
-        ItemStack item = event.getItem();
-        if (item == null || item.getType().isAir()) return;
-
-        if (arenaPlayer.getState() != GameState.INGAME) {
-            // Prevent using lobby items on arena signs
-            // and interactable blocks.
-            Block block = event.getClickedBlock();
-            if (block != null && block.getType().isInteractable()) return;
-
-            LobbyItem lobbyItem = LobbyItem.get(item);
-            if (lobbyItem != null) {
-                lobbyItem.use(arenaPlayer);
-                event.setUseItemInHand(Result.DENY);
-                return;
-            }
-        }
-
-        Arena arena = arenaPlayer.getArena();
-        if (arena.getConfig().getGameplaySettings().getBannedItems().contains(item.getType())) {
-            event.setUseItemInHand(Result.DENY);
-            event.setUseInteractedBlock(Result.DENY);
-            return;
-        }
-
-        // What a stupid spawner egg api.....
-        String typeRaw = item.getType().name();
-        Block block = event.getClickedBlock();
-        if (block != null && !block.getType().isInteractable() && typeRaw.endsWith("_SPAWN_EGG")) {
-            String typeName = typeRaw.replace("_SPAWN_EGG", "");
-            EntityType entityType = StringUtil.getEnum(typeName, EntityType.class).orElse(null);
-            if (entityType != null && MobsConfig.ALLY_FROM_EGGS.get().contains(entityType)) {
-                arena.spawnAllyMob(entityType, block.getRelative(BlockFace.UP).getLocation());
-                item.setAmount(item.getAmount() - 1);
-            }
-            event.setUseItemInHand(Result.DENY);
-            event.setUseInteractedBlock(Result.DENY);
-        }
     }
 }

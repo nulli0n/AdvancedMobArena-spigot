@@ -25,7 +25,7 @@ import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.arena.lock.LockState;
 import su.nightexpress.ama.arena.lock.Lockable;
 import su.nightexpress.ama.config.Lang;
-import su.nightexpress.ama.kit.Kit;
+import su.nightexpress.ama.kit.impl.Kit;
 import su.nightexpress.ama.stats.object.StatType;
 
 import java.util.ArrayList;

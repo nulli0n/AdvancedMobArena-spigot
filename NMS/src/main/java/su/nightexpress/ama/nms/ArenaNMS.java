@@ -14,7 +14,9 @@ public interface ArenaNMS {
 
     @Nullable LivingEntity spawnMob(@NotNull IArena arena, @NotNull MobFaction faction, @NotNull EntityType type, @NotNull Location location);
 
-    //@Nullable EntityType getSpawnEggType(@NotNull ItemStack itemStack);
+    void setFollowGoal(@NotNull LivingEntity bukkitMob, @NotNull Player bukkitPlayer);
+
+    @Nullable EntityType getSpawnEggType(@NotNull ItemStack itemStack);
 
     int visualEntityAdd(@NotNull Player player, @NotNull String name, @NotNull Location loc);
 

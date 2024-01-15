@@ -21,6 +21,8 @@ import su.nexmedia.engine.utils.Reflex;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Optional;
+import java.util.UUID;
 
 public class MobBrain {
 
@@ -71,6 +73,15 @@ public class MobBrain {
             SensorType.NEAREST_ITEMS,
             SensorType.HURT_BY,
             SensorType.PIGLIN_SPECIFIC_SENSOR);
+    }
+
+    public static Player getOwner(@NotNull Mob pet) {
+        Optional<UUID> optional = pet.getBrain().getMemory(MemoryModuleType.LIKED_PLAYER);
+        return optional.map(id -> pet.level.getPlayerByUUID(id)).orElse(null);
+    }
+
+    public static void setOwnerMemory(@NotNull Mob pet, @NotNull Player player) {
+        pet.getBrain().setMemory(MemoryModuleType.LIKED_PLAYER, player.getUUID());
     }
 
     public static <E extends Mob> Brain.Provider<E> brainProvider(@NotNull E entity) {

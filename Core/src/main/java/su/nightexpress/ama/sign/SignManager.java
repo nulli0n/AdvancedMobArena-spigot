@@ -14,12 +14,11 @@ import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Keys;
 import su.nightexpress.ama.Placeholders;
+import su.nightexpress.ama.api.type.GameState;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
-import su.nightexpress.ama.api.type.GameState;
 import su.nightexpress.ama.config.Config;
-import su.nightexpress.ama.config.Lang;
-import su.nightexpress.ama.kit.Kit;
+import su.nightexpress.ama.kit.impl.Kit;
 import su.nightexpress.ama.sign.listener.SignListener;
 import su.nightexpress.ama.sign.type.SignType;
 import su.nightexpress.ama.stats.object.StatType;
@@ -238,29 +237,16 @@ public class SignManager extends AbstractManager<AMA> {
                 arenaPlayer.setState(arenaPlayer.isReady() ? GameState.WAITING : GameState.READY);
             }
             case KIT -> {
-                ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
-                if (arenaPlayer == null) return false;
-
                 Kit kit = this.getSignKit(sign);
                 if (kit == null) return false;
 
-                if (kit.isAvailable(arenaPlayer, true)) {
-                    if (kit.buy(arenaPlayer)) {
-                        plugin.getMessage(Lang.Kit_Select_Success).replace(kit.replacePlaceholders()).send(player);
-                    }
-                }
+                this.plugin.getKitManager().selectOrPurchase(player, kit);
             }
             case KIT_SHOP -> {
-                ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
-                if (arenaPlayer == null) return false;
-
-                this.plugin.getKitManager().getShopMenu().open(player, 1);
+                this.plugin.getKitManager().openShop(player);
             }
             case KIT_SELECTOR -> {
-                ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
-                if (arenaPlayer == null) return false;
-
-                this.plugin.getKitManager().getSelectMenu().open(player, 1);
+                this.plugin.getKitManager().openSelector(player);
             }
             case STATS_OPEN -> this.plugin.getStatsManager().getStatsMenu().open(player, 1);
         }

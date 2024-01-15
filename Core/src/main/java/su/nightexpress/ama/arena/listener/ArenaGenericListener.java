@@ -26,13 +26,13 @@ import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Perms;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.type.GameState;
+import su.nightexpress.ama.api.type.MobFaction;
 import su.nightexpress.ama.arena.ArenaManager;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.arena.util.ArenaUtils;
 import su.nightexpress.ama.config.Config;
-import su.nightexpress.ama.hook.pet.PluginPetProvider;
-import su.nightexpress.ama.kit.Kit;
+import su.nightexpress.ama.kit.impl.Kit;
 import su.nightexpress.ama.mob.MobManager;
 import su.nightexpress.ama.mob.config.MobsConfig;
 
@@ -45,53 +45,47 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
         this.manager = manager;
     }
 
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
-    public void onArenaPlayerBlockBreak(BlockBreakEvent event) {
-        Player player = event.getPlayer();
-        if (ArenaPlayer.isPlaying(player)) {
-            event.setCancelled(true);
-            return;
-        }
-
-        Block block = event.getBlock();
-        Arena arena = this.manager.getArenaAtLocation(block.getLocation());
-        if (arena != null && !player.hasPermission(Perms.CREATOR)) {
-            event.setCancelled(true);
-        }
-    }
-
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onArenaDamageGeneric(EntityDamageEvent e) {
+    public void onArenaDamageGeneric(EntityDamageEvent event) {
+        if (!(event.getEntity() instanceof LivingEntity entity)) return;
+
         // Avoid damage in lobby
-        if (e.getEntity() instanceof Player player) {
+        if (entity instanceof Player player) {
             ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(player);
             if (arenaPlayer == null) return;
 
-
             if (arenaPlayer.getState() != GameState.INGAME) {
-                e.setCancelled(true);
+                event.setCancelled(true);
             }
             return;
         }
 
-        if (e.getEntity() instanceof LivingEntity entity) {
-            this.plugin.getMobManager().updateMobBar(entity);
-        }
+        this.plugin.getMobManager().updateMobBar(entity);
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onArenaDamageFriendly(EntityDamageByEntityEvent event) {
         if (!(event.getEntity() instanceof LivingEntity victim)) return;
 
-        Entity eDamager = event.getDamager();
-        if (eDamager instanceof Projectile projectile && projectile.getShooter() instanceof LivingEntity living) {
-            eDamager = living;
+        LivingEntity damager = null;
+        Entity causer = event.getDamager();
+        if (causer instanceof Projectile projectile && projectile.getShooter() instanceof LivingEntity shooter) {
+            damager = shooter;
         }
-        else if (eDamager instanceof TNTPrimed primed && primed.getSource() instanceof Player player) {
-            eDamager = player;
+        else if (causer instanceof TNTPrimed primed && primed.getSource() instanceof LivingEntity source) {
+            damager = source;
         }
+        else if (causer instanceof LivingEntity source) {
+            damager = source;
+        }
+        if (damager == null) return;
 
-        Arena damagerArena = this.plugin.getMobManager().getEntityArena(eDamager);
+        MobFaction damagerFaction = this.plugin.getMobManager().getFaction(damager);
+        MobFaction victimFaction = this.plugin.getMobManager().getFaction(victim);
+
+        event.setCancelled(damagerFaction == victimFaction);
+
+        /*Arena damagerArena = this.plugin.getMobManager().getEntityArena(eDamager);
         Arena victimArena = this.plugin.getMobManager().getEntityArena(victim);
         if (damagerArena == victimArena && damagerArena != null) {
             if (damagerArena.getMobs().getFaction((LivingEntity) eDamager) == damagerArena.getMobs().getFaction(victim)) {
@@ -108,7 +102,7 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
             else if (PluginPetProvider.getProviders().stream().anyMatch(provider -> provider.isPet(victim))) {
                 event.setCancelled(true);
             }
-        }
+        }*/
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -250,6 +244,21 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
     public void onArenaMobExplode(EntityExplodeEvent e) {
         if (e.blockList().stream().anyMatch(block -> manager.getArenaAtLocation(block.getLocation()) != null)) {
             e.blockList().clear();
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onArenaBlockBreak(BlockBreakEvent event) {
+        Player player = event.getPlayer();
+        if (ArenaPlayer.isPlaying(player)) {
+            event.setCancelled(true);
+            return;
+        }
+
+        Block block = event.getBlock();
+        Arena arena = this.manager.getArenaAtLocation(block.getLocation());
+        if (arena != null && !player.hasPermission(Perms.CREATOR)) {
+            event.setCancelled(true);
         }
     }
 

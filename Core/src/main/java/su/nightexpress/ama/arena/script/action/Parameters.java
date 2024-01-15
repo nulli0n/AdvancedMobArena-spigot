@@ -18,6 +18,9 @@ public class Parameters {
 
     private static final Map<String, Parameter<?>> REGISTRY = new HashMap<>();
 
+    public static final Parameter<Integer> DELAY = asInt("delay")
+        .withIcon(Material.CLOCK);
+
     public static final Parameter<String> WAVE = asString("wave")
         .withIcon(Material.BLAZE_POWDER)
         .withSuggestions((arena, result) -> new ArrayList<>(arena.getConfig().getWaveManager().getWaveMap().keySet()));

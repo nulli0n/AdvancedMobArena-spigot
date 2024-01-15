@@ -3,30 +3,24 @@ package su.nightexpress.ama.nms.v1_19_R3.brain.goal;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
-import net.minecraft.world.entity.ai.targeting.TargetingConditions;
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.utils.random.Rnd;
 import su.nightexpress.ama.api.arena.IArena;
 import su.nightexpress.ama.api.type.MobFaction;
+import su.nightexpress.ama.nms.v1_19_R3.brain.MobAI;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class NearestFactionTargetGoal<T extends LivingEntity> extends TargetGoal {
 
-    private static final int DEFAULT_RANDOM_INTERVAL = 10;
+    //private static final int DEFAULT_RANDOM_INTERVAL = 5;
 
-    private final IArena              arena;
-    private final MobFaction          faction;
-    private final TargetingConditions targetConditions;
+    private final IArena     arena;
+    private final MobFaction faction;
 
     private LivingEntity target;
+    private int unseenTicks;
 
     public NearestFactionTargetGoal(@NotNull Mob mob, @NotNull IArena arena, @NotNull MobFaction faction) {
         super(mob, false, true);
@@ -34,36 +28,48 @@ public class NearestFactionTargetGoal<T extends LivingEntity> extends TargetGoal
 
         this.arena = arena;
         this.faction = faction;
-        this.targetConditions = TargetingConditions.forCombat().ignoreLineOfSight();
     }
 
     public boolean canUse() {
+        //if (this.mob.getRandom().nextInt(DEFAULT_RANDOM_INTERVAL) != 0) return false;
+
         this.findTarget();
         return this.target != null;
     }
 
+    @Override
+    public boolean canContinueToUse() {
+        LivingEntity target = this.mob.getTarget();
+        if (target == null) {
+            target = this.target;
+        }
+        if (target == null) return false;
+        if (this.arena.getMobs().getFaction((org.bukkit.entity.LivingEntity) target.getBukkitEntity()) == this.faction) return false;
+        if (!this.mob.canAttack(target)) return false;
+
+        if (this.mustSee) {
+            if (this.mob.getSensing().hasLineOfSight(target)) {
+                this.unseenTicks = 0;
+            }
+            else if (++this.unseenTicks > reducedTickDelay(this.unseenMemoryTicks)) {
+                return false;
+            }
+        }
+
+        LivingEntity nearest = MobAI.getNearestTarget(this.mob, this.faction, this.arena);
+        if (target != nearest) return false;
+
+        this.mob.setTarget(target, EntityTargetEvent.TargetReason.CLOSEST_ENTITY, true);
+        return true;
+    }
+
     protected void findTarget() {
-        Set<LivingEntity> targetList = new HashSet<>();
-        if (this.faction == MobFaction.ENEMY) {
-            targetList.addAll(this.arena.getPlayers().getAlive().stream()
-                .map(player -> ((CraftPlayer)player.getPlayer()).getHandle()).collect(Collectors.toSet()));
-            targetList.addAll(this.arena.getMobs().getAllies().stream()
-                .map(entity -> ((CraftLivingEntity)entity).getHandle()).collect(Collectors.toSet()));
-        }
-        else if (this.faction == MobFaction.ALLY) {
-            targetList.addAll(this.arena.getMobs().getEnemies().stream()
-                .map(entity -> ((CraftLivingEntity)entity).getHandle()).collect(Collectors.toSet()));
-        }
-
-        targetList.removeIf(entity -> !this.targetConditions.test(this.mob, entity));
-
-        if (!targetList.isEmpty()) {
-            this.target = Rnd.get(targetList);
-        }
-        else this.target = null;
+        this.target = MobAI.getNearestTarget(this.mob, this.faction, this.arena);
     }
 
     public void start() {
+        this.unseenTicks = 0;
+
         EntityTargetEvent.TargetReason reason = this.faction == MobFaction.ENEMY ? EntityTargetEvent.TargetReason.CLOSEST_PLAYER : EntityTargetEvent.TargetReason.CLOSEST_ENTITY;
         this.mob.setTarget(this.target, reason, true);
         super.start();

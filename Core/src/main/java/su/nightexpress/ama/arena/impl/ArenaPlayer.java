@@ -27,7 +27,7 @@ import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.data.impl.ArenaUser;
 import su.nightexpress.ama.hook.HookId;
 import su.nightexpress.ama.hook.impl.SunLightHook;
-import su.nightexpress.ama.kit.Kit;
+import su.nightexpress.ama.kit.impl.Kit;
 import su.nightexpress.ama.stats.object.StatType;
 
 import java.time.format.DateTimeFormatter;
@@ -207,6 +207,11 @@ public final class ArenaPlayer implements IArenaPlayer, Placeholder {
             arena.removeBossBars(this.getPlayer());
         }
         else {
+            if (this.kit != null) {
+                this.kit.resetPotionEffects(this.player);
+                this.kit.resetAttributeModifiers(this.player);
+            }
+
             this.setReviveTime(arena.getConfig().getGameplaySettings().getPlayerRespawnTime());
             if (arena.getPlayers().hasAlive()) {
                 this.plugin.getMessage(Lang.ARENA_GAME_DEATH_WITH_LIFES).replace(this.replacePlaceholders()).send(this.getPlayer());
@@ -234,6 +239,11 @@ public final class ArenaPlayer implements IArenaPlayer, Placeholder {
 
         this.setDead(false);
         this.getPlayer().setGameMode(GameMode.SURVIVAL);
+
+        if (this.kit != null) {
+            this.kit.applyPotionEffects(this.player);
+            this.kit.applyAttributeModifiers(this.player);
+        }
 
         if (this.getLifes() == 1) {
             this.plugin.getMessage(Lang.ARENA_GAME_REVIVE_NO_LIFES).replace(this.replacePlaceholders()).send(this.getPlayer());

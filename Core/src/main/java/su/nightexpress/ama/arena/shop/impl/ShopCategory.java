@@ -29,7 +29,7 @@ import su.nightexpress.ama.arena.shop.ShopManager;
 import su.nightexpress.ama.arena.shop.menu.ShopCategoryMenu;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.currency.CurrencyManager;
-import su.nightexpress.ama.kit.Kit;
+import su.nightexpress.ama.kit.impl.Kit;
 
 import java.util.*;
 

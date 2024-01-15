@@ -28,6 +28,7 @@ import su.nightexpress.ama.nms.v1_20_R2.brain.MobAI;
 import su.nightexpress.ama.nms.v1_20_R2.brain.MobBrain;
 import su.nightexpress.ama.nms.v1_20_R2.brain.behavior.MobCoreBehaviors;
 import su.nightexpress.ama.nms.v1_20_R2.brain.behavior.MobFightBehaviors;
+import su.nightexpress.ama.nms.v1_20_R2.brain.behavior.MobIdleBehaviors;
 
 public class HoglinMob extends Hoglin implements ArenaMob {
 
@@ -72,6 +73,7 @@ public class HoglinMob extends Hoglin implements ArenaMob {
         );
 
         brain.addActivity(Activity.IDLE, 10, ImmutableList.of(
+            MobIdleBehaviors.followOwner(),
             MobFightBehaviors.autoTargetAndAttack())
         );
 

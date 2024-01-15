@@ -11,9 +11,10 @@ import su.nexmedia.engine.api.menu.impl.MenuViewer;
 import su.nexmedia.engine.editor.EditorManager;
 import su.nexmedia.engine.utils.ItemReplacer;
 import su.nightexpress.ama.AMA;
+import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.editor.EditorLocales;
-import su.nightexpress.ama.kit.Kit;
+import su.nightexpress.ama.kit.impl.Kit;
 import su.nightexpress.ama.kit.KitManager;
 
 import java.util.Comparator;
@@ -66,7 +67,7 @@ public class KitsListEditor extends EditorMenu<AMA, KitManager> implements AutoP
     public ItemStack getObjectStack(@NotNull Player player, @NotNull Kit kit) {
         ItemStack item = kit.getIcon();
         ItemReplacer.create(item).readLocale(EditorLocales.KIT_OBJECT).trimmed().hideFlags()
-            .replace(kit.getPlaceholders())
+            .replace(Placeholders.forKitAll(kit).replacer())
             .writeMeta();
         return item;
     }

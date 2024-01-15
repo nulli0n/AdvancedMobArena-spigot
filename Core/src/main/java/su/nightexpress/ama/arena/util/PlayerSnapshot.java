@@ -7,8 +7,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.utils.EngineUtils;
 import su.nexmedia.engine.utils.EntityUtil;
+import su.nexmedia.engine.utils.PlayerUtil;
 import su.nightexpress.ama.api.arena.type.ArenaLocationType;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
@@ -17,10 +19,7 @@ import su.nightexpress.ama.hook.HookId;
 import su.nightexpress.ama.hook.impl.EssentialsHook;
 import su.nightexpress.ama.hook.impl.SunLightHook;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class PlayerSnapshot {
 
@@ -31,7 +30,8 @@ public class PlayerSnapshot {
     private final ItemStack[]              inventory;
     private final ItemStack[]              armor;
     private final Collection<PotionEffect> effects;
-    private final GameMode                 gameMode;
+    private final GameMode        gameMode;
+    private final List<ItemStack> confiscate;
 
     private static final Map<UUID, PlayerSnapshot> SNAPSHOTS = new HashMap<>();
 
@@ -44,10 +44,19 @@ public class PlayerSnapshot {
         this.armor = player.getInventory().getArmorContents();
         this.effects = player.getActivePotionEffects();
         this.gameMode = player.getGameMode();
+        this.confiscate = new ArrayList<>();
     }
 
-    public static void doSnapshot(@NotNull Player player) {
-        SNAPSHOTS.put(player.getUniqueId(), new PlayerSnapshot(player));
+    @Nullable
+    public static PlayerSnapshot get(@NotNull Player player) {
+        return SNAPSHOTS.get(player.getUniqueId());
+    }
+
+    @NotNull
+    public static PlayerSnapshot doSnapshot(@NotNull Player player) {
+        PlayerSnapshot snapshot = new PlayerSnapshot(player);
+        SNAPSHOTS.put(player.getUniqueId(), snapshot);
+        return snapshot;
     }
 
     public static void clear(@NotNull Player player) {
@@ -98,9 +107,12 @@ public class PlayerSnapshot {
         }
 
         // Return player inventory before the game
-        if (arena.getConfig().getGameplaySettings().isKitsEnabled()) {
+        if (arena.getConfig().getGameplaySettings().isKitsEnabled() || Config.ARENA_ALWAYS_RESTORE_INVENTORY.get()) {
             player.getInventory().setContents(snapshot.getInventory());
             player.getInventory().setArmorContents(snapshot.getArmor());
+        }
+        else {
+            snapshot.getConfiscate().forEach(item -> PlayerUtil.addItem(player, item));
         }
     }
 
@@ -138,5 +150,10 @@ public class PlayerSnapshot {
     @NotNull
     public GameMode getGameMode() {
         return this.gameMode;
+    }
+
+    @NotNull
+    public List<ItemStack> getConfiscate() {
+        return confiscate;
     }
 }

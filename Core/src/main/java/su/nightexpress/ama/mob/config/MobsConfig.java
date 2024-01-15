@@ -30,15 +30,23 @@ public class MobsConfig {
         "Placeholders: " + Placeholders.MOB_NAME + ", " + Placeholders.MOB_LEVEL + ", " + Placeholders.MOB_HEALTH + ", " + Placeholders.MOB_HEALTH_MAX
     ).mapReader(Colorizer::apply);
 
-    public static final JOption<Boolean> IGNORE_ARMOR_STANDS = JOption.create("Mobs.Ignore_Armor_Stands", false,
+    public static final JOption<Boolean> IGNORE_ARMOR_STANDS = JOption.create("Mobs.Ignore_Armor_Stands",
+        false,
         "When enabled, completely ignores Armor Stands in entity spawn events, so they not restricted not counted as a part of arenas.");
 
-    public static final JOption<Set<EntityType>> ALLY_FROM_EGGS = JOption.forSet("Mobs.Ally_From_Eggs",
-        (raw) -> StringUtil.getEnum(raw, EntityType.class).orElse(null),
-        Set.of(EntityType.SNOWMAN, EntityType.IRON_GOLEM, EntityType.WOLF),
-        "A list of mobs that will be marked as 'ally' mobs when spawned by Spawn Eggs on arenas.",
-        "These mobs will fight together with players against the arena mobs."
-    ).setWriter((cfg, path, set) -> cfg.set(path, set.stream().map(Enum::name).toList()));
+    public static final JOption<Double> SPAWN_OFFSET = JOption.create("Mobs.Spawn_Location_Offset",
+        1.25,
+        "Sets randomized offset for mob spawn locations.",
+        "This will make spawning large amount of mobs more natural."
+    );
+
+    public static final JOption<Set<String>> ALLY_FROM_EGGS = JOption.forSet("Mobs.Ally_From_Eggs",
+        String::toLowerCase,
+        Set.of(Placeholders.WILDCARD),
+        "List of entity names that can be summoned by using Spawn Eggs.",
+        "These mobs will fight together with players against the arena mobs.",
+        "You can put '" + Placeholders.WILDCARD + "' to include all possible mobs."
+    );
 
     public static final JOption<Set<String>> ALLY_MYTHIC_MOBS = JOption.create("Mobs.Ally_Mythic_Mobs",
         Set.of("SummonedMinion"),

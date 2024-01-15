@@ -32,6 +32,7 @@ import su.nightexpress.ama.nms.v1_19_R3.brain.MobAI;
 import su.nightexpress.ama.nms.v1_19_R3.brain.MobBrain;
 import su.nightexpress.ama.nms.v1_19_R3.brain.behavior.MobCoreBehaviors;
 import su.nightexpress.ama.nms.v1_19_R3.brain.behavior.MobFightBehaviors;
+import su.nightexpress.ama.nms.v1_19_R3.brain.behavior.MobIdleBehaviors;
 import su.nightexpress.ama.nms.v1_19_R3.brain.behavior.impl.PrepareRamTarget;
 
 import javax.annotation.Nullable;
@@ -88,6 +89,7 @@ public class GoatMob extends Goat implements ArenaMob {
         );
 
         brain.addActivity(Activity.IDLE, 10, ImmutableList.of(
+            MobIdleBehaviors.followOwner(),
             MobFightBehaviors.autoTargetAndAttack())
         );
 

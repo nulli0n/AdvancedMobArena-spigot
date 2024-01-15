@@ -5,7 +5,7 @@
     <parent>
         <artifactId>AdvancedMobArena</artifactId>
         <groupId>su.nightexpress.ama</groupId>
-        <version>7.14.0</version>
+        <version>7.15.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -20,7 +20,7 @@
         <dependency>
             <groupId>su.nightexpress.ama</groupId>
             <artifactId>API</artifactId>
-            <version>7.14.0</version>
+            <version>7.15.0</version>
         </dependency>
     </dependencies>
 

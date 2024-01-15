@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.data.AbstractUser;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.impl.Arena;
-import su.nightexpress.ama.kit.Kit;
+import su.nightexpress.ama.kit.impl.Kit;
 import su.nightexpress.ama.stats.object.StatType;
 
 import javax.annotation.Nullable;
@@ -76,7 +76,7 @@ public class ArenaUser extends AbstractUser<AMA> {
     }
 
     public boolean addKit(@NotNull String kit) {
-        return this.kits.add(kit.toLowerCase());
+        return this.getKits().add(kit.toLowerCase());
     }
 
     public boolean hasKit(@NotNull Kit kit) {
@@ -84,7 +84,15 @@ public class ArenaUser extends AbstractUser<AMA> {
     }
 
     public boolean hasKit(@NotNull String kit) {
-        return this.kits.contains(kit.toLowerCase());
+        return this.getKits().contains(kit.toLowerCase());
+    }
+
+    public boolean removeKit(@NotNull Kit kit) {
+        return this.removeKit(kit.getId());
+    }
+
+    public boolean removeKit(@NotNull String kit) {
+        return this.getKits().remove(kit.toLowerCase());
     }
 
     @NotNull

@@ -19,6 +19,9 @@ import java.util.stream.Stream;
 
 public class Config {
 
+    public static final String DIR_MENU = "/menu/";
+    public static final String DIR_KITS = "/kits/";
+
     public static final JOption<Boolean> DEBUG_MOB_SPAWN = JOption.create("Debug.Mob_Spawning", false,
         "Enable this setting if you're experiencing issues with mob spawn on arenas.",
         "Then send debug logs from the console to the developer."
@@ -40,6 +43,29 @@ public class Config {
 
     public static final JOption<Boolean> ARENA_CLEAR_POTION_EFFECTS = JOption.create("Arena.Clear_Potion_Effects", true,
         "Sets whether or not player's potion effects should be removed when join/leave arena.");
+
+    public static final JOption<Boolean> ARENA_ALWAYS_RESTORE_INVENTORY = JOption.create("Arena.Always_Restore_Inventory",
+        false,
+        "Sets whether or not player inventories will be restored to pre-arena state even if kits are disabled.");
+
+    public static final JOption<Boolean> ARENA_FIX_SPLASH_POTIONS = JOption.create("Arena.Items.Fix_Splash_Potions",
+        true,
+        "Sets whether or not plugin will 'fix' splash and lingering potions so they will not injure allied players and mobs.");
+
+    public static final JOption<Boolean> ARENA_TNT_ALLOWED_PLACEMENT = JOption.create("Arena.Items.TNT.Allow_Placement",
+        true,
+        "Sets whether or not players will be able to place TNTs and auto ignite it.");
+
+    public static final JOption<Integer> ARENA_TNT_FUSE_TICKS = JOption.create("Arena.Items.TNT.Fuse_Ticks",
+        30,
+        "Sets how soon (in ticks) placed TNTs will explode.",
+        "[20 ticks = 1 second]",
+        "[Plugin default is 30]",
+        "[Game default is 80]");
+
+    public static final JOption<Boolean> ARENA_FIRE_CHARGE_ALLOW_LAUNCH = JOption.create("Arena.Items.FireCharge.Allow_Launch",
+        true,
+        "Sets whether or not players will be able to launch fireballs using Fire Charge items.");
 
     public static final JOption<Integer> ARENA_END_COUNTDOWN_DEFEAT = JOption.create("Arena.End_Countdown.Defeat", 10,
         "Sets how soon (in seconds) game on the arena will be stopped in case of defeat?");
@@ -78,8 +104,20 @@ public class Config {
         "For 'Item' option, please check: " + Placeholders.WIKI_ITEMS_URL
     ).setWriter((cfg, path, map) -> map.forEach((type, lobbyItem) -> LobbyItem.write(lobbyItem, cfg, path + "." + type.name())));
 
+    public static final JOption<Boolean> KITS_PERMANENT_PURCHASES = JOption.create("Kits.Permanent_Purchases",
+        true,
+        "When enabled, purchased kits will last forever on player accounts.",
+        "When disabled, purchased kits will last until played once.");
+
+    public static final JOption<Boolean> KITS_PREVENT_ITEM_SHARE = JOption.create("Kits.Prevent_Item_Share",
+        true,
+        "Sets whether or not to prevent players from pickup items of other kits.",
+        "Example: Player with 'tank' kit can not pickup 'archer' kit items and vice versa.");
+
     public static final JOption<Boolean>                     SIGNS_ENABLED = JOption.create("Signs.Enabled", true, "Enables/Disables usable signs feature.");
+
     public static final JOption<Boolean>                     SIGNS_GLOWING = JOption.create("Signs.Glowing", true, "Makes the sign text glowing.");
+
     public static final JOption<Map<SignType, List<String>>> SIGNS_FORMAT  = new JOption<Map<SignType, List<String>>>("Signs.Format",
         (cfg, path, def) -> {
             return Stream.of(SignType.values()).collect(Collectors.toMap(k -> k, v -> Colorizer.apply(cfg.getStringList(path + "." + v.name()))));
@@ -95,6 +133,7 @@ public class Config {
         "Enables the Holograms feature.",
         "Supported Plugins: " + HookId.HOLOGRAPHIC_DISPLAYS + ", " + HookId.DECENT_HOLOGRAMS
     );
+
     public static final JOption<Map<HologramType, List<String>>> HOLOGRAMS_FORMAT  = new JOption<Map<HologramType, List<String>>>("Holograms.Format",
         (cfg, path, def) -> Stream.of(HologramType.values()).collect(Collectors.toMap(k -> k, v -> Colorizer.apply(cfg.getStringList(path + "." + v.name())))),
         () -> Stream.of(HologramType.values()).collect(Collectors.toMap(k -> k, HologramType::getDefaultFormat)),

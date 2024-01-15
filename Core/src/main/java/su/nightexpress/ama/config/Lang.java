@@ -18,19 +18,30 @@ public class Lang extends EngineLang {
     public static final LangKey COMMAND_COINS_BALANCE_DESC        = LangKey.of("Command.Coins.Balance.Desc", "View [player's] coins balance.");
     public static final LangKey COMMAND_COINS_BALANCE_USAGE       = LangKey.of("Command.Coins.Balance.Usage", "[player]");
     public static final LangKey COMMAND_COINS_BALANCE_DONE_SELF   = LangKey.of("Command.Coins.Balance.Done.Self", LIGHT_YELLOW + "Your have: " + ORANGE + Placeholders.GENERIC_AMOUNT + LIGHT_YELLOW + ".");
-    public static final LangKey COMMAND_COINS_BALANCE_DONE_OTHERS = LangKey.of("Command.Coins.Balance.Done.Others", ORANGE + Placeholders.PLAYER_NAME + LIGHT_YELLOW + "'s balance: " + ORANGE + Placeholders.GENERIC_AMOUNT + LIGHT_YELLOW + ".");
+    public static final LangKey COMMAND_COINS_BALANCE_DONE_OTHERS = LangKey.of("Command.Coins.Balance.Done.Others", ORANGE + PLAYER_NAME + LIGHT_YELLOW + "'s balance: " + ORANGE + Placeholders.GENERIC_AMOUNT + LIGHT_YELLOW + ".");
 
-    public static final LangKey COMMAND_COINS_ADD_DESC       = LangKey.of("Command.Coins.Add.Desc", "Add coins to a player.");
-    public static final LangKey COMMAND_COINS_ADD_GIVE_USAGE = LangKey.of("Command.Coins.Add.Usage", "<player> <amount>");
-    public static final LangKey COMMAND_COINS_ADD_GIVE_DONE  = LangKey.of("Command.Coins.Add.Done", LIGHT_YELLOW + "Added " + GREEN + Placeholders.GENERIC_AMOUNT + " " + LIGHT_YELLOW + " to " + GREEN + Placeholders.PLAYER_NAME + LIGHT_YELLOW + "'s balance.");
+    public static final LangKey COMMAND_COINS_ADD_DESC      = LangKey.of("Command.Coins.Add.Desc", "Add coins to a player.");
+    public static final LangKey COMMAND_COINS_ADD_USAGE = LangKey.of("Command.Coins.Add.Usage", "<player> <amount>");
+    public static final LangKey COMMAND_COINS_ADD_DONE  = LangKey.of("Command.Coins.Add.Done", LIGHT_YELLOW + "Added " + GREEN + GENERIC_AMOUNT + LIGHT_YELLOW + " to " + GREEN + PLAYER_NAME + LIGHT_YELLOW + "'s balance.");
 
     public static final LangKey COMMAND_COINS_REMOVE_DESC  = LangKey.of("Command.Coins.Remove.Desc", "Remove coins off a player.");
     public static final LangKey COMMAND_COINS_REMOVE_USAGE = LangKey.of("Command.Coins.Remove.Usage", "<player> <amount>");
-    public static final LangKey COMMAND_COINS_REMOVE_DONE  = LangKey.of("Command.Coins.Remove.Done", LIGHT_YELLOW + "Removed " + RED + Placeholders.GENERIC_AMOUNT + " " + LIGHT_YELLOW + " from " + RED + Placeholders.PLAYER_NAME + LIGHT_YELLOW + "'s balance.");
+    public static final LangKey COMMAND_COINS_REMOVE_DONE  = LangKey.of("Command.Coins.Remove.Done", LIGHT_YELLOW + "Removed " + RED + GENERIC_AMOUNT + LIGHT_YELLOW + " from " + RED + PLAYER_NAME + LIGHT_YELLOW + "'s balance.");
 
     public static final LangKey COMMAND_COINS_SET_DESC  = LangKey.of("Command.Coins.Set.Desc", "Set player's coins amount.");
     public static final LangKey COMMAND_COINS_SET_USAGE = LangKey.of("Command.Coins.Set.Usage", "<player> <amount>");
-    public static final LangKey COMMAND_COINS_SET_DONE  = LangKey.of("Command.Coins.Set.Done", LIGHT_YELLOW + "Set " + ORANGE + Placeholders.PLAYER_NAME + LIGHT_YELLOW + "'s coins balance to " + ORANGE + Placeholders.GENERIC_AMOUNT + LIGHT_YELLOW + ".");
+    public static final LangKey COMMAND_COINS_SET_DONE  = LangKey.of("Command.Coins.Set.Done", LIGHT_YELLOW + "Set " + ORANGE + PLAYER_NAME + LIGHT_YELLOW + "'s coins balance to " + ORANGE + GENERIC_AMOUNT + LIGHT_YELLOW + ".");
+
+    public static final LangKey COMMAND_KIT_DESC  = LangKey.of("Command.Kit.Desc", "Kit commands.");
+    public static final LangKey COMMAND_KIT_USAGE = LangKey.of("Command.Kit.Usage", "[help]");
+
+    public static final LangKey COMMAND_KIT_ADD_DESC       = LangKey.of("Command.Kit.Add.Desc", "Add kit to player's account.");
+    public static final LangKey COMMAND_KIT_ADD_USAGE = LangKey.of("Command.Kit.Add.Usage", "<player> <kit>");
+    public static final LangKey COMMAND_KIT_ADD_DONE  = LangKey.of("Command.Kit.Add.Done", LIGHT_YELLOW + "Added " + GREEN + KIT_NAME + LIGHT_YELLOW + " kit to " + GREEN + PLAYER_NAME + LIGHT_YELLOW + "'s account.");
+
+    public static final LangKey COMMAND_KIT_REMOVE_DESC  = LangKey.of("Command.Kit.Remove.Desc", "Remove kit off a player's account.");
+    public static final LangKey COMMAND_KIT_REMOVE_USAGE = LangKey.of("Command.Kit.Remove.Usage", "<player> <kit>");
+    public static final LangKey COMMAND_KIT_REMOVE_DONE  = LangKey.of("Command.Kit.Remove.Done", LIGHT_YELLOW + "Removed " + RED + KIT_NAME + LIGHT_YELLOW + " kit from " + RED + PLAYER_NAME + LIGHT_YELLOW + "'s account.");
 
     public static final LangKey COMMAND_EDITOR_DESC = LangKey.of("Command.Editor.Desc", "Open AMA Editor");
 
@@ -135,7 +146,6 @@ public class Lang extends EngineLang {
     public static final LangKey Arena_Game_Announce_Start = new LangKey("Arena.Game.Announce.Start", "Arena &a%arena_name% &7will start in &2%time% &7seconds. Type &a/ama join &a%arena_id% &7to join!");
 
     public static final LangKey ARENA_GAME_RESTRICT_COMMANDS = LangKey.of("Arena.Game.Restrict.Commands", RED + "You can not use this command while on arena!");
-    public static final LangKey Arena_Game_Restrict_Kits     = new LangKey("Arena.Game.Restrict.Kits", "Kits are disabled on this arena.");
     public static final LangKey Arena_Game_Restrict_NoPets   = new LangKey("Arena.Game.Restrict.NoPets", "Pets are not allowed on this arena. Your pet has gone.");
     public static final LangKey ARENA_GAME_ERROR_NOT_IN_GAME = new LangKey("Arena.Game.Error.NotInGame", "You are not in game!");
 
@@ -155,6 +165,10 @@ public class Lang extends EngineLang {
 
     public static final LangKey ARENA_LOBBY_MIN_PLAYERS = LangKey.of("Arena.Game.Lobby.MinPlayers",
         GRAY + "We need " + RED + GENERIC_AMOUNT + GRAY + " more players to start!");
+
+    public static final LangKey ARENA_LOBBY_CONFISACATE = LangKey.of("Arena.Game.Lobby.Confiscate",
+        GRAY + "Some items that are not allowed on the arena were temporary removed from your inventory."
+    );
 
     public static final LangKey ARENA_LOBBY_PLAYER_JOINED = LangKey.of("Arena.Game.Lobby.Joined",
         "<! prefix:\"false\" !>" +
@@ -227,14 +241,44 @@ public class Lang extends EngineLang {
     public static final LangKey ARENA_REGION_UNLOCKED_NOTIFY = new LangKey("Arena.Region.Unlocked.Notify", "<! type:\"titles:0:30:10\" sound: " + Sound.BLOCK_NOTE_BLOCK_BELL.name() + "!>&a&lRegion Unlocked!\n&f" + Placeholders.REGION_NAME);
     public static final LangKey ARENA_REGION_LOCKED_NOTIFY   = new LangKey("Arena.Region.Locked.Notify", "<! type:\"titles:0:30:10\" !>" + "&c&lNew Region!\n&4&lFollow to the next arena region!");
 
-    public static final LangKey Kit_Buy_Error_NoMoney         = new LangKey("Kit.Buy.Error.NoMoney", "You can't afford &c%kit_name% &7kit!");
-    public static final LangKey Kit_Buy_Success               = new LangKey("Kit.Buy.Success", "You successfully bought the &a%kit_name% &7kit for &a%kit_cost%&7!");
-    public static final LangKey Kit_Buy_Error_NoPermission    = new LangKey("Kit.Buy.Error.NoPermission", "&cYou don't have permission to purchase this kit!");
-    public static final LangKey Kit_Select_Error_NoPermission = new LangKey("Kit.Select.Error.NoPermission", "&cYou don't have permission to use this kit!");
-    public static final LangKey Kit_Select_Error_Disabled     = new LangKey("Kit.Select.Error.Disabled", "This kit is disabled in this arena.");
-    public static final LangKey Kit_Select_Error_NotObtained  = new LangKey("Kit.Select.Error.NotObtained", "You don't have this kit!");
-    public static final LangKey Kit_Select_Error_Limit        = new LangKey("Kit.Select.Error.Limit", "You can not use this kit, because there is already enough players with it.");
-    public static final LangKey Kit_Select_Success            = new LangKey("Kit.Select.Success", "You choosen &a%kit_name%&7 as your kit.");
+    public static final LangKey KIT_BUY_ERROR_NO_MONEY = LangKey.of("Kit.Buy.Error.NoMoney",
+        "<! type:\"titles:20:60:20\" sound:\"" + Sound.BLOCK_ANVIL_PLACE.name() + "\" !>" +
+            "\n" + RED + BOLD + "Insufficient Funds!" +
+            "\n" + GRAY + "You need " + RED + KIT_COST + GRAY + " to purchase " + RED + KIT_NAME + GRAY + "!"
+    );
+
+    public static final LangKey KIT_BUY_SUCCESS = LangKey.of("Kit.Buy.Success",
+        "<! type:\"titles:20:60:20\" sound:\"" + Sound.ENTITY_PLAYER_LEVELUP.name() + "\" !>" +
+            "\n" + GREEN + BOLD + "Kit Unlocked!" +
+            "\n" + GRAY + "You purchased " + GREEN + KIT_NAME + GRAY + " for " + GREEN + KIT_COST + GRAY + "!"
+    );
+
+    public static final LangKey KIT_SELECT_SUCCESS = LangKey.of("Kit.Select.Success",
+        "<! type:\"titles:20:60:20\" sound:\"" + Sound.ITEM_ARMOR_EQUIP_CHAIN.name() + "\" !>" +
+            "\n" + GREEN + BOLD + "Kit Selected!" +
+            "\n" + GRAY + "You will join as " + GREEN + KIT_NAME + GRAY + "!"
+    );
+
+    public static final LangKey KIT_SELECT_ERROR_DISABLED = LangKey.of("Kit.Select.Error.Disabled",
+        "<! type:\"titles:20:60:20\" sound:\"" + Sound.BLOCK_ANVIL_PLACE.name() + "\" !>" +
+            "\n" + RED + BOLD + "Access Denied!" +
+            "\n" + GRAY + "You can't use that kit on this arena!"
+    );
+
+    public static final LangKey KIT_SELECT_ERROR_LIMIT = LangKey.of("Kit.Select.Error.Limit",
+        "<! type:\"titles:20:60:20\" sound:\"" + Sound.BLOCK_ANVIL_PLACE.name() + "\" !>" +
+            "\n" + RED + BOLD + "Limit Reached!" +
+            "\n" + GRAY + "There are enough players with this kit!"
+    );
+
+    public static final LangKey KIT_ERROR_NO_PERMISSION = LangKey.of("Kit.Error.NoPermission",
+        "<! type:\"titles:20:60:20\" sound:\"" + Sound.BLOCK_ANVIL_PLACE.name() + "\" !>" +
+            "\n" + RED + BOLD + "Access Denied!" +
+            "\n" + GRAY + "You're not allowed to use this kit!"
+    );
+
+    public static final LangKey KIT_ERROR_INVALID = LangKey.of("Kit.Error.Invalid",
+        RED + "Invalid kit!");
 
     public static final LangKey SHOP_OPEN_ERROR_LOCKED              = LangKey.of("Shop.Open.Error.Locked", "&cShop is not available yet!");
     public static final LangKey SHOP_OPEN_ERROR_DISABLED        = LangKey.of("Shop.Open.Error.Disabled", "&cShop is disabled on this arena.");
@@ -307,10 +351,11 @@ public class Lang extends EngineLang {
     public static final LangKey EDITOR_SPOT_STATE_ERROR_EXISTS    = LangKey.of("Editor.Spot.State.Error.Exists", "&cState is already exists!");
     public static final LangKey EDITOR_SPOT_STATE_ERROR_NO_CUBOID = LangKey.of("Editor.Spot.State.Error.NoCuboid", "&cYou must set a spot cuboid!");
 
-    public static final LangKey EDITOR_KIT_ENTER_ID     = LangKey.of("Editor.Kit.Enter.Create", GRAY + "Enter " + GREEN + "[Kit Identifier]");
-    public static final LangKey EDITOR_KIT_ENTER_EFFECT = LangKey.of("Editor.Kit.Enter.Effect", GRAY + "Enter " + GREEN + "[Effect] [Level]");
-    public static final LangKey EDITOR_KIT_ENTER_COST   = LangKey.of("Editor.Kit.Enter.Cost", GRAY + "Enter " + GREEN + "[Cost]");
-    public static final LangKey EDITOR_KIT_ERROR_EXIST  = LangKey.of("Editor.Kit.Error.Exist", RED + "Kit already exists!");
+    public static final LangKey EDITOR_KIT_ENTER_ID        = LangKey.of("Editor.Kit.Enter.Create", GRAY + "Enter " + GREEN + "[Kit Identifier]");
+    public static final LangKey EDITOR_KIT_ENTER_EFFECT    = LangKey.of("Editor.Kit.Enter.Effect", GRAY + "Enter " + GREEN + "[Effect] [Level]");
+    public static final LangKey EDITOR_KIT_ENTER_COST      = LangKey.of("Editor.Kit.Enter.Cost", GRAY + "Enter " + GREEN + "[Cost]");
+    public static final LangKey EDITOR_KIT_ENTER_ATTRIBUTE = LangKey.of("Editor.Kit.Enter.Attribute", GRAY + "Enter " + GREEN + "[Attribute]");
+    public static final LangKey EDITOR_KIT_ERROR_EXIST     = LangKey.of("Editor.Kit.Error.Exist", RED + "Kit already exists!");
 
     public static final LangKey Editor_Mob_Enter_Create        = new LangKey("Editor.Mob.Enter.Create", "&7Enter &aunique &7mob &aidentifier&7...");
     public static final LangKey Editor_Mob_Enter_Type          = new LangKey("Editor.Mob.Enter.Type", "&7Enter &aentity type&7...");

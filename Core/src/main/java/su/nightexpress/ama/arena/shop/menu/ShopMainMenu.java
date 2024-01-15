@@ -19,7 +19,7 @@ import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.arena.shop.ShopManager;
 import su.nightexpress.ama.arena.shop.impl.ShopCategory;
-import su.nightexpress.ama.kit.Kit;
+import su.nightexpress.ama.kit.impl.Kit;
 
 import java.util.ArrayList;
 import java.util.Collections;

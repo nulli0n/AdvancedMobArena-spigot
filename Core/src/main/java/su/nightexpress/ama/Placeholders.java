@@ -13,6 +13,7 @@ import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.arena.util.ArenaUtils;
 import su.nightexpress.ama.config.Lang;
+import su.nightexpress.ama.kit.impl.Kit;
 
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -30,6 +31,8 @@ public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
     public static final String GENERIC_MESSAGE = "%message%";
     public static final String GENERIC_TYPE    = "%type%";
     public static final String GENERIC_STATE   = "%state%";
+    public static final String GENERIC_CURRENT = "%current%";
+    public static final String GENERIC_MAX     = "%max%";
 
     public static final String CURRENCY_NAME = "%currency_name%";
     public static final String CURRENCY_ID   = "%currency_id%";
@@ -209,9 +212,7 @@ public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
     public static final String KIT_COMMANDS       = "%kit_commands%";
     public static final String KIT_POTION_EFFECTS = "%kit_potion_effects%";
     public static final String KIT_COST           = "%kit_cost%";
-    public static final String KIT_IS_AVAILABLE   = "%kit_is_available%";
-    @Deprecated public static final String KIT_ICON_LORE      = "%kit_icon_lore%";
-    @Deprecated public static final String KIT_ICON_MATERIAL  = "%kit_icon_material%";
+    @Deprecated public static final String KIT_ICON_MATERIAL   = "%kit_icon_material%";
     public static final String KIT_CURRENCY       = "%kit_currency%";
 
     public static final String STATS_SCORE_POSITION = "%score_position%";
@@ -318,5 +319,36 @@ public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
                     return Report.good(levelProvider.getKey().getName() + ": " + levelProvider.getValue());
                 }).collect(Collectors.joining(", "));
             });
+    }
+
+    @NotNull
+    public static PlaceholderMap forKitAll(@NotNull Kit kit) {
+        return PlaceholderMap.fusion(forKit(kit), forKitEditor(kit));
+    }
+
+    @NotNull
+    public static PlaceholderMap forKitEditor(@NotNull Kit kit) {
+        return new PlaceholderMap()
+            .add(Placeholders.KIT_PERMISSION, kit::getPermission)
+            .add(Placeholders.KIT_IS_DEFAULT, () -> LangManager.getBoolean(kit.isDefault()))
+            .add(Placeholders.KIT_IS_PERMISSION, () -> LangManager.getBoolean(kit.isPermissionRequired()))
+            .add(Placeholders.KIT_COMMANDS, () -> {
+                return kit.getCommands().stream().map(Report::good).collect(Collectors.joining("\n"));
+            })
+            .add(Placeholders.KIT_POTION_EFFECTS, () -> kit.getPotionEffects().stream()
+                .map(effect -> Report.good(LangManager.getPotionType(effect.getType()) + " " + NumberUtil.toRoman(effect.getAmplifier() + 1)))
+                .collect(Collectors.joining("\n")))
+            ;
+    }
+
+    @NotNull
+    public static PlaceholderMap forKit(@NotNull Kit kit) {
+        return new PlaceholderMap()
+            .add(Placeholders.KIT_ID, kit::getId)
+            .add(KIT_ICON_MATERIAL, () -> kit.getIcon().getType().name())
+            .add(Placeholders.KIT_NAME, kit::getName)
+            .add(Placeholders.KIT_DESCRIPTION, () -> String.join("\n", kit.getDescription()))
+            .add(Placeholders.KIT_COST, () -> kit.getCurrency().format(kit.getCost()))
+            .add(Placeholders.KIT_CURRENCY, () -> kit.getCurrency().getName());
     }
 }

@@ -8,6 +8,7 @@ import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
@@ -21,6 +22,7 @@ import su.nightexpress.ama.Keys;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.type.MobFaction;
 import su.nightexpress.ama.arena.impl.Arena;
+import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.hologram.HologramManager;
 import su.nightexpress.ama.hook.mob.MobProvider;
 import su.nightexpress.ama.hook.mob.PluginMobProvider;
@@ -212,6 +214,19 @@ public class MobManager extends AbstractManager<AMA> {
         }
 
         hologramManager.create(entity.getEyeLocation(), text, lifetime);
+    }
+
+    @Nullable
+    public MobFaction getFaction(@NotNull LivingEntity entity) {
+        if (entity instanceof Player player) {
+            if (!ArenaPlayer.isPlaying(player)) return null;
+            return MobFaction.ALLY;
+        }
+
+        Arena arena = this.getEntityArena(entity);
+        if (arena == null) return null;
+
+        return arena.getMobs().getFaction(entity);
     }
 
     public boolean isArenaEntity(@NotNull Entity entity) {

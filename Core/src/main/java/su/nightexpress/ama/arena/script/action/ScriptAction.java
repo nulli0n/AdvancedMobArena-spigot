@@ -1,6 +1,7 @@
 package su.nightexpress.ama.arena.script.action;
 
 import org.jetbrains.annotations.NotNull;
+import su.nightexpress.ama.api.ArenaAPI;
 import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
 
 import java.util.Arrays;
@@ -20,6 +21,7 @@ public class ScriptAction {
         this.name = name.toLowerCase();
         this.parameters = new HashSet<>(Arrays.asList(parameters));
         this.executor = executor;
+        this.getParameters().add(Parameters.DELAY);
     }
 
     @NotNull
@@ -38,6 +40,12 @@ public class ScriptAction {
     }
 
     public void run(@NotNull ArenaGameGenericEvent event, @NotNull ParameterResult parameterResult) {
-        this.getExecutor().accept(event, parameterResult);
+        int delay = parameterResult.get(Parameters.DELAY, 0);
+        if (delay == 0) {
+            this.getExecutor().accept(event, parameterResult);
+        }
+        else {
+            ArenaAPI.PLUGIN.runTaskLater(task -> this.getExecutor().accept(event, parameterResult), delay);
+        }
     }
 }

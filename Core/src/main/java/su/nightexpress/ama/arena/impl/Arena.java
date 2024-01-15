@@ -8,6 +8,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.*;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.lang.LangMessage;
@@ -37,9 +38,9 @@ import su.nightexpress.ama.config.Config;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.data.impl.ArenaUser;
 import su.nightexpress.ama.hook.mob.MobProvider;
-import su.nightexpress.ama.kit.Kit;
-import su.nightexpress.ama.kit.KitManager;
+import su.nightexpress.ama.kit.impl.Kit;
 import su.nightexpress.ama.mob.MobManager;
+import su.nightexpress.ama.mob.config.MobsConfig;
 import su.nightexpress.ama.sign.SignManager;
 import su.nightexpress.ama.sign.type.SignType;
 import su.nightexpress.ama.stats.object.StatType;
@@ -369,6 +370,10 @@ public class Arena implements IArena, Placeholder {
     @NotNull
     public PlayerList<ArenaPlayer> getPlayers() {
         return playerList;
+    }
+
+    public int countKits(@NotNull Kit kit) {
+        return (int) this.getPlayers().players().stream().filter(arenaPlayer -> arenaPlayer.getKit() == kit).count();
     }
 
     public int getMobsAwaitingSpawn() {
@@ -853,7 +858,7 @@ public class Arena implements IArena, Placeholder {
         ArenaPlayer arenaPlayer = ArenaPlayer.create(this.plugin, player, this);
 
         // Save the player inventory, effects, game modes, etc. before teleporting to the arena.
-        PlayerSnapshot.doSnapshot(player);
+        PlayerSnapshot snapshot = PlayerSnapshot.doSnapshot(player);
 
         arenaPlayer.setTransfer(true);
         player.teleport(this.getConfig().getLocation(ArenaLocationType.LOBBY));
@@ -870,13 +875,25 @@ public class Arena implements IArena, Placeholder {
         if (this.getConfig().getGameplaySettings().isKitsEnabled()) {
             player.getInventory().clear();
 
-            if (plugin.getKitManager().isSavePurchasedKits()) {
+            //if (Config.KITS_PERMANENT_PURCHASES.get()) {
                 LobbyItem.give(LobbyItem.Type.KIT_SELECT, player);
-            }
+            //}
             LobbyItem.give(LobbyItem.Type.KIT_SHOP, player);
             LobbyItem.give(LobbyItem.Type.EXIT, player);
             LobbyItem.give(LobbyItem.Type.STATS, player);
             LobbyItem.give(LobbyItem.Type.READY, player);
+        }
+        else {
+            for (ItemStack item : player.getInventory().getContents()) {
+                if (item == null || item.getType().isAir()) continue;
+                if (this.getConfig().getGameplaySettings().isBannedItem(item)) {
+                    snapshot.getConfiscate().add(new ItemStack(item));
+                    item.setAmount(0);
+                }
+            }
+            if (!snapshot.getConfiscate().isEmpty()) {
+                this.plugin.getMessage(Lang.ARENA_LOBBY_CONFISACATE).send(player);
+            }
         }
 
         this.plugin.getMessage(Lang.ARENA_LOBBY_JOIN).replace(this.replacePlaceholders()).send(player);
@@ -903,26 +920,10 @@ public class Arena implements IArena, Placeholder {
 
     private void joinGame(@NotNull ArenaPlayer arenaPlayer) {
         // Check if player's kit is valid and kick from the arena if it's not.
-        // Do not kick players who joined after the game start, so they can select their kit as long as they want.
         if (this.getConfig().getGameplaySettings().isKitsEnabled()) {
             Kit kit = arenaPlayer.getKit();
             if (kit == null) {
-                KitManager kitManager = plugin.getKitManager();
-
-                // If kits are saved to account, then try to select random obtained kit.
-                if (kitManager.isSavePurchasedKits()) {
-                    ArenaUser user = plugin.getUserManager().getUserData(arenaPlayer.getPlayer());
-                    if (!user.getKits().isEmpty()) {
-                        String userKit = Rnd.get(new ArrayList<>(user.getKits()));
-                        kit = kitManager.getKitById(userKit);
-                    }
-                }
-
-                // If kits are not saved to account or user don't obtain any kit
-                // then try to give the default kit by kit settings.
-                if (kit == null || !kit.isAvailable(arenaPlayer, false)) {
-                    kit = plugin.getKitManager().getDefaultKit();
-                }
+                kit = this.plugin.getKitManager().getAnyAvailable(arenaPlayer);
 
                 // If even default kit was fail, then it's unlucky game for this user, he will be kicked from the arena.
                 if (kit == null) {
@@ -930,9 +931,13 @@ public class Arena implements IArena, Placeholder {
                     plugin.getMessage(Lang.ARENA_JOIN_ERROR_NO_KIT).send(arenaPlayer.getPlayer());
                     return;
                 }
+                arenaPlayer.setKit(kit);
             }
-            arenaPlayer.setKit(kit);
-            kit.give(arenaPlayer);
+
+            Player player = arenaPlayer.getPlayer();
+            kit.give(player);
+            kit.applyPotionEffects(player);
+            kit.applyAttributeModifiers(player);
         }
 
         RegionManager reg = this.getConfig().getRegionManager();
@@ -1025,6 +1030,18 @@ public class Arena implements IArena, Placeholder {
 
         if (!this.isAboutToEnd() && !this.getConfig().getRewardManager().isKeepOnLeave()) {
             arenaPlayer.getRewards().clear();
+        }
+
+        // Remove kit effects.
+        Kit kit = arenaPlayer.getKit();
+        if (kit != null) {
+            kit.resetPotionEffects(player);
+            kit.resetAttributeModifiers(player);
+
+            if (!Config.KITS_PERMANENT_PURCHASES.get() && this.getState() == GameState.INGAME && !kit.isFree()) {
+                ArenaUser user = this.plugin.getUserManager().getUserData(player);
+                user.removeKit(kit);
+            }
         }
 
         // Restore player data.
@@ -1144,7 +1161,7 @@ public class Arena implements IArena, Placeholder {
         this.getUpcomingWaves().add(wave);
         this.setRoundTotalMobsAmount(this.getRoundTotalMobsAmount() + wave.getMobsAmount());
 
-        WaveManager waveManager = this.getConfig().getWaveManager();
+        //WaveManager waveManager = this.getConfig().getWaveManager();
         if (!this.getConfig().getWaveManager().isGradualSpawnEnabled()) {
             this.spawnMobs(100D);
         }
@@ -1203,6 +1220,16 @@ public class Arena implements IArena, Placeholder {
         int level = waveMob.getLevel();
         Location spawn = location.getBlock().getRelative(BlockFace.UP).getLocation();
 
+        double offset = Math.abs(MobsConfig.SPAWN_OFFSET.get());
+        if (offset != 0D) {
+            double xAdd = Rnd.getDouble(offset);
+            double zAdd = Rnd.getDouble(offset);
+            if (Rnd.nextBoolean()) xAdd = (-xAdd);
+            if (Rnd.nextBoolean()) zAdd = (-zAdd);
+
+            spawn = spawn.add(xAdd, 0, zAdd);
+        }
+
         MobProvider provider = waveMob.getProvider();
         LivingEntity mob = provider.spawn(this, waveMob.getMobId(), spawn, level).orElse(null);
         if (mob == null) {
@@ -1219,12 +1246,20 @@ public class Arena implements IArena, Placeholder {
     }
 
     @Nullable
-    public LivingEntity spawnAllyMob(@NotNull EntityType type, @NotNull Location location) {
+    public LivingEntity spawnAllyMob(@NotNull EntityType type, @NotNull Location location, @Nullable Player owner) {
         LivingEntity ally = this.plugin.getArenaNMS().spawnMob(this, MobFaction.ALLY, type, location);
-        if (ally != null) {
-            MobManager.setArena(ally, this);
-            this.getMobs().getAllies().add(ally);
+        if (ally == null) return null;
+
+        if (owner == null) {
+            ArenaPlayer random = this.getPlayers().getRandom();
+            if (random != null) owner = random.getPlayer();
         }
+        if (owner != null) {
+            plugin.getArenaNMS().setFollowGoal(ally, owner);
+        }
+
+        MobManager.setArena(ally, this);
+        this.getMobs().getAllies().add(ally);
         return ally;
     }
 

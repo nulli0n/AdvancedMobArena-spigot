@@ -17,9 +17,7 @@ import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
 import su.nightexpress.ama.arena.impl.ArenaPlayer;
-import su.nightexpress.ama.arena.listener.ArenaGameplayListener;
-import su.nightexpress.ama.arena.listener.ArenaGenericListener;
-import su.nightexpress.ama.arena.listener.ArenaMythicListener;
+import su.nightexpress.ama.arena.listener.*;
 import su.nightexpress.ama.arena.menu.ArenaListMenu;
 import su.nightexpress.ama.arena.region.Region;
 import su.nightexpress.ama.arena.task.ArenaOpenTask;
@@ -27,6 +25,7 @@ import su.nightexpress.ama.arena.task.ArenaTickTask;
 import su.nightexpress.ama.arena.util.ArenaCuboid;
 import su.nightexpress.ama.arena.util.BlockPos;
 import su.nightexpress.ama.arena.util.Cuboid;
+import su.nightexpress.ama.config.Config;
 import su.nightexpress.ama.hook.HookId;
 
 import java.io.File;
@@ -73,6 +72,10 @@ public class ArenaManager extends AbstractManager<AMA> {
 
         this.addListener(new ArenaGenericListener(this));
         this.addListener(new ArenaGameplayListener(this));
+        this.addListener(new ArenaItemsListener(this.plugin));
+        if (Config.ARENA_FIX_SPLASH_POTIONS.get()) {
+            this.addListener(new ArenaPotionListener(this.plugin));
+        }
         if (EngineUtils.hasPlugin(HookId.MYTHIC_MOBS)) {
             this.addListener(new ArenaMythicListener(this.plugin));
         }

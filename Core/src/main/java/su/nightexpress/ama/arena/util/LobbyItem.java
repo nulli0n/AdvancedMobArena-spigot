@@ -103,8 +103,8 @@ public class LobbyItem {
 
     public enum Type {
 
-        KIT_SELECT((arena, arenaPlayer) -> ArenaAPI.getKitManager().getSelectMenu().open(arenaPlayer.getPlayer(), 1)),
-        KIT_SHOP((arena, arenaPlayer) -> ArenaAPI.getKitManager().getShopMenu().open(arenaPlayer.getPlayer(), 1)),
+        KIT_SELECT((arena, arenaPlayer) -> ArenaAPI.getKitManager().openSelector(arenaPlayer.getPlayer())),
+        KIT_SHOP((arena, arenaPlayer) -> ArenaAPI.getKitManager().openShop(arenaPlayer.getPlayer())),
         EXIT((arena, arenaPlayer) -> arenaPlayer.leaveArena()),
         STATS((arena, arenaPlayer) -> ArenaAPI.getStatsManager().getStatsMenu().open(arenaPlayer.getPlayer(), 1)),
         READY((arena, arenaPlayer) -> arenaPlayer.setState(arenaPlayer.isReady() ? GameState.WAITING : GameState.READY));

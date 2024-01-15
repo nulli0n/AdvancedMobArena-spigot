@@ -1,6 +1,5 @@
 package su.nightexpress.ama.nms.v1_20_R3.brain.goal;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
@@ -65,13 +64,13 @@ public class MeleeAttackGoal extends Goal {
     @Override
     public boolean canContinueToUse() {
         LivingEntity target = this.entity.getTarget();
-        if (target == null || !target.isAlive()) {
+        if (target == null || !target.isAlive() || this.entity.getNavigation().isDone()) {
             return false;
         }
         if (this.arena.getMobs().getFaction((org.bukkit.entity.LivingEntity) target.getBukkitEntity()) == this.faction) {
             return false;
         }
-        return this.entity.isWithinRestriction(new BlockPos(target.getBlockX(), target.getBlockY(), target.getBlockZ()));
+        return this.entity.isWithinRestriction(target.blockPosition());
     }
 
     @Override

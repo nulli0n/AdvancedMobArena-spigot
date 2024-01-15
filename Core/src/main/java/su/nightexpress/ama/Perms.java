@@ -30,9 +30,9 @@ public class Perms {
     public static final JPermission COMMAND_BALANCE         = new JPermission(PREFIX + "command.balance", "Allows to use '/ama coins balance' command.");
     public static final JPermission COMMAND_BALANCE_OTHERS  = new JPermission(PREFIX + "command.balance.others", "Allows to use '/ama coins balance' command for other players.");
     public static final JPermission COMMAND_COINS           = new JPermission(PREFIX + "command.coins", "Allows to use '/ama coins' command (without sub-commands).");
-    public static final JPermission COMMAND_COINS_GIVE      = new JPermission(PREFIX + "command.coins.give", "Allows to use '/ama coins add' sub-command.");
-    public static final JPermission COMMAND_COINS_TAKE      = new JPermission(PREFIX + "command.coins.take", "Allows to use '/ama coins remove' sub-command.");
-    public static final JPermission COMMAND_COINS_SET       = new JPermission(PREFIX + "command.coins.set", "Allows to use '/ama coins set' sub-command.");
+    @Deprecated public static final JPermission COMMAND_COINS_GIVE      = new JPermission(PREFIX + "command.coins.give", "Allows to use '/ama coins add' sub-command.");
+    @Deprecated public static final JPermission COMMAND_COINS_TAKE      = new JPermission(PREFIX + "command.coins.take", "Allows to use '/ama coins remove' sub-command.");
+    @Deprecated public static final JPermission COMMAND_COINS_SET       = new JPermission(PREFIX + "command.coins.set", "Allows to use '/ama coins set' sub-command.");
     public static final JPermission COMMAND_FORCEEND        = new JPermission(PREFIX + "command.forceend", "Allows to use '/ama forceend' command.");
     public static final JPermission COMMAND_FORCESTART      = new JPermission(PREFIX + "command.forcestart", "Allows to use '/ama forcestart' command.");
     public static final JPermission COMMAND_JOIN            = new JPermission(PREFIX + "command.join", "Allows to use '/ama join' command.");
@@ -40,6 +40,7 @@ public class Perms {
     public static final JPermission COMMAND_HOLOGRAM        = new JPermission(PREFIX + "command.hologram", "Allows to use '/ama hologram' command (without of sub-commands).");
     public static final JPermission COMMAND_HOLOGRAM_ADD    = new JPermission(PREFIX + "command.hologram.add", "Allows to use '/ama hologram add' command.");
     public static final JPermission COMMAND_HOLOGRAM_REMOVE = new JPermission(PREFIX + "command.hologram.remove", "Allows to use '/ama hologram remove' command.");
+    public static final JPermission COMMAND_KIT          = new JPermission(PREFIX + "command.kit", "Allows to use '/ama kit' command (with all sub-commands).");
     public static final JPermission COMMAND_LEAVE           = new JPermission(PREFIX + "command.leave", "Allows to use '/ama leave' commmand.");
     public static final JPermission COMMAND_LIST            = new JPermission(PREFIX + "command.list", "Allows to use '/ama list' command.");
     public static final JPermission COMMAND_REGION          = new JPermission(PREFIX + "command.region", "Allows to use '/ama region' command.");
@@ -64,6 +65,7 @@ public class Perms {
             COMMAND_HOLOGRAM,
             COMMAND_FORCEEND, COMMAND_FORCESTART,
             COMMAND_JOIN, COMMAND_JOIN_OTHERS,
+            COMMAND_KIT,
             COMMAND_LEAVE,
             COMMAND_LIST,
             COMMAND_REGION,

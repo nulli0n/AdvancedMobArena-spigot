@@ -12,8 +12,8 @@ class AddCommand extends ManageCommand {
     public AddCommand(@NotNull AMA plugin, @NotNull Currency currency) {
         super(plugin, currency, new String[]{"give"}, Perms.COMMAND_COINS_GIVE);
         this.setDescription(plugin.getMessage(Lang.COMMAND_COINS_ADD_DESC));
-        this.setUsage(plugin.getMessage(Lang.COMMAND_COINS_ADD_GIVE_USAGE));
-        this.setNotify(plugin.getMessage(Lang.COMMAND_COINS_ADD_GIVE_DONE));
+        this.setUsage(plugin.getMessage(Lang.COMMAND_COINS_ADD_USAGE));
+        this.setNotify(plugin.getMessage(Lang.COMMAND_COINS_ADD_DONE));
     }
 
     @Override

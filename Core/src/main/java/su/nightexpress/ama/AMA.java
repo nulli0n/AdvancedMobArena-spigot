@@ -1,5 +1,6 @@
 package su.nightexpress.ama;
 
+import org.bukkit.attribute.Attribute;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.NexPlugin;
@@ -8,6 +9,7 @@ import su.nexmedia.engine.api.command.GeneralCommand;
 import su.nexmedia.engine.api.data.UserDataHolder;
 import su.nexmedia.engine.command.list.ReloadSubCommand;
 import su.nexmedia.engine.utils.EngineUtils;
+import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.api.arena.type.ArenaTargetType;
 import su.nightexpress.ama.api.hologram.HologramType;
 import su.nightexpress.ama.api.hologram.IHologramHandler;
@@ -17,6 +19,7 @@ import su.nightexpress.ama.arena.ArenaManager;
 import su.nightexpress.ama.arena.lock.LockState;
 import su.nightexpress.ama.arena.setup.ArenaSetupManager;
 import su.nightexpress.ama.command.*;
+import su.nightexpress.ama.command.kit.KitCommand;
 import su.nightexpress.ama.command.score.ScoreCommand;
 import su.nightexpress.ama.config.Config;
 import su.nightexpress.ama.config.Lang;
@@ -193,6 +196,12 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
         this.getLangManager().loadEnum(StatType.class);
         this.getLangManager().loadEnum(HologramType.class);
         this.getLangManager().loadEnum(MobStyleType.class);
+
+        // TODO Stupid workaround for attribute 'GENERIC_' prefix.
+        for (Attribute attribute : Attribute.values()) {
+            this.getLang().addMissing("Attribute." + attribute.name(), StringUtil.capitalizeUnderscored(attribute.name().replace("GENERIC_", "")));
+        }
+
         this.getLang().saveChanges();
     }
 
@@ -234,6 +243,7 @@ public class AMA extends NexPlugin<AMA> implements UserDataHolder<AMA, ArenaUser
         mainCommand.addChildren(new ForceEndCommand(this));
         mainCommand.addChildren(new ForceStartCommand(this));
         mainCommand.addChildren(new JoinCommand(this));
+        mainCommand.addChildren(new KitCommand(this));
         mainCommand.addChildren(new LeaveCommand(this));
         mainCommand.addChildren(new ListCmd(this));
         mainCommand.addChildren(new RegionCommand(this));

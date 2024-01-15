@@ -1,8 +1,10 @@
 package su.nightexpress.ama.nms.v1_19_R3;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -10,19 +12,28 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
+import net.minecraft.world.item.SpawnEggItem;
 import org.bukkit.Location;
+import org.bukkit.Registry;
 import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_19_R3.entity.CraftMob;
 import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_19_R3.util.CraftNamespacedKey;
 import org.bukkit.entity.*;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.utils.Colorizer;
 import su.nexmedia.engine.utils.Reflex;
 import su.nightexpress.ama.api.arena.IArena;
 import su.nightexpress.ama.api.type.MobFaction;
 import su.nightexpress.ama.nms.ArenaNMS;
+import su.nightexpress.ama.nms.v1_19_R3.brain.MobBrain;
+import su.nightexpress.ama.nms.v1_19_R3.brain.goal.FollowOwnerGoal;
+import su.nightexpress.ama.nms.v1_19_R3.brain.goal.LastDamagerTargetGoal;
 import su.nightexpress.ama.nms.v1_19_R3.brain.goal.MeleeAttackGoal;
 import su.nightexpress.ama.nms.v1_19_R3.brain.goal.NearestFactionTargetGoal;
-import su.nightexpress.ama.nms.v1_19_R3.brain.goal.LastDamagerTargetGoal;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +42,18 @@ public class V1_19_R3 implements ArenaNMS {
 
     public V1_19_R3() {
         EntityInjector.setup();
+    }
+
+    @Override
+    @Nullable
+    public EntityType getSpawnEggType(@NotNull ItemStack itemStack) {
+        net.minecraft.world.item.ItemStack nmsStack = CraftItemStack.asNMSCopy(itemStack);
+        if (nmsStack.getItem() instanceof SpawnEggItem eggItem) {
+            net.minecraft.world.entity.EntityType<?> type = eggItem.getType(nmsStack.getTag());
+            ResourceLocation location = BuiltInRegistries.ENTITY_TYPE.getKey(type);
+            return Registry.ENTITY_TYPE.get(CraftNamespacedKey.fromMinecraft(location));
+        }
+        return null;
     }
 
     @Override
@@ -66,7 +89,7 @@ public class V1_19_R3 implements ArenaNMS {
             }
             else {
                 if (mob instanceof net.minecraft.world.entity.monster.Drowned drowned) {
-                    drowned.goalSelector.getAvailableGoals().removeIf(goal -> goal.getGoal() instanceof ZombieAttackGoal goal1);
+                    drowned.goalSelector.getAvailableGoals().removeIf(goal -> goal.getGoal() instanceof ZombieAttackGoal);
                     drowned.goalSelector.addGoal(3, new ZombieAttackGoal(drowned, 1D, false));
                 }
                 pathfinderMob.goalSelector.getAvailableGoals().removeIf(wrappedGoal -> {
@@ -115,6 +138,19 @@ public class V1_19_R3 implements ArenaNMS {
             return;
         }
         instance.setBaseValue(value);
+    }
+
+    @Override
+    public void setFollowGoal(@NotNull LivingEntity bukkitMob, @NotNull Player bukkitPlayer) {
+        net.minecraft.world.entity.Mob mob = ((CraftMob)bukkitMob).getHandle();
+        net.minecraft.world.entity.player.Player player = ((CraftPlayer)bukkitPlayer).getHandle();
+
+        if (!EntityInjector.BRAINED.containsKey(bukkitMob.getType())) {
+            mob.goalSelector.addGoal(6, new FollowOwnerGoal(mob, player));
+        }
+        else {
+            MobBrain.setOwnerMemory(mob, player);
+        }
     }
 
     @Override

@@ -1,5 +1,6 @@
 package su.nightexpress.ama.editor;
 
+import org.bukkit.attribute.AttributeModifier;
 import su.nexmedia.engine.api.editor.EditorLocale;
 import su.nexmedia.engine.utils.EngineUtils;
 import su.nightexpress.ama.Placeholders;
@@ -408,6 +409,8 @@ public class EditorLocales extends su.nexmedia.engine.api.editor.EditorLocales {
     public static final EditorLocale GAMEPLAY_ALLOWED_KITS = builder(PREFIX + "Gameplay.Kits.Limits")
         .name("Allowed Kits & Limits")
         .text("Sets kits allowed with player limits.")
+        .text("Add " + YELLOW + Placeholders.WILDCARD + GRAY + " for global kit limit.")
+        .text("Set " + YELLOW + "-1" + GRAY + " for unlimited.")
         .emptyLine()
         .currentHeader()
         .text(Placeholders.GAMEPLAY_KITS_LIMITS).emptyLine()
@@ -992,6 +995,30 @@ public class EditorLocales extends su.nexmedia.engine.api.editor.EditorLocales {
         .current("Currency", Placeholders.KIT_CURRENCY + GRAY + " (" + WHITE + RMB + GRAY + ")")
         .emptyLine()
         .click(DROP_KEY, "make free")
+        .build();
+
+    public static final EditorLocale KIT_ATTRIBUTES = builder(PREFIX + "Kit.Attributes")
+        .name("Attribute Modifiers")
+        .text("Adjust player's attributes,")
+        .text("such as " + WHITE + "Max Health" + GRAY + ", " + WHITE + "Attack Damage")
+        .text("and other, when use this kit.")
+        .emptyLine()
+        .click(LMB, "navigate")
+        .build();
+
+    public static final EditorLocale KIT_ATTRIBUTE_CREATE = builder(PREFIX + "Kit.Attribute.Create")
+        .name("New Attribute Modifier")
+        .build();
+
+    public static final EditorLocale KIT_ATTRIBUTE_OBJECT = builder(PREFIX + "Kit.Attribute.Object")
+        .name("Modifier: " + WHITE + Placeholders.GENERIC_NAME)
+        .text(YELLOW + AttributeModifier.Operation.ADD_NUMBER.name() + GRAY + " - adds to base attribute value.")
+        .textRaw(YELLOW + AttributeModifier.Operation.ADD_SCALAR + GRAY + " - multipliers base attribute value.")
+        .emptyLine()
+        .current("Value", Placeholders.GENERIC_VALUE + GRAY + " (" + WHITE + LMB + GRAY + ")")
+        .current("Operation", Placeholders.GENERIC_TYPE + GRAY + " (" + WHITE + RMB + GRAY + ")")
+        .emptyLine()
+        .click(SHIFT_RMB, "delete " + RED + "(no undo)")
         .build();
 
     public static final EditorLocale KIT_DEFAULT = builder(PREFIX + "Kit.Default")

@@ -21,6 +21,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_20_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_20_R3.entity.CraftEntityType;
+import org.bukkit.craftbukkit.v1_20_R3.entity.CraftMob;
 import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack;
 import org.bukkit.entity.*;
@@ -32,6 +33,8 @@ import su.nexmedia.engine.utils.Reflex;
 import su.nightexpress.ama.api.arena.IArena;
 import su.nightexpress.ama.api.type.MobFaction;
 import su.nightexpress.ama.nms.ArenaNMS;
+import su.nightexpress.ama.nms.v1_20_R3.brain.MobBrain;
+import su.nightexpress.ama.nms.v1_20_R3.brain.goal.FollowOwnerGoal;
 import su.nightexpress.ama.nms.v1_20_R3.brain.goal.LastDamagerTargetGoal;
 import su.nightexpress.ama.nms.v1_20_R3.brain.goal.MeleeAttackGoal;
 import su.nightexpress.ama.nms.v1_20_R3.brain.goal.NearestFactionTargetGoal;
@@ -44,7 +47,7 @@ public class V1_20_R3 implements ArenaNMS {
         EntityInjector.setup();
     }
 
-    class Nax extends GroundPathNavigation {
+    static class Nax extends GroundPathNavigation {
 
         public Nax(net.minecraft.world.entity.Mob var0, Level var1) {
             super(var0, var1);
@@ -56,7 +59,7 @@ public class V1_20_R3 implements ArenaNMS {
         }
     }
 
-    class Zom extends net.minecraft.world.entity.monster.Zombie {
+    static class Zom extends net.minecraft.world.entity.monster.Zombie {
 
         public Zom(Level world) {
             super(world);
@@ -64,6 +67,7 @@ public class V1_20_R3 implements ArenaNMS {
         }
     }
 
+    @Override
     @Nullable
     public EntityType getSpawnEggType(@NotNull ItemStack itemStack) {
         net.minecraft.world.item.ItemStack nmsStack = CraftItemStack.asNMSCopy(itemStack);
@@ -131,7 +135,7 @@ public class V1_20_R3 implements ArenaNMS {
             }
             else {
                 if (mob instanceof net.minecraft.world.entity.monster.Drowned drowned) {
-                    drowned.goalSelector.getAvailableGoals().removeIf(goal -> goal.getGoal() instanceof ZombieAttackGoal goal1);
+                    drowned.goalSelector.getAvailableGoals().removeIf(goal -> goal.getGoal() instanceof ZombieAttackGoal);
                     drowned.goalSelector.addGoal(3, new ZombieAttackGoal(drowned, 1D, false));
                 }
                 pathfinderMob.goalSelector.getAvailableGoals().removeIf(wrappedGoal -> {
@@ -148,6 +152,19 @@ public class V1_20_R3 implements ArenaNMS {
             mob.setAggressive(true);
         }
         return bukkitEntity;
+    }
+
+    @Override
+    public void setFollowGoal(@NotNull LivingEntity bukkitMob, @NotNull Player bukkitPlayer) {
+        net.minecraft.world.entity.Mob mob = ((CraftMob)bukkitMob).getHandle();
+        net.minecraft.world.entity.player.Player player = ((CraftPlayer)bukkitPlayer).getHandle();
+
+        if (!EntityInjector.BRAINED.containsKey(bukkitMob.getType())) {
+            mob.goalSelector.addGoal(6, new FollowOwnerGoal(mob, player));
+        }
+        else {
+            MobBrain.setOwnerMemory(mob, player);
+        }
     }
 
     private void registerAttribute(@NotNull net.minecraft.world.entity.LivingEntity handle, @NotNull Attribute att) {

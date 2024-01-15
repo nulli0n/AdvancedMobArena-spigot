@@ -49,7 +49,7 @@ public class LastDamagerTargetGoal extends TargetGoal {
         LivingEntity currentTarget = this.mob.getTarget();
         if (currentTarget != null) {
             if (currentTarget == lastDamager) return false;
-            if (this.mob.distanceTo(lastDamager) > this.mob.distanceTo(currentTarget)) return false;
+            if (this.mob.distanceToSqr(lastDamager) > this.mob.distanceToSqr(currentTarget)) return false;
         }
 
         return this.canAttack(lastDamager, CONDITIONS);

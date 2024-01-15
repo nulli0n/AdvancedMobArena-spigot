@@ -26,6 +26,7 @@ import su.nightexpress.ama.nms.v1_20_R2.brain.MobAI;
 import su.nightexpress.ama.nms.v1_20_R2.brain.MobBrain;
 import su.nightexpress.ama.nms.v1_20_R2.brain.behavior.MobCoreBehaviors;
 import su.nightexpress.ama.nms.v1_20_R2.brain.behavior.MobFightBehaviors;
+import su.nightexpress.ama.nms.v1_20_R2.brain.behavior.MobIdleBehaviors;
 import su.nightexpress.ama.nms.v1_20_R2.brain.behavior.impl.ShootTongue;
 
 public class FrogMob extends Frog implements ArenaMob {
@@ -80,6 +81,7 @@ public class FrogMob extends Frog implements ArenaMob {
                 ImmutableMap.of(MemoryModuleType.WALK_TARGET, MemoryStatus.VALUE_ABSENT),
                 ImmutableList.of(Pair.of(new Croak(), 3))
             ),
+            MobIdleBehaviors.followOwner(),
             MobFightBehaviors.autoTargetAndAttack())
         );
 

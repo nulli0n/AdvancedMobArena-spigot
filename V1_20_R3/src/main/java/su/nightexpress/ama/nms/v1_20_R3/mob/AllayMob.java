@@ -24,6 +24,7 @@ import su.nightexpress.ama.nms.v1_20_R3.brain.MobAI;
 import su.nightexpress.ama.nms.v1_20_R3.brain.MobBrain;
 import su.nightexpress.ama.nms.v1_20_R3.brain.behavior.MobCoreBehaviors;
 import su.nightexpress.ama.nms.v1_20_R3.brain.behavior.MobFightBehaviors;
+import su.nightexpress.ama.nms.v1_20_R3.brain.behavior.MobIdleBehaviors;
 
 import java.util.function.BiConsumer;
 
@@ -69,6 +70,7 @@ public class AllayMob extends Allay implements ArenaMob {
         );
 
         brain.addActivity(Activity.IDLE, 10, ImmutableList.of(
+            MobIdleBehaviors.followOwner(),
             MobFightBehaviors.autoTargetAndAttack())
         );
 

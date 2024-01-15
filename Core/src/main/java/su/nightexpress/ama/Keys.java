@@ -2,6 +2,7 @@ package su.nightexpress.ama;
 
 import org.bukkit.NamespacedKey;
 import su.nightexpress.ama.api.ArenaAPI;
+import su.nightexpress.ama.arena.impl.Arena;
 
 public class Keys {
 
@@ -18,4 +19,5 @@ public class Keys {
 
     public static final NamespacedKey ITEM_LOBBY_TYPE = new NamespacedKey(ArenaAPI.PLUGIN, "item.lobby_type");
     public static final NamespacedKey ITEM_SETUP_TYPE = new NamespacedKey(ArenaAPI.PLUGIN, "item.setup_type");
+    public static final NamespacedKey ITEM_KIT_NAME = new NamespacedKey(ArenaAPI.PLUGIN, "item.kit_name");
 }

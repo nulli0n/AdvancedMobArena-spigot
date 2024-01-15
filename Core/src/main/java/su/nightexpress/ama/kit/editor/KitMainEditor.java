@@ -4,6 +4,7 @@ import org.bukkit.Material;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -19,14 +20,12 @@ import su.nexmedia.engine.utils.ItemUtil;
 import su.nexmedia.engine.utils.PlayerUtil;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.ama.AMA;
+import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.currency.Currency;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.editor.EditorLocales;
-import su.nightexpress.ama.kit.Kit;
+import su.nightexpress.ama.kit.impl.Kit;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Stream;
 
 public class KitMainEditor extends EditorMenu<AMA, Kit> {
@@ -37,6 +36,9 @@ public class KitMainEditor extends EditorMenu<AMA, Kit> {
     private static final String TEXTURE_COMMAND   = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNmQwZjQwNjFiZmI3NjdhN2Y5MjJhNmNhNzE3NmY3YTliMjA3MDliZDA1MTI2OTZiZWIxNWVhNmZhOThjYTU1YyJ9fX0=";
     private static final String TEXTURE_INVENTORY = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODM1MWU1MDU5ODk4MzhlMjcyODdlN2FmYmM3Zjk3ZTc5NmNhYjVmMzU5OGE3NjE2MGMxMzFjOTQwZDBjNSJ9fX0=";
     private static final String TEXTURE_ARMOR     = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTVlYjBiZDg1YWFkZGYwZDI5ZWQwODJlYWMwM2ZjYWRlNDNkMGVlODAzYjBlODE2MmFkZDI4YTYzNzlmYjU0ZSJ9fX0=";
+    private static final String TEXTURE_ATTRIBUTES = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWRiZGFhNzU1MDk5ZWRkN2VmYTFmMTI4ODJjN2E1MWI1ODE1ZGI1MmUwYjE2NGFlZjZkZjlhMWY1M2VjYTIzIn19fQ==";
+
+    private KitAttrbiutesEditor attrbiutesEditor;
 
     public KitMainEditor(@NotNull Kit kit) {
         super(kit.plugin(), kit, TITLE + " [" + kit.getId() + "]", 45);
@@ -127,7 +129,7 @@ public class KitMainEditor extends EditorMenu<AMA, Kit> {
             if (kit.isFree()) item.setType(Material.NETHERITE_INGOT);
         });
 
-        this.addItem(ItemUtil.createCustomHead(TEXTURE_COMMAND), EditorLocales.KIT_COMMANDS, 19).setClick((viewer, event) -> {
+        this.addItem(ItemUtil.createCustomHead(TEXTURE_COMMAND), EditorLocales.KIT_COMMANDS, 20).setClick((viewer, event) -> {
             if (event.isRightClick()) {
                 kit.getCommands().clear();
                 this.save(viewer);
@@ -166,18 +168,37 @@ public class KitMainEditor extends EditorMenu<AMA, Kit> {
             new ContentEditor(kit, 9).openNextTick(viewer, 1);
         });
 
-        this.addItem(ItemUtil.createCustomHead(TEXTURE_INVENTORY), EditorLocales.KIT_INVENTORY, 25).setClick((viewer, event) -> {
-            new ContentEditor(kit, 27).openNextTick(viewer, 1);
+        this.addItem(ItemUtil.createCustomHead(TEXTURE_INVENTORY), EditorLocales.KIT_INVENTORY, 24).setClick((viewer, event) -> {
+            new ContentEditor(kit, Kit.INVENTORY_SIZE).openNextTick(viewer, 1);
         });
 
-        this.getItems().forEach(menuItem -> {
-            menuItem.getOptions().addDisplayModifier((viewer, item) -> ItemReplacer.replace(item, kit.replacePlaceholders()));
+        this.addItem(ItemUtil.createCustomHead(TEXTURE_ATTRIBUTES), EditorLocales.KIT_ATTRIBUTES, 22).setClick((viewer, event) -> {
+            this.getAttrbiutesEditor().openNextTick(viewer, 1);
         });
+
+        this.getItems().forEach(menuItem -> menuItem.getOptions().addDisplayModifier((viewer, item) -> {
+            ItemReplacer.replace(item, Placeholders.forKitAll(kit).replacer());
+        }));
+    }
+
+    @Override
+    public void clear() {
+        if (this.attrbiutesEditor != null) this.attrbiutesEditor.clear();
+
+        super.clear();
     }
 
     private void save(@NotNull MenuViewer viewer) {
         this.object.save();
         this.openNextTick(viewer, viewer.getPage());
+    }
+
+    @NotNull
+    public KitAttrbiutesEditor getAttrbiutesEditor() {
+        if (this.attrbiutesEditor == null) {
+            this.attrbiutesEditor = new KitAttrbiutesEditor(this.plugin, this.object);
+        }
+        return attrbiutesEditor;
     }
 
     @Override
@@ -208,11 +229,16 @@ public class KitMainEditor extends EditorMenu<AMA, Kit> {
         public void onReady(@NotNull MenuViewer viewer, @NotNull Inventory inventory) {
             super.onReady(viewer, inventory);
 
-            List<ItemStack> items = new ArrayList<>(Arrays.asList(this.isArmor ? this.kit.getArmor() : this.kit.getItems()));
-            if (this.isArmor) items.addAll(Arrays.asList(this.kit.getExtras()));
-
-            //inventory.setContents(this.isArmor ? this.kit.getArmor() : this.kit.getItems());
-            inventory.setContents(items.toArray(new ItemStack[0]));
+            if (this.isArmor) {
+                inventory.setItem(0, kit.getEquipment(EquipmentSlot.FEET));
+                inventory.setItem(1, kit.getEquipment(EquipmentSlot.LEGS));
+                inventory.setItem(2, kit.getEquipment(EquipmentSlot.CHEST));
+                inventory.setItem(3, kit.getEquipment(EquipmentSlot.HEAD));
+                inventory.setItem(4, kit.getEquipment(EquipmentSlot.OFF_HAND));
+            }
+            else {
+                inventory.setContents(kit.getItems());
+            }
         }
 
         @Override
@@ -224,20 +250,15 @@ public class KitMainEditor extends EditorMenu<AMA, Kit> {
         @Override
         public void onClose(@NotNull MenuViewer viewer, @NotNull InventoryCloseEvent event) {
             Inventory inventory = event.getInventory();
-            ItemStack[] items = new ItemStack[this.isArmor ? 4 : 27];
-
-            for (int slot = 0; slot < items.length; slot++) {
-                ItemStack item = inventory.getItem(slot);
-                if (item == null) continue;
-
-                items[slot] = item;
-            }
-
             if (this.isArmor) {
-                this.kit.setArmor(items);
-                this.kit.setExtras(new ItemStack[]{inventory.getItem(4)});
+                int index = 0;
+                for (EquipmentSlot slot : Kit.EQUIPMENT_SLOTS) {
+                    kit.setEquipment(slot, inventory.getItem(index++));
+                }
             }
-            else this.kit.setItems(items);
+            else {
+                this.kit.setItems(inventory.getContents());
+            }
 
             this.kit.save();
             this.kit.getEditor().openNextTick(viewer, 1);

@@ -3,6 +3,7 @@ package su.nightexpress.ama.arena.game;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
@@ -27,7 +28,7 @@ import su.nightexpress.ama.config.Config;
 import su.nightexpress.ama.config.Lang;
 import su.nightexpress.ama.hook.HookId;
 import su.nightexpress.ama.hook.pet.PluginPetProvider;
-import su.nightexpress.ama.kit.Kit;
+import su.nightexpress.ama.kit.impl.Kit;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -143,6 +144,9 @@ public class GameplaySettings extends AbstractConfigHolder<AMA> implements Arena
                     if (kit != null) {
                         list.add(Report.good(kit.getName() + Colors2.GRAY + ": " + value));
                     }
+                    else if (kitId.equalsIgnoreCase(Placeholders.WILDCARD)) {
+                        list.add(Report.good("<Global>" + Colors2.GRAY + ": " + value));
+                    }
                     else list.add(Report.problem(kitId + Colors2.GRAY + ": " + value));
                 });
                 return String.join("\n", Colorizer.apply(list));
@@ -201,7 +205,7 @@ public class GameplaySettings extends AbstractConfigHolder<AMA> implements Arena
         for (String kitId : cfg.getSection(path + "Limits")) {
             this.getKitsLimits().put(kitId.toLowerCase(), cfg.getInt(path + "Limits." + kitId));
         }
-        this.getKitsLimits().remove(Placeholders.WILDCARD);
+        //this.getKitsLimits().remove(Placeholders.WILDCARD);
 
         path = "Compatibility.";
         this.setPetsAllowed(cfg.getBoolean(path + "Pets_Enabled"));
@@ -367,7 +371,18 @@ public class GameplaySettings extends AbstractConfigHolder<AMA> implements Arena
     }
 
     public int getKitLimit(@NotNull String id) {
-        return this.getKitsLimits().isEmpty() ? -1 : this.getKitsLimits().getOrDefault(id, 0);
+        // If nothing defined, then noting to limit.
+        if (this.getKitsLimits().isEmpty()) return -1;
+
+        id = id.toLowerCase(Locale.ROOT);
+
+        // If kit present, get limit for it.
+        if (this.getKitsLimits().containsKey(id)) {
+            return this.getKitsLimits().getOrDefault(id, 0);
+        }
+
+        // Otherwise try to get global one.
+        return this.getKitsLimits().getOrDefault(Placeholders.WILDCARD, 0);
     }
 
     public int getTimeleft() {
@@ -458,6 +473,10 @@ public class GameplaySettings extends AbstractConfigHolder<AMA> implements Arena
     @NotNull
     public Set<Material> getBannedItems() {
         return bannedItems;
+    }
+
+    public boolean isBannedItem(@NotNull ItemStack item) {
+        return this.getBannedItems().contains(item.getType());
     }
 
     @NotNull

@@ -308,11 +308,13 @@ public class ArenaConfig extends AbstractConfigHolder<AMA> implements HologramHo
             report.addWarn("Minor issues in Spot Manager.");
         }
 
-        if (this.getShopManager().hasProblems()) {
-            report.addProblem("Major issues in Shop Manager.");
-        }
-        else if (this.getShopManager().hasWarns()) {
-            report.addWarn("Minor issues in Shop Manager.");
+        if (this.getShopManager().isActive()) {
+            if (this.getShopManager().hasProblems()) {
+                report.addProblem("Major issues in Shop Manager.");
+            }
+            else if (this.getShopManager().hasWarns()) {
+                report.addWarn("Minor issues in Shop Manager.");
+            }
         }
 
         if (this.getRewardManager().hasProblems()) {
