@@ -82,6 +82,7 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
 
         MobFaction damagerFaction = this.plugin.getMobManager().getFaction(damager);
         MobFaction victimFaction = this.plugin.getMobManager().getFaction(victim);
+        if (damagerFaction == null && victimFaction == null) return;
 
         event.setCancelled(damagerFaction == victimFaction);
 
