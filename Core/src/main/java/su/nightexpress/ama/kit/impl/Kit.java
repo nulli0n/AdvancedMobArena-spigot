@@ -57,7 +57,7 @@ public class Kit extends AbstractConfigHolder<AMA> implements HologramHolder, Pl
         Attribute.GENERIC_ARMOR_TOUGHNESS,
         Attribute.GENERIC_ARMOR,
         Attribute.GENERIC_MOVEMENT_SPEED,
-        Attribute.GENERIC_MAX_ABSORPTION,
+        //Attribute.GENERIC_MAX_ABSORPTION,
         Attribute.GENERIC_ATTACK_DAMAGE,
         Attribute.GENERIC_ATTACK_SPEED,
         Attribute.GENERIC_MAX_HEALTH

@@ -101,11 +101,15 @@ public class SignManager extends AbstractManager<AMA> {
                 if (pos < 1) return;
 
                 String arenaId = PDCUtil.getString(sign, Keys.SIGN_ARENA_ID).orElse(null);
-                Arena arena = arenaId != null ? plugin.getArenaManager().getArenaById(arenaId) : null;
+                if (arenaId == null) return;
+
+                Arena arena = plugin.getArenaManager().getArenaById(arenaId);
+                if (arena == null) return;
+
                 StatsScore score = this.plugin.getStatsManager().getScore(statType, pos, arenaId);
 
                 text.replaceAll(line -> score.replacePlaceholders(pos).apply(line)
-                    .replace(Placeholders.ARENA_NAME, arena != null ? arena.getConfig().getName() : "")
+                    .replace(Placeholders.ARENA_NAME, arena.getConfig().getName())
                 );
 
                 String skullOwner = score.isEmpty() ? "MHF_Question" : score.getName();
@@ -188,14 +192,17 @@ public class SignManager extends AbstractManager<AMA> {
             if (type == null) return false;
 
             String[] line3 = lines[3].split(":");
+            if (line3.length < 2) return false;
+
             int pos = StringUtil.getInteger(line3[0], -1);
             if (pos <= 0) return false;
 
-            Arena arena = line3.length >= 2 ? this.plugin.getArenaManager().getArenaById(line3[1]) : null;
+            Arena arena = this.plugin.getArenaManager().getArenaById(line3[1]);
+            if (arena == null) return false;
 
             PDCUtil.set(sign, Keys.SIGN_STAT_TYPE, type.name());
             PDCUtil.set(sign, Keys.SIGN_STAT_POSITION, pos);
-            if (arena != null) PDCUtil.set(sign, Keys.SIGN_ARENA_ID, arena.getId());
+            PDCUtil.set(sign, Keys.SIGN_ARENA_ID, arena.getId());
         }
 
         PDCUtil.set(sign, Keys.SIGN_TYPE, signType.name());

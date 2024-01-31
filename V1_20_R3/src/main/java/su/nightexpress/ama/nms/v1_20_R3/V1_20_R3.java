@@ -12,6 +12,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
+import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.pathfinder.Node;
@@ -137,6 +138,9 @@ public class V1_20_R3 implements ArenaNMS {
                 if (mob instanceof net.minecraft.world.entity.monster.Drowned drowned) {
                     drowned.goalSelector.getAvailableGoals().removeIf(goal -> goal.getGoal() instanceof ZombieAttackGoal);
                     drowned.goalSelector.addGoal(3, new ZombieAttackGoal(drowned, 1D, false));
+                }
+                else if (mob instanceof EnderMan ender) {
+                    ender.goalSelector.getAvailableGoals().removeIf(wrappedGoal -> wrappedGoal.getPriority() == 1);
                 }
                 pathfinderMob.goalSelector.getAvailableGoals().removeIf(wrappedGoal -> {
                     var goal = wrappedGoal.getGoal();

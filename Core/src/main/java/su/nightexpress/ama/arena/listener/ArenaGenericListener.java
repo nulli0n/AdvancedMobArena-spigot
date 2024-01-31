@@ -63,7 +63,7 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
         this.plugin.getMobManager().updateMobBar(entity);
     }
 
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onArenaDamageFriendly(EntityDamageByEntityEvent event) {
         if (!(event.getEntity() instanceof LivingEntity victim)) return;
 
@@ -189,15 +189,16 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
     }*/
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
-    public void onArenaMobTeleport(EntityTeleportEvent e) {
-        Location to = e.getTo();
+    public void onArenaMobTeleport(EntityTeleportEvent event) {
+        Location to = event.getTo();
         if (to == null) return;
 
-        Arena arenaTo = this.manager.getArenaAtLocation(to);
-        Arena arenaFrom = this.manager.getArenaAtLocation(e.getFrom());
+        Arena targetArena = this.manager.getArenaAtLocation(to);
 
-        if (arenaTo != arenaFrom) {
-            e.setCancelled(true);
+        Entity entity = event.getEntity();
+        Arena sourceArena = this.plugin.getMobManager().getEntityArena(entity);
+        if ((sourceArena == null && targetArena != null) || (sourceArena != null && targetArena != sourceArena)) {
+            event.setCancelled(true);
         }
     }
 
