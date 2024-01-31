@@ -308,7 +308,7 @@ public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
 
                 return arenaConfig.getPaymentRequirements().keySet().stream().map(currency -> {
                     return Report.good(currency.format(arenaConfig.getPaymentRequirements().getOrDefault(currency, 0D)));
-                }).collect(Collectors.joining(", "));
+                }).collect(Collectors.joining("\n"));
             })
             .add(Placeholders.ARENA_LEVEL_REQUIREMENT, () -> {
                 if (arenaConfig.getLevelRequirements().isEmpty()) {
@@ -317,7 +317,7 @@ public class Placeholders extends su.nexmedia.engine.utils.Placeholders {
 
                 return arenaConfig.getLevelRequirements().entrySet().stream().map(levelProvider -> {
                     return Report.good(levelProvider.getKey().getName() + ": " + levelProvider.getValue());
-                }).collect(Collectors.joining(", "));
+                }).collect(Collectors.joining("\n"));
             });
     }
 

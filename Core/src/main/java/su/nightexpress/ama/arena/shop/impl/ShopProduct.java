@@ -167,14 +167,24 @@ public class ShopProduct implements ArenaChild, Lockable, Inspectable, Placehold
         return true;
     }
 
-    public boolean isAvailable(@NotNull ArenaPlayer arenaPlayer) {
-        if (this.getArenaConfig().getGameplaySettings().isKitsEnabled()) {
-            if (this.getKitsRequired().isEmpty() || this.getKitsRequired().contains(Placeholders.WILDCARD)) return true;
+    public boolean canAfford(@NotNull Player player) {
+        double price = this.getPrice();
+        double balance = this.getCurrency().getHandler().getBalance(player);
 
-            Kit kit = arenaPlayer.getKit();
-            return kit != null && this.getKitsRequired().contains(kit.getId());
-        }
-        return true;
+        return balance >= price;
+    }
+
+    public boolean isGoodKit(@NotNull ArenaPlayer arenaPlayer) {
+        if (!this.getArenaConfig().getGameplaySettings().isKitsEnabled()) return true;
+
+        if (this.getKitsRequired().isEmpty() || this.getKitsRequired().contains(Placeholders.WILDCARD)) return true;
+
+        Kit kit = arenaPlayer.getKit();
+        return kit != null && this.getKitsRequired().contains(kit.getId());
+    }
+
+    public boolean isAvailable(@NotNull ArenaPlayer arenaPlayer) {
+        return this.isGoodKit(arenaPlayer);
     }
 
     @NotNull

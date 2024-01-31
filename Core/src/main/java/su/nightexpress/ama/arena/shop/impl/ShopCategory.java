@@ -176,14 +176,17 @@ public class ShopCategory implements ArenaChild, Lockable, Inspectable, Placehol
         this.getShopManager().save();
     }
 
-    public boolean isAvailable(@NotNull ArenaPlayer arenaPlayer) {
-        if (this.getArenaConfig().getGameplaySettings().isKitsEnabled()) {
-            if (this.getKitsRequired().isEmpty() || this.getKitsRequired().contains(Placeholders.WILDCARD)) return true;
+    public boolean isGoodKit(@NotNull ArenaPlayer arenaPlayer) {
+        if (!this.getArenaConfig().getGameplaySettings().isKitsEnabled()) return true;
 
-            Kit kit = arenaPlayer.getKit();
-            return kit != null && this.getKitsRequired().contains(kit.getId());
-        }
-        return true;
+        if (this.getKitsRequired().isEmpty() || this.getKitsRequired().contains(Placeholders.WILDCARD)) return true;
+
+        Kit kit = arenaPlayer.getKit();
+        return kit != null && this.getKitsRequired().contains(kit.getId());
+    }
+
+    public boolean isAvailable(@NotNull ArenaPlayer arenaPlayer) {
+        return this.isGoodKit(arenaPlayer);
     }
 
     public boolean open(@NotNull ArenaPlayer arenaPlayer) {

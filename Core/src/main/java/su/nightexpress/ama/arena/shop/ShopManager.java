@@ -142,6 +142,7 @@ public class ShopManager extends AbstractConfigHolder<AMA> implements ArenaChild
                 cfg.set(path2 + "Name", shopProduct.getName());
                 cfg.set(path2 + "Description", shopProduct.getDescription());
                 cfg.set(path2 + "Price", shopProduct.getPrice());
+                cfg.set(path2 + "Currency", shopProduct.getCurrency().getId());
                 cfg.set(path2 + "Allowed_Kits", shopProduct.getKitsRequired());
                 cfg.setItem(path2 + "Preview", shopProduct.getIcon());
                 cfg.set(path2 + "Commands", shopProduct.getCommands());
@@ -197,7 +198,7 @@ public class ShopManager extends AbstractConfigHolder<AMA> implements ArenaChild
     @NotNull
     public ShopMainMenu getMenu() {
         if (this.menu == null) {
-            this.menu = new ShopMainMenu(this);
+            this.menu = new ShopMainMenu(this.plugin, this);
         }
         return menu;
     }
