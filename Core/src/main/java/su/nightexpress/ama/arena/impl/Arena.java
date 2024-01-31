@@ -764,6 +764,11 @@ public class Arena implements IArena, Placeholder {
         return true;
     }*/
 
+    public boolean checkPaymentRequirements(@NotNull Player player) {
+        return this.getConfig().getPaymentRequirements().entrySet().stream()
+            .allMatch(entry -> entry.getKey().getHandler().getBalance(player) >= entry.getValue());
+    }
+
     public void payJoinRequirements(@NotNull Arena arena, @NotNull Player player) {
         this.getConfig().getPaymentRequirements().forEach((currency, amount) -> currency.getHandler().take(player, amount));
     }
@@ -824,7 +829,7 @@ public class Arena implements IArena, Placeholder {
         }
 
         if (!player.hasPermission(Perms.BYPASS_ARENA_JOIN_PAYMENT)) {
-            if (!this.getConfig().getPaymentRequirements().entrySet().stream().allMatch(entry -> entry.getKey().getHandler().getBalance(player) >= entry.getValue())) {
+            if (!this.checkPaymentRequirements(player)) {
                 if (notify) plugin.getMessage(Lang.ARENA_JOIN_ERROR_PAYMENT).replace(this.replacePlaceholders()).send(player);
                 return false;
             }
