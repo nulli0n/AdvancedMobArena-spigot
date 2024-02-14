@@ -203,20 +203,20 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
     }
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
-    public void onArenaPlayerTeleport(PlayerTeleportEvent e) {
-        if (e.getPlayer().hasPermission(Perms.CREATOR)) return;
+    public void onArenaPlayerTeleport(PlayerTeleportEvent event) {
+        if (event.getPlayer().hasPermission(Perms.CREATOR)) return;
 
-        Location to = e.getTo();
+        Location to = event.getTo();
         if (to == null) return;
 
         Arena arenaTo = this.manager.getArenaAtLocation(to);
-        ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(e.getPlayer());
+        ArenaPlayer arenaPlayer = ArenaPlayer.getPlayer(event.getPlayer());
         if (arenaPlayer == null) {
-            Arena arenaFrom = this.manager.getArenaAtLocation(e.getFrom());
+            Arena arenaFrom = this.manager.getArenaAtLocation(event.getFrom());
             if (arenaFrom != null) return;
 
-            if (arenaTo != null) {
-                e.setCancelled(true);
+            if (arenaTo != null && arenaTo.getState() == GameState.INGAME) {
+                event.setCancelled(true);
             }
         }
         else {
@@ -224,7 +224,7 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
             if (arenaPlayer.getArena().isAboutToEnd()) return;
             if (arenaPlayer.getArena() == arenaTo) return;
 
-            e.setCancelled(true);
+            event.setCancelled(true);
         }
     }
 

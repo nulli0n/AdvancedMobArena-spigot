@@ -24,7 +24,7 @@ import su.nexmedia.engine.utils.NumberUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.config.Config;
-import su.nightexpress.coinsengine.config.Lang;
+import su.nightexpress.ama.config.Lang;
 
 import java.util.ArrayList;
 import java.util.Arrays;

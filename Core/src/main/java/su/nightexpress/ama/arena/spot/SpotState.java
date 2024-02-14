@@ -14,6 +14,7 @@ import su.nightexpress.ama.api.event.ArenaSpotStateChangeEvent;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,8 +25,8 @@ public class SpotState implements ArenaChild, Placeholder {
     private final String id;
     private final PlaceholderMap placeholderMap;
 
-    private       List<String>                  schemeRaw;
-    private final Map<Location, BlockData>      scheme;
+    private final List<String>             schemeRaw;
+    private final Map<Location, BlockData> scheme;
 
     public SpotState(
         @NotNull Spot spot,
@@ -35,11 +36,11 @@ public class SpotState implements ArenaChild, Placeholder {
         this.spot = spot;
         this.id = id.toLowerCase();
         this.scheme = new HashMap<>();
+        this.schemeRaw = new ArrayList<>();
         this.setSchemeRaw(schemeRaw);
 
         this.placeholderMap = new PlaceholderMap()
-            .add(Placeholders.SPOT_STATE_ID, this::getId)
-        ;
+            .add(Placeholders.SPOT_STATE_ID, this::getId);
     }
 
     @Override
@@ -65,28 +66,35 @@ public class SpotState implements ArenaChild, Placeholder {
     }
 
     public void setSchemeRaw(@NotNull List<String> schemeRaw) {
-        this.schemeRaw = schemeRaw;
+        this.schemeRaw.clear();
         this.scheme.clear();
 
         AMA plugin = this.getSpot().plugin();
-        for (String block : schemeRaw) {
-            String[] blockSplit = block.split("~");
+        for (String rawData : schemeRaw) {
+            String[] blockSplit = rawData.split("~");
             if (blockSplit.length != 2) {
-                plugin.error("Invalid block '" + block + "' in '" + id + "' state of '" + spot.getFile().getName() + "' spot in '" + spot.getArenaConfig().getId() + "' arena!");
+                plugin.error("Invalid block '" + rawData + "' in '" + id + "' state of '" + spot.getFile().getName() + "' spot in '" + spot.getArenaConfig().getId() + "' arena!");
                 continue;
             }
             Location blockLoc = LocationUtil.deserialize(blockSplit[0]);
             if (blockLoc == null) {
-                plugin.error("Invalid block location '" + block + "' in '" + id + "' state of '" + spot.getFile().getName() + "' spot in '" + spot.getArenaConfig().getId() + "' arena!");
+                plugin.error("Invalid block location '" + rawData + "' in '" + id + "' state of '" + spot.getFile().getName() + "' spot in '" + spot.getArenaConfig().getId() + "' arena!");
                 continue;
             }
             if (this.spot.getCuboid().isEmpty() || !this.spot.getCuboid().get().contains(blockLoc)) {
-                plugin.error("Block is outside of the spot region: '" + block + "' in '" + id + "' state of '" + spot.getFile().getName() + "' spot in '" + spot.getArenaConfig().getId() + "' arena!");
+                plugin.error("Block is outside of the spot region: '" + rawData + "' in '" + id + "' state of '" + spot.getFile().getName() + "' spot in '" + spot.getArenaConfig().getId() + "' arena!");
                 continue;
             }
 
-            BlockData blockData = plugin.getServer().createBlockData(blockSplit[1]);
-            this.scheme.put(blockLoc, blockData);
+            try {
+                BlockData blockData = plugin.getServer().createBlockData(blockSplit[1]);
+                this.scheme.put(blockLoc, blockData);
+                this.schemeRaw.add(rawData);
+            }
+            catch (IllegalArgumentException exception) {
+                plugin.warn("Could not create block data from string: '" + blockSplit[1] + "'.");
+                //exception.printStackTrace();
+            }
         }
     }
 

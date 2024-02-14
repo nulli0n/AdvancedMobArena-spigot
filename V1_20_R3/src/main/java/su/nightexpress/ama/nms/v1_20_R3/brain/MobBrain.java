@@ -88,156 +88,153 @@ public class MobBrain {
         return Brain.provider(MEMORY_TYPES, getSensorTypes(entity));
     }
 
-    private static final Method ACTUALLY_HURT    = Reflex.getMethod(LivingEntity.class, "damageEntity0", DamageSource.class, Float.TYPE);
+    private static final Method ACTUALLY_HURT    = Reflex.getMethod(LivingEntity.class, "actuallyHurt", DamageSource.class, Float.TYPE);
     private static final Field  NO_ACTION_TIME   = Reflex.getField(LivingEntity.class, "bb");
     private static final Field  LAST_DAMAGE_TIME = Reflex.getField(LivingEntity.class, "ce");
     private static final Field  LAST_DAMAGE_SOURCE = Reflex.getField(LivingEntity.class, "cd");
 
-    public static boolean hurt(LivingEntity pet, DamageSource damagesource, float damage) {
+    public static boolean hurt(LivingEntity mob, DamageSource damagesource, float damage) {
         if (ACTUALLY_HURT == null) return false;
-        if (pet.isInvulnerableTo(damagesource)) return false;
-        if (pet.level().isClientSide) return false;
-        if (pet.isAlive()) {
-            if (damagesource.is(DamageTypeTags.IS_FIRE) && pet.hasEffect(MobEffects.FIRE_RESISTANCE)) {
+        if (mob.isInvulnerableTo(damagesource)) return false;
+        if (mob.level().isClientSide) return false;
+        if (!mob.isAlive()) return false;
+        if (damagesource.is(DamageTypeTags.IS_FIRE) && mob.hasEffect(MobEffects.FIRE_RESISTANCE)) {
+            return false;
+        }
+
+        if (mob.isSleeping() && !mob.level().isClientSide) {
+            mob.stopSleeping();
+        }
+
+        if (NO_ACTION_TIME != null) {
+            try {
+                NO_ACTION_TIME.trySetAccessible();
+                NO_ACTION_TIME.set(mob, 0);
+            }
+            catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+
+        float f1 = damage;
+        boolean blocked = damage > 0.0F && mob.isDamageSourceBlocked(damagesource);
+        if (damagesource.is(DamageTypeTags.IS_FREEZING) && mob.getType().is(EntityTypeTags.FREEZE_HURTS_EXTRA_TYPES)) {
+            damage *= 5.0F;
+        }
+
+        mob.walkAnimation.setSpeed(1.5F);
+        boolean punch = true;
+        if ((float) mob.invulnerableTime > (float) mob.invulnerableDuration / 2.0F && !damagesource.is(DamageTypeTags.BYPASSES_COOLDOWN)) {
+            if (damage <= mob.lastHurt) {
                 return false;
             }
+
+            Object val = Reflex.invokeMethod(ACTUALLY_HURT, mob, damagesource, damage - mob.lastHurt);
+            if (val != null && !(boolean) val) {
+                return false;
+            }
+
+            mob.lastHurt = damage;
+            punch = false;
+        }
+        else {
+            Object val = Reflex.invokeMethod(ACTUALLY_HURT, mob, damagesource, damage);
+            if (val != null && !(boolean) val) {
+                return false;
+            }
+            mob.lastHurt = damage;
+            mob.invulnerableTime = mob.invulnerableDuration;
+            mob.hurtDuration = 10;
+            mob.hurtTime = mob.hurtDuration;
+        }
+
+        Entity damager = damagesource.getEntity();
+        if (damager != null) {
+            if (damager instanceof LivingEntity entityliving1) {
+                if (!damagesource.is(DamageTypeTags.NO_ANGER)) {
+                    mob.setLastHurtByMob(entityliving1);
+                }
+            }
+
+            int ticksHas = mob.tickCount;
+            if (damager instanceof Player player) {
+                mob.tickCount = 100;
+                mob.setLastHurtByPlayer(player);
+                mob.tickCount = ticksHas;
+            }
+            else if (damager instanceof Wolf entitywolf) {
+                if (entitywolf.isTame()) {
+                    LivingEntity entityliving = entitywolf.getOwner();
+                    if (entityliving instanceof Player player) {
+                        mob.tickCount = 100;
+                        mob.setLastHurtByPlayer(player);
+                        mob.tickCount = ticksHas;
+                    }
+                    else mob.lastHurtByPlayer = null;
+                }
+            }
+        }
+
+        if (punch) {
+            if (blocked) {
+                mob.level().broadcastEntityEvent(mob, (byte) 29);
+            }
             else {
-                if (pet.isSleeping() && !pet.level().isClientSide) {
-                    pet.stopSleeping();
+                mob.level().broadcastDamageEvent(mob, damagesource);
+            }
+
+            if (!damagesource.is(DamageTypeTags.NO_IMPACT) && (!blocked || damage > 0.0F)) {
+                mob.hurtMarked = true;
+            }
+
+            if (damager != null && !damagesource.is(DamageTypeTags.IS_EXPLOSION)) {
+                double d0 = damager.getX() - mob.getX();
+
+                double d1;
+                for (d1 = damager.getZ() - mob.getZ(); d0 * d0 + d1 * d1 < 1.0E-4D; d1 = (Math.random() - Math.random()) * 0.01D) {
+                    d0 = (Math.random() - Math.random()) * 0.01D;
                 }
 
-                if (NO_ACTION_TIME != null) {
-                    try {
-                        NO_ACTION_TIME.trySetAccessible();
-                        NO_ACTION_TIME.set(pet, 0);
-                    }
-                    catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    }
+                mob.knockback(0.4000000059604645D, d0, d1);
+                if (!blocked) {
+                    mob.indicateDamage(d0, d1);
                 }
+            }
+        }
 
-                float f1 = damage;
-                boolean blocked = damage > 0.0F && pet.isDamageSourceBlocked(damagesource);
-                float f2 = 0.0F;
-                if (damagesource.is(DamageTypeTags.IS_FREEZING) && pet.getType().is(EntityTypeTags.FREEZE_HURTS_EXTRA_TYPES)) {
-                    damage *= 5.0F;
-                }
-
-                pet.walkAnimation.setSpeed(1.5F);
-                boolean punch = true;
-                if ((float)pet.invulnerableTime > (float)pet.invulnerableDuration / 2.0F && !damagesource.is(DamageTypeTags.BYPASSES_COOLDOWN)) {
-                    if (damage <= pet.lastHurt) {
-                        return false;
-                    }
-
-                    Object val = Reflex.invokeMethod(ACTUALLY_HURT, pet, damagesource, damage - pet.lastHurt);
-                    if (val != null && !(boolean) val) {
-                        return false;
-                    }
-
-                    pet.lastHurt = damage;
-                    punch = false;
-                } else {
-                    Object val = Reflex.invokeMethod(ACTUALLY_HURT, pet, damagesource, damage);
-                    if (val != null && !(boolean) val) {
-                        return false;
-                    }
-                    pet.lastHurt = damage;
-                    pet.invulnerableTime = pet.invulnerableDuration;
-                    pet.hurtDuration = 10;
-                    pet.hurtTime = pet.hurtDuration;
-                }
-
-                Entity damager = damagesource.getEntity();
-                if (damager != null) {
-                    if (damager instanceof LivingEntity entityliving1) {
-                        if (!damagesource.is(DamageTypeTags.NO_ANGER)) {
-                            pet.setLastHurtByMob(entityliving1);
-                        }
-                    }
-
-                    int ticksHas = pet.tickCount;
-                    if (damager instanceof Player player) {
-                        pet.tickCount = 100;
-                        pet.setLastHurtByPlayer(player);
-                        pet.tickCount = ticksHas;
-                    }
-                    else if (damager instanceof Wolf entitywolf) {
-                        if (entitywolf.isTame()) {
-                            LivingEntity entityliving = entitywolf.getOwner();
-                            if (entityliving instanceof Player player) {
-                                pet.tickCount = 100;
-                                pet.setLastHurtByPlayer(player);
-                                pet.tickCount = ticksHas;
-                            }
-                            else pet.lastHurtByPlayer = null;
-                        }
-                    }
-                }
-
-                if (punch) {
-                    if (blocked) {
-                        pet.level().broadcastEntityEvent(pet, (byte)29);
-                    } else {
-                        pet.level().broadcastDamageEvent(pet, damagesource);
-                    }
-
-                    if (!damagesource.is(DamageTypeTags.NO_IMPACT) && (!blocked || damage > 0.0F)) {
-                        pet.hurtMarked = true;
-                    }
-
-                    if (damager != null && !damagesource.is(DamageTypeTags.IS_EXPLOSION)) {
-                        double d0 = damager.getX() - pet.getX();
-
-                        double d1;
-                        for(d1 = damager.getZ() - pet.getZ(); d0 * d0 + d1 * d1 < 1.0E-4D; d1 = (Math.random() - Math.random()) * 0.01D) {
-                            d0 = (Math.random() - Math.random()) * 0.01D;
-                        }
-
-                        pet.knockback(0.4000000059604645D, d0, d1);
-                        if (!blocked) {
-                            pet.indicateDamage(d0, d1);
-                        }
-                    }
-                }
-
-                if (pet.isDeadOrDying()) {
+        if (mob.isDeadOrDying()) {
                     /*if (!pet.checkTotemDeathProtection(damagesource)) {
                         SoundEvent soundeffect = pet.getDeathSound();
                         if (punch && soundeffect != null) {
                             pet.playSound(soundeffect, pet.getSoundVolume(), pet.getVoicePitch());
                         }
                     }*/
-                    pet.die(damagesource);
-                }
-                else if (punch) {
-                    //pet.playHurtSound(damagesource);
-                }
-
-                boolean damaged = !blocked || damage > 0.0F;
-                if (damaged) {
-                    if (LAST_DAMAGE_TIME != null && LAST_DAMAGE_SOURCE != null) {
-                        try {
-                            LAST_DAMAGE_SOURCE.trySetAccessible();
-                            LAST_DAMAGE_SOURCE.set(pet, damagesource);
-
-                            LAST_DAMAGE_TIME.trySetAccessible();
-                            LAST_DAMAGE_TIME.set(pet, pet.level().getGameTime());
-                        }
-                        catch (IllegalAccessException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-
-                if (damager instanceof ServerPlayer) {
-                    CriteriaTriggers.PLAYER_HURT_ENTITY.trigger((ServerPlayer)damager, pet, damagesource, f1, damage, blocked);
-                }
-
-                return damaged;
-            }
-        } else {
-            return false;
+            mob.die(damagesource);
         }
+        else if (punch) {
+            //pet.playHurtSound(damagesource);
+        }
+
+        boolean damaged = !blocked || damage > 0.0F;
+        if (damaged) {
+            if (LAST_DAMAGE_TIME != null && LAST_DAMAGE_SOURCE != null) {
+                try {
+                    LAST_DAMAGE_SOURCE.trySetAccessible();
+                    LAST_DAMAGE_SOURCE.set(mob, damagesource);
+
+                    LAST_DAMAGE_TIME.trySetAccessible();
+                    LAST_DAMAGE_TIME.set(mob, mob.level().getGameTime());
+                }
+                catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        if (damager instanceof ServerPlayer) {
+            CriteriaTriggers.PLAYER_HURT_ENTITY.trigger((ServerPlayer) damager, mob, damagesource, f1, damage, blocked);
+        }
+
+        return damaged;
     }
 }

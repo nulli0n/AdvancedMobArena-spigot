@@ -64,6 +64,15 @@ public class ArenaItemsListener extends AbstractListener<AMA> {
             event.setUseInteractedBlock(Event.Result.DENY);
             return;
         }
+        else {
+            Block block = event.getClickedBlock();
+            if (block == null || !block.getType().isInteractable()) return;
+
+            Material material = block.getType();
+            if (material == Material.CAMPFIRE || material == Material.DECORATED_POT) {
+                event.setUseInteractedBlock(Event.Result.DENY);
+            }
+        }
 
         /*Arena arena = arenaPlayer.getArena();
         if (arena.getConfig().getGameplaySettings().getBannedItems().contains(item.getType())) {
