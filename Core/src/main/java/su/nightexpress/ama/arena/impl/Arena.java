@@ -1094,9 +1094,14 @@ public class Arena implements IArena, Placeholder {
         });
     }
 
-    public void broadcast(@NotNull ArenaTargetType targetType, @NotNull String message) {
+    public void broadcast(@NotNull ArenaTargetType targetType, @NotNull String message, @Nullable ArenaGameGenericEvent event) {
         if (targetType == ArenaTargetType.GLOBAL) {
             this.plugin.getServer().broadcastMessage(message);
+            return;
+        }
+
+        if (targetType == ArenaTargetType.EVENT_PLAYER && event instanceof ArenaPlayerGameEvent playerGameEvent) {
+            playerGameEvent.getArenaPlayer().getPlayer().sendMessage(message);
             return;
         }
 
@@ -1105,9 +1110,14 @@ public class Arena implements IArena, Placeholder {
         });
     }
 
-    public void runCommand(@NotNull String command, @NotNull ArenaTargetType targetType) {
+    public void runCommand(@NotNull String command, @NotNull ArenaTargetType targetType, @Nullable ArenaGameGenericEvent event) {
         if (targetType == ArenaTargetType.GLOBAL) {
             this.plugin.getServer().dispatchCommand(this.plugin.getServer().getConsoleSender(), command);
+            return;
+        }
+
+        if (targetType == ArenaTargetType.EVENT_PLAYER && event instanceof ArenaPlayerGameEvent playerGameEvent) {
+            PlayerUtil.dispatchCommand(playerGameEvent.getArenaPlayer().getPlayer(), command);
             return;
         }
 

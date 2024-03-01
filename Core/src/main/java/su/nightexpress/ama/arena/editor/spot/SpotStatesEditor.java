@@ -41,7 +41,7 @@ public class SpotStatesEditor extends EditorMenu<AMA, Spot> implements AutoPaged
                     return false;
                 }
 
-                SpotState state = new SpotState(spot, id, new ArrayList<>());
+                SpotState state = new SpotState(plugin, spot, id, new ArrayList<>());
                 spot.getStates().put(state.getId(), state);
                 spot.save();
                 return true;

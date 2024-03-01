@@ -60,8 +60,8 @@ public class Spot extends AbstractConfigHolder<AMA> implements ArenaChild, Inspe
 
         for (String stateId : cfg.getSection("States")) {
             String path2 = "States." + stateId + ".";
-            List<String> blockSchemeRaw = new ArrayList<>(cfg.getStringList(path2 + "Scheme"));
-            SpotState state = new SpotState(this, stateId, blockSchemeRaw);
+            List<String> blockSchemeRaw = cfg.getStringList(path2 + "Scheme");
+            SpotState state = new SpotState(plugin, this, stateId, blockSchemeRaw);
             this.states.put(state.getId(), state);
         }
         cfg.saveChanges();
@@ -82,7 +82,7 @@ public class Spot extends AbstractConfigHolder<AMA> implements ArenaChild, Inspe
         cfg.set("States", null);
         this.states.forEach((id, state) -> {
             String path2 = "States." + id + ".";
-            cfg.set(path2 + "Scheme", state.getSchemeRaw());
+            cfg.set(path2 + "Scheme", state.getScheme().stream().map(spotBlock -> spotBlock.toRawString(plugin)).toList());
         });
     }
 

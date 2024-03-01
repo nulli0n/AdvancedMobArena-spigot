@@ -82,20 +82,20 @@ public class ScriptActions {
         ArenaTargetType targetType = result.get(Parameters.TARGET, ArenaTargetType.GLOBAL);
         String rewardId = result.get(Parameters.REWARD, "");
         event.getArena().getConfig().getRewardManager().getReward(rewardId).ifPresent(reward -> {
-            reward.give(event.getArena(), targetType);
+            reward.give(event.getArena(), targetType, event);
         });
     }, Parameters.REWARD, Parameters.TARGET);
 
     public static final ScriptAction RUN_COMMAND = register("run_command", (event, result) -> {
         ArenaTargetType targetType = result.get(Parameters.TARGET, ArenaTargetType.GLOBAL);
         String command = result.get(Parameters.NAME, "");
-        event.getArena().runCommand(command, targetType);
+        event.getArena().runCommand(command, targetType, event);
     }, Parameters.NAME, Parameters.TARGET);
 
     public static final ScriptAction BROADCAST = register("broadcast", (event, result) -> {
         ArenaTargetType targetType = result.get(Parameters.TARGET, ArenaTargetType.GLOBAL);
         String message = Colorizer.apply(result.get(Parameters.MESSAGE, ""));
-        event.getArena().broadcast(targetType, message);
+        event.getArena().broadcast(targetType, message, event);
     }, Parameters.MESSAGE, Parameters.TARGET);
 
     public static final ScriptAction CHANGE_SPOT = register("change_spot", (event, result) -> {

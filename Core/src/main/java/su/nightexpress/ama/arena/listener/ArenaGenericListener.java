@@ -193,10 +193,17 @@ public class ArenaGenericListener extends AbstractListener<AMA> {
         Location to = event.getTo();
         if (to == null) return;
 
-        Arena targetArena = this.manager.getArenaAtLocation(to);
-
         Entity entity = event.getEntity();
+        Arena targetArena = this.manager.getArenaAtLocation(to);
         Arena sourceArena = this.plugin.getMobManager().getEntityArena(entity);
+        if (targetArena != null && targetArena != sourceArena) {
+            if (targetArena.getConfig().getGameplaySettings().isPetsAllowed()) {
+                if (entity instanceof LivingEntity livingEntity && ArenaUtils.isPet(livingEntity)) {
+                    return;
+                }
+            }
+        }
+
         if ((sourceArena == null && targetArena != null) || (sourceArena != null && targetArena != sourceArena)) {
             event.setCancelled(true);
         }

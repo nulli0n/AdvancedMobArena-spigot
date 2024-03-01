@@ -12,18 +12,14 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.server.AbstractTask;
-import su.nexmedia.engine.utils.LocationUtil;
 import su.nightexpress.ama.AMA;
-import su.nightexpress.ama.arena.util.ArenaCuboid;
 import su.nightexpress.ama.arena.editor.spot.SpotSettingsEditor;
 import su.nightexpress.ama.arena.setup.ArenaSetupUtils;
 import su.nightexpress.ama.arena.setup.SetupItemType;
 import su.nightexpress.ama.arena.spot.Spot;
 import su.nightexpress.ama.arena.spot.SpotState;
+import su.nightexpress.ama.arena.util.ArenaCuboid;
 import su.nightexpress.ama.config.Lang;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SpotStateSetupManager extends AbstractSetupManager<SpotState> {
 
@@ -66,13 +62,7 @@ public class SpotStateSetupManager extends AbstractSetupManager<SpotState> {
             case SPOT_SAVE -> {
                 ArenaCuboid cuboid = state.getSpot().getCuboid().orElse(null);
                 if (cuboid != null) {
-                    List<String> scheme = new ArrayList<>();
-                    for (Block block : cuboid.getBlocks()) {
-                        String bLoc = LocationUtil.serialize(block.getLocation());
-                        String bData = block.getBlockData().getAsString();
-                        scheme.add(bLoc + "~" + bData);
-                    }
-                    state.setSchemeRaw(scheme);
+                    state.createScheme(cuboid.getBlocks());
                     state.getSpot().save();
                 }
                 this.endSetup(player);

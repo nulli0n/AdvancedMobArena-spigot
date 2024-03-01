@@ -1,6 +1,8 @@
 package su.nightexpress.ama.nms.v1_19_R3;
 
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
@@ -13,9 +15,14 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import org.bukkit.Location;
 import org.bukkit.Registry;
+import org.bukkit.block.Block;
+import org.bukkit.block.TileState;
 import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_19_R3.block.CraftBlock;
+import org.bukkit.craftbukkit.v1_19_R3.block.CraftBlockEntityState;
 import org.bukkit.craftbukkit.v1_19_R3.entity.CraftMob;
 import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftItemStack;
@@ -35,6 +42,8 @@ import su.nightexpress.ama.nms.v1_19_R3.brain.goal.LastDamagerTargetGoal;
 import su.nightexpress.ama.nms.v1_19_R3.brain.goal.MeleeAttackGoal;
 import su.nightexpress.ama.nms.v1_19_R3.brain.goal.NearestFactionTargetGoal;
 
+import java.io.*;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -151,6 +160,73 @@ public class V1_19_R3 implements ArenaNMS {
         else {
             MobBrain.setOwnerMemory(mob, player);
         }
+    }
+
+    @Override
+    @Nullable
+    public String tagToNBTString(@NotNull Object compoudTag) {
+        if (!(compoudTag instanceof CompoundTag tag)) return null;
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        DataOutputStream dataOutput = new DataOutputStream(outputStream);
+
+        try {
+            NbtIo.write(tag, dataOutput);
+            return new BigInteger(1, outputStream.toByteArray()).toString(32);
+        }
+        catch (IOException exception) {
+            exception.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    @Nullable
+    public Object getBlockStateTag(@NotNull Block block) {
+        if (!(block.getState() instanceof TileState)) return null;
+
+        CraftBlock craftBlock = (CraftBlock) block;
+        BlockEntity blockEntity = craftBlock.getHandle().getBlockEntity(craftBlock.getPosition());
+        if (blockEntity == null) return null;
+
+        return blockEntity.saveWithoutMetadata();
+    }
+
+    @Override
+    public String compressBlockState(@NotNull Block block) {
+        Object tag = this.getBlockStateTag(block);
+        if (!(tag instanceof CompoundTag compoundTag)) return null;
+
+        return this.tagToNBTString(compoundTag);
+    }
+
+    @Override
+    @Nullable
+    public Object decompressBlockState(@NotNull String nbt) {
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(new BigInteger(nbt, 32).toByteArray());
+
+        try {
+            return NbtIo.read(new DataInputStream(inputStream));
+        }
+        catch (IOException exception) {
+            exception.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public void setBlockStateFromTag(@NotNull Block block, @NotNull Object compoundTag) {
+        if (!(compoundTag instanceof CompoundTag tag)) return;
+        if (!(block.getState() instanceof TileState tileState)) return;
+
+        CraftBlock craftBlock = (CraftBlock) block;
+        BlockEntity blockEntity = craftBlock.getHandle().getBlockEntity(craftBlock.getPosition());
+        if (blockEntity == null) return;
+
+        CraftBlockEntityState<?> entityState = (CraftBlockEntityState<?>) tileState;
+
+        blockEntity.load(tag);
+        entityState.update(true, false);
     }
 
     @Override

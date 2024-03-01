@@ -1,12 +1,10 @@
 package su.nightexpress.ama.arena.spot;
 
-import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.data.BlockData;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
-import su.nexmedia.engine.utils.LocationUtil;
 import su.nightexpress.ama.AMA;
 import su.nightexpress.ama.Placeholders;
 import su.nightexpress.ama.api.arena.ArenaChild;
@@ -15,29 +13,27 @@ import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class SpotState implements ArenaChild, Placeholder {
 
-    private final Spot   spot;
-    private final String id;
-    private final PlaceholderMap placeholderMap;
-
-    private final List<String>             schemeRaw;
-    private final Map<Location, BlockData> scheme;
+    private final AMA             plugin;
+    private final Spot            spot;
+    private final String          id;
+    private final List<SpotBlock> scheme;
+    private final PlaceholderMap  placeholderMap;
 
     public SpotState(
+        @NotNull AMA plugin,
         @NotNull Spot spot,
         @NotNull String id,
         @NotNull List<String> schemeRaw
     ) {
+        this.plugin = plugin;
         this.spot = spot;
         this.id = id.toLowerCase();
-        this.scheme = new HashMap<>();
-        this.schemeRaw = new ArrayList<>();
-        this.setSchemeRaw(schemeRaw);
+        this.scheme = new ArrayList<>();
+        this.readScheme(schemeRaw);
 
         this.placeholderMap = new PlaceholderMap()
             .add(Placeholders.SPOT_STATE_ID, this::getId);
@@ -65,54 +61,38 @@ public class SpotState implements ArenaChild, Placeholder {
         return this.getSpot().getArenaConfig();
     }
 
-    public void setSchemeRaw(@NotNull List<String> schemeRaw) {
-        this.schemeRaw.clear();
-        this.scheme.clear();
+    public void createScheme(@NotNull List<Block> blocks) {
+        this.setScheme(blocks.stream().map(block -> SpotBlock.fromBlock(plugin, block)).toList());
+    }
 
-        AMA plugin = this.getSpot().plugin();
+    public void readScheme(@NotNull List<String> schemeRaw) {
+        List<SpotBlock> blocks = new ArrayList<>();
         for (String rawData : schemeRaw) {
-            String[] blockSplit = rawData.split("~");
-            if (blockSplit.length != 2) {
-                plugin.error("Invalid block '" + rawData + "' in '" + id + "' state of '" + spot.getFile().getName() + "' spot in '" + spot.getArenaConfig().getId() + "' arena!");
-                continue;
-            }
-            Location blockLoc = LocationUtil.deserialize(blockSplit[0]);
-            if (blockLoc == null) {
-                plugin.error("Invalid block location '" + rawData + "' in '" + id + "' state of '" + spot.getFile().getName() + "' spot in '" + spot.getArenaConfig().getId() + "' arena!");
-                continue;
-            }
-            if (this.spot.getCuboid().isEmpty() || !this.spot.getCuboid().get().contains(blockLoc)) {
-                plugin.error("Block is outside of the spot region: '" + rawData + "' in '" + id + "' state of '" + spot.getFile().getName() + "' spot in '" + spot.getArenaConfig().getId() + "' arena!");
+            SpotBlock spotBlock = SpotBlock.fromString(plugin, rawData);
+            if (spotBlock == null) {
+                this.plugin.error("Invalid spot block data '" + rawData + "' in '" + id + "' state of '" + spot.getFile().getName() + "' spot in '" + spot.getArenaConfig().getId() + "' arena!");
                 continue;
             }
 
-            try {
-                BlockData blockData = plugin.getServer().createBlockData(blockSplit[1]);
-                this.scheme.put(blockLoc, blockData);
-                this.schemeRaw.add(rawData);
-            }
-            catch (IllegalArgumentException exception) {
-                plugin.warn("Could not create block data from string: '" + blockSplit[1] + "'.");
-                //exception.printStackTrace();
-            }
+            blocks.add(spotBlock);
         }
+        this.setScheme(blocks);
     }
 
     @NotNull
-    public List<String> getSchemeRaw() {
-        return this.schemeRaw;
-    }
-
-    @NotNull
-    public Map<Location, BlockData> getScheme() {
+    public List<SpotBlock> getScheme() {
         return scheme;
     }
 
+    public void setScheme(@NotNull List<SpotBlock> blocks) {
+        this.scheme.clear();
+        this.scheme.addAll(blocks);
+    }
+
     public void build() {
-        this.getScheme().forEach((location, data) -> {
-            Block block = location.getBlock();
-            if (block.getBlockData().matches(data)) return;
-            block.setBlockData(data);
+        World world = this.getArenaConfig().getWorld();
+        this.getScheme().forEach(spotBlock -> {
+            spotBlock.setBlock(this.plugin, world);
         });
     }
 
@@ -120,6 +100,6 @@ public class SpotState implements ArenaChild, Placeholder {
         this.build();
 
         ArenaSpotStateChangeEvent event = new ArenaSpotStateChangeEvent(arena, this.getSpot(), this);
-        this.getSpot().plugin().getPluginManager().callEvent(event);
+        this.plugin.getPluginManager().callEvent(event);
     }
 }

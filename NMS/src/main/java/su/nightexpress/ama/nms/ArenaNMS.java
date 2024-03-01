@@ -1,6 +1,7 @@
 package su.nightexpress.ama.nms;
 
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -17,6 +18,16 @@ public interface ArenaNMS {
     void setFollowGoal(@NotNull LivingEntity bukkitMob, @NotNull Player bukkitPlayer);
 
     @Nullable EntityType getSpawnEggType(@NotNull ItemStack itemStack);
+
+    @Nullable String tagToNBTString(@NotNull Object compoudTag);
+
+    @Nullable Object getBlockStateTag(@NotNull Block block);
+
+    @Nullable String compressBlockState(@NotNull Block block);
+
+    @Nullable Object decompressBlockState(@NotNull String nbt);
+
+    void setBlockStateFromTag(@NotNull Block block, @NotNull Object compoundTag);
 
     int visualEntityAdd(@NotNull Player player, @NotNull String name, @NotNull Location loc);
 

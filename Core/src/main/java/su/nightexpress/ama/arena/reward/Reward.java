@@ -3,6 +3,7 @@ package su.nightexpress.ama.arena.reward;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.api.placeholder.PlaceholderMap;
 import su.nexmedia.engine.lang.LangManager;
@@ -15,10 +16,12 @@ import su.nightexpress.ama.api.arena.ArenaChild;
 import su.nightexpress.ama.api.arena.Inspectable;
 import su.nightexpress.ama.api.arena.Report;
 import su.nightexpress.ama.api.arena.type.ArenaTargetType;
-import su.nightexpress.ama.api.type.PlayerType;
+import su.nightexpress.ama.api.event.ArenaGameGenericEvent;
+import su.nightexpress.ama.api.event.ArenaPlayerGameEvent;
 import su.nightexpress.ama.arena.editor.reward.RewardSettingsEditor;
 import su.nightexpress.ama.arena.impl.Arena;
 import su.nightexpress.ama.arena.impl.ArenaConfig;
+import su.nightexpress.ama.arena.impl.ArenaPlayer;
 import su.nightexpress.ama.config.Lang;
 
 import java.util.ArrayList;
@@ -109,15 +112,24 @@ public class Reward implements ArenaChild, Inspectable, Placeholder {
     }
 
     // TODO Setting to ignore dead players or not
-    public void give(@NotNull Arena arena, ArenaTargetType targetType) {
+    public void give(@NotNull Arena arena, @NotNull ArenaTargetType targetType, @Nullable ArenaGameGenericEvent event) {
+        if (targetType == ArenaTargetType.EVENT_PLAYER && event instanceof ArenaPlayerGameEvent playerGameEvent) {
+            this.give(playerGameEvent.getArenaPlayer());
+            return;
+        }
+
         arena.getPlayers().select(targetType/*, PlayerType.REAL*/).forEach(arenaPlayer -> {
-            if (this.isCompletionRequired()) {
-                arenaPlayer.getRewards().add(this);
-            }
-            else this.give(arenaPlayer.getPlayer());
+            this.give(arenaPlayer);
 
             this.plugin.getMessage(Lang.ARENA_GAME_NOTIFY_REWARD).replace(this.replacePlaceholders()).send(arenaPlayer.getPlayer());
         });
+    }
+
+    public void give(@NotNull ArenaPlayer arenaPlayer) {
+        if (this.isCompletionRequired()) {
+            arenaPlayer.getRewards().add(this);
+        }
+        else this.give(arenaPlayer.getPlayer());
     }
 
     public void give(@NotNull Player player) {
